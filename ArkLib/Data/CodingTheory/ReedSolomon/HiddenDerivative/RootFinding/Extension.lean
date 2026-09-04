@@ -207,10 +207,9 @@ example :
   have htwoCoeff : (2 : FiniteField.ExtensionAbove (ZMod 2) 2 2) = 0 :=
     CharP.cast_eq_zero _ _
   have htwo :
-      (2 : (FiniteField.ExtensionAbove (ZMod 2) 2 2)[X]) = 0 :=
-    by
-      change Polynomial.C (2 : FiniteField.ExtensionAbove (ZMod 2) 2 2) = 0
-      rw [htwoCoeff, Polynomial.C_0]
+      (2 : (FiniteField.ExtensionAbove (ZMod 2) 2 2)[X]) = 0 := by
+    change Polynomial.C (2 : FiniteField.ExtensionAbove (ZMod 2) 2 2) = 0
+    rw [htwoCoeff, Polynomial.C_0]
   constructor <;>
     simp [differentialSpecialization, ← add_assoc, ← two_mul, htwo]
 
