@@ -451,7 +451,7 @@ The weighted-degree finrank theorem currently requires nonzero variable weights.
 |---|---|---|---|---|
 | L0 | Connect actual polynomials and Hasse jets to the hidden local substitution, including the normalized error divisible by `T^d`. | F1, F3 | landed (`33f1f3ac`, `592458da`) | The theorem specializes a genuine `P` and proves the exact divisibility used by local constraints. |
 | L1 | Turn the local identity into order-`m` contact at an agreement point. | L0 | queued | No characteristic restriction beyond the algebraic identity; all truncation indices are checked. |
-| I0 | Define the exact finite interpolation monomial band and its coefficient space. | F0, F3 | landed (`9b188640`, registration `2f96648f`) | Fintype and basis are explicit; zero-weight variables have finite caps; evaluator agrees with paper weights. The bridge to `C0`'s executable dimension index remains active under `0 < d < D`. |
+| I0 | Define the exact finite interpolation monomial band and its coefficient space. | F0, F3 | landed (`9b188640`, bridge `3ba5aaf7`) | Fintype and basis are explicit; zero-weight variables have finite caps; evaluator agrees with paper weights. Under the necessary boundary `0 < d < D`, the proof-facing index is equivalent to `C0`'s executable dimension index and its finrank is the exact nested count. |
 | I1 | Define differential specialization `Y_j ↦ P^[j]` and prove its degree bound. | F0, F1 | queued | Uses exact derivative weights where possible; proves strict `< mA`, including all floor and ceiling cases. |
 | I2 | Define local and global homogeneous linear constraint maps. | I0, L0 | queued | Coordinate and polynomial formulations are equivalent; constraints are executable over finite fields. |
 | I3 | Formalize the intermediate map `Γ` and exhibited kernel. | I2 | queued | The map factorization is explicit; kernel elements are independent; no claim equates the upper bound with true rank. |
@@ -466,9 +466,9 @@ The weighted-degree finrank theorem currently requires nonzero variable weights.
 
 | ID | Work package | Depends on | Initial status | Acceptance condition |
 |---|---|---|---|---|
-| V0 | Define a finite `δ/2`-mesh covering every feasible rate in `[0,1-δ]`. | S0 | active (primitives at `7715c089`) | Every feasible `k/n` has a positive bin endpoint `a` with `k/n ≤ a ≤ k/n+δ/2`; endpoints give valid `ε_a,θ_a ∈ (0,1)`. |
-| V1 | Instantiate the donor free-order theorem in every rate bin. | V0, F4 | queued | Proves `(1-θ_a)ε_a=a`, ambient containment, and threshold monotonicity with exact floors and ceilings. |
-| V2 | Take finite maxima of derivative and block-length thresholds. | V1 | queued | Produces `d(δ),N(δ)` before `n,k,q`; uniformly discharges `d<K`, `B<q`, and `mA≤q²` from `n≥N,q≥n`. |
+| V0 | Define a finite `δ/2`-mesh covering every feasible rate in `[0,1-δ]`. | S0 | landed (`12fc714d`, canaries `9c410fbb`) | Every feasible `k/n` has a positive bin endpoint `a` with `k/n ≤ a ≤ k/n+δ/2`; endpoints give valid `ε_a,θ_a ∈ (0,1)`. |
+| V1 | Instantiate the donor free-order theorem in every rate bin. | V0, F4 | active externally | Proves `(1-θ_a)ε_a=a`, ambient containment, and threshold monotonicity with exact floors and ceilings. |
+| V2 | Take finite maxima of derivative and block-length thresholds. | V1 | active; theorem-independent layer landed (`1e0634e8`, canaries `9c410fbb`) | Produces `d(δ),N(δ)` before `n,k,q`; uniformly discharges `d<K`, `B<q`, and `mA≤q²` from `n≥N,q≥n`. The donor-specific instantiation is being completed with V1. |
 | V3 | Replace the donor root axiom by `R6` and package the uniform additive-gap theorem. | V2, F2, I6, R6 | queued | Exact list theorem has the required quantifier order, arbitrary evaluation points, and no project axioms. |
 
 Route A is the preferred phase-one path. Its output may have a very poor non-explicit dependency on `δ`, but that is allowed because it preserves every qualitative strengthening.
@@ -494,11 +494,11 @@ Route B is no longer required to precede `M0` if Route A succeeds. It remains a 
 |---|---|---|---|---|
 | R0 | Define differential polynomials, solutions of bounded degree, highest active derivative, and regular jets. | S0, F1 | landed (`14c56aaa`) | Definitions support partial derivatives in `Y_j`, specialization, recursion, and characteristic bounds. |
 | R1 | Prove derivative descent to a nonzero highest-variable derivative. | R0 | landed (`14c56aaa`) | Positive individual degree `< char(F)` prevents formal differentiation from annihilating dependence. |
-| R2 | Prove unique coefficient lifting from a nonsingular initial Hasse jet. | R1 | active; top-coordinate one-step theorem landed (`71207d79`, registration `9aa107f2`) | Every recurrence coefficient is explicit; nonvanishing binomial coefficients follow from the characteristic bound. The arbitrary-highest-jet restriction bridge and iterated fixed-jet uniqueness remain. |
-| R3 | Prove singular solutions are covered recursively by derivatives of the differential polynomial. | R1 | active | Recursion terminates under a lexicographic or total individual-degree measure; all solutions enter a regular branch. |
-| R4 | Count regular witnesses and solutions over a sufficiently large field. | R2, R3 | queued | Proves the division-free inequality `(S-H) * card Roots ≤ S * Δ * S^d`; specialization degree bounds the exceptional points. |
-| R5 | Construct a finite extension large enough for witnesses. | R4 | queued | Extension degree is explicit; cardinality and characteristic facts are proved using mathlib finite-field APIs. |
-| R6 | Descend the root count to base-field solutions. | R5 | queued | Injection of base solutions is formal; first capstone obtains a proved `q^(4d+6)`-type or better bound. |
+| R2 | Prove unique coefficient lifting from a nonsingular initial Hasse jet. | R1 | active; one-step theorem (`71207d79`) and arbitrary-highest-jet prefix adapter (`f93a5dc2`) landed | Every recurrence coefficient is explicit; nonvanishing binomial coefficients follow from the characteristic bound. Iterated fixed-jet uniqueness remains. |
+| R3 | Prove singular solutions are covered recursively by derivatives of the differential polynomial. | R1 | landed (`de44a070`), independent integration audit pending | Recursion terminates under the total individual-jet-degree measure; every bounded solution reaches a leaf whose separant specialization is nonzero. Producing a scalar regular center remains R4. |
+| R4 | Count regular witnesses and solutions over a sufficiently large field. | R2, R3 | active externally | Proves the division-free inequality `(S-H) * card Roots ≤ S * Δ * S^d`; specialization degree bounds the exceptional points. |
+| R5 | Construct a finite extension large enough for witnesses. | R4 | active externally | Extension degree is explicit; cardinality and characteristic facts are proved using mathlib finite-field APIs. |
+| R6 | Descend the root count to base-field solutions. | R5 | active externally | Injection of base solutions is formal; first capstone obtains a proved `q^(4d+6)`-type or better bound. |
 | R7 | Implement and verify root enumeration. | R2, R3, R5 | queued | Enumeration is complete and sound; termination is proved; any runtime theorem uses an explicit cost model. |
 
 This lane is expected to be the main schedule risk. ArkLib's existing Hensel code is specialized to a different trivariate rational-function setting and is not a substitute. Kai Zhe Zheng's formalization states the needed cardinality and algorithmic results as axioms, so those declarations may guide interfaces but cannot discharge `R1` through `R7`.
@@ -721,9 +721,11 @@ At least one audit worktree should verify that the proof breaks when each of the
 | Axiom-free donor foundation | Landed at merge `52903c27`: six modules covering free-order parameters, a finite zero-weight-safe interpolation space, repaired rectangular dimension counting, scoped finrank bounds, and canaries. Kopparty assumptions, `FieldCost`, and algorithmic wrappers were excluded. |
 | Hidden substitutions and local identity | Landed at `33f1f3ac` and completed at `592458da`: local variables, factored and normalized substitutions, weighted bounds with explicit `d < D`, the genuine-polynomial Hasse identity, canonical reduced error, characteristic-two canaries, and an algebra-hom identity with the root solver's canonical specialization after affine Taylor translation. |
 | Differential root foundation | Landed at `14c56aaa`: bounded differential solutions, scalar and polynomial jets, active/highest jets, separants, regularity, exact root-specialization weights, characteristic contracts, and nonannihilating highest-variable derivative descent. `ZMod 2` versus `ZMod 3` canaries check the strict characteristic boundary. |
-| Regular one-step lifting | Landed at merge `71207d79` with generated imports at `9aa107f2`: the exact logical existence-and-uniqueness clause of Kopparty's Theorem 4.4, generic first-order multivariate Taylor and Hasse-lifting support, and sharp `ZMod 2`/`ZMod 5` canaries. An independent audit found no mathematical blocker. The theorem currently uses the literal top jet and does not yet prove iterated fixed-jet uniqueness. |
+| Regular one-step lifting | Landed at merge `71207d79` with generated imports at `9aa107f2`: the exact logical existence-and-uniqueness clause of Kopparty's Theorem 4.4, generic first-order multivariate Taylor and Hasse-lifting support, and sharp `ZMod 2`/`ZMod 5` canaries. The prefix adapter at `f93a5dc2` now applies the theorem at an arbitrary highest active jet; its ambient-depth-two canary pivots at `Y₁` while `Y₂` is unused. Independent audit found no mathematical blocker. Iterated fixed-jet uniqueness remains. |
 | Exact finite counting | Landed at `7935aaa5` with generated imports at `2d8216d9`: executable higher-jet simplex and shell counts, the exact staircase dimension sum, exact contact budgets, and a strict finite interpolation certificate. The certified enlarged-map rank budget is explicitly not claimed to equal the actual local rank. |
-| Exact interpolation index | Landed at `9b188640` with generated imports at `2f96648f`: finite coarse and exact derivative-weighted monomial indices, canonical basis and coefficient projections, strict floor bounds, and a proved coarse-to-exact inclusion. The proof-facing index intentionally uses noncomputable `Set.Finite.toFinset`; executable enumeration remains a separate `D0` obligation. |
+| Exact interpolation index | Landed at `9b188640` with generated imports at `2f96648f`: finite coarse and exact derivative-weighted monomial indices, canonical basis and coefficient projections, strict floor bounds, and a proved coarse-to-exact inclusion. The bridge at `3ba5aaf7` proves equivalence with the executable exact dimension index and exact finrank equality under `0 < d < D`; its `d = 0` canary exposes the otherwise phantom `Y₁` coordinate. The proof-facing index intentionally uses noncomputable `Set.Finite.toFinset`; executable enumeration remains a separate `D0` obligation. |
+| Finite all-rate cover and uniform thresholds | Landed at `12fc714d`, `1e0634e8`, and canary hardening `9c410fbb`: the exact truncated `δ/2` mesh handles zero and top feasible rates, the rounded agreement threshold is monotone in the required direction, and finite-family/two-stage maxima establish the theorem-independent quantifier order. Donor-specific V1/V2 instantiation remains active. |
+| Singular recursion | Landed at `de44a070`: below-characteristic separants remain nonzero, preserve the characteristic contract, and strictly decrease total individual jet degree; every bounded solution of a nonzero equation reaches a leaf with nonzero separant specialization. This is a coverage/termination theorem, not an enumerator, and R4 must still produce and count scalar regular centers. |
 
 ## 13. Decisions already made
 
@@ -754,31 +756,30 @@ Until those choices are made, contributors should prioritize the axiom-clean all
 The following nodes are already owned as of the latest update. Coordinate with the integration owner
 before duplicating them:
 
-- `R2`: the regular top-coordinate one-step theorem is integrated; the active remainder is the
-  arbitrary-highest-jet restriction bridge and iterated fixed-jet uniqueness.
-- `R3`: an active agent owns the singular/separant recursion and its well-founded measure.
-- `I0`/`C0` bridge: an active agent is connecting the proof-facing exact interpolation index to
-  the executable dimension count under the necessary boundary `0 < d < D`.
-- `V0` plus theorem-independent `V2`: an external sprint owns the exact rate cover and uniform
-  finite-threshold machinery.
+- `R2`: the regular one-step theorem and arbitrary-highest-jet prefix adapter are integrated; the
+  active remainder is iterated fixed-jet uniqueness.
+- `R3`: the singular/separant recursion and its well-founded measure are integrated; an independent
+  integration audit is in flight.
+- `I0`/`C0` bridge: integrated under the necessary boundary `0 < d < D`, with exact cardinality and
+  finrank equalities.
+- `V0` plus theorem-independent `V2`: integrated. An external sprint owns V1 and the
+  donor-specific/concrete remainder of V2.
+- `R4-R6` support: an external sprint has produced finite-field counting, extension, and descent
+  infrastructure; integration waits for its final frozen-head audit.
 
 The best independent assignments for additional contributors are, in priority order:
 
-1. `V0` plus the theorem-independent part of `V2`: finish the exact finite rate cover, ceiling
-   monotonicity, finite maxima, and uniform side-condition arithmetic. Leave the donor-theorem and
-   root-solver premises as explicit inputs rather than axioms.
-2. `U0`: formalize ambient padding and its rate-uniform inequalities independently of interpolation.
+1. `U0`: formalize ambient padding and its rate-uniform inequalities independently of interpolation.
    Keep every floor, ceiling, positivity, and `D > d` side condition explicit.
-3. `R4-R6` support: develop the generic finite-field counting, sufficiently-large extension, and
-   base-solution injection lemmas needed for the division-free root-count inequality. Keep these
-   files independent of the still-moving `R0-R3` interface where possible.
-4. `I3-I4` support: port or independently prove the donor's scaled-shell and contact-envelope
+2. `R2` iteration: derive fixed-initial-jet uniqueness by iterating the verified one-step lift,
+   tracking truncation, degree, and characteristic bounds at every coefficient.
+3. `I3-I4` support: port or independently prove the donor's scaled-shell and contact-envelope
    kernel lemmas in new files, coordinating exact count names with the `C0` owner. State only the
    exhibited-kernel rank upper bound, never equality with the true local rank.
-5. `O0-O1` audit support: independently develop the continuous and discrete sharp-constant
+4. `O0-O1` audit support: independently develop the continuous and discrete sharp-constant
    certificates in non-overlapping helper files. These are separate audit routes and should not
    share unproved numerical lemmas; final composition still waits for `C0`, `I4`, and `U0`.
-6. `N0` or `N2`: formalize the exact-capacity bad ball or the bounded-characteristic obstruction.
+5. `N0` or `N2`: formalize the exact-capacity bad ball or the bounded-characteristic obstruction.
    These are useful independent checks, but they do not replace a critical-path node.
 
 An autoformalization agent should be given this entire document and the following operating
