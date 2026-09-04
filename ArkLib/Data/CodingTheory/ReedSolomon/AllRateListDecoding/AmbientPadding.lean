@@ -19,10 +19,10 @@ padding
 `K = k + floor ((delta / 2) * n)`.
 
 The manuscript's ambient degree is `D = K - 1`.  Once the two explicit rounding margins
-`4 ≤ delta * n` and `2 * (d + 2) ≤ delta * n` hold, we have `d < D < K`; moreover, `K` lies below
-both the block length and the requested agreement threshold.  Its rate is uniformly bounded below
-by `delta / 4`.  More importantly for the downstream power-saving argument, the requested
-agreement divided by `K` is uniformly at least `1 / (1 - delta / 2) > 1`.
+`4 ≤ delta * n` and `2 * (d + 2) ≤ delta * n` hold, we have `d < D < K`; moreover, `K`
+lies below both the block length and the requested agreement threshold.  Its rate is uniformly
+bounded below by `delta / 4`.  More importantly for the downstream power-saving argument, the
+requested agreement divided by `K` is uniformly at least `1 / (1 - delta / 2) > 1`.
 -/
 
 namespace ReedSolomon
@@ -219,7 +219,8 @@ lemma one_lt_agreementThreshold_div_midpointAmbientDimension {delta : ℝ}
       agreementThreshold delta blockLength messageDim)
 
 /-- All geometric side conditions supplied by midpoint ambient padding. -/
-structure MidpointAmbientGeometry (delta : ℝ) (blockLength messageDim derivOrder : ℕ) : Prop where
+structure MidpointAmbientGeometry (delta : ℝ)
+    (blockLength messageDim derivOrder : ℕ) : Prop where
   /-- The derivative order is below the manuscript's ambient degree `D = K - 1`. -/
   derivOrder_lt_degree : derivOrder < midpointAmbientDegree delta blockLength messageDim
   /-- The derivative order is below the ambient dimension. -/
@@ -244,7 +245,7 @@ structure MidpointAmbientGeometry (delta : ℝ) (blockLength messageDim derivOrd
 
 /-- Midpoint padding works uniformly over every feasible code rate.
 
-The hypotheses involving `4` and `2 * (derivOrder + 1)` are the explicit finite-size costs of
+The hypotheses involving `4` and `2 * (derivOrder + 2)` are the explicit finite-size costs of
 rounding down the padding and placing the derivative order below it. -/
 theorem midpointAmbientGeometry {delta : ℝ} {blockLength messageDim derivOrder : ℕ}
     (hdelta : 0 < delta) (hdeltaOne : delta < 1) (hBlockLength : 0 < blockLength)

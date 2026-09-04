@@ -62,6 +62,17 @@ lemma midpoint_geometry_endpoint_canary :
       MidpointAmbientGeometry (1 / 4 : ℝ) 32 24 1 := by
   constructor <;> apply midpointAmbientGeometry <;> norm_num
 
+/-- The weaker `d + 1` threshold only gives `d < K`, not the manuscript's required `d < D` for
+`D = K - 1`.  The extra padding unit in the `d + 2` threshold is therefore necessary. -/
+lemma ambient_degree_boundary_canary :
+    midpointAmbientDimension (1 / 2 : ℝ) 8 0 = 2 ∧
+      midpointAmbientDegree (1 / 2 : ℝ) 8 0 = 1 ∧
+      1 < midpointAmbientDimension (1 / 2 : ℝ) 8 0 ∧
+      ¬1 < midpointAmbientDegree (1 / 2 : ℝ) 8 0 ∧
+      (2 : ℝ) * (1 + 1) ≤ (1 / 2 : ℝ) * 8 ∧
+      ¬(2 : ℝ) * (1 + 2) ≤ (1 / 2 : ℝ) * 8 := by
+  norm_num [midpointAmbientDimension, midpointAmbientDegree, midpointPadding]
+
 /-- For a one-symbol block the midpoint floor can vanish, so a large-block rounding hypothesis
 is genuinely necessary for any positive lower bound uniform in the message rate. -/
 lemma tiny_block_padding_vanishes_canary :
