@@ -4,15 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularIteration
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ExecutableRegularIteration
 import CompPoly.Univariate.ToPoly.Degree
 
 /-!
-# Executable initial prefixes for regular differential lifting
+# Executable primitives for regular differential lifting
 
 An initial Hasse jet is stored as an explicit array of centered coefficients. Conversion to
 Mathlib polynomials is used only to state its semantics. The executable constructor requires
 effective equality on field elements and does not choose a polynomial from an existence proof.
+
+The imported iteration kernel scans only next coefficients and performs a final residual and degree
+filter. Completeness for bounded solutions and regular per-stage uniqueness remain unproved in this
+executable layer; the declarative results in `RegularIteration` do not by themselves supply them.
 -/
 
 namespace ReedSolomon.HiddenDerivative

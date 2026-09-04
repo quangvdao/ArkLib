@@ -25,7 +25,7 @@ namespace ReedSolomon.HiddenDerivative
 
 open Polynomial
 
-variable {F : Type*} [Field F] [Fintype F] [DecidableEq F]
+variable {F : Type*} [Field F] [DecidableEq F]
 
 /-! ### Concrete representations -/
 
@@ -102,7 +102,7 @@ def effectiveResidualCoeff {r : ℕ} (Q : CPoly.CMvPolynomial (r + 2) F) (center
   (effectiveResidual Q center (effectiveRegularCandidate k r P gamma)).coeff k
 
 /-- Enumerate the base-field coefficients that make the next residual coefficient vanish. -/
-def effectiveRegularCoefficients {r : ℕ} (Q : CPoly.CMvPolynomial (r + 2) F) (center : F)
+def effectiveRegularCoefficients [Fintype F] {r : ℕ} (Q : CPoly.CMvPolynomial (r + 2) F) (center : F)
     (P : CompPoly.CPolynomial F) (k : ℕ) : Finset F :=
   Finset.univ.filter fun gamma => effectiveResidualCoeff Q center P k gamma = 0
 
@@ -207,7 +207,7 @@ theorem effectiveResidual_toPoly {r : ℕ} (Q : CPoly.CMvPolynomial (r + 2) F)
       · rfl
 
 @[simp]
-theorem mem_effectiveRegularCoefficients {r : ℕ}
+theorem mem_effectiveRegularCoefficients [Fintype F] {r : ℕ}
     (Q : CPoly.CMvPolynomial (r + 2) F) (center : F)
     (P : CompPoly.CPolynomial F) (k : ℕ) (gamma : F) :
     gamma ∈ effectiveRegularCoefficients Q center P k ↔

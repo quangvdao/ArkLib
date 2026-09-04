@@ -87,4 +87,11 @@ private def locallyForcedQuadratic : CPolynomial (ZMod 5) :=
 example : (2 : ZMod 5) * 3 - 1 = 0 ∧ -(3 : ZMod 5) = 2 := by
   decide
 
+/-! The complete filter must retain the true solution and reject the locally valid false one.
+The scan counts one field enumeration here, and none when the degree bound requests no stage. -/
+#guard effectiveRegularSolutions derivativeMinusX 0 constantOnePrefix 2 == {forcedQuadratic}
+#guard effectiveRegularSolutions derivativeMinusValue 0 linearOnePrefix 2 == ∅
+#guard effectiveRegularTestCount derivativeMinusX 0 constantOnePrefix 2 == 5
+#guard effectiveRegularTestCount derivativeMinusX 0 constantOnePrefix 1 == 0
+
 end ReedSolomon.HiddenDerivative
