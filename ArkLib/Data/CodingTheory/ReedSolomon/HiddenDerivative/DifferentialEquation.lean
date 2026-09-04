@@ -148,10 +148,9 @@ def DependsOnJet [CommSemiring F] (Q : DifferentialPolynomial F d) (j : Fin (d +
   0 < jetDegree Q j
 
 /-- The finite set of formal Hasse variables on which `Q` depends. -/
-def activeJets [CommSemiring F] (Q : DifferentialPolynomial F d) : Finset (Fin (d + 1)) :=
-  by
-    classical
-    exact Finset.univ.filter (DependsOnJet Q)
+def activeJets [CommSemiring F] (Q : DifferentialPolynomial F d) : Finset (Fin (d + 1)) := by
+  classical
+  exact Finset.univ.filter (DependsOnJet Q)
 
 @[simp]
 theorem mem_activeJets [CommSemiring F] {Q : DifferentialPolynomial F d} {j : Fin (d + 1)} :
@@ -160,10 +159,9 @@ theorem mem_activeJets [CommSemiring F] {Q : DifferentialPolynomial F d} {j : Fi
 
 /-- The greatest active Hasse variable, or `none` when `Q` is independent of every `Y_j`. -/
 def highestActiveJet [CommSemiring F] (Q : DifferentialPolynomial F d) :
-    Option (Fin (d + 1)) :=
-  by
-    classical
-    exact if h : (activeJets Q).Nonempty then some ((activeJets Q).max' h) else none
+    Option (Fin (d + 1)) := by
+  classical
+  exact if h : (activeJets Q).Nonempty then some ((activeJets Q).max' h) else none
 
 /-- Predicate form of being the greatest active Hasse variable. This proof-facing form avoids
 transport through the proof argument of `Finset.max'`. -/
