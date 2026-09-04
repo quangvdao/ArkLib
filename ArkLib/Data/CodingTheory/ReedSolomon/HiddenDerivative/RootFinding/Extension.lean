@@ -161,18 +161,29 @@ private theorem natCard_boundedSolution_zero [Field F] [Finite F] (d D : ℕ) :
       Nat.card_congr (Polynomial.degreeLTEquiv F (D + 1)).toEquiv
     _ = Nat.card F ^ (D + 1) := by rw [Nat.card_fun, Nat.card_fin]
 
-/-- A nonconstant specialization over `ZMod 2` maps naturally to a characteristic-two extension.
-This exercises the `X` and Hasse-jet branches simultaneously. -/
+/-- For `Q = X + Y₀` and `P = X + 1` in characteristic two, both sides of specialization
+naturality compute independently to `1`. This detects swapping the distinguished `X` and Hasse-jet
+substitutions. -/
 example :
     let E₂ := FiniteField.ExtensionAbove (ZMod 2) 2 2
     let f := algebraMap (ZMod 2) E₂
     let Q : DifferentialPolynomial (ZMod 2) 0 :=
       MvPolynomial.X none + MvPolynomial.X (some (0 : Fin 1))
     let P : (ZMod 2)[X] := Polynomial.X + 1
-    (differentialSpecialization Q P).map f =
-      differentialSpecialization (MvPolynomial.map f Q) (P.map f) := by
+    (differentialSpecialization Q P).map f = 1 ∧
+      differentialSpecialization (MvPolynomial.map f Q) (P.map f) = 1 := by
   dsimp only
-  exact map_differentialSpecialization _ _ _
+  let _ : CharP (FiniteField.ExtensionAbove (ZMod 2) 2 2) 2 :=
+    FiniteField.charP_extensionAbove (ZMod 2) 2 2
+  have htwoCoeff : (2 : FiniteField.ExtensionAbove (ZMod 2) 2 2) = 0 :=
+    CharP.cast_eq_zero _ _
+  have htwo :
+      (2 : (FiniteField.ExtensionAbove (ZMod 2) 2 2)[X]) = 0 :=
+    by
+      change Polynomial.C (2 : FiniteField.ExtensionAbove (ZMod 2) 2 2) = 0
+      rw [htwoCoeff, Polynomial.C_0]
+  constructor <;>
+    simp [differentialSpecialization, ← add_assoc, ← two_mul, htwo]
 
 /-- The cardinality comparison cannot be reversed: the zero equation of degree zero has strictly
 more constant solutions after passing from the two-element field to the chosen four-element
