@@ -987,9 +987,9 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
-| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Compose actual jet and sparse-evaluation steps into scalar residual sampling | `HiddenDerivative/RootFinding/ResidualSampleMachine.lean` |
-| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Explicit quadratic coordinate-pair enumeration and setup refinement | `ArkLib/Data/QuadraticAlgebra/EnumerationMachine.lean` |
-| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Charged pivot selection and augmented-row permutation | `ArkLib/Data/Matrix/PivotSelectionMachine.lean` and minimal canaries |
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Closed coefficient-list updates for direct lifting | `ArkLib/Data/Polynomial/CoefficientUpdateMachine.lean` and minimal canaries |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Lower quadratic arithmetic to actual base-field instruction traces | `ArkLib/Data/QuadraticAlgebra/ArithmeticMachine.lean` |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Charged augmented-column packing, elimination, and unpacking | `ArkLib/Data/Matrix/AugmentedColumnMachine.lean` and minimal canaries |
 | Central | Interpolation/residual representation interfaces, integration, audits and push | Sampling refinements, generated umbrella and integration fixes |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
@@ -1195,6 +1195,33 @@ wide dependency graph. Ask the central owner before editing a claimed interface.
   axioms/native trust, and adds 18 kernel-checked examples. These are abstract-machine costs,
   not compiled Lean instruction counts; composition must retain all subroutine charges and
   reconcile their explicitly documented primitive conventions.
+
+### Residual composition, quadratic enumeration, and pivot-selection checkpoint
+
+- `ResidualSampleMachine` composes individual jet and sparse-evaluation transitions, not whole-run
+  callbacks. It retains all callee charges and pays wrapper dispatch, state access, translation,
+  list construction, and final return. `ResidualSampleRefinement` identifies the actual returned
+  value with `effectiveResidual`, deriving arity from the concrete finite-variable representation.
+  Its coefficient and zero-test adapters consume actual sampled runs, while retaining explicit
+  degree, distinctness, and mathematical linear-solve premises.
+- `QuadraticAlgebra.EnumerationMachine` explicitly constructs, reverses, and emits all coordinate
+  pairs. Coverage and uniqueness hold for positive moduli; zero emits an empty list. Fuel is
+  `5q²+3q+3`, and the declared primitive bound is `60q²+36q+36`. Nonsquare search and pair
+  enumeration are linked without pretending that extension arithmetic or bulk decoding is free.
+- `PivotSelectionMachine` either moves the first nonzero pivot to the head or certifies that
+  every selected entry is zero. It preserves complete augmented rows and hence all nonhomogeneous
+  solutions. Its bound for `s` materialized rows and column `j` is `s(7j+26)+9`. It is not an
+  echelon solver and does not validate an unscanned tail.
+- `LocalSamplingDegree` proves full untruncated local degree budgets: error and visible-jet
+  degrees are at most `2m` in the optimized band, independently of the displacement degree.
+  `GridSampling` proves injectivity of the explicit monomial sampling matrix under an anisotropic
+  grid budget. This supports a scalar-sampling route to interpolation coefficients, but suitable
+  finite-grid construction, matrix preparation, and its charged solver are still to be implemented.
+- Independent cross-audits were clean. Central validation passed all build, style, import,
+  documentation, runtime, and axiom gates with 570 umbrella imports. Ten principal endpoints
+  use only baseline logical axioms; 14 new kernel-checked examples accompany this batch, with
+  no new source admissions, explicit axioms, or native trust. The first full run caught unnecessary
+  decidable-equality hypotheses in three grid lemmas; those were removed before the successful rerun.
 
 ### Next critical-path work
 

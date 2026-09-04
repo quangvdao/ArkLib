@@ -232,6 +232,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalContactCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalIdentity
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalIntermediateSpace
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalRank
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalSamplingDegree
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.BandEndpointComparison
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.BandMassBound
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.BandParameterBounds
@@ -266,6 +267,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Regular
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularLifting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularLiftingCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularWitnessCounting
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSampleCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSampleMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSampleRefinement
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RootCount
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RootCountCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SampledResidual
@@ -349,6 +353,8 @@ import ArkLib.Data.Matrix.ColumnEliminationMachine
 import ArkLib.Data.Matrix.ColumnEliminationMachineCanary
 import ArkLib.Data.Matrix.PivotEliminationMachine
 import ArkLib.Data.Matrix.PivotEliminationMachineCanary
+import ArkLib.Data.Matrix.PivotSelectionMachine
+import ArkLib.Data.Matrix.PivotSelectionMachineCanary
 import ArkLib.Data.Matrix.RowReductionMachine
 import ArkLib.Data.Matrix.RowReductionMachineCanary
 import ArkLib.Data.Matrix.Sparse
@@ -358,6 +364,7 @@ import ArkLib.Data.MvPolynomial.Degrees
 import ArkLib.Data.MvPolynomial.EvaluationMachine
 import ArkLib.Data.MvPolynomial.EvaluationMachineCanary
 import ArkLib.Data.MvPolynomial.EvenAndOdd
+import ArkLib.Data.MvPolynomial.GridSampling
 import ArkLib.Data.MvPolynomial.Interpolation
 import ArkLib.Data.MvPolynomial.LinearMvExtension
 import ArkLib.Data.MvPolynomial.Multilinear
@@ -393,6 +400,7 @@ import ArkLib.Data.Probability.Combinatorial
 import ArkLib.Data.Probability.Instances
 import ArkLib.Data.Probability.KoalaBear
 import ArkLib.Data.Probability.Notation
+import ArkLib.Data.QuadraticAlgebra.EnumerationMachine
 import ArkLib.Data.QuadraticAlgebra.FiniteWitness
 import ArkLib.Data.ZMod.EnumerationMachine
 import ArkLib.Data.ZMod.NonsquareSearchMachine
