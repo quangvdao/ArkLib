@@ -23,8 +23,29 @@ noncomputable section
 variable (k : Type*) [Field k] [Finite k]
 variable (p : ℕ) [Fact p.Prime] [CharP k p]
 
+/-! ### Fixed-degree extensions -/
+
+/-- A fixed positive extension degree gives an extension of exact cardinality `|k| ^ degree`.
+The explicit largeness hypothesis is retained so quantitative callers can choose `degree`
+independently of the bound they ultimately prove. -/
+theorem extension_spec_of_lt_pow (degree bound : ℕ) [NeZero degree]
+    (hlarge : bound < Nat.card k ^ degree) :
+    0 < degree ∧
+      Nat.card (Extension k p degree) = Nat.card k ^ degree ∧
+      bound < Nat.card (Extension k p degree) ∧
+      ringChar (Extension k p degree) = ringChar k := by
+  refine ⟨NeZero.pos degree, natCard_extension k p degree, ?_, ?_⟩
+  · rwa [natCard_extension]
+  · exact (Algebra.ringChar_eq k (Extension k p degree)).symm
+
+/-! ### A coarse bound-dependent choice -/
+
 /-- A positive extension degree for which the resulting finite field has cardinality strictly
-larger than `bound`. -/
+larger than `bound`.
+
+This is an existence-oriented choice. Its degree depends on `bound`, so it must not be used by
+itself to claim a fixed-power quantitative estimate such as `|k| ^ (4 * d + 6)`. Such estimates
+should instead choose a fixed `degree` and invoke `extension_spec_of_lt_pow`. -/
 def extensionDegreeAbove (bound : ℕ) : ℕ :=
   (Nat.log (Nat.card k) bound).succ
 
@@ -61,14 +82,21 @@ theorem charP_extensionAbove (bound : ℕ) : CharP (ExtensionAbove k p bound) p 
 
 /-! ### Boundary canaries -/
 
-/-- The strict size guarantee remains meaningful when the requested bound is zero. -/
-example : 0 < Nat.card (ExtensionAbove (ZMod 2) 2 0) := by
-  exact lt_natCard_extensionAbove (ZMod 2) 2 0
+/-- The successor in `extensionDegreeAbove` is essential even at the zero bound. -/
+example : extensionDegreeAbove (ZMod 2) 0 = 1 := by
+  simp [extensionDegreeAbove, Nat.log_zero_right]
 
-/-- Enlarging a field never changes characteristic: a large characteristic-two extension still
-has characteristic two. -/
-example : CharP (ExtensionAbove (ZMod 2) 2 8) 2 := by
-  exact charP_extensionAbove (ZMod 2) 2 8
+/-- The first extension strictly larger than `2` over `ZMod 2` has degree two and four elements. -/
+example : Nat.card (ExtensionAbove (ZMod 2) 2 2) = 4 := by
+  have hlog : Nat.log 2 2 = 1 := Nat.log_eq_of_pow_le_of_lt_pow (by decide) (by decide)
+  rw [natCard_extensionAbove, Nat.card_zmod]
+  simp [extensionDegreeAbove, hlog]
+
+/-- Enlarging a field never improves characteristic: this four-element extension still has
+characteristic two. -/
+example : ringChar (ExtensionAbove (ZMod 2) 2 2) = 2 := by
+  rw [← Algebra.ringChar_eq (ZMod 2) (ExtensionAbove (ZMod 2) 2 2)]
+  exact ZMod.ringChar_zmod_n 2
 
 end
 
