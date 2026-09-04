@@ -987,8 +987,8 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
-| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Closed coefficient-list updates for direct lifting | `ArkLib/Data/Polynomial/CoefficientUpdateMachine.lean` and minimal canaries |
-| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Arithmetic handoff complete; independent read-only pivot-selection audit | No new file claim during audit |
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Batch actual scalar residual samples into materialized point/value pairs | `HiddenDerivative/RootFinding/ResidualBatchMachine.lean` and minimal canaries |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Construct augmented Vandermonde rows with charged power/list loops | `ArkLib/Data/Matrix/VandermondeMachine.lean` and minimal canaries |
 | C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Charged augmented-column packing, elimination, and unpacking | `ArkLib/Data/Matrix/AugmentedColumnMachine.lean` and minimal canaries |
 | Central | Interpolation/residual representation interfaces, integration, audits and push | Sampling refinements, generated umbrella and integration fixes |
 
@@ -1237,12 +1237,30 @@ Central source review found no correctness issue. Full `validate.sh --axioms` pa
 571 umbrella imports; seven principal endpoints use only baseline logical axioms. Source
 admissions remain 183, with no new explicit axioms or native trust. Four committed canaries
 and two additional central scratch checks exercise coordinate signs and the final-output cost.
-Worker A has a queued independent review after finishing its coefficient-update assignment.
+Worker A independently reviewed all five programs, register updates, equality flags, and inverse
+premises without a correctness finding. Its supplementary probes cover asymmetric multiplication,
+both equality directions, and an independently certified nonzero inverse.
 
 The registers describe a fixed abstract register bank, not the compiled cost of Lean's
 function-update representation. Similarly, these finite arithmetic programs do not yet prove
 a whole-decoder lowering: each extension-field operation in the enclosing machines must
 be replaced by its corresponding program with a proved simulation and accumulated cost.
+
+### Coefficient-update checkpoint
+
+`Polynomial.CoefficientUpdateMachine` performs a genuine indexed update of a materialized
+descending coefficient list. In-range execution preserves its physical length and represents
+the original polynomial plus `gamma * X^(N-1-j)`, including leading zeros and `gamma=0`.
+It performs one scalar addition and explicitly restores the traversed prefix while sharing the
+untouched suffix. Every out-of-range index rejects after scanning the available input, without
+returning a truncated polynomial. Success and failure both have separately charged emissions
+and cost at most `27(N+1)` in the declared primitive model.
+
+Central and independent Worker B source reviews found no correctness issue. Full central
+`validate.sh --axioms` passed with 573 imports; five principal endpoints have only baseline
+logical axioms. Five kernel examples cover prefix/suffix ordering, emission, leading zeros,
+and rejection. Source admissions remain 183; no explicit axioms or native trust were added.
+Initial coefficient-list preparation and the lifting-index calculation remain separate obligations.
 
 ### Next critical-path work
 

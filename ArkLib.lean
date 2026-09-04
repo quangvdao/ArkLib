@@ -375,6 +375,8 @@ import ArkLib.Data.MvPolynomial.SchwartzZippelCounting
 import ArkLib.Data.MvPolynomial.WeightedDegree
 import ArkLib.Data.Polynomial.Bivariate
 import ArkLib.Data.Polynomial.ClassicalWronskian
+import ArkLib.Data.Polynomial.CoefficientUpdateMachine
+import ArkLib.Data.Polynomial.CoefficientUpdateMachineCanary
 import ArkLib.Data.Polynomial.FoldedWronskian
 import ArkLib.Data.Polynomial.FoldingPolynomial
 import ArkLib.Data.Polynomial.HornerMachine
