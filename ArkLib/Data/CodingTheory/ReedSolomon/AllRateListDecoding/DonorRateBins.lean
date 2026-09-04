@@ -374,8 +374,8 @@ theorem exists_uniform_covered_bin_certificates {delta : ℝ}
 
 /-! ### Rounding and bin-separation canaries -/
 
-/-- For gap `1/2` and order two, all four components of the explicit uniform block threshold are
-visible: the degree-budget component is the maximum and yields `65`. -/
+/-- For gap `1/2` and order two, the strict degree-budget component is the active maximum; its
+final `+ 1` makes the explicit uniform block threshold exactly `65`. -/
 example : binBlockLengthThreshold (1 / 2 : ℝ) 2 = 65 := by
   norm_num [binBlockLengthThreshold, HiddenDerivative.multiplicity, endpoint, halfGap,
     Nat.ceil_eq_iff]
@@ -399,6 +399,26 @@ example :
   norm_num [binCount, binAgreement, binSlack, localAgreement, localSlack, endpoint, halfGap,
     ambientDimension, agreementThreshold, interpolationDegreeBudget,
     HiddenDerivative.multiplicity, h33, h49, Nat.ceil_eq_iff]
+
+/-- The consumer theorem uses the same selected `d` and `N` at both extremes of the feasible rate
+interval.  This rejects a regression that silently moves the order choice behind the rate. -/
+example :
+    ∃ d N : ℕ, 2 ≤ d ∧
+      (∃ i₀ : Fin (binCount (1 / 2 : ℝ)),
+        CoveredBinCertificate (1 / 2 : ℝ) d (2 * (N + 1)) (2 * (N + 1)) 0 i₀) ∧
+      (∃ i₁ : Fin (binCount (1 / 2 : ℝ)),
+        CoveredBinCertificate (1 / 2 : ℝ) d (2 * (N + 1)) (2 * (N + 1)) (N + 1) i₁) := by
+  obtain ⟨d, N, hd, hUniform⟩ :=
+    exists_uniform_covered_bin_certificates (by norm_num) (by norm_num : (1 / 2 : ℝ) < 1)
+  have hThreshold : N ≤ 2 * (N + 1) := by omega
+  obtain ⟨i₀, hi₀⟩ := hUniform (2 * (N + 1)) (2 * (N + 1)) 0
+    hThreshold le_rfl (by norm_num)
+  obtain ⟨i₁, hi₁⟩ := hUniform (2 * (N + 1)) (2 * (N + 1)) (N + 1)
+    hThreshold le_rfl (by
+      norm_num only [Nat.cast_mul, Nat.cast_add, Nat.cast_one]
+      rw [div_le_iff₀ (by positivity : (0 : ℝ) < 2 * ((N : ℝ) + 1))]
+      nlinarith)
+  exact ⟨d, N, hd, ⟨i₀, hi₀⟩, ⟨i₁, hi₁⟩⟩
 
 end
 end DonorRateBins
