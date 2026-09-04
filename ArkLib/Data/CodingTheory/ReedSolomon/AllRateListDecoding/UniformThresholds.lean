@@ -218,10 +218,26 @@ theorem representative_conditions_of_eventual_uniform
   exact ⟨hDerivative, hBlockCount.trans_le hFieldSize,
     hBudget.trans (Nat.pow_le_pow_left hFieldSize 2)⟩
 
-/-- Canary for fold direction and the empty-family default: the maximum of `[2, 9, 4]` is `9`. -/
+/-- Canary for fold direction: the maximum of `[2, 9, 4]` is `9`. -/
 example :
     familyMaximum (fun i : Fin 3 => if i = 0 then 2 else if i = 1 then 9 else 4) = 9 := by
   decide
+
+/-- The empty-family maximum uses the documented default `0`. -/
+example : familyMaximum (fun i : Fin 0 => i.val) = 0 := by
+  decide
+
+/-- Canary for the two-stage quantifier order: every local threshold is evaluated only after the
+shared derivative order has been selected. -/
+example :
+    ∃ derivOrder : ℕ, 2 ≤ derivOrder ∧
+      (∀ i : Fin 2, (if i = 0 then 1 else 3) ≤ derivOrder) ∧
+      ∃ blockLengthThreshold : ℕ,
+        ∀ i : Fin 2, (if i = 0 then derivOrder + 1 else 2 * derivOrder) ≤
+          blockLengthThreshold := by
+  exact exists_two_stage_uniform_thresholds
+    (fun i : Fin 2 => if i = 0 then 1 else 3)
+    (fun i derivOrder => if i = 0 then derivOrder + 1 else 2 * derivOrder)
 
 /-- Canary for the consumer-shaped theorem at the boundary `N = n = q = 2`.  The strict block
 count conclusion and the non-strict quadratic conclusion must both survive the lift to `q`. -/
