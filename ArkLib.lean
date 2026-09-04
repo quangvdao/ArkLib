@@ -348,6 +348,8 @@ import ArkLib.Data.Lattices.CyclotomicRing.Subfield.TraceInnerProduct
 import ArkLib.Data.Lattices.CyclotomicRing.Subfield.TraceVanishing
 import ArkLib.Data.Lattices.ModuleSIS
 import ArkLib.Data.Lattices.Vectors
+import ArkLib.Data.Matrix.AugmentedColumnMachine
+import ArkLib.Data.Matrix.AugmentedColumnMachineCanary
 import ArkLib.Data.Matrix.Basic
 import ArkLib.Data.Matrix.ColumnEliminationMachine
 import ArkLib.Data.Matrix.ColumnEliminationMachineCanary

@@ -989,7 +989,7 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 |---|---|---|
 | A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Batch actual scalar residual samples into materialized point/value pairs | `HiddenDerivative/RootFinding/ResidualBatchMachine.lean` and minimal canaries |
 | B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Construct augmented Vandermonde rows with charged power/list loops | `ArkLib/Data/Matrix/VandermondeMachine.lean` and minimal canaries |
-| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Charged augmented-column packing, elimination, and unpacking | `ArkLib/Data/Matrix/AugmentedColumnMachine.lean` and minimal canaries |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Compose selection and elimination into full forward-echelon execution | `ArkLib/Data/Matrix/ForwardEchelonMachine.lean` and bounded helpers/canaries |
 | Central | Interpolation/residual representation interfaces, integration, audits and push | Sampling refinements, generated umbrella and integration fixes |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
@@ -1262,6 +1262,29 @@ logical axioms. Five kernel examples cover prefix/suffix ordering, emission, lea
 and rejection. Source admissions remain 183; no explicit axioms or native trust were added.
 Initial coefficient-list preparation and the lifting-index calculation remain separate obligations.
 
+### Augmented-column and finite-grid-budget checkpoint
+
+`Matrix.AugmentedColumnMachine` implements both representation conversions and the actual
+column elimination. Packing `rhs :: coefficients` makes physical column `j+1` perform the
+same row operation on coefficients and RHS without ever selecting the RHS as a pivot.
+Its decoded output preserves all augmented solutions, widths, the head row, and earlier
+all-zero columns. All inner steps, wrapper dispatches, pair/cell allocations, reversals,
+and final output are charged. The actual cost is bounded by `200(k+1)(n+1)` for `k`
+target rows and coefficient width `n`. This completes the supplied-pivot column operation,
+not forward echelon, inconsistency detection, back-substitution, or the full solver.
+
+Two numerical `GridSampling` lemmas certify the proposed interpolation grids: sizes `2L`
+for displacement and `2sB+1` for each of `s` other variables meet the strict sum-ratio
+budget when displacement degree is below `L` and other degrees are at most `B`.
+With `L=mA`, `s=d+1`, `B=2m`, both sizes fit `q²` under the explicit conditions
+`0<m`, `d+1≤m`, `8m≤n`, and `A≤n≤q`. Grid construction and its execution cost are not
+asserted by these numerical inequalities.
+
+Central source review and full `validate.sh --axioms` passed with 575 imports. Seven principal
+endpoints have only baseline logical axioms; six new kernel examples cover RHS changes,
+serialization/output boundaries, and rejection. There are no new admissions, explicit axioms,
+or native trust. Worker B has a queued independent review after its Vandermonde construction.
+
 ### Next critical-path work
 
 1. Preserve both mathematical capstones and their no-extra-assumption theorem statements.
@@ -1298,6 +1321,10 @@ end-to-end cost bound:
    check only needs all `L` sampled values to vanish. Degree must be checked first in `D<r` cases.
 4. Perform the entire root calculation in the quadratic witness field, then check final coefficients
    for base-field membership. This avoids an intermediate descent at every residual coefficient.
+5. Reuse simultaneous Hasse-jet evaluation for the final change of center: evaluating every jet
+   of a centered candidate at `-center` yields the coefficients of its unshifted polynomial.
+   This proposed consumer still needs its representation, list-order, execution, and cost bridge;
+   it is not a free polynomial translation or conversion.
 
 The plan still requires charged coefficient-list updates, sparse-equation serialization, sample
 enumeration, Vandermonde construction/solving, final base-field descent, and complete root enumeration.

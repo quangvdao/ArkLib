@@ -138,4 +138,35 @@ theorem gridMonomialMatrix_mulVec_injective (grid : Fin v → Finset F)
   funext e
   simpa only [coeff_gridPolynomial] using congrArg (coeff e.val) hpoly
 
+/-- With displacement degree below `L` and `s` other degrees at most `B`, grids of sizes
+`2L` and `2sB+1` meet the strict normalized budget. This is a numerical certificate, not
+an uncharged construction of the grids. -/
+theorem anisotropic_sampling_budget_lt_one (s B L : ℕ) (hL : 0 < L) :
+    ((L - 1 : ℕ) : ℚ≥0) / (2 * L) +
+      (s : ℚ≥0) * (B / (2 * (s : ℚ≥0) * B + 1)) < 1 := by
+  have hL' : (0 : ℚ≥0) < L := by exact_mod_cast hL
+  have hsub : ((L - 1 : ℕ) : ℚ≥0) ≤ L := by exact_mod_cast Nat.sub_le L 1
+  have hhalf : (1 / 2 : ℚ≥0) * 2 = 1 := by norm_num
+  have hfirst : ((L - 1 : ℕ) : ℚ≥0) / (2 * L) ≤ 1 / 2 := by
+    apply (div_le_iff₀ (by positivity)).mpr
+    rw [← mul_assoc, hhalf, one_mul]
+    exact hsub
+  have hsecond : (s : ℚ≥0) * (B / (2 * (s : ℚ≥0) * B + 1)) < 1 / 2 := by
+    rw [← mul_div_assoc]
+    apply (div_lt_iff₀ (by positivity)).mpr
+    rw [mul_add, ← mul_assoc, ← mul_assoc, hhalf, one_mul, mul_one]
+    exact lt_add_of_pos_right _ (by norm_num)
+  calc
+    _ < (1 / 2 : ℚ≥0) + 1 / 2 := add_lt_add_of_le_of_lt hfirst hsecond
+    _ = 1 := by norm_num
+
+/-- The two proposed local sampling-grid sizes fit the quadratic witness field under explicit
+block and derivative/multiplicity hypotheses. Cardinality, not characteristic, is used here. -/
+theorem anisotropic_sampling_sizes_le_square (d m A n q : ℕ)
+    (hm : 0 < m) (hd : d + 1 ≤ m) (hn : 8 * m ≤ n) (hA : A ≤ n) (hq : n ≤ q) :
+    2 * (m * A) ≤ q ^ 2 ∧ 2 * (d + 1) * (2 * m) + 1 ≤ q ^ 2 := by
+  constructor
+  · nlinarith
+  · nlinarith
+
 end MvPolynomial
