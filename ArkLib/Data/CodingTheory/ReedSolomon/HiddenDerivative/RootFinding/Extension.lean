@@ -28,6 +28,17 @@ open Polynomial
 
 variable {F E : Type*} {d D : ℕ}
 
+/-! ### Finiteness of bounded solutions -/
+
+/-- Over a finite field, the type of degree-bounded solutions to any differential equation is
+finite. The degree bound is essential: the ambient polynomial type itself is infinite. -/
+instance BoundedSolution.instFinite [Field F] [Finite F]
+    (Q : DifferentialPolynomial F d) (D : ℕ) : Finite (BoundedSolution Q D) := by
+  let := Fintype.ofFinite F
+  let : Fintype (Polynomial.degreeLT F (D + 1)) :=
+    Fintype.ofEquiv (Fin (D + 1) → F) (Polynomial.degreeLTEquiv F (D + 1)).toEquiv.symm
+  exact Subtype.finite
+
 /-! ### Naturality of differential specialization -/
 
 /-- Differential specialization commutes with mapping coefficients along a ring homomorphism. -/
@@ -106,12 +117,18 @@ theorem BoundedSolution.natCard_le_extension [Field F] [Field E] [Algebra F E]
     [Finite F] [Finite E] (Q : DifferentialPolynomial F d) (D : ℕ) :
     Nat.card (BoundedSolution Q D) ≤
       Nat.card (BoundedSolution (MvPolynomial.map (algebraMap F E) Q) D) := by
-  let := Fintype.ofFinite E
-  let : Fintype (Polynomial.degreeLT E (D + 1)) :=
-    Fintype.ofEquiv (Fin (D + 1) → E) (Polynomial.degreeLTEquiv E (D + 1)).toEquiv.symm
-  let : Finite (BoundedSolution (MvPolynomial.map (algebraMap F E) Q) D) := Subtype.finite
   exact Nat.card_le_card_of_injective (BoundedSolution.algebraMapEmbedding Q D)
     (BoundedSolution.algebraMapEmbedding Q D).injective
+
+/-- Any cardinality bound proved after mapping the equation to an extension field descends to the
+base-field bounded solutions. The mapped equation is explicit in the premise to prevent accidental
+use of an unrelated extension-field equation. -/
+theorem BoundedSolution.natCard_le_of_extension_bound [Field F] [Field E] [Algebra F E]
+    [Finite F] [Finite E] (Q : DifferentialPolynomial F d) (D bound : ℕ)
+    (hbound :
+      Nat.card (BoundedSolution (MvPolynomial.map (algebraMap F E) Q) D) ≤ bound) :
+    Nat.card (BoundedSolution Q D) ≤ bound :=
+  (BoundedSolution.natCard_le_extension Q D).trans hbound
 
 /-- Finite subsets of base-field solutions inherit the same one-way cardinality comparison when
 their images lie in a chosen finite subset of extension-field solutions. -/
@@ -160,6 +177,18 @@ private theorem natCard_boundedSolution_zero [Field F] [Finite F] (d D : ℕ) :
     _ = Nat.card (Fin (D + 1) → F) :=
       Nat.card_congr (Polynomial.degreeLTEquiv F (D + 1)).toEquiv
     _ = Nat.card F ^ (D + 1) := by rw [Nat.card_fun, Nat.card_fin]
+
+/-- The canonical finiteness instance supplies an ordinary `Fintype`, while a bound on mapped
+extension solutions transfers directly back to the base field. -/
+example :
+    let E₂ := FiniteField.ExtensionAbove (ZMod 2) 2 2
+    let Q : DifferentialPolynomial (ZMod 2) 0 := 0
+    Nonempty (Fintype (BoundedSolution Q 0)) ∧
+      Nat.card (BoundedSolution Q 0) ≤
+        Nat.card (BoundedSolution (MvPolynomial.map (algebraMap (ZMod 2) E₂) Q) 0) := by
+  dsimp only
+  exact ⟨⟨Fintype.ofFinite _⟩,
+    BoundedSolution.natCard_le_of_extension_bound _ _ _ le_rfl⟩
 
 /-- For `Q = X + Y₀` and `P = X + 1` in characteristic two, both sides of specialization
 naturality compute independently to `1`. This detects swapping the distinguished `X` and Hasse-jet
