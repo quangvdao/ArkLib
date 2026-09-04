@@ -988,7 +988,7 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
 | A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Closed coefficient-list updates for direct lifting | `ArkLib/Data/Polynomial/CoefficientUpdateMachine.lean` and minimal canaries |
-| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Lower quadratic arithmetic to actual base-field instruction traces | `ArkLib/Data/QuadraticAlgebra/ArithmeticMachine.lean` |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Arithmetic handoff complete; independent read-only pivot-selection audit | No new file claim during audit |
 | C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Charged augmented-column packing, elimination, and unpacking | `ArkLib/Data/Matrix/AugmentedColumnMachine.lean` and minimal canaries |
 | Central | Interpolation/residual representation interfaces, integration, audits and push | Sampling refinements, generated umbrella and integration fixes |
 
@@ -1222,6 +1222,27 @@ wide dependency graph. Ask the central owner before editing a claimed interface.
   use only baseline logical axioms; 14 new kernel-checked examples accompany this batch, with
   no new source admissions, explicit axioms, or native trust. The first full run caught unnecessary
   decidable-equality hypotheses in three grid lemmas; those were removed before the successful rerun.
+
+### Quadratic arithmetic lowering checkpoint
+
+`QuadraticAlgebra.ArithmeticMachine` now executes five fixed programs for addition,
+multiplication, negation, inversion, and equality on coordinate pairs. Every arithmetic
+instruction performs one base-field operation. Initialization, coordinate loads, register
+accesses, pair allocation, equality conjunction, and output have explicit charges. Each
+actual run uses at most 128 declared primitives and at most 14 transitions. Inversion
+computes the norm and performs exactly one base inversion; its field-operation refinement
+requires a nonsquare parameter and includes the zero input.
+
+Central source review found no correctness issue. Full `validate.sh --axioms` passed with
+571 umbrella imports; seven principal endpoints use only baseline logical axioms. Source
+admissions remain 183, with no new explicit axioms or native trust. Four committed canaries
+and two additional central scratch checks exercise coordinate signs and the final-output cost.
+Worker A has a queued independent review after finishing its coefficient-update assignment.
+
+The registers describe a fixed abstract register bank, not the compiled cost of Lean's
+function-update representation. Similarly, these finite arithmetic programs do not yet prove
+a whole-decoder lowering: each extension-field operation in the enclosing machines must
+be replaced by its corresponding program with a proved simulation and accumulated cost.
 
 ### Next critical-path work
 

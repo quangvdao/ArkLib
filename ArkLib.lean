@@ -400,6 +400,7 @@ import ArkLib.Data.Probability.Combinatorial
 import ArkLib.Data.Probability.Instances
 import ArkLib.Data.Probability.KoalaBear
 import ArkLib.Data.Probability.Notation
+import ArkLib.Data.QuadraticAlgebra.ArithmeticMachine
 import ArkLib.Data.QuadraticAlgebra.EnumerationMachine
 import ArkLib.Data.QuadraticAlgebra.FiniteWitness
 import ArkLib.Data.ZMod.EnumerationMachine
