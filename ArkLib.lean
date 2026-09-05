@@ -227,6 +227,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationSpace
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationSupportMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationSupportMachineCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.KernelSliceIndependence
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalColumnTranslationCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalColumnTranslationMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalColumnTranslationSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalConstraintKernel
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalConstraintKernelCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalConstraintMap
@@ -273,7 +276,10 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Regular
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularIteration
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularIterationCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularJetCounting
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularLiftCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularLiftCompleteness
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularLiftMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularLiftSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularLifting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularLiftingCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularWitnessCounting
@@ -312,6 +318,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.AgreementMachineCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CandidateFilterMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CandidateFilterMachineCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CandidateFilterSemantics
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticCandidateCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticCandidateMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticCandidateSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.Specification
 import ArkLib.Data.CodingTheory.ReedSolomon.Multilinear
 import ArkLib.Data.CodingTheory.ReedSolomon.Multiplicity
@@ -405,6 +414,9 @@ import ArkLib.Data.Matrix.VandermondeMachine
 import ArkLib.Data.Matrix.VandermondeMachineCanary
 import ArkLib.Data.Misc.Basic
 import ArkLib.Data.MvPolynomial.Degrees
+import ArkLib.Data.MvPolynomial.DenseNormalizeMachine
+import ArkLib.Data.MvPolynomial.DenseNormalizeMachineCanary
+import ArkLib.Data.MvPolynomial.DenseNormalizeRefinement
 import ArkLib.Data.MvPolynomial.EvaluationMachine
 import ArkLib.Data.MvPolynomial.EvaluationMachineCanary
 import ArkLib.Data.MvPolynomial.EvenAndOdd
@@ -455,6 +467,9 @@ import ArkLib.Data.Probability.Instances
 import ArkLib.Data.Probability.KoalaBear
 import ArkLib.Data.Probability.Notation
 import ArkLib.Data.QuadraticAlgebra.ArithmeticMachine
+import ArkLib.Data.QuadraticAlgebra.CoefficientDescentCanary
+import ArkLib.Data.QuadraticAlgebra.CoefficientDescentMachine
+import ArkLib.Data.QuadraticAlgebra.CoefficientDescentSemantics
 import ArkLib.Data.QuadraticAlgebra.EnumerationMachine
 import ArkLib.Data.QuadraticAlgebra.FiniteWitness
 import ArkLib.Data.ZMod.EnumerationMachine

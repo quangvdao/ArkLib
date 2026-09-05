@@ -1127,17 +1127,17 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
-| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: compose direct coefficient recovery into the full regular-lift loop | `HiddenDerivative/RootFinding/RegularLiftMachine.lean`, semantics/canary |
-| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: execute a translated interpolation column before jet rewrite and contact projection | `HiddenDerivative/LocalColumnTranslationMachine.lean`, semantics/canary |
-| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: aggregate sparse terms before selecting the highest active jet | `ArkLib/Data/MvPolynomial/DenseNormalizeMachine.lean`, refinement/canary |
-| Central | Validate and integrate handoffs; assemble final candidate processing and track total cost | Candidate-filter composition, output preparation, tracker and umbrella |
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: compose lifting, residual acceptance and global-coordinate translation | `HiddenDerivative/RootFinding/RegularRootMachine.lean`, semantics/canary |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: execute U rewriting and low-contact projection for a column | `HiddenDerivative/LocalColumnRewriteMachine.lean`, semantics/canary |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: execute the mathematically highest active jet selector after normalization | `ArkLib/Data/MvPolynomial/HighestJetMachine.lean`, refinement/canary; `HiddenDerivative/RootFinding/HighestJetTransport.lean` |
+| Central | Validate/integrate handoffs; implement canonical witness selection and whole-decoder joins | Output processing, witness selection, tracker and umbrella |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
 except explicitly repository-relative paths beginning `ArkLib/`.
 Do not infer ownership from the historical
 wide dependency graph. Ask the central owner before editing a claimed interface.
 
-These epochs follow the fully validated executable checkpoint `78c3a2ab`. The target remains a
+These epochs follow fully validated checkpoints `b8855869` and `fa59ffec`. The target remains a
 single closed executable decoder, not merely a conjunction of independently costed components.
 A's `b21f40bf` computes the actual direct affine lifting coefficient through two residual
 recoveries and explicit lookup/update/arithmetic; it is integrated and fully validated.
@@ -1153,6 +1153,11 @@ Nonzero kernel extraction now supports redundant rows: success follows from an a
 kernel witness, not fewer rows than columns. The interpolation certificate controls rank, so
 the weaker row-count-only solver guarantee would not close this interface.
 
+The regular-lift loop (`548ea423`), translated column (`bec82693`) and dense normalization
+(`bdff0cc3`) are now integrated and validated. A loop survivor still needs the actual residual
+identity test. A translated column still needs the actual U rewrite and low-contact projection.
+Normalization supplies true nonzero coefficients, but does not by itself compute the highest jet.
+
 Next composition edges are residual coefficients to direct regular lifting, support and local
 constraints to nonzero interpolants, chain witnesses to finite root enumeration, and exact
 degree/agreement filtering to the public output. Field setup, scalar-operation lowering, and
@@ -1164,8 +1169,24 @@ all generated candidates can double the derivative-dependent exponent. Use an ex
 sorting/indexing method or prove a canonical-witness acceptance rule; set notation alone does
 not supply an executable duplicate-free output algorithm.
 
+The selected implementation route is a **canonical witness guard**, still unproved. At stage
+`G_j` of the ordered separant chain, retain a root candidate only if all earlier `G_i(P)` vanish
+identically, and its center is the first enumerated point where the current separant specializes
+nonzero. This should make stage, center and initial jet unique for each output polynomial.
+Actual residual-zero and residual-sample programs can perform these tests, with an additional
+field-cardinality factor and gap-only chain length, rather than squaring the candidate count.
+The chain identity, guard soundness/completeness, uniqueness, execution and cost must all be
+proved before this route replaces the duplicate-removal obligation.
+
 ### Integrated foundations and current handoffs
 
+- Regular lifting (`548ea423`), translated interpolation columns (`bec82693`), dense aggregation
+  (`bdff0cc3`) and central quadratic-coordinate descent/acceptance pass the full canonical gate:
+  640 umbrella imports, 481 source examples (+30), 183 admissions unchanged, 312 pre-existing
+  tainted declarations and zero nonstandard/native axioms. Central read every integrated source
+  and canary. `QuadraticCandidateMachine.evaluation_runFuel_correct` proves exact base-coordinate,
+  degree and agreement acceptance plus polynomial preservation for the same closed execution,
+  with primitive work at most `192*(w+1)*(n+1)`. It neither enumerates roots nor removes duplicates.
 - Direct coefficient recovery (`b21f40bf`) and sparse differentiation (`42b6fe7a`) pass the full
   canonical gate: 625 umbrella imports, 451 source examples (+12), 183 admissions unchanged,
   312 pre-existing tainted declarations and zero nonstandard/native axioms. The direct scalar
