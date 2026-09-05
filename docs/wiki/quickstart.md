@@ -43,6 +43,13 @@ Run `lake test` to build them; `./scripts/validate.sh` runs this target by defau
 test warnings, including admissions. Stage new tests so source linting and the trust inventory
 include them. Production modules must not import tests.
 
+### Maintained concrete examples
+
+Place durable, concrete applications under `ArkLibExamples/` and add them to the hand-maintained
+`ArkLibExamples.lean` umbrella. The examples library builds with the default `lake build`, and
+`./scripts/validate.sh` rejects all of its warnings, including admissions. Examples may import
+stable `ArkLib` owner modules; `ArkLib` must not import `ArkLibExamples`.
+
 ### Lean source-policy checks
 
 ```bash
@@ -50,7 +57,8 @@ lake exe lint-style
 ```
 
 `./scripts/validate.sh` runs this gate by default. The Lean executable scans every module imported
-by `ArkLib.lean` and every tracked `ArkLibTest` module, parses import headers with Lean itself, and has no exception file. It allows
+by `ArkLib.lean` or `ArkLibExamples.lean` and every tracked `ArkLibTest` module, parses import
+headers with Lean itself, and has no exception file. It allows
 project-specific mathematical Unicode notation, while rejecting invisible controls, bidirectional
 controls, and nonstandard space characters that can conceal source changes. It also rejects
 blanket package-root imports. The normal `lake build` loads ArkLib's Lean syntax-tree plugin, which
@@ -68,7 +76,7 @@ If the task is specifically Lean warning cleanup, follow
 This first runs `./scripts/test-axiomsweep.sh` — the executable fixture matrix under
 `scripts/AxiomSweepTestFixtures/` that certifies the sweep tool itself (gate directions,
 the native-trust floor, and the exit-code contract) — and then
-`lake exe axiomsweep --check`: a kernel-level sweep of every `ArkLib.*`
+`lake exe axiomsweep --check`: a kernel-level sweep of every `ArkLib.*` and `ArkLibExamples.*`
 declaration's axiom dependencies (the `#print axioms` information, library-wide) diffed
 against the committed baseline `scripts/axiom_baseline.json`. It fails on *new* `sorryAx`
 or non-standard-axiom taint, while reporting closed gaps without blocking cleanup. If you
@@ -86,7 +94,8 @@ a zero-debt rule: no baseline edit can green it, and `--update-baseline` refuses
 while such taint is present — remove the dependency instead.
 
 CI enforces both the fixture matrix and the library regression check (see `ci.yml`).
-It also runs `scripts/source-trust-audit.py` over every tracked Lean file under `ArkLib/` and `ArkLibTest/`.
+It also runs `scripts/source-trust-audit.py` over every tracked Lean file under `ArkLib/`,
+`ArkLibExamples/`, and `ArkLibTest/`.
 That deterministic, comment/string-aware inventory reports source-only constructs that an
 environment sweep cannot see reliably: admissions in examples or defaults/autoparams and
 constructs in files outside the imported roots. Source inventory changes are review evidence,
@@ -114,7 +123,8 @@ python3 -m pip install leanblueprint
 ## Important Notes
 
 - `./scripts/validate.sh` is the recommended convenience wrapper for routine local validation.
-- By default it runs `lake build`, rejects non-`sorry` warnings anywhere under `ArkLib/`, runs the
+- By default it runs `lake build`, rejects non-`sorry` warnings anywhere under `ArkLib/`, rejects
+  every warning under `ArkLibExamples/`, runs the
   Lean-native source-policy gate, runs the compiled `toyproblem-runtime` and `hachi-runtime`
   checks, checks generated imports and documentation integrity, and lints knowledge-base inputs.
 - The lower-level scripts remain valid when you only want one specific check.

@@ -15,6 +15,7 @@ ArkLib/
   ToMathlib/          local additions not upstreamed to Mathlib
   ToCompPoly/         local additions not upstreamed to CompPoly
   ToVCVio/            local additions not upstreamed to VCV-io
+ArkLibExamples/       maintained concrete applications, built outside the reusable library graph
 blueprint/src/        blueprint sources and references.bib
 docs/kb/             persistent paper, concept, audit, and query knowledge base
 scripts/              repo utilities
@@ -33,6 +34,9 @@ home_page/            site assets and assembled website root
 - `ArkLib/Data/`, `ArkLib/ToMathlib/`, `ArkLib/ToCompPoly/`, and `ArkLib/ToVCVio/` support the
   core with reusable definitions and lemmas.
 - `ArkLib/Commitments/` and `ArkLib/ProofSystem/` build on top of those foundations.
+- `ArkLibExamples/` instantiates stable `ArkLib` interfaces with concrete application parameters.
+  Its small `ArkLibExamples.lean` umbrella is maintained by hand and built by default. Dependencies
+  point from examples to `ArkLib`; reusable library modules never import examples.
 - When changing a protocol subtree, read the local subtree plus one layer of imports toward
   `Data/` or `OracleReduction/` before making architectural edits.
 
@@ -50,6 +54,7 @@ home_page/            site assets and assembled website root
   `ArkLib/ToCompPoly/`, or `ArkLib/ToVCVio/`, depending on the upstream project.
 - Updating theory docs, references, or long-form exposition: start in `blueprint/src/`.
 - Updating repository-local paper summaries, audits, or reference context: start in `docs/kb/`.
+- Recording a maintained concrete parameter instantiation: start in `ArkLibExamples/`.
 
 ## Navigation Notes
 

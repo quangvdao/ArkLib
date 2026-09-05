@@ -17,6 +17,7 @@ Usage: ./scripts/validate.sh [--lint] [--docs] [--site] [--axioms]
 
 Default checks:
   - lake build
+  - ArkLibExamples (maintained concrete examples, included in the default build)
   - lake test (ArkLibTest compile-time acceptance clients)
   - lake exe lint-style
   - ./scripts/test-lint-plugin.sh
@@ -81,6 +82,13 @@ echo "# Checking ArkLibTest warning budget"
 python3 ./scripts/check-warning-log.py "$build_log" \
   --path-prefix ArkLibTest/ \
   --label "ArkLibTest warnings (including admissions)"
+
+echo ""
+echo "# Checking ArkLibExamples warning budget"
+python3 ./scripts/check-warning-log.py "$build_log" \
+  --path-prefix ArkLibExamples.lean \
+  --path-prefix ArkLibExamples/ \
+  --label "ArkLibExamples warnings (including admissions)"
 
 echo ""
 echo "# Checking ArkLib warning budget"

@@ -12,8 +12,9 @@ import Lean.Parser.Module
 /-!
 # ArkLib's Lean-native source linter
 
-Run `lake exe lint-style`. The scope is the generated `ArkLib` umbrella, every ArkLib module it
-imports, and every tracked `ArkLibTest` module. No linter exception file is read or supported.
+Run `lake exe lint-style`. The scope is the generated `ArkLib` umbrella, the hand-maintained
+`ArkLibExamples` umbrella, every module they import under their respective namespaces, and every
+tracked `ArkLibTest` module. No linter exception file is read or supported.
 -/
 
 open Lean System System.FilePath
@@ -52,12 +53,20 @@ private def lintImports (path : FilePath) (content : String) : IO (Array Violati
   let mut result : Array Violation := #[]
   for importStx in importsStx do
     if let `(Parser.Module.import| $[public]? $[meta]? import $[all]? $moduleId) := importStx then
-      if (path.toString == "ArkLib.lean" || path.toString.startsWith "ArkLib/") &&
+      if (path.toString == "ArkLib.lean" || path.toString.startsWith "ArkLib/" ||
+          path.toString == "ArkLibExamples.lean" ||
+          path.toString.startsWith "ArkLibExamples/") &&
           moduleId.getId.getRoot == `ArkLibTest then
         let line := inputCtx.fileMap.toPosition (moduleId.raw.getPos?.getD 0) |>.line
         result := result.push
           { code := "ERR_TEST_IMPORT", line := line,
-            message := "Production modules must not import ArkLibTest" }
+            message := "Library and maintained-example modules must not import ArkLibTest" }
+      if (path.toString == "ArkLib.lean" || path.toString.startsWith "ArkLib/") &&
+          moduleId.getId.getRoot == `ArkLibExamples then
+        let line := inputCtx.fileMap.toPosition (moduleId.raw.getPos?.getD 0) |>.line
+        result := result.push
+          { code := "ERR_EXAMPLE_IMPORT", line := line,
+            message := "Reusable ArkLib modules must not import ArkLibExamples" }
       if let some (code, message) := importViolation? moduleId.getId then
         let pos := moduleId.raw.getPos?.getD 0
         let line := inputCtx.fileMap.toPosition pos |>.line
@@ -70,6 +79,15 @@ private def runImportPositionSelfTest : IO Unit := do
     let violations ← lintImports path testImport
     unless violations.any fun v => v.code == "ERR_TEST_IMPORT" && v.line == 2 do
       throw <| IO.userError "lint-style self-test failed: production imported tests"
+  let exampleImport := "import ArkLibExamples.ReedSolomon.ProveKit\n"
+  for path in ["ArkLib.lean", "ArkLib/Interaction/Example.lean"] do
+    let violations ← lintImports path exampleImport
+    unless violations.any fun v => v.code == "ERR_EXAMPLE_IMPORT" && v.line == 1 do
+      throw <| IO.userError "lint-style self-test failed: reusable library imported examples"
+  let allowedExampleImport ← lintImports "ArkLibExamples/ReedSolomon/ProveKit.lean"
+    "import ArkLib.Data.CodingTheory.ReedSolomon.Agreement\n"
+  unless allowedExampleImport.isEmpty do
+    throw <| IO.userError "lint-style self-test failed: examples may import ArkLib owner modules"
   let testViolations ← lintImports "ArkLibTest/Interaction/Example.lean" testImport
   unless testViolations.isEmpty do
     throw <| IO.userError "lint-style self-test failed: tests may import other tests"
@@ -92,30 +110,36 @@ private def formatViolation (github : Bool) (path : FilePath) (v : Violation) : 
 private def modulePath (name : Name) : FilePath :=
   mkFilePath (name.components.map (·.toString)) |>.addExtension "lean"
 
-private def arkLibPaths : IO (Array FilePath) := do
-  let umbrella : FilePath := "ArkLib.lean"
+private def libraryPaths (umbrella : FilePath) (root : Name) (sourceRoot : String) :
+    IO (Array FilePath) := do
   let imports ← findImportsFromSource umbrella
-  let modules := imports.filter (·.getRoot == `ArkLib)
+  let modules := imports.filter (·.getRoot == root)
   if modules.isEmpty then
-    throw <| IO.userError "lint-style: ArkLib.lean yielded no ArkLib modules"
+    throw <| IO.userError s!"lint-style: {umbrella} yielded no {root} modules"
   let modulePaths := modules.map modulePath
-  let trackedOutput ← IO.Process.output { cmd := "git", args := #["ls-files", "--", "ArkLib"] }
+  let trackedOutput ← IO.Process.output {
+    cmd := "git", args := #["ls-files", "--", umbrella.toString, sourceRoot] }
   if trackedOutput.exitCode != 0 then
-    throw <| IO.userError s!"git ls-files ArkLib failed: {trackedOutput.stderr}"
+    throw <| IO.userError s!"git ls-files {sourceRoot} failed: {trackedOutput.stderr}"
   let tracked := trackedOutput.stdout.splitOn "\n" |>.filter (·.endsWith ".lean")
-  let closure := modulePaths.toList.map (·.toString)
+  let closure := umbrella.toString :: modulePaths.toList.map (·.toString)
   let missing := tracked.filter (!closure.contains ·)
   let untrackedByUmbrella := closure.filter (!tracked.contains ·)
   unless missing.isEmpty && untrackedByUmbrella.isEmpty do
     let details :=
-      (missing.map (s!"tracked but absent from ArkLib.lean closure: {·}")) ++
-      (untrackedByUmbrella.map (s!"in ArkLib.lean closure but not tracked: {·}"))
+      (missing.map (s!"tracked but absent from {umbrella} closure: {·}")) ++
+      (untrackedByUmbrella.map (s!"in {umbrella} closure but not tracked: {·}"))
     throw <| IO.userError <| "lint-style scope is incomplete:\n" ++ "\n".intercalate details
+  return #[umbrella] ++ modulePaths
+
+private def arkLibPaths : IO (Array FilePath) := do
+  let library ← libraryPaths "ArkLib.lean" `ArkLib "ArkLib"
+  let examples ← libraryPaths "ArkLibExamples.lean" `ArkLibExamples "ArkLibExamples"
   let testsOutput ← IO.Process.output { cmd := "git", args := #["ls-files", "--", "ArkLibTest"] }
   if testsOutput.exitCode != 0 then
     throw <| IO.userError s!"git ls-files ArkLibTest failed: {testsOutput.stderr}"
   let tests := testsOutput.stdout.splitOn "\n" |>.filter (·.endsWith ".lean")
-  return #[umbrella] ++ modulePaths ++ tests.toArray.map FilePath.mk
+  return library ++ examples ++ tests.toArray.map FilePath.mk
 
 private def repositoryHygiene (github : Bool) : IO Nat := do
   let output ← IO.Process.output { cmd := "git", args := #["ls-files", "--stage"] }

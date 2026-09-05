@@ -9,7 +9,7 @@ import Lean
 # Axiom sweep: whole-library kernel-level axiom and `sorry` accounting
 
 Walks the compiled environment (the same data the kernel checked) and computes, for every
-declaration in `ArkLib.*` modules, the set of axioms its statement and proof ultimately
+declaration in `ArkLib.*` and `ArkLibExamples.*` modules, the set of axioms its statement and proof ultimately
 depend on — the same information as `#print axioms`, for the whole library at once.
 
 Because this reads elaborated `.olean` data rather than source text, it sees exactly what
@@ -61,7 +61,7 @@ open Lean
 namespace AxiomSweep
 
 /-- Root modules swept when no `--root` is given. -/
-def defaultRoots : Array Name := #[`ArkLib]
+def defaultRoots : Array Name := #[`ArkLib, `ArkLibExamples]
 
 /-- Axioms that carry no extra trust assumptions beyond Lean's standard foundation. -/
 def standardAxioms : List Name := [``propext, ``Classical.choice, ``Quot.sound]

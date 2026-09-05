@@ -19,7 +19,8 @@ This directory contains various utility scripts for the ArkLib project.
   (gate directions, native-trust floor, exit-code contract), against the synthetic-taint
   fixtures in `AxiomSweepTestFixtures/`
 - **`source-trust-audit.py`** - Deterministic source-token inventory for constructs outside
-  the environment sweep's visibility, with optional Git-ref comparison
+  the environment sweep's visibility across `ArkLib/`, `ArkLibExamples/`, and `ArkLibTest/`,
+  with optional Git-ref comparison
 - **`test-source-trust-audit.py`** - Focused lexer/diff fixtures for the source inventory
 - **`ToyProblemRuntime.lean`** (`lake exe toyproblem-runtime`) - Compiled small-parameter checks
   for KoalaBear sextic arithmetic, executable interleaved-RS extraction, and the C6.9 virtual
@@ -140,7 +141,8 @@ python3 ./scripts/kb/review_context.py --files ArkLib/ProofSystem/Fri/Spec/Singl
 
 ### Axiom Sweep
 
-Kernel-level accounting of what every `ArkLib.*` declaration ultimately depends on — the
+Kernel-level accounting of what every `ArkLib.*` and `ArkLibExamples.*` declaration ultimately
+depends on — the
 same information as `#print axioms`, computed for the whole library at once from the built
 `.olean` data (so private and macro-generated declarations are included and no source
 heuristics are involved). Requires a completed `lake build`.
@@ -193,7 +195,7 @@ lake build AxiomSweepTestFixtures
 ### Source Trust Inventory
 
 `source-trust-audit.py` complements axiomsweep by lexically scanning every tracked
-Lean file under `ArkLib/` and `ArkLibTest/`, whether imported or not. It masks nested comments, strings,
+Lean file under `ArkLib/`, `ArkLibExamples/`, and `ArkLibTest/`, whether imported or not. It masks nested comments, strings,
 and quoted identifiers, then inventories exact admission, `example`, explicit-`axiom`, and
 native/compiler-trust reference tokens. This sees admissions in examples and
 defaults/autoparams that attach to no environment declaration. It deliberately reports rather
