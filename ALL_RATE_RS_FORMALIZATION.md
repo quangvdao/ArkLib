@@ -1119,6 +1119,12 @@ are not on the current work queue.
 
 ## 15. Next actionable assignments
 
+The active acceptance target is the pre-strengthening manuscript Theorem 1.1 at paper
+revision `26e8ea0`, including exact output and bit-operation bounds. The newer
+field-independent list-size and mutual correlated-agreement results are planned in
+[the separate strengthening track](ALL_RATE_RS_STRENGTHENINGS.md). They are not prerequisites
+for completing this decoder and do not take workers from its three active lanes.
+
 ### Three-worker execution roster
 
 The central owner is task `01a06c48-8980-76a2-b439-9872f827bfcd`. All earlier
@@ -1128,10 +1134,10 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
-| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Paused after exact prepared-decoder execution proof `7efc9101` | `ListDecoding/{CanonicalOutputProof*,PreparedDecoderCertificate,PreparedDecoderProof*}` |
-| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Paused after actual large-gap interpolation witness `61277a0a` | `HiddenDerivative/OrderZero*`, initial-input stage bounds |
-| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Paused after coordinate residual batching and retained-input correction `280e79c8` | Quadratic jet, residual sample and batch interpreters |
-| Central | Audit, full validation and integration; then outer decoder and global cost joins | `ListDecoding/PreparedDecoderMachine`, outer driver, tracker and umbrella |
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: canonical base-center completeness and restricted exact collector; separate recovery/guard uniqueness checkpoint complete | `HiddenDerivative/RootFinding/RestrictedRootSelection`, `ListDecoding/RestrictedCollectorProof` |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: charged tiny-block and oversized branches, including `q=2`; direct interpolation/prepared exactness checkpoint complete | `ListDecoding/SmallBlockDecoderMachine`, `ListDecoding/SmallBlockDecoderProof` |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: coordinate pivot elimination with actual arithmetic and row children; coordinate Vandermonde and row checkpoints complete | `ArkLib/Data/Matrix/QuadraticPivot*` |
+| Central | Integrate/audit; initial-size collector bounds; outer and dual-sample driver; plan strengthenings without starting their lanes | `ListDecoding/CollectorInputBounds`, `ListDecoding/CollectorStageBounds`, `HiddenDerivative/RootFinding/GuardInputBounds`, outer drivers and trackers |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
 except explicitly repository-relative paths beginning `ArkLib/`.
@@ -1195,6 +1201,14 @@ guard to a collected output list remain open.
 
 ### Near-term completion plan
 
+The next integrated checkpoint adds parameter-derived small-gap setup, direct order-zero
+prepared correctness, restricted-alphabet root completeness, separate-grid uniqueness,
+coordinate Vandermonde and row execution, and initial-input collector budgets. In particular,
+`CollectorStageBounds.generated_runFuel` proves termination and a work bound for the actual
+collector using only original equation mass, alphabet size, degree and chain-degree cap.
+Its cost is linear in the candidate-count bound. None of these component endpoints alone
+closes the outer executable decoder, its base-field lowering, or the bit-operation theorem.
+
 The 2026-09-04 status estimate is **6–10 coordinated epochs including the then-running epoch**,
 as a provisional planning range rather than a deadline. Each epoch comprises up to three
 bounded worker assignments plus central integration and validation. It is not a count of
@@ -1211,6 +1225,8 @@ remaining lemmas and is not a promise that unresolved cost-model joins are routi
    are already lowered; no assumed constant-cost extension operation may replace the open nodes.
 4. Bound collector work and all outer costs from initial parameters, retaining the exponent of
    the same executable program. Reconcile both field-size regimes with the paper-facing contract.
+   Finish the bit-cost implementation/refinement as a separate obligation; a field-operation
+   ledger alone does not prove the manuscript's bit-operation claim.
 5. Package the full algorithmic theorem, independently audit statements/costs, and repair findings.
 
 Field enumeration, nonsquare search and quadratic arithmetic already have proved component

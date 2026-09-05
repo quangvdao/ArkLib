@@ -1,0 +1,205 @@
+# Field-independent lists and mutual correlated agreement: follow-on plan
+
+## Priority and acceptance boundary
+
+This is a deferred formalization track, not a change to the active decoder target.
+First finish and audit the **pre-strengthening Theorem 1.1**, including an actual
+decoder, exact output, both stated field-size regimes, and the cost of that same
+program. The current three decoder workers keep their assignments. No geometric
+lemma, stronger output bound, or correlated-agreement theorem is a prerequisite
+for that milestone. The central owner may plan this track while integrating decoder work.
+
+The decoder target is the manuscript at commit `26e8ea0` in the private
+`all-rate-rs-list-decoding` repository: `shared/main-theorem.tex` and
+`shared/main-theorem-bounds.tex`. It includes bit-operation bounds, not merely
+field-operation counts. The existing machine ledger, its base-field lowering,
+and a bit-cost implementation/refinement are separate obligations. A polynomial
+overhead in `q` can suffice for the headline bound; an efficient `poly(log q)`
+scalar implementation is not the only possible proof route. Any such route must
+still account for data access and allocation without losing the intended exponent.
+
+The reference Lean checkpoint for this plan is `3f2cac5d`. Its prepared-decoder
+exactness is proved under explicit setup/parameter hypotheses; it is not the
+completed algorithmic theorem. See [the active tracker](ALL_RATE_RS_FORMALIZATION.md).
+
+## Manuscript snapshot read
+
+The canonical writing was resolved through the paper-note writings index. It is
+`~/Documents/Research/all-rate-rs-list-decoding/main.tex`, which now includes
+`core/geometric-list.tex`, `core/symbolic-interpolation.tex`, and
+`core/correlated-agreement.tex`. These three new sections were read in full,
+together with the main statements, decoder procedure, proof, and cost discussion.
+The manuscript checkout contains uncommitted work. This plan does not edit it,
+commit it, or claim that its current sources equal its Git HEAD.
+
+Snapshot SHA-256 values, recorded September 4, 2026:
+
+| Artifact | SHA-256 |
+|---|---|
+| `main.pdf` | `a435946eb586859e70eec91d409515f65efd6b1a0e8c99753f2e437c1ec8b49f` |
+| `core/geometric-list.tex` | `c4d9d81d4d71964c0888a3d1bcc2fca6d392ba52381d486ffc350d1faec138a8` |
+| `core/symbolic-interpolation.tex` | `19277c99aa4094f59f88a97fb30e3e57c97f4fa63fb4d044b1a6640b1165ac00` |
+| `core/correlated-agreement.tex` | `26ca7cb6256fa69ed27aa2c75610db3046d06c27276d7ddcee07a23239dc7dbe` |
+
+The hashes identify what was planned against; they are not verification claims.
+Reconcile any later paper edits before freezing the corresponding Lean statements.
+
+## Stronger endpoints to preserve
+
+Write `d = ceil(exp(6.76 / delta))` and `m = ceil(100*d^2*H_(d-1))`
+for `0 < delta < 1/4`.
+
+1. **Field-independent exact-list cardinality.** For `n >= 8m`, distinct
+   evaluation points, degree `< k`, and integer `k + delta*n <= A <= n`, prove
+   `|List(y,A)| <= 4*m^2*(4*m/delta)^d*n^d`. Cover prime fields `q >= n`;
+   also state the paper's field-general version in characteristic zero or `> n`.
+   For infinite fields use a proved finite set/cardinality, never the default
+   value of `Set.ncard` on an infinite set. `A > n` gives the empty set.
+   Combine with the old bounds by taking a minimum. Do not improve the decoder
+   runtime merely because fewer candidates survive agreement filtering.
+2. **Mutual correlated agreement on a line.** Fix `f,g` first. Produce one finite
+   exceptional set `E` that works simultaneously for every challenge `z` outside
+   it and every close polynomial `P`. There must be degree-`<k` witnesses `F0,G0`
+   with `P = F0 + z*G0` and **equality of the full agreement set** with the common
+   agreement set of `F0,G0`. Merely having `A` common agreements is weaker.
+3. **Explicit line bounds.** Small gaps: `N_CA=8m`, `E_delta(n)=C_delta*n^(d+1)`
+   with the displayed constant in `eq:ca-small-gap-constant`. Intermediate gaps
+   `1/4 <= delta < 1/2`: order one, `N_CA=512`, and the paper's explicit quadratic
+   bound. Gaps `>=1/2`: `E_delta(n)=2n`, `N_CA=1`, every characteristic.
+   Keep these CA parameters distinct from the order-zero decoder branch.
+4. **Affine families.** For `s>=1`, at most `s*E_delta(n)*q^(s-1)` exceptional
+   parameter tuples; preserve equality of full and common agreement sets for all
+   `s+1` witnesses. Derive probability `<= s*E_delta(n)/q`, with the usual
+   additional trivial upper bound one. Bridge to ArkLib's actual MCA error API.
+
+These are paper claims to formalize, not results already certified by Lean.
+
+## Dependency graph
+
+```text
+Existing interpolation and regular Taylor-lift algebra
+      |                          |
+      |                 rational coefficient degree recurrence (R)
+      |                          |
+      |        geometric degree/cuts (G) --> rational image (I)
+      |                 |                  |
+      |           agreement incidence (A) + root envelope (V)
+      |                                    |
+      |                             FIELD-INDEPENDENT LIST
+      |
+polynomial kernel height (H) + translation/rank scalar extension (S)
+      |                         + quantitative band margin (M)
+      +-------------------------+
+                   |
+          symbolic interpolation (Q)
+                   |
+R + bidegree image (B) + generic-fiber compatibility (F)
+                   |
+            joint root envelope (J)
+                   |
+A + J + graph-line recognition/accidental roots (L)
+                   |
+            MUTUAL LINE AGREEMENT
+                   |
+ function-field descent + parameter induction (P)
+                   |
+         AFFINE MUTUAL AGREEMENT + MCA API bridge
+
+H --> independent all-characteristic half-gap line proof
+H + order-one local rank/counts --> intermediate-gap symbolic certificate
+```
+
+Geometry does not feed back into the old decoder. The field-independent list
+can land before the joint-envelope and correlated-agreement work.
+
+## Work packages and falsifiable acceptance criteria
+
+| ID | Mathematical contract and source locator | Dependencies / owner guidance |
+|---|---|---|
+| H | `lem:polynomial-kernel-height`: polynomial matrix entry degree `<=b`, rank `s<N` over `F(Z)`, nonzero kernel vector with entry degree `<=floor(sb/(N-s))`; primitive entries generate the unit ideal and never all specialize to zero over any extension | Polynomial coefficient spaces, actual rank-nullity, row-span extension, PID/gcd. Treat `s=0`, `b=0`, zero entries, and strict `N-s>0` explicitly. No executable kernel-height algorithm is required by the new list/CA statements. |
+| R | `eq:geometric-lift` and `eq:geometric-numerator-degree`: actual rational Taylor recursion `c_(r+h)=A_h/S^(2h-1)`, numerator degree `<= (2h-1)(v-1)+1`, plus challenge-degree `<= (2h-1)*zeta` | Reuse regular-lift leading coefficient and separant algebra. Prove the Taylor-weight restriction on every residual monomial. Denominator nonvanishing and `H=0` are explicit cases. |
+| G | Mixed-dimensional total degree, finite irreducible decomposition, proper hyperplane cut, linear intersection, and refined Bezout inequality for retained components | First audit pinned Mathlib. Choose a concrete affine algebraic-set/ideal representation and a proved degree, not a degree function carrying the desired inequalities as axioms. Largest infrastructure risk. |
+| A | `lem:agreement-incidence`: finite qualifying set outside excluded positive-dimensional subsets; bound `Delta*((n-L+1)/(A-L+1))^s` | G. An abstract induction lemma may be proved early, but it does not discharge G. Cover reducible sections, finiteness before cardinal arithmetic, repeated hyperplanes, and `1<=L<=A<=n`. |
+| I | `lem:rational-image-degree`: closure of rational image has dimension `<=s`, total degree `<=Delta*b^s` | G, constructibility and generic-section argument. Permit positive-dimensional fibers; do not replace the claim with a generically finite special case. |
+| V | `thm:geometric-envelope`: contain actual root coefficient vectors with dimension `<=d` and degree `<=mu^2*(1+2K*(mu-1))^d` | R+I, actual descending separant chain, transcendental center and algebraic extension. Distinguish `mu=0` (no roots) from `mu>=1`; use characteristic zero or `>max(K-1,mu)`. |
+| O | `cor:geometric-actual-degree`, `cor:field-independent-output` | V+A+Vandermonde uniqueness. Intersect with actual degree-`<k` space before applying incidence, retaining agreement gap `A-k`, not ambient gap `A-K`. Reuse actual interpolant or field-general band witness. |
+| S | `prop:symbolic-interpolation`: polynomial challenge matrix, rank stable under translations/scalar extension, degree of entries `<=nu`, primitive nonzero specialization and multiplicity soundness | H + existing local constraints. State soundness after arbitrary coefficient-field extension, not only base challenges. Preserve total jet degree, not just individual degrees. |
+| M | `cor:symbolic-band`: `N > (456976/455625)*n*r0` and challenge height `<(455625/1351)*nu<338*nu` | Reuse numerical endpoint inequalities in the 6.76 proof; extract the stronger margin before coarse rounding. Strict dimension surplus alone is insufficient. Include `r0=0`. |
+| B | `lem:bidegree-image`: `alpha*b1^(d+1)+(d+1)*beta*a1*b1^d` | G+I plus a justified multiprojective degree or elementary equivalent. No unsupported Chow-ring calculation; zero bidegrees, vertical components and positive-dimensional fibers need coverage. |
+| F | Generic fiber of rational image closure equals closure of generic image, with degree/dimension control | Constructibility, dominance/base extension, excluding vertical components. Never assert equality for every special fiber. Freeze this statement before relying on J. |
+| J | `lem:joint-envelope`: joint degree Delta and generic-fiber degree `<=nu^2*b^d`; terminal exceptional set size `<=zeta` | R+B+F+actual separant chain. Handle jet-independent Q and specialization where the terminal polynomial vanishes. |
+| L | `thm:symbolic-transfer`: graph lines, generic-fiber line count, off-line incidence count, accidental-agreement exclusion | J+A+Vandermonde. All common witnesses descend to the base field. The exceptional set is independent of the chosen close polynomial. |
+| C | `thm:ca-explicit`, small-gap and intermediate-gap constants | S+M+L; independently formalize order-one support/rank counts `28152`, `1904`, `120700`, and challenge height `<=1449`. Keep `n>=512` separate from decoder `N=1`. |
+| U | Half-gap line theorem in every characteristic | H+ordinary polynomial root bounds/Vandermonde; independent of G through J. Prove V is nonzero, choose usable positions, and exclude accidental roots. This can be an early complete CA endpoint. |
+| P | `cor:affine-mutual-ca` and probability/MCA translation | L/C/U as appropriate; multivariate rational function field, coefficient independence, witness descent and induction. Preserve exact sets, not just existence of witnesses at one parameter tuple. |
+
+## Three-lane schedule after decoder completion
+
+Maintain the existing limit: three workers plus the central integrator, no nested
+agents. The rows below are dependency waves, not promised one-epoch completions.
+
+| Wave | Lane A | Lane B | Lane C | Central |
+|---|---|---|---|---|
+| Foundations | H then S | R, including bidegree recurrence | G inventory and smallest concrete degree/cut core | Freeze endpoints, reuse/API audit, incidence induction A |
+| First complete outputs | M, then U | V after I is available | I, then missing G refinements | O and field-independent exact-list assembly |
+| Correlated geometry | Order-one counts and C parameters | J after B/F | B and F, split by independently provable prerequisites | L, graph-line/base-field descent and exceptional sets |
+| Final synthesis | P/function-field induction | Statement/countermodel audit | Geometry/degree audit | MCA probability bridge and public packaging |
+
+If geometry stalls, A and B can finish H/S/M/U/R and exact order-one certificates
+without waiting. Do not keep creating downstream conditional wrappers while G,
+B or F remains unproved. Identify and assign the smallest missing prerequisite.
+Additional collaborators can take unclaimed prerequisites only after central
+ownership coordination; the local three-worker concurrency cap is unchanged.
+
+No credible epoch count for the geometric track is available yet. The decoder
+estimate does not include it. G/B/F require an infrastructure audit before sizing.
+
+## Pinned-library findings and reuse limits
+
+At the current dependency pin, Mathlib has `RatFunc`, multivariate rational
+function rank, algebraic independence, Nullstellensatz, rational maps, and
+`PrimeSpectrum.isConstructible_comap_image` (Chevalley for finite presentation).
+These are ingredients, not the paper's rational-image degree theorem.
+The inspected `RingTheory/Polynomial/HilbertPoly.lean` handles coefficients of
+`p/(1-X)^d` and explicitly leaves graded-module Hilbert polynomials as a TODO.
+`AlgebraicGeometry/AlgebraicCycle/Basic.lean` provides cycles and pushforward;
+it is not a ready-made multiprojective intersection-degree package.
+A targeted search did not locate the required refined geometric Bezout bounds.
+Do not confuse the available PID/Bézout-ring API with geometric Bezout.
+
+ArkLib already has `ProximityGenerator/Basic.lean` (`IsMCA`, `mcaError`,
+`IsMCAGenerator`) and `ProximityGap/Errors.lean` (`epsMca`). `IsMCA` is the
+**bad event**, not the desired good property. Prove that this bad event is
+contained in the finite exceptional set before deriving error bounds.
+The exact-set theorem is stronger than the API's projection statement and should
+remain separately visible. Reuse actual definitions rather than adding a second
+incompatible meaning of correlated agreement.
+
+## Statement and proof audit checkpoints
+
+- Excluded incidence sets must contain all positive-dimensional irreducible
+  subsets supported on enough hyperplanes, not merely the top-level components.
+- Algebraic degree must count lower-dimensional components; hyperplane sections
+  may be reducible or have unexpected dimension.
+- A transcendental center is chosen over a field containing the root coefficients.
+  State the extension embeddings and coefficient-space maps explicitly.
+- The generic-fiber degree is not a uniform bound on special fibers. Fiber/image
+  closure interchange is a theorem to prove, not a simplification rule to assume.
+- The characteristic-zero branch must be a disjunction or separate theorem;
+  `ringChar F > bound` alone excludes it.
+- The affine induction applies the line theorem over a rational function field.
+  For the small-gap `q=n` prime endpoint, prove the exact condition
+  `char F > max(K-1,nu)` over that function field too; a theorem restricted to
+  prime fields cannot simply be reapplied to it.
+- For every good challenge, quantify over **all** close polynomials. Witnesses
+  may depend on the challenge and polynomial, but the exceptional set may not.
+- Equality is of the witnesses' common agreement set. Individual witnesses may
+  agree on additional coordinates; forbidding that would strengthen the claim.
+- Preserve the original constants when reasonably direct. A coarser polynomial
+  bound can be an explicitly named intermediate theorem, never a silent replacement.
+- Cite the paper's source labels and its Heintz/Fulton/Stacks/Milne dependencies
+  at the lemmas that use them. Prove or import every needed geometric fact;
+  an assumed geometry interface does not make an unconditional RS theorem complete.
+- Each checkpoint needs strict builds, source/import checks, principal axiom
+  footprints and nonvacuous boundary tests. Final closure requires the repository
+  full gate and an independent statement audit. No new axioms/admissions are allowed.

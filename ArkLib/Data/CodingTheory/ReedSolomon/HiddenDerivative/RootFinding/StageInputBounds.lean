@@ -91,7 +91,8 @@ private theorem sample_bounds (input : ResidualSampleMachine.Input F) (D d M : �
     omega
 
 omit [DecidableEq F] in
-private theorem batch_bounds (input : ResidualBatchMachine.Input F) (D d M n : ℕ)
+/-- Coefficient width, derivative order and exponent mass bound the actual batch budgets. -/
+theorem batch_bounds (input : ResidualBatchMachine.Input F) (D d M n : ℕ)
     (hc : input.coefficients.length ≤ D + 1) (hd : input.order ≤ d)
     (hm : PartialDerivativeMachine.inputMass input.terms ≤ M) :
     ResidualBatchMachine.fuel input n ≤ batchFuelBound D d M n ∧
