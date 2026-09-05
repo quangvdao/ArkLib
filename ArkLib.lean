@@ -587,6 +587,13 @@ import ArkLib.Data.CodingTheory.SubspaceDesign
 import ArkLib.Data.Computation.AddressedBits
 import ArkLib.Data.Computation.AddressedBitsCheck
 import ArkLib.Data.Computation.AddressedBitsSemantics
+import ArkLib.Data.Computation.AlgebraicMachine.Basic
+import ArkLib.Data.Computation.AlgebraicMachine.BatchHorner
+import ArkLib.Data.Computation.AlgebraicMachine.Canary
+import ArkLib.Data.Computation.AlgebraicMachine.Command
+import ArkLib.Data.Computation.AlgebraicMachine.Horner
+import ArkLib.Data.Computation.AlgebraicMachine.HornerRefinement
+import ArkLib.Data.Computation.AlgebraicMachine.Representation
 import ArkLib.Data.Computation.BinaryBorrowCheck
 import ArkLib.Data.Computation.BinaryBorrowMachine
 import ArkLib.Data.Computation.BinaryBorrowSemantics

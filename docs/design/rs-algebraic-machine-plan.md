@@ -1,7 +1,8 @@
 # Separating RS mathematics from executable cost proofs
 
-Status: checkpoint A implemented and validated. Remaining checkpoints
-are proposed work on `quang/all-rate-rs-capacity-formalization`, 2026-09-05.
+Status: checkpoints A and B implemented and validated.
+Implementation worktree: `ArkLib-rs-algebraic-machine-epoch1`, based on `305e7146`.
+The integration target remains `quang/all-rate-rs-capacity-formalization`, 2026-09-05.
 Initial inspection: `e3567c1c`. Audience: the mathematics/MCA orchestrator, the decoder
 orchestrator, and reviewers of the computational claim.
 
@@ -86,8 +87,8 @@ to affected files. Freeze shared signatures after that checkpoint.
 ## The computation model we will certify
 
 Use a small first-order algebraic machine, not unrestricted Lean callbacks.
-This is a design contract to finalize with the first vertical slice, not a claim
-that the syntax below is already implemented.
+The syntax and composed Horner slice now implement this contract; the decoder
+realization against this model remains open.
 
 - Programs have finite syntax: literals, primitive operations, branches, loops,
   and calls to finite, defined subprograms. There is no constructor accepting an
@@ -156,6 +157,66 @@ or binary complexity. Align manuscript wording separately before claiming that
 a differently worded paper runtime theorem is fully formalized.
 
 ## Work packages and acceptance gates
+
+### Current machine implementation
+
+The reusable implementation lives in `ArkLib/Data/Computation/AlgebraicMachine/`:
+
+- `Basic.lean` defines atomic values, fixed registers, pair cells, and a closed primitive menu.
+  Programs cannot carry field literals other than zero and one, arbitrary callbacks, or bulk
+  list/polynomial operations. Natural literals are fixed code constants.
+- `Command.lean` defines structured finite code and a charged small-step machine. The theorem
+  `Executes.steps` turns each compositional certificate into an actual trace with the same cost.
+  `Executes.run` connects it to the fuel-bounded observer; `run_sound` proves that successful
+  observation entails a terminating trace within the observation limit.
+- `Representation.lean` defines finite-heap validity, extension, and linked-list representation.
+  Public materialized-input theorems require `Heap.WellFormed`; the unrestricted semantic heap
+  type alone is not a finite-input guarantee. Allocation preserves this invariant and old lists.
+- `Horner.lean` realizes descending-coefficient evaluation with explicit pointer traversal
+  and a preserved register interface. Its exact bound is `12k + 7` steps for `k` coefficients.
+- `HornerRefinement.lean` proves agreement with the existing Horner reference machine and
+  computational-polynomial evaluation, using an explicit coefficient-representation premise.
+- `BatchHorner.lean` calls the fixed Horner program for each of `m` supplied points and allocates
+  one result cell each time. It takes exactly `(12k + 22)m + 7` steps and materializes results
+  in **reversed point order**. There is no implicit output reversal or conversion.
+- `Canary.lean` reduces the actual interpreter on asymmetric coefficients and a two-point batch,
+  and checks insufficient observation fuel and a type-invalid branch.
+
+The unit is an abstract algebraic-machine step, including unbounded natural arithmetic and
+pointer access. It is not native execution time, a bounded-word RAM bound, or bit complexity.
+Input-independent code and finite materialized data are part of the final theorem boundary.
+The observer's fuel is not accessible to the program; no fuel-computation oracle is introduced.
+
+An independent source review accepted the core and composed slice, including both exact
+cost formulas, call-register preservation, output order, and the finite-input and fixed-program
+conditions above. This is not a review of the full decoder realization: packages C–E remain open.
+The implementation uses no new admissions, opaque routine-realization assumptions, or bit backend.
+
+Validation on 2026-09-05, after incorporating MCA presentation commit `f18c4eff`:
+`./scripts/validate.sh --axioms` passed, including the full build, source-policy and warning
+gates, runtime checks, import boundary, docs/KB checks, and axiom fixtures/regression gate.
+The sweep covered 30,949 declarations across 1,107 modules, with no new axiom/sorry taint
+and no nonstandard axioms. Existing unrelated admission debt was not changed or allowlisted.
+
+### Concrete realization order after the slice
+
+1. Establish cost-preserving register renaming to embed subroutines into larger fixed banks.
+   Realize shared structural routines: traversal, reversal, lookup/update, ranges, prefixes,
+   Cartesian products, and coordinate-pair arithmetic. Build common matrix/elimination
+   machinery once for both interpolation and coefficient recovery.
+2. Interpolation: support enumeration, local translation/rewrite, matrix assembly, nonzero
+   kernel extraction, sparse emission, and ambient-search failure paths. The current reference
+   enumerates support `n + 2` times in a successful attempt; a cached implementation needs a
+   correctness bridge, not a cost proof pretending those traversals do not happen.
+3. Recovery: field/extension setup and alphabets, separant stages, center/jet enumeration,
+   coefficient lifting, residual checks and matrix recovery, and canonical acceptance/filtering.
+4. Assembly: scalar dispatch, small-block enumeration, both field regimes, and absorption of
+   setup and control work. The `d = 0` branch uses `m = n / 2`; its dependence on block length
+   cannot be hidden in a gap-only constant. Remove reference proof fuel from actual loops, or
+   explicitly realize and charge its construction. Avoid a final bulk deduplication primitive.
+
+This order reuses the existing reference outputs and semantic lemmas. It does not replace
+the verified decoder with a new unconnected algorithm.
 
 These are dependency waves, not time promises. The first substantive vertical
 slice determines whether the bulk realization work is affordable as designed.

@@ -582,5 +582,10 @@ home_page/            site assets and assembled website root
   Background: KB concept page `docs/kb/concepts/ring-switching.md`; blueprint section
   `proof_systems/ring_switching.tex`. Structured sum-check support lives in
   `ProofSystem/Sumcheck/Structured*` and `ProofSystem/Sumcheck/Domain.lean`.
+- Restricted algebraic execution lives under `Data/Computation/AlgebraicMachine/`.
+  Its closed instructions and charged traces are separate from the RS mathematical statements.
+  The decoder realization is in progress; see the
+  [machine implementation plan](../design/rs-algebraic-machine-plan.md) for the implemented
+  boundary and remaining interpolation/recovery work. Abstract steps are not native or bit time.
 - Before assuming a file is authoritative, check whether it is source or derived output. See
   [`generated-files.md`](generated-files.md).
