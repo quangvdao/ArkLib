@@ -224,6 +224,8 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationDimens
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationIndex
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationIndexCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationSpace
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationSupportMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationSupportMachineCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.KernelSliceIndependence
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalConstraintKernel
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalConstraintKernelCanary
@@ -274,6 +276,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Regular
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularWitnessCounting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualBatchCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualBatchMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualCoefficientCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualCoefficientMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualRecoverySemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSampleCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSampleMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSampleRefinement
@@ -301,6 +306,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.Interleaved
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.AgreementMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.AgreementMachineCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CandidateFilterMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CandidateFilterMachineCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CandidateFilterSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.Specification
 import ArkLib.Data.CodingTheory.ReedSolomon.Multilinear
 import ArkLib.Data.CodingTheory.ReedSolomon.Multiplicity
@@ -378,6 +386,9 @@ import ArkLib.Data.Matrix.ColumnEliminationMachineCanary
 import ArkLib.Data.Matrix.ForwardEchelonMachine
 import ArkLib.Data.Matrix.ForwardEchelonMachineCanary
 import ArkLib.Data.Matrix.ForwardEchelonSemantics
+import ArkLib.Data.Matrix.NonzeroKernelMachine
+import ArkLib.Data.Matrix.NonzeroKernelMachineCanary
+import ArkLib.Data.Matrix.NonzeroKernelSemantics
 import ArkLib.Data.Matrix.PivotEliminationMachine
 import ArkLib.Data.Matrix.PivotEliminationMachineCanary
 import ArkLib.Data.Matrix.PivotSelectionMachine
@@ -403,10 +414,15 @@ import ArkLib.Data.MvPolynomial.RestrictDegree
 import ArkLib.Data.MvPolynomial.RestrictDegreeVar
 import ArkLib.Data.MvPolynomial.SchwartzZippelCounting
 import ArkLib.Data.MvPolynomial.WeightedDegree
+import ArkLib.Data.Polynomial.AffinePowerTruncationMachine
+import ArkLib.Data.Polynomial.AffinePowerTruncationMachineCanary
 import ArkLib.Data.Polynomial.Bivariate
 import ArkLib.Data.Polynomial.ClassicalWronskian
 import ArkLib.Data.Polynomial.CoefficientUpdateMachine
 import ArkLib.Data.Polynomial.CoefficientUpdateMachineCanary
+import ArkLib.Data.Polynomial.DegreeTruncationMachine
+import ArkLib.Data.Polynomial.DegreeTruncationMachineCanary
+import ArkLib.Data.Polynomial.DegreeTruncationSemantics
 import ArkLib.Data.Polynomial.FoldedWronskian
 import ArkLib.Data.Polynomial.FoldingPolynomial
 import ArkLib.Data.Polynomial.HornerMachine

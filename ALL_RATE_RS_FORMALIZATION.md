@@ -1127,24 +1127,31 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
-| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: execute residual coefficient recovery through back-substitution | `HiddenDerivative/RootFinding/ResidualCoefficientMachine.lean`, focused refinement/canary |
-| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: generate the full finite interpolation support | `HiddenDerivative/InterpolationSupportMachine.lean` and canary |
-| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: extract a nonzero homogeneous kernel vector | `ArkLib/Data/Matrix/NonzeroKernelMachine.lean`, `NonzeroKernelSemantics.lean`, canary |
-| Central | Integrate completed handoffs; implement exact degree truncation for final candidate filtering | `ArkLib/Data/Polynomial/DegreeTruncationMachine.lean`, candidate-filter composition, tracker and umbrella |
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: compose direct coefficient recovery into the full regular-lift loop | `HiddenDerivative/RootFinding/RegularLiftMachine.lean`, semantics/canary |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: execute a translated interpolation column before jet rewrite and contact projection | `HiddenDerivative/LocalColumnTranslationMachine.lean`, semantics/canary |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: aggregate sparse terms before selecting the highest active jet | `ArkLib/Data/MvPolynomial/DenseNormalizeMachine.lean`, refinement/canary |
+| Central | Validate and integrate handoffs; assemble final candidate processing and track total cost | Candidate-filter composition, output preparation, tracker and umbrella |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
 except explicitly repository-relative paths beginning `ArkLib/`.
 Do not infer ownership from the historical
 wide dependency graph. Ask the central owner before editing a claimed interface.
 
-This epoch follows the fully validated sharp-count checkpoint `339bbb34`. The target remains a
+These epochs follow the fully validated executable checkpoint `78c3a2ab`. The target remains a
 single closed executable decoder, not merely a conjunction of independently costed components.
-A must charge residual sampling, row construction/elimination, seed allocation, back-substitution,
-and result emission. B emits distinct exponent vectors `[x,b0,...,bd]` with both strict degree
-cutoffs; every range, product traversal, counter and filter is executed and charged.
-C must support matrices with redundant rows: success follows from a **nonzero kernel witness**,
-not just from fewer rows than columns. The interpolation certificate controls rank, so a
-row-count-only solver guarantee cannot close this interface.
+A's frozen `b21f40bf` computes the actual direct affine lifting coefficient through two residual
+recoveries and explicit lookup/update/arithmetic; it awaits integration after the current gate.
+The next loop must retain every nested recovery and update charge. B uses direct truncated
+expansion: vanishing of full sampled substitutions is not equivalent to the required low-contact
+constraints. The final matrix must retain exactly `i+d*b<m`. C permits duplicate sparse terms,
+but factor variable indices within each term must be distinct; exponent-to-scalar conversion is
+executed by repeated addition, not charged as a unit-time cast. The completed derivative
+handoff `42b6fe7a` awaits integration; C now normalizes terms under an explicit shared variable
+layout so syntactically present but cancelling terms cannot corrupt the active-variable scan.
+
+Nonzero kernel extraction now supports redundant rows: success follows from an actual nonzero
+kernel witness, not fewer rows than columns. The interpolation certificate controls rank, so
+the weaker row-count-only solver guarantee would not close this interface.
 
 Next composition edges are residual coefficients to direct regular lifting, support and local
 constraints to nonzero interpolants, chain witnesses to finite root enumeration, and exact
@@ -1152,8 +1159,24 @@ degree/agreement filtering to the public output. Field setup, scalar-operation l
 whole-program cost remain explicit obligations. No lane may replace any of these by a callback
 whose charged cost is assumed.
 
+Output duplicate removal must also preserve the stated exponent: a naive quadratic scan through
+all generated candidates can double the derivative-dependent exponent. Use an explicitly costed
+sorting/indexing method or prove a canonical-witness acceptance rule; set notation alone does
+not supply an executable duplicate-free output algorithm.
+
 ### Integrated foundations and current handoffs
 
+- Current integration batch: A's `5dddee4e` residual coefficient recovery, B's `8ebf6d4d`
+  interpolation support and `a886c886` truncated affine powers, C's `463b1b41` nonzero homogeneous
+  kernel extraction, and central degree truncation plus composed candidate filtering. The filter
+  proves exact polynomial-degree and `Code.agree` acceptance, preserved output polynomial and
+  width, and primitive work at most `64*(w+1)*(n+1)` for the same closed run. Materialized inputs,
+  base-field descent, duplicate removal and bit-cost lowering remain explicit boundaries.
+  Full `validate.sh --axioms` passes: 619 umbrella imports, 439 source examples (+37),
+  183 admissions unchanged, 312 pre-existing tainted declarations, and zero nonstandard/native
+  axioms. Central read every integrated source and canary. The residual refinement module is
+  named `ResidualRecoverySemantics.lean` to keep generated imports within the source policy.
+  These components are not the full decoder.
 - Executable handoff integration after `339bbb34` includes A's `5db0dde8` center shift and
   `578b0232` residual-zero decision, B's `ebc91977` prefix axes, and C's `ff333cf3` pivot solve
   and back-substitution. Central read the source and boundary tests. Full `validate.sh --axioms`
