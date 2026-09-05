@@ -206,6 +206,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AsymmetricBandLocal
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AsymmetricBandLocalRankCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AsymmetricBandNormalizedRank
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AsymmetricBandRankBound
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.BandEligibility
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Counting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.CountingCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.DifferentialEquation
@@ -249,6 +250,8 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.NonzeroInterpolatio
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.NonzeroInterpolationCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.NonzeroInterpolationMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.NonzeroInterpolationProofs
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.OrderZeroAssemblyBounds
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.OrderZeroRewriteBounds
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.BandEndpointComparison
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.BandMassBound
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.BandParameterBounds
@@ -341,7 +344,11 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Singula
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SingularRecursionCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SpecializationDegree
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SpecializationDegreeCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsBounds
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsSemantics
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsSound
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeExtension
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeRootCount
@@ -432,6 +439,7 @@ import ArkLib.Data.List.CartesianProductMachine
 import ArkLib.Data.List.CartesianProductMachineCanary
 import ArkLib.Data.List.PrefixAxesMachine
 import ArkLib.Data.List.PrefixAxesMachineCanary
+import ArkLib.Data.List.PrefixMachine
 import ArkLib.Data.Matrix.AugmentedColumnMachine
 import ArkLib.Data.Matrix.AugmentedColumnMachineCanary
 import ArkLib.Data.Matrix.BackSubstitutionMachine
@@ -442,6 +450,7 @@ import ArkLib.Data.Matrix.ColumnEliminationMachineCanary
 import ArkLib.Data.Matrix.ForwardEchelonMachine
 import ArkLib.Data.Matrix.ForwardEchelonMachineCanary
 import ArkLib.Data.Matrix.ForwardEchelonSemantics
+import ArkLib.Data.Matrix.NonzeroKernelCompletion
 import ArkLib.Data.Matrix.NonzeroKernelMachine
 import ArkLib.Data.Matrix.NonzeroKernelMachineCanary
 import ArkLib.Data.Matrix.NonzeroKernelSemantics
@@ -475,6 +484,9 @@ import ArkLib.Data.MvPolynomial.NestedEvaluationTree
 import ArkLib.Data.MvPolynomial.PartialDerivativeMachine
 import ArkLib.Data.MvPolynomial.PartialDerivativeMachineCanary
 import ArkLib.Data.MvPolynomial.PartialDerivativeRefinement
+import ArkLib.Data.MvPolynomial.QuadraticEvaluationCanary
+import ArkLib.Data.MvPolynomial.QuadraticEvaluationMachine
+import ArkLib.Data.MvPolynomial.QuadraticEvaluationRefinement
 import ArkLib.Data.MvPolynomial.RestrictDegree
 import ArkLib.Data.MvPolynomial.RestrictDegreeVar
 import ArkLib.Data.MvPolynomial.SchwartzZippelCounting
@@ -522,6 +534,9 @@ import ArkLib.Data.QuadraticAlgebra.CoefficientDescentMachine
 import ArkLib.Data.QuadraticAlgebra.CoefficientDescentSemantics
 import ArkLib.Data.QuadraticAlgebra.EnumerationMachine
 import ArkLib.Data.QuadraticAlgebra.FiniteWitness
+import ArkLib.Data.QuadraticAlgebra.SetupMachine
+import ArkLib.Data.QuadraticAlgebra.SetupMachineCanary
+import ArkLib.Data.QuadraticAlgebra.SetupRefinement
 import ArkLib.Data.ZMod.EnumerationMachine
 import ArkLib.Data.ZMod.NonsquareSearchMachine
 import ArkLib.OracleReduction.BCS.Basic

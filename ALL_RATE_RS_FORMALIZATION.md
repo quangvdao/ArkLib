@@ -1127,10 +1127,10 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
-| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: complete generated-stage enumeration semantics and bounds; operational driver and unique jets handed off | `HiddenDerivative/RootFinding/StageRoots*`; `JetRootsUnique.lean` frozen |
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: canonical generated-root soundness, first-supplied-center completeness and polynomial uniqueness | `HiddenDerivative/RootFinding/CanonicalRootSelection*`; `StageRoots*` frozen |
 | B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: retained band witness to strict eligibility, unconditional attempts, descending ambient-degree search | `HiddenDerivative/{BandEligibility,InterpolationAttemptProofs,AmbientSearch*}`; generic matrix completion if needed |
-| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Field/sample setup handed off; active: concrete quadratic-to-base lowering of the sparse evaluator | `ArkLib/Data/MvPolynomial/QuadraticEvaluation*` |
-| Central | Validate/integrate handoffs; charged canonical output collection and whole-decoder joins | `ListDecoding/CanonicalOutput*`, output uniqueness, tracker and umbrella |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: concrete quadratic-to-base lowering of the direct coefficient arithmetic tail | `HiddenDerivative/RootFinding/DirectArithmetic*`; setup and evaluator lowering frozen |
+| Central | Validate/integrate handoffs; order-zero polynomial assembly bounds and whole-decoder joins | `HiddenDerivative/OrderZero*Bounds`, collector integration, tracker and umbrella |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
 except explicitly repository-relative paths beginning `ArkLib/`.
@@ -1211,7 +1211,31 @@ Do not rebuild those components or count them as already proving the whole-decod
 
 ### Integrated foundations and current handoffs
 
-- Latest fully validated batch: nonzero interpolation construction (`6e80560d`), operational stage
+- Latest fully validated batch:
+  generated-stage semantics and prescribed-center completeness (`dfeaa0da`), concrete field/sample
+  setup (`06aec5ca`), retained band eligibility and total kernel completion (`c5b39f4a`), sparse
+  quadratic evaluation lowering (`dd79d46a`), and central order-zero rewrite/assembly bounds.
+  Stage enumeration now has actual-run correctness and initial-equation root coverage. Its
+  current fuel sums over visited stages; a uniform bound in initial input sizes is still needed
+  before this supplies input-computable whole-decoder fuel. Canonical guard selection and
+  duplicate-freedom are the active A assignment, not consequences already claimed here.
+  Field setup executes enumeration, nonsquare search, coordinate allocation and sample-prefix
+  selection; its returned parameter determines the certified field. The success theorem assumes
+  an odd prime and enough extension elements. Small exceptional fields remain a decoder case.
+  The evaluator lowering replaces actual extension additions and multiplications by suspended
+  base-field programs, including launch, child dispatch and return charges. It covers materialized
+  evaluator inputs, not input conversion, all residual drivers or the full decoder.
+  The band bridge retains strict total-jet membership from the original interpolation witness;
+  individual-degree bounds alone would not suffice. Kernel completion now certifies bounded
+  success or genuine full coverage, rather than treating fuel exhaustion as absence of a kernel.
+  At order zero the actual local rewrite, point blocks and received matrix have polynomial
+  multiplicity-dependent bounds, including at most `n*m^2*supportLength` materialized rows.
+  Large-gap solver/search composition and its existence witness remain open.
+  The full `validate.sh --axioms` gate passes: 705 umbrella imports, 583 source examples (+14),
+  183 admissions unchanged, 312 pre-existing tainted declarations and no nonstandard/native axioms.
+  Central reviewed all integrated source; the order-zero bounds change only proofs of the existing
+  executable program. Setup and lowered-evaluator kernel canaries exercise actual execution.
+- Previous fully validated batch (`3fe2a7b9`): nonzero interpolation construction (`6e80560d`), operational stage
   driver and per-center uniqueness (`48a91dcb`), and central canonical output collection.
   The nonzero solver now consumes a genuine supported interpolation witness and returns a
   materialized nonzero sparse equation with the same strict support and low-contact constraints.
@@ -1219,15 +1243,11 @@ Do not rebuild those components or count them as already proving the whole-decod
   actual acceptance call instruction by instruction and preserves the accepted output order,
   with linear-in-record-count overhead. It deliberately retains duplicates in malformed/repeated
   input records: whole-list uniqueness must follow from the generated chain/center/jet contracts.
-  Full stage semantics, scalar lowering and the full decoder theorem remain unfinished.
+  At that checkpoint, full stage semantics, scalar lowering and the full decoder theorem were unfinished.
   The full `validate.sh --axioms` gate passes: 690 umbrella imports, 569 source examples (+14),
   183 admissions unchanged, 312 pre-existing tainted declarations and no nonstandard/native axioms.
   Central read all source and canaries. Four collector canaries explicitly distinguish ordered
   filtering, final emission, empty input and repeated malformed input records.
-- Pending audit/integration: actual quadratic-field and sample setup (`06aec5ca`). No opaque
-  basis is chosen: the returned nonsquare parameter indexes the materialized quadratic values.
-  The next scalar-lowering task targets the existing sparse evaluator's actual add/multiply
-  instructions, not the legacy specification-only lifting counters.
 - Previous fully validated batch: closed canonical base-field acceptance. The actual guard,
   coordinate descent, degree truncation and agreement check now run in one driver with every
   callee charge and caller dispatch retained. The accepted base polynomial embeds to the original
