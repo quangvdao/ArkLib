@@ -202,6 +202,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.HalfGapMutualAgr
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.IntermediateGapCertificate
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.IntermediateGapDimension
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.IntermediateGapLocalRank
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.IntermediateGapSelectedCertificate
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.InterpolantListBound
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.MutualAgreement
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.QuarterGapListBound
@@ -630,6 +631,8 @@ import ArkLib.Data.Computation.QuadraticArithmeticBitNeg
 import ArkLib.Data.Computation.QuadraticArithmeticBitNegExecution
 import ArkLib.Data.Computation.QuadraticArithmeticBitPair
 import ArkLib.Data.Computation.QuadraticArithmeticBitProgram
+import ArkLib.Data.Computation.QuadraticArithmeticBitProgramCheck
+import ArkLib.Data.Computation.QuadraticArithmeticBitProgramExecution
 import ArkLib.Data.Computation.QuadraticRegisterInitialization
 import ArkLib.Data.Computation.QuadraticRegisterInitializationCheck
 import ArkLib.Data.Computation.ScalarWordPadding

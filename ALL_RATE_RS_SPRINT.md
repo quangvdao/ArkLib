@@ -1,5 +1,10 @@
 # Four-hour decoder and strengthening sprint
 
+**Closed within the gate.** All proof implementation stopped by 09:18 UTC. All worker tasks and
+strengthening descendants are stopped. Final central code validation completed at 09:21 UTC;
+the remaining closing actions were documentation, commit/push and remote verification.
+The original full bit-complexity theorem and general small/intermediate-gap MCA remain unproved.
+
 ## Hard stop
 
 The user authorized this local-only four-hour sprint on September 5, 2026.
@@ -291,3 +296,79 @@ flags. Generic whole-program scalar correctness/cost and finite-head adequacy of
 are still separate. Lane C independently audited literal/pair/Boolean components, adding full-bank
 kernel replays and rejecting seven injected implementation faults. It is now auditing the dispatcher
 and placement; lane A independently audits the geometric output bridge.
+
+## Final implementation handoffs, 09:19 UTC
+
+`792288c4` is pushed after full central validation: 30,218 declarations in 1,064 modules,
+312 pre-existing tainted declarations, zero new taint/nonstandard axioms, 183 source admissions
+unchanged. The exact strengthened-output bridge also passed a separate strict rebuild and audit
+against 361 frozen local dependency hashes. Its public statements retain the actual decoder,
+both primitive-work regimes, original output and exact threshold semantics.
+
+All new proof work finished before the 09:21 cutoff. Final integration consists of:
+
+- B's `a23020c9`: actual dispatcher-to-child-to-return traces for all eight instruction kinds.
+  Scalar cases include observed execution, decoded updates, fixed widths, reduced residues and
+  both charged control steps. Whole-program induction, total bound and head-only adequacy remain.
+- C's `0f391ed1`: seven permanent kernel replays for complete ADD/EQUAL programs, equality-to-Boolean
+  flag adoption, empty code and rejected child halting. Concrete tests do not replace the generic proof.
+- Strengthening `98c075b5`: the selected order-one certificate with no upper-rate premise,
+  coefficient challenge degree at most 1449 and total jet degree at most 119. Nonzero specialization
+  and the close-polynomial differential identity hold at every extension-field challenge.
+- Updated bit-backend and strengthening handoffs, distinguishing certified components from the
+  unfinished global compiler and joint-envelope/generic-fiber MCA argument.
+
+Central independently read and audited the final 194-line B composition against the previously
+audited children. Every scalar return adds exactly two transitions; pair/Boolean halt after their
+actual output child, and LOAD/EQUAL retain the correct input/register/flag projections. No missing
+whole-program theorem is hidden in these statements. The selected certificate had a separate
+exact-source mathematical audit in its lane and was fully read again before central integration.
+
+### Resume only with a new authorization
+
+| Track | Next proof obligation | Existing entry point |
+|---|---|---|
+| Scalar program | Compose initialization and the eight instruction cases into generic literal-program correctness and a uniform total bound; then prove finite-head adequacy | `QuadraticArithmeticBitProgramExecution.lean`, `FiniteHeadProgramPlacement.lean` |
+| Decoder compiler | Lower the remaining coordinate-controller clauses, natural/fuel administration and representations to the concrete backend | `CoordinateCapacityExecution.lean`, `docs/design/rs-bit-cost-backend.md` |
+| Global resource bound | Derive initial word widths and cumulative allocation, preserve them across the whole run, account for external input/output, and join the same-program bit-cost bound | `HeapAllocationBudget.lean`, shared-list backend, decoder primitive budgets |
+| General MCA | Actual mixed-degree rational image/joint envelope, generic fiber, graph-line-excluded incidence, exceptional-set equality and low-dimension cases | `ALL_RATE_RS_STRENGTHENINGS_FRONTIER.md` |
+
+The first three rows are needed for full original algorithmic Theorem 1.1. The last row is a
+separate strengthening. The field-independent list theorem and its reuse of the existing decoder
+are proved already. No reliable small epoch estimate is asserted for the unfinished compiler.
+
+## Final validation and stopped roster
+
+Final full-code gate: `./scripts/validate.sh --axioms` passed. The umbrella imports 1,066
+modules; the sweep checked 30,267 declarations across 1,067 modules. It found 312 pre-existing
+sorry-tainted declarations, **zero new taint and zero nonstandard-axiom taint**. Source inventory
+remained at 183 admissions, with zero explicit axioms and zero native-trust constructs. The final
+test-only increment adds seven kernel examples. No trust baseline or resource limit was relaxed.
+Existing repository debt is not evidence of an admission in the newly audited theorem cones.
+
+Reproducible local receipts are `/tmp/rs-final-sprint-validation.log` and
+`/tmp/rs-final-sprint-source-trust.json`; the source and validation scripts are on the branch.
+Independent final audits cover the exact coordinate public capstone, strengthened same-output
+bridge, register instructions/initialization, finite-head literals/placement and scalar dispatcher.
+Auditors rebuilt frozen source slices with trust zero and checked endpoint axiom dependencies.
+Their mutation probes rejected stale flags, source restoration errors, uncharged clears, wrong
+selectors/head routing, fabricated returns and nonadvancing cursors. Permanent kernel regression
+modules preserve representative complete executions and exceptional cases.
+
+| Worker task | Final private checkpoint | Stop confirmation |
+|---|---|---|
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | `4e9896df` | Completed; app status idle |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | `a23020c9` | Completed; app status idle |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | `0f391ed1` | Completed; app status idle |
+| Strengthening: `01a07013-4475-7522-ace6-e5dab07fad0a` | `98c075b5` | Completed; app status idle |
+
+The strengthening coordinator confirmed all three descendants completed before 09:18 UTC:
+`geometry_audit` (Copernicus), `half_gap` (Plato), and `kernel_height` (Sartre). The three older
+central audit subagents were already completed. There is no running proof lane. Future work
+requires a new user authorization; the longstanding full-theorem objective has **not** been
+marked achieved merely because this bounded sprint ended.
+
+Private worktrees and frozen audit scratch were preserved without destructive cleanup. The
+strengthening lane additionally archived 85 unvetted scratch files locally; its archive hash and
+location are in the strengthening progress log. Those files are not certified source or proof
+dependencies. No upstream PR, announcement, remote compute or dependency upgrade was performed.

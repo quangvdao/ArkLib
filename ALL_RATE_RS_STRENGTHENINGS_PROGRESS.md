@@ -338,3 +338,30 @@ review, axiom fixture matrix, and regression sweep; details appear below.
 - STILL INCOMPLETE: requested small/intermediate mutual correlated agreement with
   manuscript error budgets (joint image/envelope/generic-fiber argument). Half-gap
   line and affine MCA are previously certified. The list endpoint is not MCA.
+
+## Twelfth checkpoint certification and final lane freeze (09:18 UTC)
+
+- The selected intermediate certificate (353 lines) removes the former upper-rate
+  premise by using the actual b1<=16, b0+b1<=119 column family. Its prescribed
+  theorem assumes k>=3, n>0, and 4*k+n<=4*A, with no rank or dimension premise.
+- The actual primitive interpolant has coefficient challenge degree<=1449, stays
+  nonzero at every extension/challenge, has the full close-polynomial root identity,
+  and exposes both support total jet degree<=119 and specialization degree<=119.
+- Final production SHA256 is
+  25d513fdafe53996d0b5369baffac13d380ac429bf6f47fd179e0968f05f3649.
+  Targeted production checking caught only a multi-goal style issue in the two
+  certificate proof fields; explicit bullets fixed it, with no suppression or
+  mathematical change. Exact-hash independent audit approved the result.
+- Full default validation passed with859 umbrella imports. Axiom sweep passed:
+  23050 declarations/860 modules,312 old sorry-tainted,zero nonstandard axioms,
+  no new taint. Source audit vs0646f443 is unchanged.
+- ALL_RATE_RS_STRENGTHENINGS_FRONTIER.md records the completed list endpoints
+  and the exact remaining MCA obligations; it also passed independent review.
+- All three descendants stopped before09:18UTC; parent implementation is frozen.
+  No new proof work will occur after the09:21:04 cutoff.
+- Preserved85 scratch files in the ignored private archive
+  .lake/strengthening-handoff-wip-20260905.tar.gz, with a per-file SHA manifest.
+  Archive SHA256:758831d29573963abad1915e840fc737105123a088d28eea3bf03906abb415a4.
+  Scratch is preservation only, not certified source or a proof dependency.
+- Final limitation remains small/intermediate manuscript MCA transfer and the
+  intermediate k=1,2 certificate cases. No full-MCA completion is claimed.

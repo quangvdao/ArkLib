@@ -1,6 +1,6 @@
 # All-rate Reed-Solomon capacity formalization
 
-Status: exact executable output and primitive-work capstone proved; full bit-time remains open
+Status: four-hour sprint stopped; exact executable/primitive-work and field-independent list bounds proved; full bit-time and general MCA remain open
 
 Last updated: 2026-09-05  
 Integration branch: `quang/all-rate-rs-capacity-formalization`  
@@ -32,17 +32,21 @@ It is the **list-size part**, not yet the full algorithmic theorem.
 
 The same file now also exports `capacity_decoder_exact_output_and_primitive_work` for the
 actual integer-input decoder, including both field regimes and a bound on the same observed run.
-It is **not** a bit-time theorem. Pushed checkpoint `19e7505b` closes the coordinate
+It is **not** a bit-time theorem. Pushed checkpoint `792288c4` closes the coordinate
 prepared/separate-sample driver, executed alphabet conversion, interpolation/setup composition
 and all-rate integer dispatch. It adds alias-safe physical register ADD/MUL/NEG/INV, closed
 Horner zero initialization and the unconditional affine principal-cut degree sum. The existing
 public capstone now uses the coordinate implementation. Finite-head word-copy adequacy,
-physical register initialization, equality and input loads are also validated and pushed.
+physical register initialization, equality, input loads, pair/Boolean emission, static tape
+placement and the scalar dispatcher are also validated and pushed.
 These pieces still require a whole-driver bit compiler, representation/width/lifetime invariants,
-physical input/output, and the final same-program bit-cost join. Lane A independently audits the
-coordinate outer driver and owns finite-head placement; lane B composes the physical
-scalar-register dispatcher; lane C independently audits these bit-level instructions. Central
-owns integration and the same-output strengthened-list bridge. The current gate and precise frontier are maintained in
+physical input/output, and the final same-program bit-cost join. All three decoder lanes have
+completed their bounded handoffs and stopped under the four-hour gate. Their latest results
+include actual per-instruction dispatch/return bounds and permanent complete-program regression
+checks, not the missing generic whole-program proof. Final code integration passed the full gate:
+30,267 declarations in 1,067 modules, with no new admission/axiom taint. All worker tasks and
+strengthening descendants are stopped; no further proof work is authorized by this sprint.
+The current gate and precise frontier are maintained in
 [the four-hour sprint record](ALL_RATE_RS_SPRINT.md). Historical open-task descriptions below
 are not the current assignment roster.
 
@@ -56,6 +60,8 @@ It includes singular solutions. The canonical `Code.Lambda` adapter is in
 attaches this smaller bound to the **same actual coordinate decoder output**, preserving its
 existing primitive-work bounds rather than claiming faster execution. General small/intermediate-gap
 mutual correlated agreement remains open; consult the strengthening plan for that distinct frontier.
+The exact remaining mathematical constructions are recorded in
+[the strengthening handoff](ALL_RATE_RS_STRENGTHENINGS_FRONTIER.md).
 
 The optimized mathematical ingredients were validated and pushed at `1d77f94a`; they now live in
 [`AsymmetricBandListBound.lean`](ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/AsymmetricBandListBound.lean):

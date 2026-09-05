@@ -1,9 +1,40 @@
 # Bit-RAM backend for Reed–Solomon decoding
 
-This note records the approved first prerequisite and the remaining route from primitive ledgers
-to a bit-cost decoder. The current implementation proves address-controller correctness in an
-**address-serial bit RAM**. It does not prove decoder bit complexity, tape-machine complexity,
-native Lean running time, or compiler correctness.
+This note records the route from the proved primitive-work decoder to a bit-cost decoder.
+The implementation includes **address-serial bit RAM** access, shared-memory list operations,
+literal scalar arithmetic, and a physical quadratic-arithmetic dispatcher. It does not yet prove
+the complete decoder's bit complexity, tape-machine complexity or native Lean running time.
+
+## Current frontier, September 5 sprint
+
+The actual coordinate decoder and both primitive-work regimes are assembled in
+[`CoordinateCapacityExecution.lean`](../../ArkLib/Data/CodingTheory/ReedSolomon/ListDecoding/CoordinateCapacityExecution.lean)
+and exposed by the public `Capacity.lean` theorem. This completes coordinate lowering, not its
+binary compilation. The following lower-level components are proved and independently audited:
+
+- Fixed-width addition, multiplication, negation, prime-field inverse search and equality retain
+  their physical operand/modulus words. Register instructions handle source/destination aliasing.
+- Shared-heap allocation and reads preserve the same memory and list representation. The closed
+  shared-memory Horner loop physically initializes zero and executes its arithmetic children.
+- Eight scalar registers and two flags are physically initialized; loads restore their sources;
+  pair and Boolean emission produce actual output words.
+- `QuadraticArithmeticBitProgram` executes the finite source instruction lists through those
+  children on the same 28 tapes. Launches and returns preserve the physical bank; equality adopts
+  the new flag. Its child traces and initialization are proved, but its generic whole-program
+  refinement and total bound are still separate obligations.
+- `FiniteHeadProgram` restricts dispatch to finite labels and current head bits. Word copying and
+  zero/one construction have exact refinements into that model. Injective static placement proves
+  those executions preserve all unowned tapes. This is not yet a compiler for every child or RAM
+  instruction, and simultaneous tape actions are not silently identified with serial bit steps.
+- `HeapAllocationBudget` derives one allocator call's no-overflow premise from a remaining budget.
+  The decoder-wide lifetime allocation bound needed to initialize that budget remains unproved.
+
+The next implementation steps are therefore composition and adequacy, not another arithmetic
+specification: prove the scalar dispatcher's generic execution/cost theorem; lower the remaining
+coordinate controller clauses and administrative arithmetic; establish input-based bounds for
+every word, counter and lifetime allocation; then account for external input/output and prove
+the final bit-cost bound for one closed program. A component `BankStep` theorem alone cannot
+exclude branching on hidden tape tails and is not accepted as finite-control adequacy.
 
 ## Implemented boundary
 
@@ -46,7 +77,10 @@ and its write-congruence theorem preserve lookup observations without asserting 
 shapes. The overwrite canary uses the actual controller for writes and reads at distinct addresses,
 including the empty path, and checks early fuel and malformed wire inputs.
 
-## Remaining dependencies
+## Dependency map
+
+The outline below separates the original work packages. The frontier above identifies their
+proved components; none of the packages is considered globally complete merely from local traces.
 
 1. **Binary arithmetic code.** Implement literal bit loops for copying, comparison, carry addition,
    saturating subtraction, multiplication, and division/remainder. Prove decoded results and actual
