@@ -1127,9 +1127,9 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
-| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: enumerate, prepare and execute every initial jet at one supplied center | `HiddenDerivative/RootFinding/JetRootsMachine.lean`, semantics/canary and bounds if needed |
-| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: assemble one received-point matrix block from support and local columns | `HiddenDerivative/InterpolationPointBlockMachine.lean`, semantics/canary |
-| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: construct the ordered separant chain with charged selection and differentiation | `ArkLib/Data/MvPolynomial/SeparantChainMachine.lean`, bounds/canary; `HiddenDerivative/RootFinding/SeparantChainRefinement.lean` |
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Center loop handed off; next: execute root enumeration across generated chain stages and prove unique-jet output | New root-stage driver and uniqueness modules, API freeze pending |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Full matrix handed off; next: connect kernel extraction to a nonzero sparse interpolant | New interpolation/kernel conversion modules, API freeze pending |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: adapt each chain stage to its actual highest derivative order, retaining raw sparse terms | `HiddenDerivative/RootFinding/ActiveOrderAdapter.lean`; `OrderedChainRegularWitness.lean` if scope permits |
 | Central | Validate/integrate handoffs; implement canonical witness selection and whole-decoder joins | Output processing, witness selection, tracker and umbrella |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
@@ -1184,9 +1184,47 @@ field-cardinality factor and gap-only chain length, rather than squaring the can
 The chain identity, guard soundness/completeness, uniqueness, execution and cost must all be
 proved before this route replaces the duplicate-removal obligation.
 
+The next integration batch proves `CanonicalGuardMachine.evaluation_runFuel_correct`: the
+actual guard executes all supplied earlier-equation zero tests and the ordered witness search,
+then compares the emitted center with the candidate center. It returns true exactly for the
+corresponding global identities and first-nonzero prefix condition, with a work bound summing
+the actual component programs. The equations' chain relationship is not assumed by execution;
+matching them to generated chain records, proving unique stage/jet retention, and applying the
+guard to a collected output list remain open.
+
+### Near-term completion plan
+
+The 2026-09-04 status estimate is **6–10 coordinated epochs including the then-running epoch**,
+as a provisional planning range rather than a deadline. Each epoch comprises up to three
+bounded worker assignments plus central integration and validation. It is not a count of
+remaining lemmas and is not a promise that unresolved cost-model joins are routine.
+
+1. Finish all-jets execution, point-block assembly and ordered chain generation.
+2. Complete center/stage enumeration and full matrix/kernel/interpolant construction.
+3. Close parameter search, field setup, canonical output filtering and the large-gap/order-zero path.
+4. Prove whole-decoder primitive-model composition and the stated polynomial runtime exponent.
+5. Integrate the full public theorem, independently audit statements/costs, and repair findings.
+
+Field enumeration, nonsquare search and quadratic arithmetic already have proved component
+programs; the remaining field work is their initialization/composition and operation lowering.
+Do not rebuild those components or count them as already proving the whole-decoder cost.
+
 ### Integrated foundations and current handoffs
 
-- Latest fully validated batch: one-jet root execution (`e886c93d`), complete local rewriting
+- Latest fully validated batch: all-jets execution (`8d1debe6`), one-point interpolation matrix
+  (`cb1d1726`), ordered separant-chain generation (`a1756098`) and central canonical guard.
+  Central has read every source and canary. The chain has at most `Δ+1` records, including its
+  nonzero terminal equation, with exact adjacent separant identities and nonincreasing sparse
+  term/exponent-mass bounds. The matrix block has exactly the low-contact polynomial kernel,
+  including redundant rows. All-jets execution has the ordinary alphabet exponent `S^(r+1)`;
+  raw output may still repeat across centers/stages until the canonical guard is fully composed.
+  Full `validate.sh --axioms` passes: 668 umbrella imports, 537 source examples (+25),
+  183 admissions unchanged, 312 pre-existing tainted declarations and zero nonstandard/native
+  axioms. The canonical guard has five kernel-checked execution and exact-cost cases.
+- Pending central audit/integration: center enumeration (`a381994f`) and full received-point
+  matrix assembly (`d5c221ec`). Worker-local compilation and canaries are complete; these
+  handoffs are not yet included in the canonical full validation result above.
+- Previous fully validated batch: one-jet root execution (`e886c93d`), complete local rewriting
   (`69fd8e82`), highest-jet selection (`b1a28708`, `cb25e564`) and central ordered residual search.
   Full `validate.sh --axioms` passes: 653 umbrella imports, 512 source examples (+31),
   183 admissions unchanged, 312 pre-existing tainted declarations and zero nonstandard/native

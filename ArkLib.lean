@@ -223,6 +223,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationDimens
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationDimensionBridgeCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationIndex
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationIndexCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationPointBlockCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationPointBlockMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationPointBlockSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationSpace
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationSupportMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationSupportMachineCanary
@@ -254,6 +257,10 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.SimplexB
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.SimplexCantelli
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.SimplexMoments
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.SimplexVariance
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CanonicalGuardBounds
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CanonicalGuardCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CanonicalGuardMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CanonicalGuardSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CenterShiftCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CenterShiftMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Counting
@@ -274,6 +281,10 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetPref
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetPrefixCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetPreparationCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetPreparationMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetRootsBounds
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetRootsCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetRootsMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetRootsSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RecursiveCounting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RecursiveCountingCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularCounting
@@ -309,6 +320,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Residua
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RootCount
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RootCountCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SampledResidual
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SeparantChainRefinement
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SeparantRootCount
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SingularRecursion
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SingularRecursionCanary
@@ -444,6 +456,9 @@ import ArkLib.Data.MvPolynomial.PartialDerivativeRefinement
 import ArkLib.Data.MvPolynomial.RestrictDegree
 import ArkLib.Data.MvPolynomial.RestrictDegreeVar
 import ArkLib.Data.MvPolynomial.SchwartzZippelCounting
+import ArkLib.Data.MvPolynomial.SeparantChainBounds
+import ArkLib.Data.MvPolynomial.SeparantChainMachine
+import ArkLib.Data.MvPolynomial.SeparantChainMachineCanary
 import ArkLib.Data.MvPolynomial.WeightedDegree
 import ArkLib.Data.Polynomial.AffinePowerTruncationMachine
 import ArkLib.Data.Polynomial.AffinePowerTruncationMachineCanary
