@@ -131,13 +131,14 @@ private theorem localCorrection_coeffDegreeLE_zero (d : ℕ) :
     coeffDegreeLE_X _
   simpa using (hC.mul (hT.pow (j.val + 1))).mul hY
 
-/-- For one source monomial, every unscaled local-substitution coefficient has challenge degree at
-most its source `Y₀` exponent. -/
-theorem sourceMonomial_unscaled_coeffDegreeLE (a f g : F) (x b : ℕ)
+/-- Substitution of a received polynomial of degree at most `ℓ` gives column degree at most
+`ℓ * b`, where `b` is the source `Y₀` exponent. No positivity assumption on `ℓ` is needed. -/
+theorem sourceMonomial_curve_unscaled_coeffDegreeLE (a : F) (w : F[X])
+    (ℓ : ℕ) (hw : w.natDegree ≤ ℓ) (x b : ℕ)
     (higher : Fin d → ℕ) :
     CoeffDegreeLE
-      (unscaledLocalSubstitution d (Polynomial.C a) (receivedLine f g)
-        (sourceMonomial x b higher)) b := by
+      (unscaledLocalSubstitution d (Polynomial.C a) w
+        (sourceMonomial x b higher)) (ℓ * b) := by
   have hcenter : (Polynomial.C a).natDegree ≤ 0 := by rw [Polynomial.natDegree_C]
   have hcenterC : CoeffDegreeLE
       (MvPolynomial.C (Polynomial.C a) : LocalPolynomial F[X] d) 0 :=
@@ -150,18 +151,18 @@ theorem sourceMonomial_unscaled_coeffDegreeLE (a f g : F) (x b : ℕ)
       (MvPolynomial.C (Polynomial.C a) + MvPolynomial.X (localT d) :
         LocalPolynomial F[X] d) 0 := hcenterC.add hT
   have hreceivedC : CoeffDegreeLE
-      (MvPolynomial.C (receivedLine f g) : LocalPolynomial F[X] d) 1 :=
-    coeffDegreeLE_C (receivedLine_natDegree_le f g)
-  have hcorrection : CoeffDegreeLE (localCorrection (R := F[X]) d) 1 :=
+      (MvPolynomial.C w : LocalPolynomial F[X] d) ℓ :=
+    coeffDegreeLE_C hw
+  have hcorrection : CoeffDegreeLE (localCorrection (R := F[X]) d) ℓ :=
     (localCorrection_coeffDegreeLE_zero d).mono (by omega)
   have hTE : CoeffDegreeLE
       (MvPolynomial.X (localT d) * MvPolynomial.X (localE d) :
-        LocalPolynomial F[X] d) 1 :=
+        LocalPolynomial F[X] d) ℓ :=
     (hT.mul hE).mono (by omega)
   have hYimage : CoeffDegreeLE
-      (MvPolynomial.C (receivedLine f g) + localCorrection d +
+      (MvPolynomial.C w + localCorrection d +
         MvPolynomial.X (localT d) * MvPolynomial.X (localE d) :
-          LocalPolynomial F[X] d) 1 :=
+          LocalPolynomial F[X] d) ℓ :=
     hreceivedC.add hcorrection |>.add hTE
   have hhigher : CoeffDegreeLE
       (∏ j, MvPolynomial.X (localY j) ^ higher j : LocalPolynomial F[X] d) 0 := by
@@ -171,7 +172,31 @@ theorem sourceMonomial_unscaled_coeffDegreeLE (a f g : F) (x b : ℕ)
   simp only [sourceMonomial, map_mul, map_pow, map_prod,
     unscaledLocalSubstitution_X, unscaledLocalSubstitution_Y_zero,
     unscaledLocalSubstitution_Y_succ]
-  simpa using ((hXimage.pow x).mul (hYimage.pow b)).mul hhigher
+  simpa [Nat.mul_comm] using ((hXimage.pow x).mul (hYimage.pow b)).mul hhigher
+
+/-- For one source monomial, every unscaled received-line coefficient has challenge degree at
+most its source `Y₀` exponent. -/
+theorem sourceMonomial_unscaled_coeffDegreeLE (a f g : F) (x b : ℕ)
+    (higher : Fin d → ℕ) :
+    CoeffDegreeLE
+      (unscaledLocalSubstitution d (Polynomial.C a) (receivedLine f g)
+        (sourceMonomial x b higher)) b := by
+  simpa using sourceMonomial_curve_unscaled_coeffDegreeLE a (receivedLine f g) 1
+    (receivedLine_natDegree_le f g) x b higher
+
+/-- The local contact projection preserves the challenge-degree bound for polynomial curves. -/
+theorem sourceMonomial_curve_localConstraint_coeffDegreeLE (a : F) (w : F[X])
+    (ℓ : ℕ) (hw : w.natDegree ≤ ℓ) (x b m : ℕ) (higher : Fin d → ℕ) :
+    CoeffDegreeLE
+      (localConstraintAt m (Polynomial.C a) w (sourceMonomial x b higher)) (ℓ * b) := by
+  have hunscaled := sourceMonomial_curve_unscaled_coeffDegreeLE
+    (d := d) a w ℓ hw x b higher
+  intro e
+  rw [localConstraintAt, LinearMap.comp_apply, AlgHom.toLinearMap_apply,
+    projectLowContact, coeff_filterLocalMonomials]
+  split
+  · exact hunscaled e
+  · simp
 
 /-- For one source monomial, every projected local-constraint coefficient has challenge degree at
 most its source `Y₀` exponent. -/
