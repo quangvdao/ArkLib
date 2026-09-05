@@ -189,6 +189,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.CapacityCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.CapacityList
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.ConstructionContracts
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.Contracts
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.CorrelatedPairChartCounting
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.CorrelatedPairExceptionalSet
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.CorrelatedPairFamily
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.DonorConstruction
@@ -210,12 +211,14 @@ import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.InterpolantListB
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.MutualAgreement
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.QuarterGapListBound
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.RateCover
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SourceChartIncidence
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SourceComponentAgreement
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SourceComponentRecognition
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SourceGraphRecognition
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SymbolicBandCertificate
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SymbolicBandInterpolation
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SymbolicBandMargin
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SymbolicCertificateStages
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SymbolicInterpolationSoundness
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SymbolicLocalRank
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SymbolicReceivedInterpolation
@@ -457,6 +460,8 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRo
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsSound
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicCoefficientExtension
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicJetPrefix
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicSeparantChain
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicTaylorCutDegree
@@ -466,6 +471,8 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symboli
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicTaylorNumerator
 import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicTaylorSpecialization
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicTaylorWitnessEmbedding
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorAgreementGeometry
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorAllSolutions
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorCharZeroSolutions

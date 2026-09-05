@@ -2,6 +2,30 @@
 
 ## Active MCA implementation: September 5 restart
 
+### Fourth checkpoint: actual chart counts and witness transport
+
+`CorrelatedPairChartCounting` proves the finite admissible-pair bound at one common
+scalar. It derives injectivity from all reconstructed coefficients, without assuming
+the pairs solve the full differential equation. `SourceChartIncidence` instantiates
+excluded incidence with the actual admissible-pair graphs, discharging all joint-degree
+and component-recognition hypotheses from the source jet-degree/height bounds.
+
+`SymbolicTaylorWitnessEmbedding` puts any finite family of actual, challenge-dependent
+regular solutions at one common center. It proves their chart equations, reconstructed
+polynomial equality, and exact agreement-cut semantics. `SymbolicCertificateStages`
+connects the existing interpolation certificate to regular-stage coverage;
+`SymbolicCoefficientExtension` transports symbolic coefficients to extension fields.
+
+Remaining assembly: finite bad-witness counting, one global exceptional set for each
+regular symbolic equation, union over actual derivative stages, and all-rate parameter
+instantiation. The current three lanes own respectively bad-witness counting, the
+global regular-equation exception set, and elementary all-rate budget arithmetic.
+
+Fourth-checkpoint validation: full `./scripts/validate.sh --axioms` passed
+(30,497 declarations across 1,090 modules; no new axiom/admission taint).
+Independent reviews covered all-coefficient pair-counting injectivity, certificate
+stage coverage, field-extension transport, and the actual witness/degree interfaces.
+
 ### Third checkpoint: components and hypersurface incidence
 
 The component-recognition bridge is now proved in `SourceComponentRecognition` and
