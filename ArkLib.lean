@@ -332,6 +332,12 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Quadrat
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.QuadraticResidualSample
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.QuadraticResidualSampleSpec
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.QuadraticResidualSampleTest
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.QuadraticResidualSystemCanary
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.QuadraticResidualSystemMachine
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.QuadraticResidualSystemRefinement
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RecursiveCounting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RecursiveCountingCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularCounting
@@ -406,8 +412,12 @@ import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CanonicalOutputProof
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CanonicalOutputProofCheck
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CanonicalOutputProofRoots
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CanonicalOutputSemantics
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CapacityDecoderExecution
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CapacityDecoderMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CapacityOutputBounds
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CollectorInputBounds
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CollectorStageBounds
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.DecoderScalarWidths
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.OrderZeroPreparedDecoderProof
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.PreparedDecoderCertificate
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.PreparedDecoderMachine
@@ -419,8 +429,10 @@ import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.PreparedInterpolationPr
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticCandidateCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticCandidateMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticCandidateSemantics
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticDecoderBounds
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticDecoderCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticDecoderComposition
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticDecoderLargeGap
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticDecoderMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticDecoderParameters
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticDecoderProof
@@ -528,6 +540,9 @@ import ArkLib.Data.Matrix.PivotSolveMachine
 import ArkLib.Data.Matrix.QuadraticAugmentCanary
 import ArkLib.Data.Matrix.QuadraticAugmentMachine
 import ArkLib.Data.Matrix.QuadraticAugmentRefinement
+import ArkLib.Data.Matrix.QuadraticBackSubstitutionCanary
+import ArkLib.Data.Matrix.QuadraticBackSubstitutionMachine
+import ArkLib.Data.Matrix.QuadraticBackSubstitutionRefinement
 import ArkLib.Data.Matrix.QuadraticColumnCanary
 import ArkLib.Data.Matrix.QuadraticColumnMachine
 import ArkLib.Data.Matrix.QuadraticColumnRefinement
@@ -537,6 +552,9 @@ import ArkLib.Data.Matrix.QuadraticForwardEchelonRefinement
 import ArkLib.Data.Matrix.QuadraticPivotCanary
 import ArkLib.Data.Matrix.QuadraticPivotMachine
 import ArkLib.Data.Matrix.QuadraticPivotRefinement
+import ArkLib.Data.Matrix.QuadraticPivotSolveCanary
+import ArkLib.Data.Matrix.QuadraticPivotSolveMachine
+import ArkLib.Data.Matrix.QuadraticPivotSolveRefinement
 import ArkLib.Data.Matrix.QuadraticRowCanary
 import ArkLib.Data.Matrix.QuadraticRowMachine
 import ArkLib.Data.Matrix.QuadraticRowRefinement

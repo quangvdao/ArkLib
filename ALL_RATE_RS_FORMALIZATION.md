@@ -1119,6 +1119,10 @@ are not on the current work queue.
 
 ## 15. Next actionable assignments
 
+**Active hard deadline:** the [four-hour sprint contract](ALL_RATE_RS_SPRINT.md) stops all
+implementation at September 5, 2026, 09:21:04 UTC and all work at 09:51:04 UTC.
+This applies to the strengthening coordinator and its descendants as well as the decoder lanes.
+
 The active acceptance target is the pre-strengthening manuscript Theorem 1.1 at paper
 revision `26e8ea0`, including exact output and bit-operation bounds. The newer
 field-independent list-size and mutual correlated-agreement results are assigned to
@@ -1139,10 +1143,10 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
-| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: explicit address-serial bit-RAM access controller and same-run read/write/frame proofs | New `ArkLib/Data/Computation/AddressedBits*` and `docs/design/rs-bit-cost-backend.md` |
-| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: sum the interpolation, setup, embedding and decoder budgets into both final q-exponents | `ListDecoding/QuadraticDecoderBounds` |
-| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: coordinate pivot correction, the missing child of back substitution; forward echelon checkpoint complete | `ArkLib/Data/Matrix/QuadraticPivotSolve*` |
-| Central | Integrate/audit; outer executable setup/search/branch composition; preserve strengthening plan without starting its lanes | `ListDecoding/SeparateSampleDecoder`, `ListDecoding/SeparateSampleExecution`, `ArkLib/Data/QuadraticAlgebra/BaseEmbedding*`, outer drivers and trackers |
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: literal binary addition/comparison, shared finite local-bit interface and same-trace bounds; outer decoder independently audited | New `ArkLib/Data/Computation/BinaryWord*` and `BitLocalActions` |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: independent audit of all-rate outer execution; numerical budget and same-output list bounds complete | Read-only `CapacityDecoder{Machine,Execution}` and `QuadraticDecoderLargeGap` |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: coordinate residual-system composition; pivot solve and back substitution complete | `HiddenDerivative/RootFinding/QuadraticResidualSystem*` |
+| Central | Integrate/audit; explicit main primitive-work theorem; next shared heap representation/backend composition | `AllRateListDecoding/Capacity`, outer decoder drivers, heap representation and trackers |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
 except explicitly repository-relative paths beginning `ArkLib/`.
@@ -1217,24 +1221,35 @@ allocation and reversal (`BaseEmbeddingMachine`), not a proof-side list map at r
 The tiny-block leaf handles `q=2`, `n=1,2` and oversized thresholds with explicit charged
 execution. Sparse interpolation outputs now have proved physical term-count and exponent-mass
 bounds, including order zero with growing multiplicity. Coordinate pivot elimination includes
-actual equality, inversion, negation, multiplication and the row child. The full outer program,
-final exponent specialization and complete base-field/bit-cost refinement remain open.
+actual equality, inversion, negation, multiplication and the row child. The full outer program
+and final primitive exponent specialization are now proved; base-field/bit-cost refinement remains open.
 
 `SeparateSamplePolynomialBounds` bounds both fuel and primitive work by one alphabet power
 times an absolute degree-five polynomial in original numerical sizes. The outer dispatch now
 distinguishes actual direct order-zero interpolation from descending search, and every returned
 search result has a proved originating successful direct attempt. `CertifiedSetup` retains the
 actual observed setup values with erased integrity proofs; it performs no extra nonsquare search
-or field choice. Its caller still needs the explicit handoff charge and whole-program composition.
+or field choice. The caller now includes its actual cost and all fixed handoff charges.
 
 `QuadraticDecoderMachine` now executes interpolation, certified setup, the actual reduced-field
 branch, base embedding when selected, and the decoder at original-parameter fuel.
 `QuadraticDecoderProof.run_exact_of_interpolation` proves exact output for that same combined
 run. `QuadraticDecoderParameters.small_gap_run_exact` discharges interpolation success and setup
 preconditions with the prescribed 6.76 parameters, at every rate and with both field regimes.
-These statements retain the actual primitive cost; they do not prove bit complexity. The remaining
-outer work includes the large-gap/tiny-block wrapper, final polynomial-cost and list-cardinality
-packaging, all coordinate refinements, and the concrete bit-RAM compilation/representation proofs.
+`CapacityDecoderMachine.run` now combines the large-gap, tiny-block, oversized-threshold and
+small-gap branches into one integer-input executable. `CapacityDecoderExecution.run_exact`
+proves exact physical output with primitive work at most `C(d,m) * q^(2d+29)`, or
+`C(d,m) * q^(d+29)` under the prescribed small-gap reduced larger-field condition.
+`CapacityOutputBounds` attaches every original list-size bound to that same output.
+The explicitly spelled-out capstone is
+`Capacity.capacity_decoder_exact_output_and_primitive_work`; the full bit-cost Theorem 1.1
+is still unfinished. The remaining work is coordinate refinement plus concrete bit arithmetic,
+heap representation, source-clause compilation, scalar/fuel administration and serialization.
+
+Lane A independently audited the five original outer-composition modules with no blockers,
+fresh strict frozen-source builds, standard axioms, a complete executed decoder canary and
+a caught missing-child-cost mutation. Lane B separately audits the new all-branch wrapper.
+These audits do not substitute for the full integration gate or a bit-model adequacy proof.
 
 The same-run exactness and field-size join is now available in `SeparateSampleFieldExecution`.
 Lane A is implementing the first concrete bit-cost prerequisite while coordinate solver lowering

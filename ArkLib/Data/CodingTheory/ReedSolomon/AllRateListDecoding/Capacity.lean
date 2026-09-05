@@ -6,6 +6,8 @@ Authors: Quang Dao
 
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.AsymmetricBandListBound
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.QuarterGapListBound
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CapacityDecoderExecution
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CapacityOutputBounds
 
 /-!
 # Reed-Solomon capacity lists at every rate
@@ -23,12 +25,15 @@ For larger gaps the bounds are one and strictly less than
 the block length `n`. Taking `A = k + ceil(delta*n)` gives radius `1 - k/n - delta`;
 the rounding and `Code.Lambda` formulation are established in `AgreementRadius.lean`.
 
-**Verification boundary.** This is a classical existence and list-cardinality theorem. It does
-not supply an executable decoder, a field-operation count, or a bit-complexity bound. Those parts
-of the paper's uniform capacity decoding theorem remain unfinished. They will be stated here
-only when execution and cost are proved for the same closed program. The numerical `d` in this
-statement describes the list exponent; actual order-indexed interpolation witnesses are proved
-separately in `AsymmetricBandListBound.lean`.
+`capacity_decoder_exact_output_and_primitive_work` additionally executes a closed integer-input
+decoder and attaches these bounds to its actual physical output, together with the observed
+primitive-work ledger. Both field-size inequalities concern the identical run and list.
+
+**Verification boundary.** The classical theorem alone asserts no algorithmic bound. The
+executable theorem proves primitive work, not the paper's bit complexity: binary arithmetic,
+heap representation, scalar-fuel and interpreter administration, and serialization still need
+their same-program refinement. Therefore the full algorithmic Theorem 1.1 remains unfinished.
+No bit-RAM or native Lean running time is claimed by the primitive ledger below.
 
 ## References
 
@@ -39,6 +44,8 @@ separately in `AsymmetricBandListBound.lean`.
 -/
 
 namespace ReedSolomon.AllRateListDecoding
+
+open Polynomial
 
 noncomputable section
 
@@ -135,6 +142,65 @@ theorem exists_capacity_list (delta : ℝ) (hdelta : 0 < delta) (_hOne : delta <
         obtain ⟨largeCertificate⟩ := hlarge hbudget
         change list.card ≤ 4 * m * q ^ d
         exact_mod_cast hcard.le.trans (hmono.trans (largeCertificate.pointwiseListBound y).1)
+
+/-- A single integer-input decoder outputs exactly the capacity list with both sharp size bounds.
+The positive coefficient depends only on the gap. The observed `work` belongs to this same run.
+
+This is a primitive-work theorem, not a bit-complexity theorem. A field operation, scalar check,
+fixed-size record operation or charged machine transition has its declared primitive cost;
+arbitrary-precision arithmetic, fuel calculation and host administration are not bit-priced here.
+The real gap fixes only the integer program constants, and is not an executable input.
+Output vectors have exactly `k` coefficients; both vector and polynomial duplicates are excluded.
+The use of `Polynomial.degree` includes the zero polynomial in the exact membership statement. -/
+theorem capacity_decoder_exact_output_and_primitive_work
+    (delta : ℝ) (hdelta : 0 < delta) (hOne : delta < 1) :
+    let d : ℕ := if (1 / 4 : ℝ) ≤ delta then 0
+      else Nat.ceil (Real.exp (((169 : ℝ) / 25) / delta))
+    let m : ℕ := Nat.ceil (100 * (d : ℝ) ^ 2 *
+      ∑ i ∈ Finset.range (d - 1), (1 : ℝ) / (i + 1))
+    let N : ℕ := if (1 / 4 : ℝ) ≤ delta then 1 else 8 * m
+    ∃ C : ℕ, 0 < C ∧
+      ∀ n k q A : ℕ, N ≤ n → 0 < k → k ≤ n → (hq : q.Prime) → n ≤ q →
+        (k : ℝ) + delta * n ≤ A → A ≤ 2 * n →
+        let : Fact q.Prime := ⟨hq⟩
+        ∀ (alpha : Fin n ↪ ZMod q) (y : Fin n → ZMod q),
+          ∃ (out : List (List (ZMod q))) (work : ℕ),
+            ListDecoding.CapacityDecoderMachine.run n k d m A
+              (List.ofFn (fun i ↦ (alpha i, y i))) = (some out, work) ∧
+            out.Nodup ∧ (out.map JetHornerMachine.coefficientPolynomial).Nodup ∧
+            (∀ P : Polynomial (ZMod q),
+              P ∈ out.map JetHornerMachine.coefficientPolynomial ↔
+                P.degree < k ∧ A ≤ Code.agree (fun i ↦ P.eval (alpha i)) y) ∧
+            (∀ cs : List (ZMod q), cs ∈ out ↔ cs.length = k ∧
+              (JetHornerMachine.coefficientPolynomial cs).degree < k ∧
+              A ≤ Code.agree (fun i ↦
+                (JetHornerMachine.coefficientPolynomial cs).eval (alpha i)) y) ∧
+            (n < A → out = []) ∧
+            ((1 / 2 : ℝ) ≤ delta → out.length ≤ 1) ∧
+            ((1 / 4 : ℝ) ≤ delta → out.length < n) ∧
+            work ≤ C * q ^ (2 * d + 29) ∧
+            (delta < (1 / 4 : ℝ) → out.length ≤ 4 * m * q ^ (2 * d) ∧
+              (2 * (m * A + d - max k ⌊delta * (n : ℝ) / 2⌋₊) ≤ q →
+                out.length ≤ 4 * m * q ^ d ∧ work ≤ C * q ^ (d + 29))) := by
+  let d := capacityDerivativeOrder delta
+  let m := asymmetricBandMultiplicity delta
+  refine ⟨ListDecoding.CapacityDecoderMachine.workCoefficient d m, ?_, ?_⟩
+  · unfold ListDecoding.CapacityDecoderMachine.workCoefficient
+    omega
+  · intro n k q A hn hk hkn hq hnq hA hAupper
+    let : Fact q.Prime := ⟨hq⟩
+    dsimp only
+    intro alpha y
+    have hthreshold := (agreementThreshold_le_iff_real hdelta.le n k A).mpr hA
+    obtain ⟨out, work, hr, he, hw, hlarger⟩ := ListDecoding.CapacityDecoderMachine.run_exact
+      delta hdelta n k A hn hk hkn hnq hthreshold alpha y
+    obtain ⟨hos, hhalf, hquarter, hsmall⟩ :=
+      ListDecoding.CapacityOutputBounds.capacity_output_bounds
+      delta hdelta hOne n k q A hn hk hkn hq hnq hA hAupper alpha y out he
+    refine ⟨out, work, hr, he.2.1, he.1, he.2.2.1, he.2.2.2,
+      hos, hhalf, hquarter, hw, ?_⟩
+    intro hs
+    exact ⟨(hsmall hs).1, fun hf ↦ ⟨(hsmall hs).2 hf, hlarger hs hf⟩⟩
 
 end
 end ReedSolomon.AllRateListDecoding

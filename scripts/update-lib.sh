@@ -37,9 +37,11 @@ trap cleanup EXIT
 
 git ls-files -- 'ArkLib/*.lean' \
   | LC_ALL=C sort \
-  | sed 's/\.lean//;s,/,.,g;s/^/import /' > "$tmp_file"
+  | sed 's/\.lean//;s,/,.,g' \
+  | awk '{ if (length("import " $0) > 100) print "import\n" $0; else print "import " $0 }' \
+    > "$tmp_file"
 
 mv "$tmp_file" ArkLib.lean
 trap - EXIT
 
-echo "✓ ArkLib.lean updated with $(wc -l < ArkLib.lean) imports"
+echo "✓ ArkLib.lean updated with $(awk '/^import/ { n++ } END { print n }' ArkLib.lean) imports"

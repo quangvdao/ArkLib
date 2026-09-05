@@ -49,4 +49,8 @@ example : (runCore input [0] nonsquare [(1, [(0, 0), (1, 1)])] 1 1).1 =
 example : (runCore input [1] nonsquare [(1, [(0, 0), (1, 1)])] 1 1).1 =
     some [] := by decide +kernel
 
+-- This executes interpolation, certified setup, recovery and collection, not just a core fixture.
+example : run (q := 3) 1 0 1 1 [(0, 0)] (by decide) (by decide) =
+    (some [[0]], 34225) := by decide +kernel
+
 end ReedSolomon.ListDecoding.QuadraticDecoderMachine
