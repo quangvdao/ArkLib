@@ -421,8 +421,11 @@ import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticCandidateSeman
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.RestrictedCollectorProof
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleDecoder
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleExactness
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleExecution
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleFieldBounds
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSamplePolynomialBounds
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleRestricted
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SmallBlockDecoderMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SmallBlockDecoderProof
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.Specification
@@ -524,6 +527,9 @@ import ArkLib.Data.Matrix.QuadraticPivotRefinement
 import ArkLib.Data.Matrix.QuadraticRowCanary
 import ArkLib.Data.Matrix.QuadraticRowMachine
 import ArkLib.Data.Matrix.QuadraticRowRefinement
+import ArkLib.Data.Matrix.QuadraticSelectionCanary
+import ArkLib.Data.Matrix.QuadraticSelectionMachine
+import ArkLib.Data.Matrix.QuadraticSelectionRefinement
 import ArkLib.Data.Matrix.QuadraticVandermondeCanary
 import ArkLib.Data.Matrix.QuadraticVandermondeMachine
 import ArkLib.Data.Matrix.QuadraticVandermondeRefinement
