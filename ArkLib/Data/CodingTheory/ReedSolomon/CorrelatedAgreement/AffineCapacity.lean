@@ -70,6 +70,7 @@ and exact affine witnesses. For the paper-facing presentations, see
 `exists_capacity_affineAgreement` and `exists_capacity_mcaError` below. -/
 theorem exists_capacity_affineAgreement_and_mcaError (δ : ℝ) (hδ : 0 < δ) :
     ∃ N d : ℕ, ∃ C : ℝ, 0 < C ∧
+      -- Choose the code only after fixing the gap, length threshold and error bound.
       ∀ n k : ℕ, N ≤ n → 0 < k → k ≤ n →
       ∀ (F : Type) [Field F] [Fintype F] [DecidableEq F],
         (ringChar F = 0 ∨ n ≤ ringChar F) → ∀ domain : Fin n ↪ F,
@@ -120,6 +121,32 @@ theorem exists_capacity_affineAgreement_and_mcaError (δ : ℝ) (hδ : 0 < δ) :
     exists_affine_exceptionalSet_full_agreement_of_exactLine domain _ hexact hs radius
       (le_refl A) hkthreshold U
 
+/-- Exact mutual agreement for affine families with a dimension-independent error bound.
+
+The directions are sampled independently. The cardinality bound divided by the parameter
+space size is `E n / (|F| - 1)`, regardless of the number of directions. This property does
+not assert the analogous bound for the correlated powers `(z, z², ...)` of one challenge. -/
+def HasCapacityAffineAgreement (δ : ℝ) (N : ℕ) (E : ℕ → ℝ) : Prop :=
+      ∀ n k : ℕ, N ≤ n → 0 < k → k ≤ n →
+      ∀ (F : Type) [Field F] [Fintype F] [DecidableEq F],
+        (ringChar F = 0 ∨ n ≤ ringChar F) → ∀ domain : Fin n ↪ F,
+          -- The affine dimension is arbitrary; a is the offset and u the directions.
+          ∀ s : ℕ, 1 ≤ s → ∀ (a : Fin n → F) (u : Fin s → Fin n → F),
+            -- The parameter space has |F|^s elements; its exceptional density is
+            -- at most E(n)/(|F|-1), with no dimension factor.
+            ∃ exceptional : Finset (Fin s → F),
+              (exceptional.card : ℝ) ≤ E n *
+                (Fintype.card F : ℝ) ^ s / ((Fintype.card F : ℝ) - 1) ∧
+              ∀ t ∉ exceptional, ∀ P : F[X], P.degree < k →
+                ((Finset.univ.filter fun i ↦ P.eval (domain i) =
+                  a i + ∑ j, t j * u j i).card : ℝ) ≥ (k : ℝ) + δ * n →
+                -- Recover one constituent polynomial per direction and the offset.
+                ∃ (F₀ : F[X]) (G : Fin s → F[X]),
+                  F₀.degree < k ∧ (∀ j, (G j).degree < k) ∧
+                  P = F₀ + ∑ j, t j • G j ∧
+                  ∀ i, (P.eval (domain i) = a i + ∑ j, t j * u j i) ↔
+                    F₀.eval (domain i) = a i ∧ ∀ j, (G j).eval (domain i) = u j i
+
 /-- **Affine-family agreement, qualitatively [DKTZ26].** For each positive gap, choose
 constants before the field, code, and affine dimension. For a constant word `a` and directions
 `u`, one exceptional set works for every parameter `t` and every close polynomial `P`.
@@ -128,21 +155,7 @@ its entire agreement set is their common agreement set. The exceptional density 
 `C * n ^ (d + 1) / (|F| - 1)`, independently of the number of directions. -/
 theorem exists_capacity_affineAgreement (δ : ℝ) (hδ : 0 < δ) :
     ∃ N d : ℕ, ∃ C : ℝ, 0 < C ∧
-      ∀ n k : ℕ, N ≤ n → 0 < k → k ≤ n →
-      ∀ (F : Type) [Field F] [Fintype F] [DecidableEq F],
-        (ringChar F = 0 ∨ n ≤ ringChar F) → ∀ domain : Fin n ↪ F,
-          ∀ s : ℕ, 1 ≤ s → ∀ (a : Fin n → F) (u : Fin s → Fin n → F),
-            ∃ exceptional : Finset (Fin s → F),
-              (exceptional.card : ℝ) ≤ C * (n : ℝ) ^ (d + 1) *
-                (Fintype.card F : ℝ) ^ s / ((Fintype.card F : ℝ) - 1) ∧
-              ∀ t ∉ exceptional, ∀ P : F[X], P.degree < k →
-                ((Finset.univ.filter fun i ↦ P.eval (domain i) =
-                  a i + ∑ j, t j * u j i).card : ℝ) ≥ (k : ℝ) + δ * n →
-                ∃ (F₀ : F[X]) (G : Fin s → F[X]),
-                  F₀.degree < k ∧ (∀ j, (G j).degree < k) ∧
-                  P = F₀ + ∑ j, t j • G j ∧
-                  ∀ i, (P.eval (domain i) = a i + ∑ j, t j * u j i) ↔
-                    F₀.eval (domain i) = a i ∧ ∀ j, (G j).eval (domain i) = u j i := by
+      HasCapacityAffineAgreement δ N (fun n ↦ C * (n : ℝ) ^ (d + 1)) := by
   classical
   obtain ⟨N, d, C, hC, hall⟩ := exists_capacity_affineAgreement_and_mcaError δ hδ
   refine ⟨N, d, C, hC, ?_⟩

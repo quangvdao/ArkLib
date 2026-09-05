@@ -615,6 +615,7 @@ import ArkLib.ToMathlib.Polynomial.HasseTaylor.Lifting
 import ArkLib.ToMathlib.Polynomial.HasseTaylor.Shift
 import ArkLib.ToMathlib.Polynomial.NatDegreeOfSum
 import ArkLib.ToMathlib.Polynomial.RootMultiplicity
+import ArkLib.ToMathlib.Polynomial.SimultaneousRoots
 import ArkLib.ToMathlib.Set.Finite
 import ArkLib.ToVCVio.EvalDist.Defs.Support
 import ArkLib.ToVCVio.EvalDist.Instances.OptionT

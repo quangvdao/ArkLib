@@ -68,7 +68,10 @@ to the same exact list, not to separately chosen candidate families.
 -/
 
 /-- Minimum block length: one at gaps at least `1/4`, and `8m` for smaller gaps.
-Here `m = asymmetricBandMultiplicity δ` is the prescribed interpolation multiplicity. -/
+Here `m = asymmetricBandMultiplicity δ = ⌈100 d² H_(d-1)⌉`, where
+`d = capacityDerivativeOrder δ` and `H_r = ∑_{i=1}^r 1/i` is the harmonic number.
+In the small-gap regime, `d = ⌈exp(6.76 / δ)⌉`. The multiplicity formula is used
+only in that regime; gaps at least `1/4` have length threshold one. -/
 def capacityLengthThreshold (δ : ℝ) : ℕ :=
   if (1 / 4 : ℝ) ≤ δ then 1 else 8 * asymmetricBandMultiplicity δ
 
