@@ -41,6 +41,24 @@ def powerBatchedWord (w : Fin (ℓ + 1) → Fin n → F) (z : F) : Fin n → F :
 def powerBatchedPolynomial (P : Fin (ℓ + 1) → F[X]) (z : F) : F[X] :=
   ∑ t, z ^ t.val • P t
 
+/-- Batching does not increase the message degree. This includes the zero-dimensional code. -/
+theorem powerBatchedPolynomial_degree_lt (P : Fin (ℓ + 1) → F[X]) (z : F) (k : ℕ)
+    (hP : ∀ t, (P t).degree < k) : (powerBatchedPolynomial P z).degree < k := by
+  rw [Polynomial.degree_lt_iff_coeff_zero]
+  intro j hj
+  simp only [powerBatchedPolynomial, Polynomial.finsetSum_coeff, Polynomial.coeff_smul]
+  apply Finset.sum_eq_zero
+  intro t _
+  rw [(Polynomial.degree_lt_iff_coeff_zero (P t) k).mp (hP t) j hj]
+  simp
+
+/-- Evaluation commutes with batching the constituent messages. -/
+theorem powerBatchedPolynomial_eval (P : Fin (ℓ + 1) → F[X]) (z x : F) :
+    (powerBatchedPolynomial P z).eval x = ∑ t, z ^ t.val * (P t).eval x := by
+  change (Polynomial.evalRingHom x) (∑ t, z ^ t.val • P t) = _
+  rw [map_sum]
+  simp [Polynomial.smul_eq_C_mul]
+
 open Classical in
 /-- Positions where every constituent polynomial agrees with its received word. -/
 def commonCurveAgreementSet (α : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F)
@@ -164,6 +182,35 @@ theorem polynomialTuple_eq_of_common_samples (α : Fin n ↪ F)
   · simpa [hcard] using hQ t
   · intro i hi
     exact (hPs i hi t).trans (hQs i hi t).symm
+
+/-- A sample of `k` coordinates recognizes the whole polynomial graph over every extension
+field: each message agreeing on that sample is the power combination of the uniquely
+interpolated base-field tuple. This is a pointwise statement, with no exceptional challenges. -/
+theorem exists_polynomialGraph_of_sample (α : Fin n ↪ F)
+    (w : Fin (ℓ + 1) → Fin n → F) (k : ℕ) (samples : Finset (Fin n))
+    (hcard : samples.card = k) :
+    ∃ P : Fin (ℓ + 1) → F[X], (∀ t, (P t).degree < k) ∧
+      (∀ i ∈ samples, ∀ t, (P t).eval (α i) = w t i) ∧
+      ∀ {E : Type*} [Field E] (ι : F →+* E) (z : E) (Q : E[X]),
+        Q.degree < k →
+        (∀ i ∈ samples, Q.eval (ι (α i)) = ∑ t, z ^ t.val * ι (w t i)) →
+        Q = powerBatchedPolynomial (fun t ↦ (P t).map ι) z := by
+  obtain ⟨P, hP, hs⟩ := exists_polynomialTuple_interpolating α w k samples hcard
+  refine ⟨P, hP, hs, ?_⟩
+  intro E _ ι z Q hQ hQs
+  apply Polynomial.eq_of_degrees_lt_of_eval_index_eq samples
+    (show Set.InjOn (fun i ↦ ι (α i)) (samples : Set (Fin n)) from
+      fun _ _ _ _ heq ↦ α.injective (ι.injective heq))
+  · simpa [hcard] using hQ
+  · rw [hcard]
+    exact powerBatchedPolynomial_degree_lt _ z k
+      (fun t ↦ Polynomial.degree_map_le.trans_lt (hP t))
+  · intro i hi
+    rw [powerBatchedPolynomial_eval, hQs i hi]
+    apply Finset.sum_congr rfl
+    intro t _
+    congr 1
+    rw [Polynomial.eval_map, Polynomial.eval₂_at_apply, hs i hi t]
 
 end
 end ReedSolomon
