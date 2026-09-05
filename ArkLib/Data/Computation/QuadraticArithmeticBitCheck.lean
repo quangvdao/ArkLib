@@ -9,6 +9,8 @@ import ArkLib.Data.Computation.QuadraticArithmeticBitMulExecution
 import ArkLib.Data.Computation.QuadraticArithmeticBitNegExecution
 import ArkLib.Data.Computation.QuadraticArithmeticBitInvExecution
 import ArkLib.Data.Computation.QuadraticArithmeticBitEqualExecution
+import ArkLib.Data.Computation.QuadraticArithmeticBitLoad
+import ArkLib.Data.Computation.QuadraticArithmeticBitBoolean
 
 /-!
 # Independent full-bank scalar instruction replay
@@ -103,5 +105,56 @@ example : firstFlag 29 = [] := by decide +kernel
 example : firstFlag 30 = [false] := by decide +kernel
 example : List.ofFn (QuadraticArithmeticBitEqual.resultFlags flags (equalityState 30 0 1 0)) =
     [false, false] := by decide +kernel
+
+private def loadState (n : ℕ) (source : QuadraticAlgebra.ArithmeticMachine.Source)
+    (dst : Register) := QuadraticArithmeticBitLoad.runFuel n
+  (.start q5 (QuadraticArithmeticBitLoad.sourceIndex source) dst regs5 inputs)
+private def load (n : ℕ) (source : QuadraticAlgebra.ArithmeticMachine.Source)
+    (dst : Register) := observe (QuadraticArithmeticBitLoad.tapes flags (loadState n source dst))
+
+-- All five source selectors, including empty and nonpalindromic words, clear a dirty destination.
+-- Input and register zero remain distinct physical tapes even when their indices coincide.
+example : load 10 .leftRe 0 = expected q5 regs5 0 [true] := by decide +kernel
+example : load 10 .leftIm 1 = expected q5 regs5 1 [false] := by decide +kernel
+example : load 12 .rightRe 2 = expected q5 regs5 2 [true, false] := by decide +kernel
+example : load 8 .rightIm 3 = expected q5 regs5 3 [] := by decide +kernel
+example : load 12 .parameter 7 = expected q5 regs5 7 [false, true] := by decide +kernel
+example : load 1 .rightIm 0 = observe (QuadraticArithmeticBitLoad.tapes flags
+    (.start q5 3 0 regs5 inputs)) := by decide +kernel
+example : QuadraticArithmeticBitLoad.registers (loadState 2 .rightIm 0) 0 =
+    [true, false] := by decide +kernel
+
+private def pair (n : ℕ) (x y : Register) (r : Register → Word) :=
+  observe (QuadraticArithmeticBitPair.tapes inputs flags
+    (QuadraticArithmeticBitPair.runFuel n (.start q5 x y r)))
+private def expectedOutput (r : Register → Word) (left right : Word)
+    (b : Fin 2 → Bool) : List Word :=
+  [left, right, [], [], q5] ++ List.replicate 8 [] ++
+    List.ofFn r ++ List.ofFn inputs ++ List.ofFn (fun i ↦ [b i])
+private def emptyFirst := Function.update regs5 0 []
+
+-- Pair emission preserves nonpalindromic sources, source aliases, and empty physical words.
+example : pair 21 0 1 regs5 =
+    expectedOutput regs5 [true, true, false] [false, false, true] flags := by decide +kernel
+example : pair 21 0 0 regs5 =
+    expectedOutput regs5 [true, true, false] [true, true, false] flags := by decide +kernel
+example : pair 21 1 0 regs5 =
+    expectedOutput regs5 [false, false, true] [true, true, false] flags := by decide +kernel
+example : pair 15 0 1 emptyFirst =
+    expectedOutput emptyFirst [] [false, false, true] flags := by decide +kernel
+example : pair 9 0 0 emptyFirst = expectedOutput emptyFirst [] [] flags := by decide +kernel
+
+private def boolean (a b : Bool) := observe (QuadraticArithmeticBitBoolean.tapes inputs
+  (QuadraticArithmeticBitBoolean.runFuel 1 (.start q5 regs5 ![a, b])))
+
+-- The result is a physical one-bit tape even when the conjunction is false.
+example : boolean false false = expectedOutput regs5 [false] [] ![false, false] := by
+  decide +kernel
+example : boolean false true = expectedOutput regs5 [false] [] ![false, true] := by
+  decide +kernel
+example : boolean true false = expectedOutput regs5 [false] [] ![true, false] := by
+  decide +kernel
+example : boolean true true = expectedOutput regs5 [true] [] ![true, true] := by
+  decide +kernel
 
 end Computation.QuadraticArithmeticBitCheck

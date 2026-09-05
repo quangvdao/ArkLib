@@ -310,3 +310,31 @@ review, axiom fixture matrix, and regression sweep; details appear below.
   no new taint. Source audit vs5a8125ee is unchanged.
 - Remaining endpoint: singular-branch/order-restriction summation and manuscript
   constants, then final list assembly; remaining small/intermediate MCA is unproved.
+
+## Eleventh checkpoint certification (09:07 UTC): manuscript list endpoint
+
+- Eight independently audited modules (1468 lines) complete the actual all-rate
+  list bound, including singular branches and characteristic zero.
+- For d=ceil(exp(6.76/delta)), m=ceil(100*d^2*H_(d-1)), n>=8m,
+  0<delta<1/4, 0<k, and A=k+ceil(delta*n)<=n, the complete close-polynomial
+  set is finite and its actual ncard is at most 4*m^2*(4*m/delta)^d*n^d.
+  The field contract is char0 OR n<=ringChar F; there is no field-size factor.
+- Positive-characteristic singular recursion and a separate characteristic-zero
+  strong induction both use actual active-prefix restrictions and regular Taylor
+  counting, yielding nu^2*R^d. No geometric law or regular-count premise remains.
+- The canonical Code.Lambda codeword bound at radius 1-k/n-delta follows, rounded
+  upward only when expressing the real bound as a natural/ENat list size.
+- A second independent manuscript acceptance audit checked parameters, exact
+  agreements, whole-list finiteness, constants, radius, and characteristic endpoint.
+  Equality char=n is a sound strengthening because pivots use i<K<=n.
+- Intermediate-gap primitive certificate has exact height<=1449 and a numerical
+  dimension proof; this checkpoint retains an explicit upper-window premise.
+  A selected-column replacement removing that premise is verified in scratch.
+- Full default validation passed with858 umbrella imports. Axiom sweep passed:
+  23020 declarations/859 modules,312 old sorry-tainted,zero nonstandard axioms,
+  no new taint. Source audit vsf2d90e2c is unchanged.
+- Targeted production builds caught missing explicit implicit-variable declarations
+  in the intermediate dimension module; these were added and full gates passed.
+- STILL INCOMPLETE: requested small/intermediate mutual correlated agreement with
+  manuscript error budgets (joint image/envelope/generic-fiber argument). Half-gap
+  line and affine MCA are previously certified. The list endpoint is not MCA.

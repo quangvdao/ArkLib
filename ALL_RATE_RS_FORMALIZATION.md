@@ -32,19 +32,30 @@ It is the **list-size part**, not yet the full algorithmic theorem.
 
 The same file now also exports `capacity_decoder_exact_output_and_primitive_work` for the
 actual integer-input decoder, including both field regimes and a bound on the same observed run.
-It is **not** a bit-time theorem. Pushed checkpoint `188a9820` closes the coordinate
+It is **not** a bit-time theorem. Pushed checkpoint `19e7505b` closes the coordinate
 prepared/separate-sample driver, executed alphabet conversion, interpolation/setup composition
 and all-rate integer dispatch. It adds alias-safe physical register ADD/MUL/NEG/INV, closed
-Horner zero initialization and the unconditional affine principal-cut degree sum. The next
-integration switches this existing public capstone to the coordinate implementation and adds
-finite-head word-copy adequacy, physical register initialization, equality and input loads.
+Horner zero initialization and the unconditional affine principal-cut degree sum. The existing
+public capstone now uses the coordinate implementation. Finite-head word-copy adequacy,
+physical register initialization, equality and input loads are also validated and pushed.
 These pieces still require a whole-driver bit compiler, representation/width/lifetime invariants,
 physical input/output, and the final same-program bit-cost join. Lane A independently audits the
-coordinate outer driver; lane B implements the remaining physical scalar-register instructions;
-lane C proves coordinate numerical budgets after independently auditing register ADD. Central
-owns integration and the gap-only integer dispatch. The current gate and precise frontier are maintained in
+coordinate outer driver and owns finite-head placement; lane B composes the physical
+scalar-register dispatcher; lane C independently audits these bit-level instructions. Central
+owns integration and the same-output strengthened-list bridge. The current gate and precise frontier are maintained in
 [the four-hour sprint record](ALL_RATE_RS_SPRINT.md). Historical open-task descriptions below
 are not the current assignment roster.
+
+The field-independent strengthening now has a separate proved mathematical endpoint:
+[`GeometricListBound.lean`](ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/GeometricListBound.lean)
+bounds the entire close polynomial list by `4m² (4m/δ)^d n^d`, with the prescribed gap-only
+parameters, `n ≥ 8m`, `0 < δ < 1/4`, and characteristic zero or characteristic at least `n`.
+It includes singular solutions. The canonical `Code.Lambda` adapter is in
+[`GeometricCodewordBound.lean`](ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/GeometricCodewordBound.lean).
+[`GeometricOutputBounds.lean`](ArkLib/Data/CodingTheory/ReedSolomon/ListDecoding/GeometricOutputBounds.lean)
+attaches this smaller bound to the **same actual coordinate decoder output**, preserving its
+existing primitive-work bounds rather than claiming faster execution. General small/intermediate-gap
+mutual correlated agreement remains open; consult the strengthening plan for that distinct frontier.
 
 The optimized mathematical ingredients were validated and pushed at `1d77f94a`; they now live in
 [`AsymmetricBandListBound.lean`](ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/AsymmetricBandListBound.lean):

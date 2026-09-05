@@ -1,0 +1,286 @@
+/-
+Copyright (c) 2026 ArkLib Contributors. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Quang Dao
+-/
+
+import ArkLib.Data.Computation.WordCopyMachine
+import ArkLib.Data.QuadraticAlgebra.ArithmeticMachine
+import ArkLib.Data.Computation.BinaryWordSemantics
+
+/-!
+# Actual pair-coordinate emission from scalar registers
+
+Two physical copies produce distinct output tapes zero and one, retaining every original scalar
+register, all five input words, the modulus and flags. Source indices may coincide: both source
+words are restored through actual copy instructions. Output tapes are blank at entry. The final
+pair is the pair of actual emitted words; there is no host pair-allocation or encoding primitive.
+-/
+
+namespace Computation.QuadraticArithmeticBitPair
+
+open BinaryWordMachine (Word)
+abbrev Register := Fin 8
+abbrev Registers := Register → Word
+abbrev Slot := Fin 13 ⊕ (Register ⊕ (Fin 5 ⊕ Fin 2))
+
+inductive Control where
+  | start (q : Word) (x y : Register) (r : Registers)
+  | left (q : Word) (x y : Register) (r : Registers) (child : WordCopyMachine.Control)
+  | right (q : Word) (y : Register) (r : Registers) (left : Word)
+      (child : WordCopyMachine.Control)
+  | done (q : Word) (r : Registers) (left right : Word)
+
+/-- The finite source selectors never become scalar words or unbounded addresses. -/
+def step : Control → Option Control
+  | .start q x y r =>
+      some (.left q x y (Function.update r x []) (.clear (r x) []))
+  | .left q x y r child =>
+      match WordCopyMachine.step child with
+      | some next => some (.left q x y r next)
+      | none => match child with
+          | .done source left =>
+              let restored := Function.update r x source
+              some (.right q y (Function.update restored y []) left
+                (.clear (restored y) []))
+          | _ => none
+  | .right q y r left child =>
+      match WordCopyMachine.step child with
+      | some next => some (.right q y r left next)
+      | none => match child with
+          | .done source right =>
+              some (.done q (Function.update r y source) left right)
+          | _ => none
+  | .done _ _ _ _ => none
+
+/-- Work slots zero/one hold operand copies, two is copy scratch, four retains the modulus. -/
+def work : Control → Fin 13 → Word
+  | .start q _ _ _ =>
+      ![[], [], [], [], q, [], [], [], [], [], [], [], []]
+  | .left q _ _ _ child =>
+      let t := WordCopyMachine.tapes child
+      ![t 2, [], t 1, [], q, [], [], [], [], [], [], [], []]
+  | .right q _ _ left child =>
+      let t := WordCopyMachine.tapes child
+      ![left, t 2, t 1, [], q, [], [], [], [], [], [], [], []]
+  | .done q _ left right =>
+      ![left, right, [], [], q, [], [], [], [], [], [], [], []]
+
+/-- A copy child owns exactly one register tape; every other register stays in the frame. -/
+def registers : Control → Registers
+  | .start _ _ _ r | .done _ r _ _ => r
+  | .left _ x _ r child => Function.update r x (WordCopyMachine.tapes child 0)
+  | .right _ y r _ child => Function.update r y (WordCopyMachine.tapes child 0)
+
+/-- All five immutable inputs and both physical flag bits are framed throughout the instruction. -/
+def tapes (input : Fin 5 → Word) (flags : Fin 2 → Bool) (s : Control) : Slot → Word
+  | .inl i => work s i
+  | .inr (.inl i) => registers s i
+  | .inr (.inr (.inl i)) => input i
+  | .inr (.inr (.inr i)) => [flags i]
+
+theorem restore_original (r : Registers) (i : Register) :
+    Function.update (Function.update r i []) i (r i) = r := by
+  funext j
+  by_cases h : j = i
+  · subst j; simp
+  · simp [Function.update_of_ne h]
+
+private theorem update_local (r : Registers) (i : Register) {a b : Word}
+    (h : BitLocalActions.CellStep a b) :
+    BitLocalActions.BankStep (Function.update r i a) (Function.update r i b) := by
+  intro j
+  by_cases hj : j = i
+  · subst j
+    simpa using h
+  · simp only [Function.update_of_ne hj]
+    exact .keep _
+
+private theorem bank_thirteen
+    {a b c d e f g h i j k l m a' b' c' d' e' f' g' h' i' j' k' l' m' : Word}
+    (ha : BitLocalActions.CellStep a a') (hb : BitLocalActions.CellStep b b')
+    (hc : BitLocalActions.CellStep c c') (hd : BitLocalActions.CellStep d d')
+    (he : BitLocalActions.CellStep e e') (hf : BitLocalActions.CellStep f f')
+    (hg : BitLocalActions.CellStep g g') (hh : BitLocalActions.CellStep h h')
+    (hi : BitLocalActions.CellStep i i') (hj : BitLocalActions.CellStep j j')
+    (hk : BitLocalActions.CellStep k k') (hl : BitLocalActions.CellStep l l')
+    (hm : BitLocalActions.CellStep m m') :
+    BitLocalActions.BankStep ![a, b, c, d, e, f, g, h, i, j, k, l, m]
+      ![a', b', c', d', e', f', g', h', i', j', k', l', m'] := by
+  intro x
+  fin_cases x
+  · exact ha
+  · exact hb
+  · exact hc
+  · exact hd
+  · exact he
+  · exact hf
+  · exact hg
+  · exact hh
+  · exact hi
+  · exact hj
+  · exact hk
+  · exact hl
+  · exact hm
+
+/-- Every dynamic register handoff restores the tape occupied by the child, with no word copy. -/
+theorem step_local {s t : Control} (h : step s = some t)
+    (input : Fin 5 → Word) (flags : Fin 2 → Bool) :
+    BitLocalActions.BankStep (tapes input flags s) (tapes input flags t) := by
+  suffices hw : BitLocalActions.BankStep (work s) (work t) ∧
+      BitLocalActions.BankStep (registers s) (registers t) by
+    intro i
+    rcases i with i | i
+    · exact hw.1 i
+    · rcases i with i | i
+      · exact hw.2 i
+      · cases i <;> exact .keep _
+  cases s with
+  | start q x y r =>
+      cases h
+      constructor
+      · apply bank_thirteen <;> constructor
+      · simp only [registers, WordCopyMachine.tapes, Matrix.cons_val_zero]
+        rw [restore_original]
+        intro i
+        exact .keep _
+  | left q x y r child =>
+      cases hs : WordCopyMachine.step child with
+      | some next =>
+          simp only [step, hs, Option.some.injEq] at h
+          subst t
+          have hl := WordCopyMachine.step_local hs
+          constructor
+          · exact bank_thirteen (hl 2) (.keep _) (hl 1) (.keep _) (.keep _) (.keep _)
+              (.keep _) (.keep _) (.keep _) (.keep _) (.keep _) (.keep _) (.keep _)
+          · exact update_local r x (hl 0)
+      | none =>
+          simp only [step, hs] at h
+          cases child <;> try cases h
+          constructor
+          · apply bank_thirteen <;> constructor
+          · simp only [registers, WordCopyMachine.tapes, Matrix.cons_val_zero]
+            rw [restore_original]
+            intro i
+            exact .keep _
+  | right q y r left child =>
+      cases hs : WordCopyMachine.step child with
+      | some next =>
+          simp only [step, hs, Option.some.injEq] at h
+          subst t
+          have hl := WordCopyMachine.step_local hs
+          constructor
+          · exact bank_thirteen (.keep _) (hl 2) (hl 1) (.keep _) (.keep _) (.keep _)
+              (.keep _) (.keep _) (.keep _) (.keep _) (.keep _) (.keep _) (.keep _)
+          · exact update_local r y (hl 0)
+      | none =>
+          simp only [step, hs] at h
+          cases child <;> try cases h
+          constructor
+          · apply bank_thirteen <;> constructor
+          · intro i; exact .keep _
+  | done _ _ _ _ => cases h
+
+inductive Trace : ℕ → Control → Control → Prop where
+  | nil (s) : Trace 0 s s
+  | cons {n s u t} (head : step s = some u) (tail : Trace n u t) : Trace (n + 1) s t
+
+def runFuel : ℕ → Control → Control
+  | 0, s => s
+  | n + 1, s => match step s with
+      | none => s
+      | some t => runFuel n t
+
+theorem Trace.append {n m : ℕ} {s u t : Control}
+    (h : Trace n s u) (h' : Trace m u t) : Trace (n + m) s t := by
+  induction h with
+  | nil => simpa using h'
+  | cons head _ ih =>
+      simpa [Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] using Trace.cons head (ih h')
+
+theorem Trace.runFuel_eq {n : ℕ} {s t : Control} (h : Trace n s t) : runFuel n s = t := by
+  induction h with
+  | nil => rfl
+  | cons head _ ih => simpa [runFuel, head] using ih
+
+/-- Memory, immutable source inputs and flags are concrete retained parts of the execution state. -/
+structure Configuration where
+  memory : AddressedBits.Memory
+  input : Fin 5 → Word
+  flags : Fin 2 → Bool
+  control : Control
+
+def ramStep (s : Configuration) : Option Configuration :=
+  (step s.control).map fun next ↦ { s with control := next }
+
+def ramRunFuel : ℕ → Configuration → Configuration
+  | 0, s => s
+  | n + 1, s => match ramStep s with
+      | none => s
+      | some t => ramRunFuel n t
+
+theorem ramRunFuel_eq (s : Configuration) (n : ℕ) :
+    ramRunFuel n s = { s with control := runFuel n s.control } := by
+  induction n generalizing s with
+  | zero => rfl
+  | succ n ih => cases hs : step s.control <;> simp [ramRunFuel, ramStep, runFuel, hs, ih]
+
+
+
+open BinaryWordMachine (value)
+
+theorem lift_left (q : Word) (x y : Register) (r : Registers) {n : ℕ}
+    {s t : WordCopyMachine.Control} (h : WordCopyMachine.Trace n s t) :
+    Trace n (.left q x y r s) (.left q x y r t) := by
+  induction h with
+  | nil => exact .nil _
+  | cons head _ ih => exact .cons (by simp only [step, head]) ih
+
+theorem lift_right (q : Word) (y : Register) (r : Registers) (left : Word) {n : ℕ}
+    {s t : WordCopyMachine.Control} (h : WordCopyMachine.Trace n s t) :
+    Trace n (.right q y r left s) (.right q y r left t) := by
+  induction h with
+  | nil => exact .nil _
+  | cons head _ ih => exact .cons (by simp only [step, head]) ih
+
+/-- Both coordinate outputs are copied physically, including aliased source registers. -/
+theorem pair_trace (q : Word) (x y : Register) (r : Registers) :
+    Trace (2 * (r x).length + 2 * (r y).length + 9) (.start q x y r)
+      (.done q r (r x) (r y)) := by
+  have hi : Trace 1 (.start q x y r)
+      (.left q x y (Function.update r x []) (.clear (r x) [])) := .cons rfl (.nil _)
+  have hl := lift_left q x y (Function.update r x []) (WordCopyMachine.copy_correct (r x) []).1
+  have hh : Trace 1 (.left q x y (Function.update r x []) (.done (r x) (r x)))
+      (.right q y (Function.update r y []) (r x) (.clear (r y) [])) :=
+    .cons (by simp [step, WordCopyMachine.step]) (.nil _)
+  have hr := lift_right q y (Function.update r y []) (r x)
+    (WordCopyMachine.copy_correct (r y) []).1
+  have ho : Trace 1 (.right q y (Function.update r y []) (r x) (.done (r y) (r y)))
+      (.done q r (r x) (r y)) := .cons (by simp [step, WordCopyMachine.step]) (.nil _)
+  convert (((hi.append hl).append hh).append hr).append ho using 1
+  simp only [List.length_nil]
+  omega
+
+def decodeRegisters (q : Word) (r : Registers) : Register → ZMod (value q) := fun i ↦ value (r i)
+
+def decodeInput (q : Word) (input : Fin 5 → Word) :
+    QuadraticAlgebra.ArithmeticMachine.Input (ZMod (value q)) :=
+  ⟨value (input 4), (value (input 0), value (input 1)), (value (input 2), value (input 3))⟩
+
+/-- The two emitted words refine the source PAIR result on the same memory and retained inputs. -/
+theorem source_execution (mem : AddressedBits.Memory) (q : Word)
+    (input : Fin 5 → Word) (flags : Fin 2 → Bool) (x y : Register) (r : Registers)
+    (rest : List QuadraticAlgebra.ArithmeticMachine.Instruction) [Fact (Nat.Prime (value q))] :
+    let n := 2 * (r x).length + 2 * (r y).length + 9
+    Trace n (.start q x y r) (.done q r (r x) (r y)) ∧
+      ramRunFuel n ⟨mem, input, flags, .start q x y r⟩ =
+        ⟨mem, input, flags, .done q r (r x) (r y)⟩ ∧
+      QuadraticAlgebra.ArithmeticMachine.step (decodeInput q input)
+        (.running (.pair x y :: rest) (decodeRegisters q r) flags) =
+        some (.done (.pair ((value (r x) : ZMod (value q)), (value (r y) : ZMod (value q)))),
+          QuadraticAlgebra.ArithmeticMachine.instructionCost (.pair x y)) := by
+  have ht := pair_trace q x y r
+  refine ⟨ht, ?_, rfl⟩
+  rw [ramRunFuel_eq, ht.runFuel_eq]
+
+end Computation.QuadraticArithmeticBitPair

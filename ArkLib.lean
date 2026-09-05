@@ -192,9 +192,15 @@ import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.DonorConstructio
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.DonorFiniteCertificate
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.DonorRateBins
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.FiniteAgreementList
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.GeometricBandParameters
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.GeometricCodewordBound
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.GeometricListBound
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.GeometricListConstants
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.GraphLineAgreement
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.HalfGapCorrelatedAgreement
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.HalfGapMutualAgreement
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.IntermediateGapCertificate
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.IntermediateGapDimension
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.IntermediateGapLocalRank
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.InterpolantListBound
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.MutualAgreement
@@ -445,6 +451,8 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRo
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsSound
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorAgreementGeometry
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorAllSolutions
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorCharZeroSolutions
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorDenominator
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorHighCutGeometry
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorInitialGeometry
@@ -508,6 +516,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CoordinateSeparateSampl
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CoordinateSeparateSampleRefinement
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CoordinateSeparateSampleSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.DecoderScalarWidths
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.GeometricOutputBounds
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.OrderZeroPreparedDecoderProof
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.PreparedDecoderCertificate
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.PreparedDecoderMachine
@@ -586,8 +595,12 @@ import ArkLib.Data.Computation.BitMemoryBlockCheck
 import ArkLib.Data.Computation.BitMemoryRead
 import ArkLib.Data.Computation.BitMemoryReadCheck
 import ArkLib.Data.Computation.CellPayloadMachine
+import ArkLib.Data.Computation.FieldLiteralFiniteControl
+import ArkLib.Data.Computation.FieldLiteralFiniteControlCheck
 import ArkLib.Data.Computation.FieldLiteralMachine
 import ArkLib.Data.Computation.FiniteHeadProgram
+import ArkLib.Data.Computation.FiniteHeadProgramPlacement
+import ArkLib.Data.Computation.FiniteHeadProgramPlacementCheck
 import ArkLib.Data.Computation.FixedWidthWordCheck
 import ArkLib.Data.Computation.FixedWidthWordMachine
 import ArkLib.Data.Computation.HeapAllocationBudget
@@ -604,6 +617,7 @@ import ArkLib.Data.Computation.PaddedNegate
 import ArkLib.Data.Computation.PaddedNegateCheck
 import ArkLib.Data.Computation.QuadraticArithmeticBitAdd
 import ArkLib.Data.Computation.QuadraticArithmeticBitAddExecution
+import ArkLib.Data.Computation.QuadraticArithmeticBitBoolean
 import ArkLib.Data.Computation.QuadraticArithmeticBitCheck
 import ArkLib.Data.Computation.QuadraticArithmeticBitEqual
 import ArkLib.Data.Computation.QuadraticArithmeticBitEqualExecution
@@ -614,6 +628,8 @@ import ArkLib.Data.Computation.QuadraticArithmeticBitMul
 import ArkLib.Data.Computation.QuadraticArithmeticBitMulExecution
 import ArkLib.Data.Computation.QuadraticArithmeticBitNeg
 import ArkLib.Data.Computation.QuadraticArithmeticBitNegExecution
+import ArkLib.Data.Computation.QuadraticArithmeticBitPair
+import ArkLib.Data.Computation.QuadraticArithmeticBitProgram
 import ArkLib.Data.Computation.QuadraticRegisterInitialization
 import ArkLib.Data.Computation.QuadraticRegisterInitializationCheck
 import ArkLib.Data.Computation.ScalarWordPadding

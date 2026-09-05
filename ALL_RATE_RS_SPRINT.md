@@ -247,3 +247,47 @@ The deadline fallback remains preservation of verified progress, not mathematica
 All workers acknowledged the unchanged cutoffs. Central owns register initialization and final
 integration; A owns finite-head adequacy; B owns remaining load/output/dispatcher instructions;
 C independently audits new instructions and initialization. No overlapping implementation claims.
+
+## Coordinate capstone and independent instruction audits, 09:03 UTC
+
+`19e7505b` is pushed after full validation: 29,775 declarations in 1,048 modules,
+312 pre-existing tainted declarations, zero new taint/nonstandard axioms, and 183 unchanged
+source admissions. `Capacity.lean` now names the actual coordinate decoder in its existing
+primitive-work theorem. Lane A independently audited that public statement and the executed
+core, all-rate dispatch and budget branches. No output or mathematical clause was weakened.
+
+Physical initialization constructs all eight zero registers and both false flag bits in exactly
+`19 * width + 40` transitions from blank register storage. Lane C independently replayed every
+one of the 28 physical tapes, dirty destination handoffs, all five load selectors and the actual
+flag pop/push boundary. It found no correctness issue and rejected deliberate restoration,
+uncharged-clearing and selector mutations. These are component audits, not a full bit-RAM claim.
+
+The next integration contains a complete 24-state, six-tape finite-head literal controller and
+physical pair/Boolean output instructions. The strengthening coordinator has closed the singular
+recursion and assembled the prescribed field-independent list bound in both characteristic zero
+and characteristic at least the block length. That checkpoint is undergoing its full gate.
+Central is connecting this geometric bound to the existing decoder's identical physical output;
+the primitive-work bound will remain unchanged. No faster decoder or general MCA theorem is claimed.
+
+## Field-independent list assembly and physical dispatch, 09:13 UTC
+
+Strengthening checkpoint `0646f443` passed its private full gate and is integrated for central
+validation. It proves the entire degree-`<k` agreement list finite with bound
+`4m² (4m/δ)^d n^d`, including both regular and singular differential solutions, in characteristic
+zero or characteristic at least `n`. The canonical codeword-list function satisfies the same
+bound rounded upward to a natural. The order, multiplicity and `8m` threshold are prescribed;
+there is no assumed degree law, separant-count interface or regular-only restriction at this endpoint.
+
+Central's `GeometricOutputBounds.coordinate_run_list_bound` passes its targeted build and states
+that the identical coordinate decoder output satisfies this field-independent bound. The original
+observed primitive work, including the larger-field saving, is unchanged. No runtime operation
+or alternative output is introduced. Its equality-instance conversion is confined to the proof
+of exactness; the executed prime-field decoder retains its concrete equality implementation.
+
+Finite-head literal construction and static injective tape placement preserve all fuel prefixes.
+The unified scalar dispatcher has a bounded instruction cursor, physically exact initialization,
+all eight literal child kinds and tape-preserving returns, including adoption of updated equality
+flags. Generic whole-program scalar correctness/cost and finite-head adequacy of that dispatcher
+are still separate. Lane C independently audited literal/pair/Boolean components, adding full-bank
+kernel replays and rejecting seven injected implementation faults. It is now auditing the dispatcher
+and placement; lane A independently audits the geometric output bridge.
