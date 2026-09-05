@@ -258,6 +258,8 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Extensi
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ExtensionRootCount
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetPrefix
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetPrefixCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetPreparationCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetPreparationMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RecursiveCounting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RecursiveCountingCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularCounting
@@ -273,6 +275,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Residua
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSampleCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSampleMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSampleRefinement
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSystemCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSystemMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSystemRefinement
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RootCount
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RootCountCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SampledResidual
@@ -351,6 +356,8 @@ import ArkLib.Data.Lattices.CyclotomicRing.Subfield.TraceInnerProduct
 import ArkLib.Data.Lattices.CyclotomicRing.Subfield.TraceVanishing
 import ArkLib.Data.Lattices.ModuleSIS
 import ArkLib.Data.Lattices.Vectors
+import ArkLib.Data.List.CartesianProductMachine
+import ArkLib.Data.List.CartesianProductMachineCanary
 import ArkLib.Data.Matrix.AugmentedColumnMachine
 import ArkLib.Data.Matrix.AugmentedColumnMachineCanary
 import ArkLib.Data.Matrix.Basic

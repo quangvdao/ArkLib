@@ -1071,10 +1071,10 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
-| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: materialized initial-jet preparation and change of center | `HiddenDerivative/RootFinding/JetPreparationMachine.lean`, `CenterShiftMachine.lean` and canaries |
-| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: closed Cartesian-product enumeration for grids and support boxes | `ArkLib/Data/List/CartesianProductMachine.lean` and canaries |
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: change of center using the completed jet-preparation machine | `HiddenDerivative/RootFinding/CenterShiftMachine.lean` and canary |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: materialized prefix axes for sampling grids and support boxes | `ArkLib/Data/List/PrefixAxesMachine.lean` and canary |
 | C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: back-substitution and residual consistency checking | `ArkLib/Data/Matrix/BackSubstitutionMachine.lean` and bounded helpers/canaries |
-| Central | Compose actual residual sampling, Vandermonde construction and forward elimination; integrate and validate | `HiddenDerivative/RootFinding/ResidualSystemMachine.lean`, refinements, tracker and umbrella |
+| Central | Integrate the residual-system composition; connect coefficient recovery to regular lifting | `HiddenDerivative/RootFinding/ResidualSystemMachine.lean`, refinements, tracker and umbrella |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
 except explicitly repository-relative paths beginning `ArkLib/`.
@@ -1399,6 +1399,34 @@ the three landed machines with explicitly charged handoffs. None of these compon
 the full decoder or its bit-complexity bound.
 
 ### Next critical-path work
+
+The next integrated operational layer comprises:
+
+- A source `260afc218a61bbfebf84616aa9cd2020e8b3d7f3`: `JetPreparationMachine`
+  reverses ascending initial jets, pads to physical width `D+1`, and rejects overlong inputs.
+  Its actual execution is tied to every output coefficient and exact primitive charges,
+  including each padding zero. Five kernel examples test representation and emission boundaries.
+- B source `3e03c8e3dd72a205f0037d276b866b5dfdef3621`: `CartesianProductMachine`
+  constructs ordered tuples through explicit prefix allocation and list reversals. Membership,
+  widths, multiplicities, duplicate-freedom for distinct axes, and a dimension/product-size
+  work bound apply to the same execution. It does not evaluate or filter grid points.
+- Central `ResidualSystemMachine` composes actual batch sampling, Vandermonde construction,
+  and forward elimination one callee transition at a time. It retains every nested cost and
+  emission, charges handoffs, and proves termination under explicit fuel. Its refinement
+  identifies the emitted equations' solutions with residual coefficients when the supplied
+  representations, distinct sampling points, and strict degree bound hold. It does not yet
+  return a coefficient vector: back-substitution remains necessary. Three kernel computations
+  test a nonzero centered residual, final-emission boundary, and empty system.
+
+B independently reviewed both residual-system source files without shared writes or builds:
+no actionable finding. In particular, surplus fuel is bounded only after extracting actual
+traces, contradictory residual rows are retained, and the degree and distinctness hypotheses
+are explicit. All these are modeled primitive-cost statements, not bit-complexity theorems.
+
+Central `validate.sh --axioms` passed for this batch: 590 umbrella imports, 13 additional
+kernel examples (376 total), no new admissions, and no new axiom taint. The existing source
+admission count is 183; the environment sweep reports 312 tainted declarations and no
+nonstandard axioms. The new endpoint proofs do not use those existing admissions.
 
 1. Preserve the explicit central list theorem and its no-extra-assumption mathematical ingredients.
    Optimized analysis and list counting are no longer the main critical path.
