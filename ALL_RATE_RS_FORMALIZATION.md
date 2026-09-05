@@ -1211,7 +1211,17 @@ Do not rebuild those components or count them as already proving the whole-decod
 
 ### Integrated foundations and current handoffs
 
-- Latest fully validated batch: center enumeration (`a381994f`), full received-point matrix
+- Latest fully validated batch: closed canonical base-field acceptance. The actual guard,
+  coordinate descent, degree truncation and agreement check now run in one driver with every
+  callee charge and caller dispatch retained. The accepted base polynomial embeds to the original
+  candidate. Six kernel canaries cover full success, final emission, earlier-equation and center
+  rejection, non-base coefficients and insufficient agreement. The full `validate.sh --axioms`
+  gate passes: 681 umbrella imports, 555 examples (+6), 183 admissions unchanged, 312 pre-existing
+  tainted declarations and no nonstandard/native axioms. The list collector and stage-uniqueness
+  join remain open; this is not the full decoder runtime theorem.
+- Pending central integration: A's operational stage-driver and per-center uniqueness checkpoint
+  `48a91dcb`. The full stage semantic/specification and uniform-cost proofs are still in progress.
+- Previous fully validated batch: center enumeration (`a381994f`), full received-point matrix
   (`d5c221ec`), active-order presentation and actual-record regular witness (`634b61db`), and
   central guard exclusivity. Central has read all source and canaries. The full
   `validate.sh --axioms` gate passes with 678 umbrella imports, 549 source examples (+12),

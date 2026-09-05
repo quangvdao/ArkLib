@@ -350,6 +350,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.AgreementMachineCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CandidateFilterMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CandidateFilterMachineCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CandidateFilterSemantics
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CanonicalAcceptanceCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CanonicalAcceptanceMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CanonicalAcceptanceSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticCandidateCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticCandidateMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticCandidateSemantics
