@@ -1,5 +1,59 @@
 # Field-independent lists and mutual correlated agreement: follow-on plan
 
+## Active MCA implementation: September 5 restart
+
+This section supersedes the historical worktree assignments below. The current
+base is checkpoint 1, `0dbbcd160468d441ce4d85e2b3528104137df819`: mathematical
+capacity lives in `CapacityList.lean`, separately from decoder execution.
+The sole final integration branch remains `quang/all-rate-rs-capacity-formalization`.
+
+The first MCA checkpoint proves three parallel prerequisites plus the
+parent-owned graph-pullback bridge:
+
+| Lane | Owned surface | First acceptance condition |
+|---|---|---|
+| Symbolic Taylor | `SymbolicTaylorNumerator` and pure-ring substitution naturality | Polynomial specialization commutes with the concrete recurrence |
+| Incidence | `AffineAgreementIncidenceExcluded` | Dimension induction with hereditary exclusion, including empty and zero-dimensional cases |
+| Correlated pairs | `CorrelatedPairFamily` | Finite sample cover and simultaneous injectivity at a challenge outside finitely many collisions |
+| Integration | `AffineGraphPullback` | Vanishing on a positive-dimensional regular graph gives polynomial identities and a nonzero restricted denominator |
+
+Each worker uses a separate `ArkLib-mca-*-epoch1` worktree and writable build
+directory. Integration and complete validation belong to the parent; algorithmic
+machine files are outside these lanes. No compatibility facade is planned.
+
+Checkpoint validation: combined `./scripts/validate.sh --axioms` passed; the
+library sweep checked 30,306 declarations with no new axiom/admission taint.
+Principal new exports use only `propext`, `Classical.choice`, and `Quot.sound`.
+Source-trust inventory found no added admissions or native-trust constructs.
+Independent review covered incidence, graph pullback, pair families, and
+symbolic recurrence transport. Scratch specialization tests cover disappearing
+coefficients and zero separants. Existing capacity statements and proofs are unchanged.
+
+The revised route counts directly in joint challenge/initial-jet space. It avoids
+image-closure, generic-fiber, and multigraded intersection machinery. Its target
+is the same all-rate MCA conclusion and `C_delta*n^(d+1)` exponent, initially
+with a larger explicit prefactor than the manuscript's sharper transfer bound.
+For jet degree `nu`, challenge height `h`, and `M=nu*(nu+1)/2`, the proposed
+sufficient prefactor is
+
+```text
+h + (M + nu*h) * (2*(2*nu + 2*h - 1)/delta)^(d+1)
+  + M * (2*(2*nu - 1)/delta)^d.
+```
+
+This formula is a reviewed implementation target, not a proved Lean MCA theorem.
+The existing displayed sharper constant is not claimed verified by this route.
+Source-component recognition must establish all reconstructed Taylor coefficient
+identities; initial jets alone are insufficient. Relevant pairs are counted at
+one scalar in an infinite extension avoiding finitely many collisions and
+separant roots, using the existing finite regular-high-cut-jet theorem.
+
+After these prerequisites: prove joint degree bounds and source recognition;
+assemble excluded incidence and pair counting; handle symbolic separant stages;
+then produce one exceptional set valid for every close polynomial and instantiate
+the prescribed parameters and affine-family transfer. Small message dimensions
+can use direct sample double-counting. Full smaller-gap MCA remains unfinished.
+
 ## Priority and acceptance boundary
 
 This track is active in parallel with the decoder, by Quang’s explicit authorization on

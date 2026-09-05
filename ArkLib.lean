@@ -189,6 +189,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.CapacityCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.CapacityList
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.ConstructionContracts
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.Contracts
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.CorrelatedPairFamily
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.DonorConstruction
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.DonorFiniteCertificate
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.DonorRateBins
@@ -452,6 +453,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRo
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsSound
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicTaylorNumerator
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicTaylorSpecialization
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorAgreementGeometry
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorAllSolutions
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorCharZeroSolutions
@@ -1001,10 +1005,12 @@ import ArkLib.ToCompPoly.Multivariate.Eval
 import ArkLib.ToCompPoly.Univariate.Basic
 import ArkLib.ToCompPoly.Univariate.Lagrange
 import ArkLib.ToMathlib.AlgebraicGeometry.AffineAgreementIncidence
+import ArkLib.ToMathlib.AlgebraicGeometry.AffineAgreementIncidenceExcluded
 import ArkLib.ToMathlib.AlgebraicGeometry.AffineBezout
 import ArkLib.ToMathlib.AlgebraicGeometry.AffineFiniteCutFamily
 import ArkLib.ToMathlib.AlgebraicGeometry.AffineFiniteCutFamilyIteration
 import ArkLib.ToMathlib.AlgebraicGeometry.AffineFiniteZeroLocus
+import ArkLib.ToMathlib.AlgebraicGeometry.AffineGraphPullback
 import ArkLib.ToMathlib.AlgebraicGeometry.AffineHilbertDegree
 import ArkLib.ToMathlib.AlgebraicGeometry.AffineHilbertFunction
 import ArkLib.ToMathlib.AlgebraicGeometry.AffineHilbertPolynomial

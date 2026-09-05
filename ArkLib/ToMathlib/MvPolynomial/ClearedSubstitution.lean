@@ -31,6 +31,31 @@ def clearedSubstitution (f : F →+* R) (S : R) (N : τ → R) (d : τ → ℕ)
   ∑ m ∈ Q.support, f (coeff m Q) *
     (∏ i ∈ m.support, N i ^ m i) * S ^ (H - Finsupp.weight d m)
 
+/-- Mapping a cleared substitution needs no invertibility or denominator-budget hypothesis. -/
+theorem ringHom_clearedSubstitution {T : Type*} [CommRing T]
+    (f : F →+* R) (φ : R →+* T) (S : R) (N : τ → R) (d : τ → ℕ)
+    (H : ℕ) (Q : MvPolynomial τ F) :
+    φ (clearedSubstitution f S N d H Q) =
+      clearedSubstitution (φ.comp f) (φ S) (fun i ↦ φ (N i)) d H Q := by
+  classical
+  simp [clearedSubstitution]
+
+/-- Coefficient specialization commutes with clearing denominators, including when
+specialization removes monomials from the support. -/
+theorem clearedSubstitution_map {A : Type*} [CommSemiring A]
+    (f : F →+* A) (g : A →+* R) (S : R) (N : τ → R) (d : τ → ℕ)
+    (H : ℕ) (Q : MvPolynomial τ F) :
+    clearedSubstitution g S N d H (map f Q) =
+      clearedSubstitution (g.comp f) S N d H Q := by
+  classical
+  unfold clearedSubstitution
+  simp only [coeff_map, RingHom.comp_apply]
+  apply Finset.sum_subset (support_map_subset f Q)
+  intro m _ hm
+  have hzero : f (coeff m Q) = 0 := by
+    simpa only [notMem_support_iff, coeff_map] using hm
+  simp [hzero]
+
 /-- The explicit cleared polynomial represents the rational substitution when all monomials
 fit within the chosen denominator budget. -/
 theorem map_clearedSubstitution (f : F →+* R) (φ : R →+* E) (S : R)
