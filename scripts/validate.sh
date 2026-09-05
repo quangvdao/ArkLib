@@ -116,6 +116,10 @@ echo "# Checking umbrella imports"
 ./scripts/check-imports.sh
 
 echo ""
+echo "# Checking RS mathematical import boundary"
+python3 ./scripts/check-rs-math-imports.py
+
+echo ""
 echo "# Testing build timing report fixtures"
 ./scripts/test-build-timing-report.sh
 

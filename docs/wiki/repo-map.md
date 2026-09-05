@@ -329,6 +329,16 @@ home_page/            site assets and assembled website root
   `ArkLib/Data/CodingTheory/ReedSolomon.lean`, and the folded/interleaved/multiplicity/multilinear
   variants under `ArkLib/Data/CodingTheory/ReedSolomon/` (see
   [coding-theory-conventions.md](coding-theory-conventions.md)).
+- Mathematical capacity list bounds live in `ReedSolomon/ListDecodability/Capacity.lean`;
+  field-independent bounds are in its `GeometricBound` and `CodewordBound` modules.
+  Capacity MCA lives in `ReedSolomon/CorrelatedAgreement/Capacity.lean` and `AffineCapacity.lean`.
+  `ReedSolomon/Agreement.lean` contains the basic agreement sets, without a decoding theorem.
+  The cost-free decoder specification is in `ReedSolomon/Decoding/Specification.lean`;
+  the capacity module describes the algorithm but does not claim an executable implementation
+  or a running-time bound.
+- Reusable finite-jet differential equations live in `Data/Polynomial/Differential`.
+  Discrete-simplex cardinality, moments and variance live in
+  `ToMathlib/Combinatorics/DiscreteSimplex`, independently of coding theory.
 - **Two different "folds" coexist and must not be confused.** GR08 *alphabet-enlarging* folding —
   a codeword symbol packs `(f̂(x), f̂(xω), …, f̂(xω^{s-1}))`, the degree bound is unchanged, and the
   code lives in `ι → Fin s → F` — is `ArkLib/Data/CodingTheory/ReedSolomon/Folded.lean`. The
