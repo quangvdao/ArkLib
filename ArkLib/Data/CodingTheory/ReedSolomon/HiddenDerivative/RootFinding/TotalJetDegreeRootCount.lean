@@ -4,8 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeWitness
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Extension
+import
+  ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.TotalDegreeWitness
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.Extension
 import Mathlib.Algebra.MvPolynomial.SchwartzZippel
 
 
@@ -18,8 +19,8 @@ charges the original total jet degree once, with no individual-degree or chain-l
 
 ## References
 
-* [Dao, Kominers, Thaler, and Zheng, *Reed-Solomon List Decoding up to Capacity at Every
-  Rate*][DKTZ26], total-jet-degree witness counting for the `4m` list prefactor.
+* [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
+  up to Capacity*][DKTZ26], total-jet-degree witness counting for the `4m` list prefactor.
 -/
 
 open PolynomialDifferential

@@ -29,9 +29,8 @@ interpolation algorithm or running-time claim.
 
 ## References
 
-* [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding up to Capacity at Every
-  Rate*][DKTZ26], Sections 9 and 10 at source revision
-  `9e4d6488ead94be47cca69e5be915b5667143b66`.
+* [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
+  up to Capacity*][DKTZ26], Theorem 4.2, its list-cardinality conclusion.
 -/
 
 namespace ReedSolomon

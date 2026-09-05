@@ -189,10 +189,10 @@ import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.FullAgreement
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.GraphLine
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.HalfGap.Line
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.LineToAffine
-import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PairExceptionalSet
-import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PairFamily
-import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.RegularSymbolicEquation
-import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.SymbolicCertificate
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Pairs.ExceptionalSet
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Pairs.Family
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Symbolic.Certificate
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Symbolic.RegularEquation
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.ComponentAgreement
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.ComponentRecognition
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.ExceptionalChallenges
@@ -201,96 +201,102 @@ import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.Pair
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.PointRecognition
 import ArkLib.Data.CodingTheory.ReedSolomon.Decoding.Specification
 import ArkLib.Data.CodingTheory.ReedSolomon.Folded
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AsymmetricBand
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AsymmetricBandDimensionBound
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AsymmetricBandInterpolation
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AsymmetricBandLocalRank
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AsymmetricBandNormalizedRank
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AsymmetricBandRankBound
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Counting
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.DifferentialSpecializationDegree
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.ExactCharacteristicBudget
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.GlobalDimension
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.GlobalInterpolation
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.GlobalMultiplicity
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Band.Basic
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Band.DimensionBound
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Band.Interpolation
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Band.LocalRank
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Band.NormalizedRank
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Band.RankBound
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Certificates
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Counting
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.DimensionBridge
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FreeOrderDimension
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.GlobalDimension
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.GlobalInterpolation
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.GlobalMultiplicity
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Index
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.ConstraintKernel
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.ConstraintMap
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.Contact
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.Identity
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.IntermediateSpace
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.KernelSliceIndependence
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.Rank
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.SourceMonomial
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Space
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.SpecializationDegree
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.Band
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.BandCertificate
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.LocalRank
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.ReceivedLine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.SeparantStages
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.Soundness
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationDimensionBridge
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationIndex
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationSpace
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.KernelSliceIndependence
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalConstraintKernel
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalConstraintMap
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalContact
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalIdentity
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalIntermediateSpace
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalRank
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.BandAmbient
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.BandEndpointComparison
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.BandMassBound
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.BandParameterBounds
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Band.Ambient
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Band.EndpointComparison
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Band.MassBound
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Band.ParameterBounds
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Band.Prescribed
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Band.SimplexCantelli
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Band.SimplexCounting
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Band.SymbolicMargin
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Basic
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.FreeOrder
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.GeometricCounting
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.PrescribedBand
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.RoundedScaledShell
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.ScaledLattice
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.ScaledShellDiscrete
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.SimplexBandCounting
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.SimplexCantelli
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.SymbolicBandMargin
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Lattice.RoundedScaledShell
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Lattice.ScaledLattice
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Lattice.ScaledShellDiscrete
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.TaylorCutoff
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Counting
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Extension
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ExtensionRootCount
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetPrefix
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RationalTaylorChart
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RationalTaylorCuts
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RationalTaylorNumerator
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RecursiveCounting
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularCounting
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularIteration
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularJetCounting
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularLifting
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularWitnessCounting
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.Counting
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.Extension
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.ExtensionRootCount
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.RecursiveCounting
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.RegularCounting
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.RegularJetCounting
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.TotalDegreeExtension
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.TotalDegreeWitness
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.WitnessCounting
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Geometry.AgreementGeometry
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Geometry.HighCutGeometry
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Geometry.InitialGeometry
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Geometry.RegularCounting
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Geometry.SolutionEmbedding
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Geometry.SolutionExtension
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Geometry.SolutionGeometry
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Regular.Iteration
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Regular.JetPrefix
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Regular.Lifting
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Regular.SingularRecursion
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RootCount
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SingularRecursion
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SpecializationDegree
 import
-ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicCoefficientExtension
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicJetPrefix
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicSeparantChain
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicTaylorCutDegree
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicTaylorCuts
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicTaylorDegree
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicTaylorHeight
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicTaylorNumerator
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.CoefficientExtension
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.JetPrefix
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.SeparantChain
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.TaylorCutDegree
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.TaylorCuts
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.TaylorDegree
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.TaylorHeight
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.TaylorNumerator
 import
-ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicTaylorSpecialization
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.TaylorSpecialization
 import
-ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicTaylorWitnessEmbedding
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorAgreementGeometry
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.TaylorWitnessEmbedding
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Taylor.Chart
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Taylor.Cuts
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Taylor.Denominator
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Taylor.Numerator
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Taylor.Support
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Taylor.SupportEvaluation
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorAllSolutions
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorCharZeroSolutions
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorDenominator
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorHighCutGeometry
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorInitialGeometry
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorRegularCounting
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorSolutionEmbedding
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorSolutionExtension
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorSolutionGeometry
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorSupport
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorSupportEvaluation
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeExtension
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeRootCount
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeWitness
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.SourceMonomial
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Substitution
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Variables
 import ArkLib.Data.CodingTheory.ReedSolomon.Interleaved
@@ -305,11 +311,12 @@ import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.FreeOrderB
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.GeometricBound
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.QuarterGap
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.Radius
-import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.RateBinDimensionBound
-import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.RateBinInterpolant
-import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.RateBinInterpolation
-import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.RateCover
-import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.UniformThresholds
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.RatePartition.Cover
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.RatePartition.DimensionBound
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.RatePartition.Interpolant
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.RatePartition.Interpolation
+import
+ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.RatePartition.UniformThresholds
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.HiddenDerivativeBound
 import ArkLib.Data.CodingTheory.ReedSolomon.Multilinear
 import ArkLib.Data.CodingTheory.ReedSolomon.Multiplicity
@@ -543,37 +550,37 @@ import ArkLib.ToCompPoly.Multilinear.NestedEvaluationTree
 import ArkLib.ToCompPoly.Multivariate.Eval
 import ArkLib.ToCompPoly.Univariate.Basic
 import ArkLib.ToCompPoly.Univariate.Lagrange
-import ArkLib.ToMathlib.AlgebraicGeometry.AffineAgreementIncidence
-import ArkLib.ToMathlib.AlgebraicGeometry.AffineAgreementIncidenceExcluded
-import ArkLib.ToMathlib.AlgebraicGeometry.AffineBezout
-import ArkLib.ToMathlib.AlgebraicGeometry.AffineFiniteCutFamily
-import ArkLib.ToMathlib.AlgebraicGeometry.AffineFiniteCutFamilyIteration
-import ArkLib.ToMathlib.AlgebraicGeometry.AffineFiniteZeroLocus
-import ArkLib.ToMathlib.AlgebraicGeometry.AffineGraphPullback
-import ArkLib.ToMathlib.AlgebraicGeometry.AffineHilbertDegree
-import ArkLib.ToMathlib.AlgebraicGeometry.AffineHilbertFunction
-import ArkLib.ToMathlib.AlgebraicGeometry.AffineHilbertPolynomial
-import ArkLib.ToMathlib.AlgebraicGeometry.AffineHypersurfaceCutFamily
-import ArkLib.ToMathlib.AlgebraicGeometry.AffinePrincipalOpenCuts
-import ArkLib.ToMathlib.AlgebraicGeometry.AffinePrincipalOpenFinite
-import ArkLib.ToMathlib.AlgebraicGeometry.AffineStandardMonomials
-import ArkLib.ToMathlib.AlgebraicGeometry.AffineZeroDimensional
-import ArkLib.ToMathlib.AlgebraicGeometry.FiniteAlgebraHilbertGrowth
-import ArkLib.ToMathlib.AlgebraicGeometry.FiniteExtensionHilbertDegree
-import ArkLib.ToMathlib.AlgebraicGeometry.HilbertAwayFiltration
-import ArkLib.ToMathlib.AlgebraicGeometry.HilbertAwayPresentation
-import ArkLib.ToMathlib.AlgebraicGeometry.HilbertPrincipalCutDegree
-import ArkLib.ToMathlib.AlgebraicGeometry.HilbertPrincipalCutDimension
-import ArkLib.ToMathlib.AlgebraicGeometry.HilbertPrincipalCutPurity
-import ArkLib.ToMathlib.AlgebraicGeometry.HilbertPrincipalPolynomial
-import ArkLib.ToMathlib.AlgebraicGeometry.HilbertRadicalDegree
-import ArkLib.ToMathlib.AlgebraicGeometry.MonomialHilbertCounting
-import ArkLib.ToMathlib.AlgebraicGeometry.NoetherNormalizationHeightOne
-import ArkLib.ToMathlib.AlgebraicGeometry.PolynomialGrowthAffine
-import ArkLib.ToMathlib.AlgebraicGeometry.PolynomialGrowthRescaling
-import ArkLib.ToMathlib.AlgebraicGeometry.PrimeFamilyHilbert
-import ArkLib.ToMathlib.AlgebraicGeometry.PrimeFamilyHilbertCoefficient
-import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalCutComponentCoefficient
+import ArkLib.ToMathlib.AlgebraicGeometry.CutFamily.Finite
+import ArkLib.ToMathlib.AlgebraicGeometry.CutFamily.Hypersurface
+import ArkLib.ToMathlib.AlgebraicGeometry.CutFamily.Iteration
+import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.Degree
+import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.FiniteAlgebraGrowth
+import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.FiniteExtensionDegree
+import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.Function
+import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.MonomialCounting
+import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.Polynomial
+import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.PolynomialGrowthAffine
+import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.PolynomialGrowthRescaling
+import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.PrimeFamily
+import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.PrimeFamilyCoefficient
+import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.RadicalDegree
+import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.StandardMonomials
+import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.Agreement
+import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.Excluded
+import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.GraphPullback
+import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalCut.Bezout
+import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalCut.ComponentCoefficient
+import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalCut.Degree
+import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalCut.Dimension
+import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalCut.NoetherNormalizationHeightOne
+import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalCut.Polynomial
+import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalCut.Purity
+import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalOpen.Cuts
+import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalOpen.Filtration
+import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalOpen.Finite
+import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalOpen.Presentation
+import ArkLib.ToMathlib.AlgebraicGeometry.ZeroLocus.Finite
+import ArkLib.ToMathlib.AlgebraicGeometry.ZeroLocus.ZeroDimensional
 import ArkLib.ToMathlib.BigOperators.Fin
 import ArkLib.ToMathlib.Combinatorics.DiscreteSimplex.Basic
 import ArkLib.ToMathlib.Combinatorics.DiscreteSimplex.Moments

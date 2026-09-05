@@ -27,8 +27,8 @@ agreement-set conclusion.
 
 ## References
 
-* [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding up to Capacity at Every
-  Rate*][DKTZ26], Section 10.
+* [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
+  up to Capacity*][DKTZ26], Section 9.5, the half-gap case of Theorem 9.8.
 -/
 
 namespace ReedSolomon

@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.PointRecognition
-import ArkLib.ToMathlib.AlgebraicGeometry.AffineGraphPullback
+import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.GraphPullback
 
 
 /-!

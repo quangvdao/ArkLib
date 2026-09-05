@@ -53,6 +53,35 @@ home_page/            site assets and assembled website root
 
 ## Navigation Notes
 
+### Reed–Solomon capacity and its mathematical foundations
+
+The public results remain in `ReedSolomon/ListDecodability/Capacity.lean` and
+`ReedSolomon/CorrelatedAgreement/{Capacity,AffineCapacity}.lean`. Their supporting modules
+are grouped by mathematical role:
+
+- `HiddenDerivative/Interpolation/Local` contains contact identities, constraint maps and kernels,
+  and local rank bounds; `Interpolation/Band` contains asymmetric-band dimension and rank bounds.
+  Global interpolation and multiplicity arguments live directly under `Interpolation`;
+  `Interpolation/Symbolic` retains the unevaluated challenge.
+- `HiddenDerivative/Parameters/Band` assembles band estimates, while `Parameters/Lattice` owns
+  the scaled-lattice and shell estimates.
+- `HiddenDerivative/RootFinding/Regular` contains regular Taylor lifting and singular descent.
+  `FiniteField` contains finite-field witness counts and extension transport; `Taylor` constructs
+  rational charts; `Geometry` counts their solution loci; `Symbolic` retains coefficient parameters.
+  The assembled root bounds remain directly under `RootFinding`.
+- `ListDecodability/Capacity/RatePartition` contains the rate-cover and uniform-threshold argument.
+  `CorrelatedAgreement/Pairs` packages polynomial pairs and their exceptional sets;
+  `CorrelatedAgreement/Symbolic` connects symbolic equations to agreement certificates.
+  `CorrelatedAgreement/TaylorChart` contains the chart-specific incidence argument.
+- The reusable `ToMathlib/AlgebraicGeometry` development is organized into `Hilbert`,
+  `PrincipalCut`, `PrincipalOpen`, `CutFamily`, `ZeroLocus`, and `Incidence`.
+  These modules do not belong to Reed–Solomon coding theory.
+
+These directories organize imports, not theorem namespaces. Import the specific module needed;
+there are no forwarding modules at the retired paths.
+
+### Other navigation conventions
+
 - `ArkLib.lean` is a generated umbrella import file, not a hand-maintained module index.
 - `ArkLib/ToVCVio/` mirrors VCV-io module structure under the importable Lean prefix
   `ArkLib.ToVCVio`; use it for reusable `VCVio` helper lemmas before they are upstreamed.

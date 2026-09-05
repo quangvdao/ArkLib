@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.SourceMonomial
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalConstraintMap
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.SourceMonomial
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.ConstraintMap
 import ArkLib.ToMathlib.LinearAlgebra.PrimitivePolynomialKernel
 
 

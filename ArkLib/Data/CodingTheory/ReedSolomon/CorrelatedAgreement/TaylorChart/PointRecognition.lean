@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.GraphLine
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicTaylorCuts
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.TaylorCuts
 
 
 /-!

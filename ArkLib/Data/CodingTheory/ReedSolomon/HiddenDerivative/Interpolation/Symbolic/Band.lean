@@ -6,7 +6,7 @@ Authors: Quang Dao
 
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.LocalRank
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.ReceivedLine
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.SymbolicBandMargin
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Band.SymbolicMargin
 
 
 /-!

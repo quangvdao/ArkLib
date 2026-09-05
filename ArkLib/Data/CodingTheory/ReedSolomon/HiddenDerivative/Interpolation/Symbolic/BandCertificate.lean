@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.Soundness
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.SymbolicBandMargin
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Band.SymbolicMargin
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.Band
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.Radius
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeRootCount
@@ -21,8 +21,8 @@ Reed--Solomon polynomial. No matrix-rank or coefficient-height assumption remain
 
 ## References
 
-* [Dao, Q., Kominers, S. D., Thaler, J., Zheng, K. Z., *Reed–Solomon List Decoding
-  up to Capacity at Every Rate*][DKTZ26]
+* [Dao, Q., Kominers, S. D., Thaler, J., Zheng, K. Z., *Reed--Solomon List Decoding and Mutual
+  Correlated Agreement up to Capacity*][DKTZ26]
 -/
 
 open PolynomialDifferential

@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.Incidence
-import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PairExceptionalSet
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Pairs.ExceptionalSet
 
 
 /-!

@@ -6,7 +6,7 @@ Authors: Quang Dao
 
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.Radius
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.BandInterpolant
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.PrescribedBand
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Band.Prescribed
 
 
 /-!
@@ -25,9 +25,8 @@ efficient implementations. The operational and runtime obligations remain separa
 
 ## References
 
-* [Dao, Kominers, Thaler, and Zheng, *Reed-Solomon List Decoding up to Capacity at Every
-  Rate*][DKTZ26], Theorem 1.1, precise `thm:main`, source revision
-  `9e4d6488ead94be47cca69e5be915b5667143b66`.
+* [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
+  up to Capacity*][DKTZ26], Theorem 1.1 and its explicit field-dependent list bounds.
 -/
 
 open PolynomialDifferential

@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.Basic
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.GlobalMultiplicity
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.GlobalMultiplicity
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RootCount
 
 

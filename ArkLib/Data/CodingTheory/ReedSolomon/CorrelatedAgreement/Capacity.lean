@@ -52,8 +52,8 @@ also includes equality `n = ringChar F`, covering prime fields of size exactly `
 
 ## References
 
-* [Dao, Kominers, Thaler, and Zheng, *Reed–Solomon List Decoding up to Capacity at Every
-  Rate*][DKTZ26], mutual correlated agreement and symbolic interpolation.
+* [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
+  up to Capacity*][DKTZ26], Theorem 1.2 (line case) and Sections 8–9.
 -/
 
 open PolynomialDifferential

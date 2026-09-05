@@ -6,8 +6,8 @@ Authors: Quang Dao
 
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.ComponentAgreement
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.PairCounting
-import ArkLib.ToMathlib.AlgebraicGeometry.AffineHypersurfaceCutFamily
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicTaylorCutDegree
+import ArkLib.ToMathlib.AlgebraicGeometry.CutFamily.Hypersurface
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.TaylorCutDegree
 
 
 /-!

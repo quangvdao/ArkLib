@@ -6,8 +6,9 @@ Authors: Quang Dao
 
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Certificates
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.HiddenDerivativeBound
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AsymmetricBandInterpolation
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeExtension
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Band.Interpolation
+import
+  ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.TotalDegreeExtension
 
 
 /-!

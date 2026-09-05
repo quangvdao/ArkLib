@@ -5,8 +5,8 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.ReceivedLine
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.GlobalMultiplicity
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AsymmetricBand
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.GlobalMultiplicity
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Band.Basic
 
 
 /-!

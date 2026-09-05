@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.Radius
-import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.RateBinInterpolant
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.RatePartition.Interpolant
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RootCount
 
 
@@ -24,8 +24,8 @@ consequence of a uniform family of interpolation witnesses without prescribing i
 
 ## References
 
-* [Dao, Kominers, Thaler, and Zheng, *Reed-Solomon List Decoding up to Capacity at Every
-  Rate*][DKTZ26], uniform list-decoding capacity.
+* [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
+  up to Capacity*][DKTZ26], uniform list-decoding capacity.
 -/
 
 open PolynomialDifferential

@@ -5,8 +5,8 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.ComponentRecognition
-import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PairFamily
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorHighCutGeometry
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Pairs.Family
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Geometry.HighCutGeometry
 
 
 /-!

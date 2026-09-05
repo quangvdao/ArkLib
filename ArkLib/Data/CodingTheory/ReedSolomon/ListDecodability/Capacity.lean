@@ -11,8 +11,10 @@ import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.QuarterGap
 /-!
 # Exact capacity lists at every rate
 
-This module states the mathematical list-existence and cardinality clauses of
-[DKTZ26, Theorem 1.1]. The capacity gap is fixed before the block length, dimension,
+This module proves exact-list existence and the explicit field-dependent bounds accompanying
+[DKTZ26, Theorem 1.1]. Its field-independent bound is proved separately in
+`ListDecodability/Capacity/GeometricBound` (Corollary 7.5 of the manuscript).
+The capacity gap is fixed before the block length, dimension,
 prime field, evaluation points, and received word. The statement includes both
 field-size regimes and uses ordinary polynomial degree, including the zero polynomial.
 
@@ -41,8 +43,8 @@ Mutual correlated agreement at capacity is in `CorrelatedAgreement/Capacity` and
 
 ## References
 
-* [Dao, Kominers, Thaler, and Zheng, *Reed-Solomon List Decoding up to Capacity at Every
-  Rate*][DKTZ26], Theorem 1.1.
+* [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
+  up to Capacity*][DKTZ26], Theorem 1.1.
 * [Brakensiek, Chen, Putterman, Zhang, and Zheng, *Algorithmic List Decoding of Reed-Solomon
   Codes up to Capacity in the Low-Rate Regime*][BCPZZ26], hidden-derivative interpolation.
 -/

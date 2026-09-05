@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AsymmetricBandLocalRank
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Band.LocalRank
 import Mathlib.LinearAlgebra.Matrix.Rank
 
 

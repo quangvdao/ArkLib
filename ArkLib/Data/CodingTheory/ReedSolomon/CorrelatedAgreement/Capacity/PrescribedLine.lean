@@ -3,7 +3,7 @@ Copyright (c) 2026 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
-import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.SymbolicCertificate
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Symbolic.Certificate
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.Parameters
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.CountingBound
 
