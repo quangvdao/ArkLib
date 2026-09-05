@@ -117,3 +117,32 @@ cell-write followed by its actual read and parse, with exact final-step boundari
 Input length tapes are explicit materialized inputs, not free length computation. General
 allocation, whole-driver instruction lowering, retained-state width bounds and serialization
 still need composition before a full decoder bit-time theorem can be asserted.
+
+## Scalar, allocation and symbolic-certificate checkpoint, 07:23 UTC
+
+`5d87acd7` passed full validation and was pushed: it contains the actual rational Taylor charts,
+their cleared equations and cuts, extension-field symbolic local ranks, and the coordinate
+regular-lifting loop. Source admissions and axiom taint did not increase.
+
+The next audited integration adds these concrete joins:
+
+- Literal retained-modulus addition and repeated-addition multiplication on fixed bit tapes.
+  Multiplication uses an actual binary countdown; its cost is polynomial in the modulus value.
+- Actual fixed-width pointer advancement followed by payload construction and a cell write,
+  on one twelve-tape bank and one RAM. The overflow branch preserves the original memory.
+- Physical width-marker construction and scalar padding. Worker B independently audited all
+  three main-authored modules and additional kernel canaries, with no findings. Fixed-width
+  modular addition composes the actual adder and padding child with a tape-preserving handoff.
+- Coordinate candidate preparation and residual acceptance, with literal arithmetic children
+  and same-execution primitive ledgers. These are not yet bit-lowered decoder instructions.
+- The unconditional prescribed symbolic-band certificate: no rank or coefficient-height
+  hypothesis remains. The interpolant has challenge degree below `338(2m - 1)`, total jet degree
+  at most `2m - 1`, and remains nonzero and sound over every extension field. Actual standard
+  monomial quotient bases, retained prime-cut covers and zero-dimensional point counts support
+  the remaining geometric proof; they do not yet prove the final field-independent list bound.
+
+Ownership now: A inversion and core field instructions; B reduced-scalar allocation and heap
+instruction joins; C coordinate shift, candidate/root enumeration and whole coordinate decoder;
+central fixed-width arithmetic adapters, integration and whole-driver backend composition.
+The strengthening coordinator retains geometry and the stronger endpoints. The original full
+bit-time theorem remains open, and all four-hour stop times above remain unchanged.

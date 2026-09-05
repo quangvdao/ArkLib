@@ -143,3 +143,43 @@ review, axiom fixture matrix, and regression sweep; details appear below.
 - Full-gate slot released. Next scratch: prescribed unconditional symbolic-band
   certificate, actual retained-minimal-prime cut/dimension theory, zero-dimensional
   coordinate-algebra point bounds. Deadline remains 09:21:04 implementation freeze.
+
+## Fourth checkpoint preparation (07:09 UTC)
+
+- The prescribed small-gap symbolic certificate is now unconditional under its actual
+  source parameter package: no rank or height premise remains. Its challenge degree is
+  below `338(2m-1)`, total jet degree at most `2m-1`, and every extension/challenge
+  specialization is nonzero and satisfies the full differential root identity for all
+  close degree-<k polynomials. Independent audit and strict targeted check passed.
+- G now has actual finite retained minimal-prime covers, proper-cut Krull dimension
+  drop, and finite extension-field zero-locus cardinality bounded by the dimension of
+  the actual zero-dimensional quotient algebra.
+- The actual affine Hilbert function equals the finite count of standard monomials.
+  Division by all nonzero ideal polynomials supplies unique degree-nonincreasing normal
+  representatives; Dickson supplies a finite forbidden-divisor basis. No abstract degree
+  laws or eventual-polynomial hypotheses were assumed in this reduction.
+- Exact graph recognition/descent over every extension field and at most n accidental
+  challenges are proved. Every arbitrary-field RS list is genuinely finite for A>=k,
+  with `list.card * choose(A,k) <= choose(n,k)`; this weaker combinatorial estimate is
+  not substituted for the manuscript's desired polynomial-in-n bound.
+- Next core G work is monomial counting to actual eventual Hilbert polynomials and
+  principal-cut polynomial degree bounds. Equidimensionality/minimal-prime multiplicity
+  additivity and the refined Bezout degree sum remain explicitly unproved.
+
+### Fourth checkpoint certification (07:17 UTC)
+
+- Full default validation passed with 816 generated umbrella imports, including warning
+  budget, source policy/plugin fixtures, all compiled runtime checks, import consistency,
+  timing fixtures, documentation integrity, and knowledge-base lint.
+- Axiom sweep passed: 22702 declarations / 817 modules, 312 preexisting sorry-tainted
+  declarations, zero nonstandard-axiom taint, and no new taint. The unchanged fixture
+  executable reuses the previously certified matrix; shared dependency preparation was
+  deliberately not rerun. No axiom baseline change.
+- Source audit versus `ef320a7f` is exactly unchanged: 183 admissions, 679 examples,
+  zero explicit axioms and native-trust references; no added or removed constructs.
+- The seven independently audited modules total 1386 lines. All actual target builds
+  and full validation passed after two overlong documentation lines were shortened.
+- Scratch progress after this frozen checkpoint: the actual standard-monomial count is
+  an eventual rational polynomial; principal-cut eventual-polynomial degree/coefficient
+  bounds are proved. Canonical integration and independent audit are ongoing. These are
+  not yet a refined Bezout theorem or the final manuscript list/MCA bounds.
