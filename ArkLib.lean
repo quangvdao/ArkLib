@@ -245,6 +245,10 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalIdentity
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalIntermediateSpace
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalRank
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalSamplingDegree
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.NonzeroInterpolationBasis
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.NonzeroInterpolationCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.NonzeroInterpolationMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.NonzeroInterpolationProofs
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.BandEndpointComparison
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.BandMassBound
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.BandParameterBounds
@@ -294,6 +298,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetRoot
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetRootsCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetRootsMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetRootsSemantics
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetRootsUnique
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.OrderedChainRegularWitness
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RecursiveCounting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RecursiveCountingCanary
@@ -336,6 +341,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Singula
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SingularRecursionCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SpecializationDegree
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SpecializationDegreeCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeExtension
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeRootCount
@@ -353,6 +359,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CandidateFilterSemantic
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CanonicalAcceptanceCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CanonicalAcceptanceMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CanonicalAcceptanceSemantics
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CanonicalOutputCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CanonicalOutputMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CanonicalOutputSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticCandidateCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticCandidateMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticCandidateSemantics

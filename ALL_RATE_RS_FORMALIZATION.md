@@ -1127,10 +1127,10 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
-| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Center loop handed off; next: execute root enumeration across generated chain stages and prove unique-jet output | New root-stage driver and uniqueness modules, API freeze pending |
-| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Full matrix handed off; next: connect kernel extraction to a nonzero sparse interpolant | New interpolation/kernel conversion modules, API freeze pending |
-| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active-order and regular-record bridge handed off; next: compose quadratic field and sample initialization | New field/sample preparation modules, API freeze pending |
-| Central | Validate/integrate handoffs; implement canonical witness selection and whole-decoder joins | Output processing, witness selection, tracker and umbrella |
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: complete generated-stage enumeration semantics and bounds; operational driver and unique jets handed off | `HiddenDerivative/RootFinding/StageRoots*`; `JetRootsUnique.lean` frozen |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: retained band witness to strict eligibility, unconditional attempts, descending ambient-degree search | `HiddenDerivative/{BandEligibility,InterpolationAttemptProofs,AmbientSearch*}`; generic matrix completion if needed |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Field/sample setup handed off; active: concrete quadratic-to-base lowering of the sparse evaluator | `ArkLib/Data/MvPolynomial/QuadraticEvaluation*` |
+| Central | Validate/integrate handoffs; charged canonical output collection and whole-decoder joins | `ListDecoding/CanonicalOutput*`, output uniqueness, tracker and umbrella |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
 except explicitly repository-relative paths beginning `ArkLib/`.
@@ -1211,7 +1211,24 @@ Do not rebuild those components or count them as already proving the whole-decod
 
 ### Integrated foundations and current handoffs
 
-- Latest fully validated batch: closed canonical base-field acceptance. The actual guard,
+- Latest fully validated batch: nonzero interpolation construction (`6e80560d`), operational stage
+  driver and per-center uniqueness (`48a91dcb`), and central canonical output collection.
+  The nonzero solver now consumes a genuine supported interpolation witness and returns a
+  materialized nonzero sparse equation with the same strict support and low-contact constraints.
+  The witness-support bridge to the parameter theorem is still open. The collector advances each
+  actual acceptance call instruction by instruction and preserves the accepted output order,
+  with linear-in-record-count overhead. It deliberately retains duplicates in malformed/repeated
+  input records: whole-list uniqueness must follow from the generated chain/center/jet contracts.
+  Full stage semantics, scalar lowering and the full decoder theorem remain unfinished.
+  The full `validate.sh --axioms` gate passes: 690 umbrella imports, 569 source examples (+14),
+  183 admissions unchanged, 312 pre-existing tainted declarations and no nonstandard/native axioms.
+  Central read all source and canaries. Four collector canaries explicitly distinguish ordered
+  filtering, final emission, empty input and repeated malformed input records.
+- Pending audit/integration: actual quadratic-field and sample setup (`06aec5ca`). No opaque
+  basis is chosen: the returned nonsquare parameter indexes the materialized quadratic values.
+  The next scalar-lowering task targets the existing sparse evaluator's actual add/multiply
+  instructions, not the legacy specification-only lifting counters.
+- Previous fully validated batch: closed canonical base-field acceptance. The actual guard,
   coordinate descent, degree truncation and agreement check now run in one driver with every
   callee charge and caller dispatch retained. The accepted base polynomial embeds to the original
   candidate. Six kernel canaries cover full success, final emission, earlier-equation and center
@@ -1219,8 +1236,6 @@ Do not rebuild those components or count them as already proving the whole-decod
   gate passes: 681 umbrella imports, 555 examples (+6), 183 admissions unchanged, 312 pre-existing
   tainted declarations and no nonstandard/native axioms. The list collector and stage-uniqueness
   join remain open; this is not the full decoder runtime theorem.
-- Pending central integration: A's operational stage-driver and per-center uniqueness checkpoint
-  `48a91dcb`. The full stage semantic/specification and uniform-cost proofs are still in progress.
 - Previous fully validated batch: center enumeration (`a381994f`), full received-point matrix
   (`d5c221ec`), active-order presentation and actual-record regular witness (`634b61db`), and
   central guard exclusivity. Central has read all source and canaries. The full
