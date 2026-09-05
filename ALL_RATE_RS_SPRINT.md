@@ -146,3 +146,20 @@ instruction joins; C coordinate shift, candidate/root enumeration and whole coor
 central fixed-width arithmetic adapters, integration and whole-driver backend composition.
 The strengthening coordinator retains geometry and the stronger endpoints. The original full
 bit-time theorem remains open, and all four-hour stop times above remain unchanged.
+
+## Inverse and coordinate enumeration checkpoint, 07:35 UTC
+
+`8a619227` is pushed after full validation: 25,726 declarations in 905 modules, no new axiom
+taint, 183 source admissions unchanged, and zero explicit axioms or native trust. Worker B
+independently accepted the fixed-width modular-add adapter and the subsequent multiplication
+adapter, including extra modulus-one and padded-zero canaries. The multiplication adapter
+executes its own normalization, so fixed-width callers do not owe a free canonicalization.
+
+The next integration includes actual prime-field inverse search with retained modulus and
+input, scalar-to-heap allocation, coordinate center translation, full lift/filter/translation
+acceptance, and ordered initial-jet enumeration. Coordinate center/stage enumeration and
+canonical guards still need their own lowerings; the original bit-time theorem is not closed.
+The strengthening checkpoint constructs the unique Hilbert polynomial of each actual affine
+quotient, proves the principal-cut degree/coefficient inequalities and relative height one,
+and bounds zero-dimensional points by the actual quotient dimension. Absolute component-degree
+purity and the refined degree sum remain necessary before the stronger list theorem is proved.

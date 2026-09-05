@@ -183,3 +183,30 @@ review, axiom fixture matrix, and regression sweep; details appear below.
   an eventual rational polynomial; principal-cut eventual-polynomial degree/coefficient
   bounds are proved. Canonical integration and independent audit are ongoing. These are
   not yet a refined Bezout theorem or the final manuscript list/MCA bounds.
+
+## Fifth checkpoint certification (07:29 UTC)
+
+- Four independently audited modules (888 lines) prove eventual polynomiality by
+  actual standard-monomial counting, define the unique canonical affine Hilbert
+  polynomial, and prove genuine principal-cut polynomial degree/coefficient bounds.
+- Public canonical existence needs only a finite variable type and a field. The
+  auxiliary finite ordering is confined to the proof; uniqueness is with respect to
+  the actual filtration. Constant Hilbert polynomial implies a finite-dimensional
+  quotient by filtration stabilization, and finite quotients have constant polynomial
+  equal to their dimension. Actual zero-dimensional point counts are bounded by its
+  constant coefficient over every extension field.
+- A prime principal cut has zero Hilbert polynomial or degree at most parent degree
+  minus one and top possible coefficient at most b*d*leadingCoeff(parent). A minimal
+  prime over a proper cut has relative height exactly one in the parent quotient.
+  Relative height is not asserted to equal the missing ambient degree difference.
+- Actual targeted builds passed with no warnings. The first full gate caught a
+  missing module-level docstring in HilbertPrincipalCutDegree; after adding it, the
+  entire default validation passed (820 root imports, 4665 build jobs). Two prior
+  targeted source-style warnings in monomial counting were fixed before this gate.
+- Axiom sweep passed: 22753 declarations across 821 modules, 312 preexisting
+  sorry-tainted declarations, zero nonstandard-axiom taint, no new taint, unchanged
+  baseline. Source audit versus ca66997c is exactly unchanged in all four categories.
+- Remaining critical geometry: finite-prime separator injections/coefficient sums
+  and proof that each minimal component of a principal cut has the expected Hilbert
+  polynomial degree. Scratch localization-growth work is pursuing the latter directly;
+  the final manuscript list and small/intermediate MCA bounds remain unproved.

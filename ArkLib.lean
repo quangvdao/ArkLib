@@ -320,6 +320,15 @@ import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinatePreparationMachine
 import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinatePreparationRefinement
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinateRootCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinateRootMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinateRootRefinement
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinateRootsCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinateRootsMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinateRootsRefinement
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinateShiftCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinateShiftMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinateShiftRefinement
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinateZeroCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinateZeroMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinateZeroRefinement
@@ -492,6 +501,11 @@ import ArkLib.Data.Computation.AddressedBitsSemantics
 import ArkLib.Data.Computation.BinaryBorrowCheck
 import ArkLib.Data.Computation.BinaryBorrowMachine
 import ArkLib.Data.Computation.BinaryBorrowSemantics
+import ArkLib.Data.Computation.BinaryInverseCheck
+import ArkLib.Data.Computation.BinaryInverseField
+import ArkLib.Data.Computation.BinaryInverseMachine
+import ArkLib.Data.Computation.BinaryInverseRound
+import ArkLib.Data.Computation.BinaryInverseSemantics
 import ArkLib.Data.Computation.BinaryModAddCheck
 import ArkLib.Data.Computation.BinaryModAddField
 import ArkLib.Data.Computation.BinaryModAddMachine
@@ -524,6 +538,8 @@ import ArkLib.Data.Computation.HeapPointerMachine
 import ArkLib.Data.Computation.HeapPointerSemantics
 import ArkLib.Data.Computation.PaddedModAdd
 import ArkLib.Data.Computation.PaddedModAddCheck
+import ArkLib.Data.Computation.PaddedMul
+import ArkLib.Data.Computation.PaddedMulCheck
 import ArkLib.Data.Computation.ScalarWordPadding
 import ArkLib.Data.Computation.SharedListAllocator
 import ArkLib.Data.Computation.SharedListCellMachine
@@ -531,6 +547,7 @@ import ArkLib.Data.Computation.SharedListCellReadMachine
 import ArkLib.Data.Computation.SharedListHeap
 import ArkLib.Data.Computation.SharedListHeapExecution
 import ArkLib.Data.Computation.SharedListRead
+import ArkLib.Data.Computation.SharedListScalarAllocate
 import ArkLib.Data.Domain.CosetFftDomain.Block
 import ArkLib.Data.Domain.CosetFftDomain.Defs
 import ArkLib.Data.Domain.CosetFftDomain.Log
@@ -863,9 +880,13 @@ import ArkLib.ToCompPoly.Multivariate.Eval
 import ArkLib.ToCompPoly.Univariate.Basic
 import ArkLib.ToCompPoly.Univariate.Lagrange
 import ArkLib.ToMathlib.AlgebraicGeometry.AffineHilbertFunction
+import ArkLib.ToMathlib.AlgebraicGeometry.AffineHilbertPolynomial
 import ArkLib.ToMathlib.AlgebraicGeometry.AffinePrincipalOpenCuts
 import ArkLib.ToMathlib.AlgebraicGeometry.AffineStandardMonomials
 import ArkLib.ToMathlib.AlgebraicGeometry.AffineZeroDimensional
+import ArkLib.ToMathlib.AlgebraicGeometry.HilbertPrincipalCutDegree
+import ArkLib.ToMathlib.AlgebraicGeometry.HilbertPrincipalCutDimension
+import ArkLib.ToMathlib.AlgebraicGeometry.MonomialHilbertCounting
 import ArkLib.ToMathlib.BigOperators.Fin
 import ArkLib.ToMathlib.Control.MonadLift
 import ArkLib.ToMathlib.FieldTheory.FiniteExtension

@@ -1,8 +1,8 @@
 # All-rate Reed-Solomon capacity formalization
 
-Status: optimized construction/list capstones proved and fully validated; runtime remains open
+Status: exact executable output and primitive-work capstone proved; full bit-time remains open
 
-Last updated: 2026-09-04  
+Last updated: 2026-09-05  
 Integration branch: `quang/all-rate-rs-capacity-formalization`  
 Fork: <https://github.com/quangvdao/ArkLib>  
 ArkLib base: `Verified-zkEVM/ArkLib@22dbd4e836c15a21f68889afa69b7130da04abbb`
@@ -29,6 +29,15 @@ The central paper-facing result is
 `ReedSolomon.AllRateListDecoding.exists_capacity_list`. Its single statement displays the
 parameters, integer input threshold, exact polynomial list, and both field-size regimes.
 It is the **list-size part**, not yet the full algorithmic theorem.
+
+The same file now also exports `capacity_decoder_exact_output_and_primitive_work` for the
+actual integer-input decoder, including both field regimes and a bound on the same observed run.
+It is **not** a bit-time theorem. Pushed checkpoint `8a619227` contains validated bit-arithmetic,
+same-memory cell read/write/allocation, and fixed-width scalar interfaces, alongside coordinate
+root-finding lowerings. These pieces still require whole-driver composition and representation,
+width and input/output proofs. The current gate and precise frontier are maintained in
+[the four-hour sprint record](ALL_RATE_RS_SPRINT.md). Historical open-task descriptions below
+are not the current assignment roster.
 
 The optimized mathematical ingredients were validated and pushed at `1d77f94a`; they now live in
 [`AsymmetricBandListBound.lean`](ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/AsymmetricBandListBound.lean):
@@ -1143,10 +1152,10 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
-| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: literal binary addition/comparison, shared finite local-bit interface and same-trace bounds; outer decoder independently audited | New `ArkLib/Data/Computation/BinaryWord*` and `BitLocalActions` |
-| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: independent audit of all-rate outer execution; numerical budget and same-output list bounds complete | Read-only `CapacityDecoder{Machine,Execution}` and `QuadraticDecoderLargeGap` |
-| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: coordinate residual-system composition; pivot solve and back substitution complete | `HiddenDerivative/RootFinding/QuadraticResidualSystem*` |
-| Central | Integrate/audit; explicit main primitive-work theorem; next shared heap representation/backend composition | `AllRateListDecoding/Capacity`, outer decoder drivers, heap representation and trackers |
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: literal inverse search; modular addition and multiplication proved | New `ArkLib/Data/Computation/Binary*` arithmetic modules |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: scalar-to-heap allocation; same-memory bump allocator proved; main padding independently audited | New `ArkLib/Data/Computation/SharedList*` and `HeapPointer*` |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: coordinate candidate, root enumeration and outer decoder; preparation, lifting, acceptance and shift proved | New `HiddenDerivative/RootFinding/Coordinate*` and agreed coordinate driver files |
+| Central | Integrate/audit; physical fixed-width arithmetic adapters and whole-driver backend joins | `AllRateListDecoding/Capacity`, outer drivers, `BitMemory*`, `FixedWidth*`, `ScalarWordPadding`, `Padded*`, main trackers |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
 except explicitly repository-relative paths beginning `ArkLib/`.
