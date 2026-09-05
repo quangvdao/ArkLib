@@ -1,5 +1,13 @@
 # Strengthening lane: verified endpoint and remaining MCA frontier
 
+**September 5 update:** the qualitative all-rate line and affine MCA assembly below
+is now complete. See the current endpoint descriptions in
+[the strengthening tracker](ALL_RATE_RS_STRENGTHENINGS.md) and the public files
+`AllRateCorrelatedAgreement.lean` and `AllRateAffineAgreement.lean`.
+The old open-task list below is preserved as a historical handoff, not a current roster.
+Sharper numerical MCA constants and newer low-order/interleaving refinements remain
+outside this completion claim.
+
 This is a handoff record, not an additional theorem. Only declarations in the
 certified commits have passed the repository gates. Scratch under
 `.lake/strengthening-wip` is preserved separately and is not a proof dependency.

@@ -2,6 +2,49 @@
 
 ## Active MCA implementation: September 5 restart
 
+### Completed qualitative all-rate MCA endpoints
+
+The public mathematical statements are
+[`exists_allRate_correlatedAgreement`](ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/AllRateCorrelatedAgreement.lean)
+and
+[`exists_allRate_affineAgreement`](ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/AllRateAffineAgreement.lean).
+For every positive gap, they choose `N`, `d`, and positive `C` before the block length,
+rate, field, evaluation set, or received family. Characteristic zero or characteristic
+at least `n` suffices; in particular arbitrary prime-field evaluation sets with `q ≥ n`
+are covered.
+
+For every line `f + z*g`, at most `C*n^(d+1)` challenges are exceptional. Outside that
+single set, every degree-`<k` polynomial with at least `k + δ*n` agreements decomposes
+into a base-field pair whose common agreement set is **exactly** the original full
+agreement set. Over a finite field, the line MCA error is at most `C*n^(d+1)/q`.
+For every positive affine dimension, the affine MCA error is at most
+`C*n^(d+1)/(q-1)`, independently of dimension, with exact constituent witnesses.
+
+`PrescribedLineMCA` retains `d = ceil(exp(6.76/δ))` for `0 < δ < 1/4`, prescribed
+multiplicity and `n ≥ 8m`, with an explicit, coarser gap-only prefactor. The public
+all-positive-gap wrapper uses a smaller gap when necessary. It does not claim the
+paper's sharper prefactor or its intermediate-gap order-one refinement.
+
+The construction is unconditional: actual symbolic interpolation, regular-stage
+coverage, Taylor reconstruction, component recognition, excluded incidence, finite
+pair counting, uniform exceptions, all-rate parameters, and base-field descent are
+connected. `SymbolicCertificateMCA` retains the actual stage orders and exponent-cap
+metadata. `RegularSymbolicLineMCA` keeps arbitrary `k ≤ L ≤ A` and the `n-L` accidental
+challenge term. Only the convenient final corollary coarsens these data.
+
+The chronological checkpoint descriptions below describe their historical frontiers,
+not current open obligations. No decoder or cost-model implementation was replaced.
+Remaining paper work includes sharper MCA constants and newer low-order/interleaving
+refinements; these are not prerequisites for the qualitative all-rate MCA endpoint.
+
+Final validation: `./scripts/validate.sh --axioms` passed on September 5, checking
+30,536 declarations across 1,100 modules with no new admission/axiom taint.
+Both public endpoint statements received independent review of their quantifiers,
+threshold conversion, exceptional-set uniformity, and exact agreement witnesses.
+Their axiom cones contain only `propext`, `Classical.choice`, and `Quot.sound`.
+The repository still contains pre-existing unrelated admitted declarations; none is
+a dependency of these endpoints. All three bounded MCA worker lanes have stopped.
+
 ### Fourth checkpoint: actual chart counts and witness transport
 
 `CorrelatedPairChartCounting` proves the finite admissible-pair bound at one common

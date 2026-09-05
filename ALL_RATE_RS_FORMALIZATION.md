@@ -1,6 +1,6 @@
 # All-rate Reed-Solomon capacity formalization
 
-Status: four-hour sprint stopped; exact executable/primitive-work and field-independent list bounds proved; full bit-time and general MCA remain open
+Status: exact executable/primitive-work, field-independent lists, and qualitative all-rate MCA proved; full bit-time and sharper MCA constants remain separate obligations
 
 Last updated: 2026-09-05  
 Integration branch: `quang/all-rate-rs-capacity-formalization`  
@@ -25,12 +25,12 @@ to announce the full paper result. The concrete lifting suite now includes direc
 checks, while the closed runtime theorem remains a separate obligation.
 
 The central paper-facing result is
-[`Capacity.lean`](ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/Capacity.lean),
+[`CapacityList.lean`](ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/CapacityList.lean),
 `ReedSolomon.AllRateListDecoding.exists_capacity_list`. Its single statement displays the
 parameters, integer input threshold, exact polynomial list, and both field-size regimes.
 It is the **list-size part**, not yet the full algorithmic theorem.
 
-The same file now also exports `capacity_decoder_exact_output_and_primitive_work` for the
+`Capacity.lean` separately exports `capacity_decoder_exact_output_and_primitive_work` for the
 actual integer-input decoder, including both field regimes and a bound on the same observed run.
 It is **not** a bit-time theorem. Pushed checkpoint `792288c4` closes the coordinate
 prepared/separate-sample driver, executed alphabet conversion, interpolation/setup composition
@@ -45,7 +45,8 @@ completed their bounded handoffs and stopped under the four-hour gate. Their lat
 include actual per-instruction dispatch/return bounds and permanent complete-program regression
 checks, not the missing generic whole-program proof. Final code integration passed the full gate:
 30,267 declarations in 1,067 modules, with no new admission/axiom taint. All worker tasks and
-strengthening descendants are stopped; no further proof work is authorized by this sprint.
+strengthening descendants stopped at that sprint gate. The separately authorized September 5
+MCA restart is recorded in `ALL_RATE_RS_STRENGTHENINGS.md`; the old sprint gate is not its status.
 The current gate and precise frontier are maintained in
 [the four-hour sprint record](ALL_RATE_RS_SPRINT.md). Historical open-task descriptions below
 are not the current assignment roster.
@@ -58,9 +59,12 @@ It includes singular solutions. The canonical `Code.Lambda` adapter is in
 [`GeometricCodewordBound.lean`](ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/GeometricCodewordBound.lean).
 [`GeometricOutputBounds.lean`](ArkLib/Data/CodingTheory/ReedSolomon/ListDecoding/GeometricOutputBounds.lean)
 attaches this smaller bound to the **same actual coordinate decoder output**, preserving its
-existing primitive-work bounds rather than claiming faster execution. General small/intermediate-gap
-mutual correlated agreement remains open; consult the strengthening plan for that distinct frontier.
-The exact remaining mathematical constructions are recorded in
+existing primitive-work bounds rather than claiming faster execution. Qualitative mutual correlated
+agreement now covers every positive gap and every rate: `AllRateCorrelatedAgreement.lean`
+provides one exception set before all line witnesses, and `AllRateAffineAgreement.lean`
+provides dimension-independent affine error and exact full-agreement witnesses. Constants depend
+only on the gap. The sharper manuscript MCA prefactor and low-order refinements are not claimed.
+The mathematical construction and remaining quantitative scope are recorded in
 [the strengthening handoff](ALL_RATE_RS_STRENGTHENINGS_FRONTIER.md).
 
 The optimized mathematical ingredients were validated and pushed at `1d77f94a`; they now live in
