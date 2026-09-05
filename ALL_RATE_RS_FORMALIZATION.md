@@ -135,14 +135,15 @@ claimed. A represented rational-gap frontend is another possible implementation.
 This repair also applies to parameter selection: `K = max(k,floor(delta*n/2))` and the real band
 cutoffs cannot be free computational steps. A possible route is finite certified search over
 integer parameters, with existence supplied by the real analysis and the search cost proved.
-That route is a proposal, not an implemented or verified algorithm. Gap-only natural parameters
-may be fixed once per gap; they cannot encode unbounded real-rounding information.
+The descending integer ambient search is now implemented with bounded failed attempts and a
+success proof from the prescribed small-gap band witness. Gap-only natural parameters may be
+fixed once per gap; they cannot encode unbounded real-rounding information.
 
 The current user-designated minimal draft now supplies `A` explicitly, with
 `k + delta*n ≤ A ≤ 2*n`, and uses finite support search. Its real-gap input issue is therefore
 resolved at the manuscript-statement level. `Capacity.exists_capacity_list` aligns the checked
-list-size result with this input convention. Execution and cost of the search remain open;
-the mathematical real-valued padding is not a free algorithmic operation.
+list-size result with this input convention. Small-gap search execution and its component cost
+are proved; whole-decoder composition remains open. Real-valued padding is not a free operation.
 
 ### 2.3 Uniformity test
 
@@ -1128,9 +1129,9 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
 | A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: canonical generated-root soundness, first-supplied-center completeness and polynomial uniqueness | `HiddenDerivative/RootFinding/CanonicalRootSelection*`; `StageRoots*` frozen |
-| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: retained band witness to strict eligibility, unconditional attempts, descending ambient-degree search | `HiddenDerivative/{BandEligibility,InterpolationAttemptProofs,AmbientSearch*}`; generic matrix completion if needed |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: uniform stage fuel/work determined only by initial input sizes | `HiddenDerivative/RootFinding/{StageInputBounds,StageInputExecution}`; search frozen |
 | C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: concrete quadratic-to-base lowering of the direct coefficient arithmetic tail | `HiddenDerivative/RootFinding/DirectArithmetic*`; setup and evaluator lowering frozen |
-| Central | Validate/integrate handoffs; order-zero polynomial assembly bounds and whole-decoder joins | `HiddenDerivative/OrderZero*Bounds`, collector integration, tracker and umbrella |
+| Central | Validate/integrate handoffs; explicit sparse base-to-quadratic input conversion and whole-decoder joins | `ArkLib/Data/MvPolynomial/QuadraticInput*`, collector integration, tracker and umbrella |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
 except explicitly repository-relative paths beginning `ArkLib/`.
@@ -1211,7 +1212,18 @@ Do not rebuild those components or count them as already proving the whole-decod
 
 ### Integrated foundations and current handoffs
 
-- Latest fully validated batch:
+- Latest fully validated batch: descending integer search
+  (`83ae3755`) and central sparse base-to-quadratic input conversion. Search executes only integer
+  parameters, charges failed attempts, and guarantees a successful ambient degree at least the
+  prescribed one; this preserves the sharp separant field-size slack. Arbitrary returned successes
+  have the full supported nonzero interpolation certificate. Conversion allocates each quadratic
+  coefficient and output cell explicitly, preserves factor vectors and polynomial scalar mapping,
+  and proves exact observed work `18*termCount+11`. These results do not yet compose the full decoder.
+  The full `validate.sh --axioms` gate passes: 712 umbrella imports, 593 source examples (+10),
+  183 admissions unchanged, 312 pre-existing tainted declarations and no nonstandard/native axioms.
+  Central read all source and canaries; the three coefficient-conversion checks distinguish
+  physical order, zero/repeated terms, final emission and empty input.
+- Previous fully validated batch (`c1c841e0`):
   generated-stage semantics and prescribed-center completeness (`dfeaa0da`), concrete field/sample
   setup (`06aec5ca`), retained band eligibility and total kernel completion (`c5b39f4a`), sparse
   quadratic evaluation lowering (`dd79d46a`), and central order-zero rewrite/assembly bounds.

@@ -198,6 +198,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.UniformListBound
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.UniformThresholds
 import ArkLib.Data.CodingTheory.ReedSolomon.Constrained
 import ArkLib.Data.CodingTheory.ReedSolomon.Folded
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AmbientSearchCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AmbientSearchMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AmbientSearchProofs
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AsymmetricBand
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AsymmetricBandCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AsymmetricBandDimensionBound
@@ -220,6 +223,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.GlobalDimension
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.GlobalInterpolation
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.GlobalMultiplicity
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.GlobalMultiplicityCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationAttemptProofs
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationDimensionBridge
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationDimensionBridgeCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationIndex
@@ -487,6 +491,9 @@ import ArkLib.Data.MvPolynomial.PartialDerivativeRefinement
 import ArkLib.Data.MvPolynomial.QuadraticEvaluationCanary
 import ArkLib.Data.MvPolynomial.QuadraticEvaluationMachine
 import ArkLib.Data.MvPolynomial.QuadraticEvaluationRefinement
+import ArkLib.Data.MvPolynomial.QuadraticInputCanary
+import ArkLib.Data.MvPolynomial.QuadraticInputMachine
+import ArkLib.Data.MvPolynomial.QuadraticInputSemantics
 import ArkLib.Data.MvPolynomial.RestrictDegree
 import ArkLib.Data.MvPolynomial.RestrictDegreeVar
 import ArkLib.Data.MvPolynomial.SchwartzZippelCounting
