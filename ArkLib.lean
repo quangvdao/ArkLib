@@ -198,6 +198,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.MutualAgreement
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.QuarterGapListBound
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.RateCover
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SymbolicBandMargin
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SymbolicInterpolationSoundness
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SymbolicLocalRank
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SymbolicReceivedInterpolation
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.UniformListBound
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.UniformThresholds
 import ArkLib.Data.CodingTheory.ReedSolomon.Constrained
@@ -305,6 +308,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CenterS
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinateDirectCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinateDirectMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinateDirectRefinement
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinateLiftCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinateLiftMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CoordinateLiftRefinement
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Counting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DerivativeDescent
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DerivativeDescentCanary
@@ -345,6 +351,10 @@ import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.QuadraticResidualSystemMachine
 import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.QuadraticResidualSystemRefinement
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RationalTaylorCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RationalTaylorChart
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RationalTaylorCuts
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RationalTaylorNumerator
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RecursiveCounting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RecursiveCountingCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularCounting

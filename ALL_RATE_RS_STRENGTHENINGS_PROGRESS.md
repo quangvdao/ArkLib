@@ -105,3 +105,41 @@ review, axiom fixture matrix, and regression sweep; details appear below.
   six new modules have independent mathematical review and targeted Lean checks.
 - Full-build slot released. Active symbolic matrix/local-rank and rational Taylor
   recurrence work remains outside tracked source during this frozen checkpoint.
+
+## Third checkpoint preparation (06:49 UTC)
+
+- R now constructs actual recursive numerator polynomials and proves their degree bound,
+  their rational residual equation, and equality with every actual regular solution's
+  Taylor coefficients under the exact binomial-pivot nonvanishing hypotheses.
+- A literal common-denominator chart has degree bound `1+2K(v-1)`, retains its initial
+  coordinates, and is injective. Its initial hypersurface has the actual separant as
+  a derivative. High-coefficient cuts followed by k distinct agreement cuts leave at
+  most one regular jet. No geometric degree axiom enters these proofs.
+- Independent canaries prove a positive ZMod5 quadratic and necessity of both pivot
+  hypotheses via same-jet collisions at the characteristic boundary and at a singular
+  characteristic-zero jet. Actual build lint caught flexible simp in a canary; fixed.
+- S constructs the concrete polynomial-challenge matrix with a finite active-row
+  reduction of the genuinely infinite local row index. An actual rank bound gives a
+  primitive kernel and an interpolant nonzero at every extension/challenge specialization.
+- Actual local rank is invariant under point translation and cannot increase under
+  coefficient-field extension. Soundness of specialized concrete interpolants is proved
+  from actual local constraints and band support. The final stacked-band adapter and
+  unconditional prescribed symbolic certificate remain active scratch work.
+- All seven source modules received independent statement/proof review. Targeted builds
+  passed for six; promoted soundness enters the full gate next. Central second checkpoint
+  integration passed; it released the full-build slot at 06:48 UTC.
+
+## Third checkpoint certified (06:55 UTC)
+
+- Full default validation passed every requested check. Axiom sweep passed over 22620
+  declarations and 810 modules: 312 preexisting sorry-tainted declarations, zero
+  nonstandard axioms, and no new taint. The baseline remains unchanged.
+- Source trust comparison versus `f34ca271`: admissions 183→183, explicit axioms/native
+  trust 0→0; exactly three new kernel-checked canary examples, no other new constructs.
+- Seven frozen modules total 2163 source lines. Each has an independent mathematical
+  audit; actual targeted builds and the full warning/source-policy gate passed.
+- General field-independent list and small/intermediate MCA bounds are still open.
+  Their missing degree-sum/Bezout layer is not hidden behind the proved chart or rank APIs.
+- Full-gate slot released. Next scratch: prescribed unconditional symbolic-band
+  certificate, actual retained-minimal-prime cut/dimension theory, zero-dimensional
+  coordinate-algebra point bounds. Deadline remains 09:21:04 implementation freeze.

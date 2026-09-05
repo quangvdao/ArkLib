@@ -285,9 +285,12 @@ ideal height, and homogeneous polynomial pieces, but lacks the required quotient
 Hilbert-polynomial/multiplicity stack. A fabricated degree-law structure is not an
 acceptable substitute.
 
-Current next owners: kernel worker owns a scratch `AffineHilbertFunction.lean`
-proving the actual finite filtered quotient principal-cut rank-nullity inequality;
-half-gap worker owns scratch `HalfGapMutualAgreement.lean` for pointwise line/affine
-MCA and full-set corollaries; coordinator owns Taylor residual evaluation and
-rational numerator-degree recurrence; independent auditor remains read-only.
-All scratch stays under `.lake/strengthening-wip` while the frozen full gate runs.
+Current frontier: checkpoints `7898fefd` and `f34ca271` passed private and central
+full validation. R literal numerators, solution comparison, common-denominator chart,
+and high/agreement-cut uniqueness are proved and entering the third gate. S concrete
+symbolic matrix, extension nonvanishing, local rank/base-change, and soundness are proved;
+the stacked-band adapter and final prescribed symbolic certificate are next. Coordinator
+owns actual geometric component/cut infrastructure; auditor independently reviews proofs
+and owns only the small falsifying canary module. The quotient Hilbert-polynomial and
+refined degree/Bezout layer remain open, so the general list and remaining MCA endpoints
+are not claimed. Active work remains ignored scratch during each frozen full gate.
