@@ -97,3 +97,23 @@ unconditional proofs; their smaller output bound does not automatically improve 
   allocation/read and scalar operations, whole-driver representation/width invariants,
   input/output materialization, and a same-program bit-time bound. No conditional backend
   or primitive ledger is being substituted for that final theorem.
+
+## Read/write and coordinate checkpoint, 06:58 UTC
+
+`cbe45968` passed the full canonical gate and was pushed. Its source admission count is
+unchanged (183 repository-wide), and its axiom sweep found no new taint. The next checkpoint
+connects actual cell-payload construction to bit writes on one fixed eleven-tape bank, adds
+modular negation and an actual subtraction-borrow flag, and executes both direct-coefficient
+recoveries and the intervening coordinate update. Central independently read all those changes.
+
+Central's block reader now has exact access/reset/output-reversal traces, an unchanged-memory
+theorem, per-position observations, and read-after-store correctness. Lane B independently
+audited it and ran non-palindromic/nonzero-offset/dirty-memory/short-fuel canaries; its only finding
+was a corrected long source line. A further fixed fourteen-tape controller physically separates
+the live tag, head and tail. Its exact count includes the parser handoff, tag test, head scan and
+reversal. Malformed payload rejection preserves all tapes. Kernel checks include an actual
+cell-write followed by its actual read and parse, with exact final-step boundaries.
+
+Input length tapes are explicit materialized inputs, not free length computation. General
+allocation, whole-driver instruction lowering, retained-state width bounds and serialization
+still need composition before a full decoder bit-time theorem can be asserted.
