@@ -192,10 +192,12 @@ import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.DonorConstructio
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.DonorFiniteCertificate
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.DonorRateBins
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.HalfGapCorrelatedAgreement
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.HalfGapMutualAgreement
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.InterpolantListBound
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.MutualAgreement
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.QuarterGapListBound
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.RateCover
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SymbolicBandMargin
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.UniformListBound
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.UniformThresholds
 import ArkLib.Data.CodingTheory.ReedSolomon.Constrained
@@ -360,6 +362,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Residua
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualBatchMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualCoefficientCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualCoefficientMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualRecoveryCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualRecoveryMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualRecoveryRefinement
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualRecoverySemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSampleCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSampleMachine
@@ -391,7 +396,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRo
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsSound
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorDenominator
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorSupport
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorSupportEvaluation
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeExtension
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeRootCount
@@ -457,6 +464,18 @@ import ArkLib.Data.CodingTheory.SubspaceDesign
 import ArkLib.Data.Computation.AddressedBits
 import ArkLib.Data.Computation.AddressedBitsCheck
 import ArkLib.Data.Computation.AddressedBitsSemantics
+import ArkLib.Data.Computation.BinarySubtractCheck
+import ArkLib.Data.Computation.BinarySubtractMachine
+import ArkLib.Data.Computation.BinarySubtractSemantics
+import ArkLib.Data.Computation.BinaryWordCheck
+import ArkLib.Data.Computation.BinaryWordMachine
+import ArkLib.Data.Computation.BinaryWordSemantics
+import ArkLib.Data.Computation.BitLocalActions
+import ArkLib.Data.Computation.BitMemoryBlock
+import ArkLib.Data.Computation.BitMemoryBlockCheck
+import ArkLib.Data.Computation.CellPayloadMachine
+import ArkLib.Data.Computation.SharedListHeap
+import ArkLib.Data.Computation.SharedListHeapExecution
 import ArkLib.Data.Domain.CosetFftDomain.Block
 import ArkLib.Data.Domain.CosetFftDomain.Defs
 import ArkLib.Data.Domain.CosetFftDomain.Log
@@ -626,6 +645,9 @@ import ArkLib.Data.Polynomial.Prelims
 import ArkLib.Data.Polynomial.QuadraticJetHornerCanary
 import ArkLib.Data.Polynomial.QuadraticJetHornerMachine
 import ArkLib.Data.Polynomial.QuadraticJetHornerRefinement
+import ArkLib.Data.Polynomial.QuadraticUpdateCanary
+import ArkLib.Data.Polynomial.QuadraticUpdateMachine
+import ArkLib.Data.Polynomial.QuadraticUpdateRefinement
 import ArkLib.Data.Polynomial.RationalFunctions
 import ArkLib.Data.Polynomial.RationalFunctions.FunctionField
 import ArkLib.Data.Polynomial.RationalFunctions.HenselNumerators.Hensel
@@ -785,6 +807,7 @@ import ArkLib.ToCompPoly.Multilinear.NestedEvaluationTree
 import ArkLib.ToCompPoly.Multivariate.Eval
 import ArkLib.ToCompPoly.Univariate.Basic
 import ArkLib.ToCompPoly.Univariate.Lagrange
+import ArkLib.ToMathlib.AlgebraicGeometry.AffineHilbertFunction
 import ArkLib.ToMathlib.BigOperators.Fin
 import ArkLib.ToMathlib.Control.MonadLift
 import ArkLib.ToMathlib.FieldTheory.FiniteExtension
@@ -797,6 +820,7 @@ import ArkLib.ToMathlib.LinearAlgebra.Matrix.Determinant
 import ArkLib.ToMathlib.LinearAlgebra.PolynomialKernelHeight
 import ArkLib.ToMathlib.LinearAlgebra.PrimitivePolynomialKernel
 import ArkLib.ToMathlib.List.Basic
+import ArkLib.ToMathlib.MvPolynomial.ClearedSubstitution
 import ArkLib.ToMathlib.MvPolynomial.FirstOrderTaylor
 import ArkLib.ToMathlib.MvPolynomial.PDeriv
 import ArkLib.ToMathlib.MvPolynomial.SupportWeight

@@ -78,3 +78,30 @@ review, axiom fixture matrix, and regression sweep; details appear below.
   `.lean-deps-immutable` marker). Future fixture runs must omit that preparation step.
 - Full-build slot released to the central integration task at 06:18 UTC. Subsequent
   proofs remain isolated scratch until this checkpoint is committed.
+
+## Second checkpoint preparation (06:26 UTC)
+
+- Central independently read all six first-checkpoint proofs and passed its full
+  integration validation and axiom sweep. Its sole integration branch owns publication.
+- Six next modules are frozen and independently audited: actual half-gap line/affine
+  MCA bounds; actual filtered quotient Hilbert principal-cut inequality; fixed band
+  margin for actual global/local dimensions; universal residual evaluation; exact
+  Taylor denominator support budget; literal denominator clearing and numerator degree.
+- All six passed targeted builds and strict source checks. Full gate is next; active
+  rational numerator recurrence and symbolic received-line matrix proofs stay scratch.
+- The geometric Hilbert polynomial/degree/Bezout layer remains open. The filtered
+  quotient inequality does not claim or assume that missing layer.
+
+## Second checkpoint certified (06:32 UTC)
+
+- Full default validation passed all 4636 build jobs and every repository check.
+  During promotion, the gate caught five unused DecidableEq hypotheses in the MCA
+  wrappers and a missing scratch-file copyright header; both were corrected before
+  the passing run. No suppression or proof option was added.
+- Axiom sweep passed with no new sorry taint and zero nonstandard-axiom taint.
+  The unchanged sweep executable's fixture matrix was already certified in the first
+  checkpoint; its shared-submodule preparation was not repeated.
+- Source trust inventory versus `7898fefd` has zero delta in every category. The
+  six new modules have independent mathematical review and targeted Lean checks.
+- Full-build slot released. Active symbolic matrix/local-rank and rational Taylor
+  recurrence work remains outside tracked source during this frozen checkpoint.

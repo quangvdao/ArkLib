@@ -256,7 +256,8 @@ The strengthening team must coordinate its full gate to avoid contention.
 Targeted strict checks and independent source review have passed for H (including
 primitive coordinates and nonvanishing over arbitrary extensions), the unconditional
 all-characteristic U endpoint, and the canonical MCA-to-exact-set bridge. Full repository
-validation is running; these are not yet published integration checkpoints.
+validation passed privately and centrally. Checkpoint `7898fefd` is committed and
+integrated by the central coordinator; the remaining geometric list theorem is still open.
 The U theorem proves the slightly stronger integer threshold `A>=k+floor(n/2)`
 for `k>0` and `A<=n`, with one finite exceptional set of size at most `2n` before
 all challenges and close polynomials. Its odd-length surplus is `k`, not `k+1`;

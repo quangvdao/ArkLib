@@ -76,3 +76,24 @@ also requires an independent statement/execution audit and verification of the p
 At the deadline, report the exact proved frontier, final SHA, validation and audit findings,
 remaining gaps, retained work and stopped-agent status. The stronger claims require their own
 unconditional proofs; their smaller output bound does not automatically improve decoder time.
+
+## Integration checkpoint, 06:48 UTC
+
+- `300ea830` proves `capacity_decoder_exact_output_and_primitive_work` for the actual
+  integer-input decoder. Its same-run primitive bound is not yet the full bit-time theorem.
+- `0f28ac0d` adds the independently reviewed kernel-height, half-gap correlated-agreement,
+  and universal Taylor-support results. Both checkpoints passed full validation and were pushed.
+- Current integration adds actual binary addition/comparison/subtraction, a fixed-tape
+  prefix-block writer with exact traces and memory frame properties, shared-list heap
+  representation and writer execution, and coordinate residual recovery/indexed updates.
+  The second strengthening checkpoint adds actual line/affine MCA bounds, fixed symbolic
+  interpolation margin, filtered Hilbert principal cuts, and denominator algebra.
+- A owns retained-operand binary field arithmetic; B owns cell-payload materialization and
+  the same-memory fixed-tape cell writer; C owns the coordinate direct-coefficient controller
+  and subsequent lift loop. Central owns the block-reader controller and integration.
+  The strengthening coordinator owns rational Taylor charts, symbolic-line interpolation,
+  and concrete geometric counting. These claims do not overlap.
+- Remaining original-theorem joins include complete coordinate lowering, concrete heap
+  allocation/read and scalar operations, whole-driver representation/width invariants,
+  input/output materialization, and a same-program bit-time bound. No conditional backend
+  or primitive ledger is being substituted for that final theorem.
