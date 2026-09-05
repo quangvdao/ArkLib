@@ -912,6 +912,10 @@ import ArkLib.Data.QuadraticAlgebra.SetupMachineCanary
 import ArkLib.Data.QuadraticAlgebra.SetupRefinement
 import ArkLib.Data.ZMod.EnumerationMachine
 import ArkLib.Data.ZMod.NonsquareSearchMachine
+import ArkLib.Interaction.Oracle.Protocol
+import ArkLib.Interaction.Oracle.TypeTree
+import ArkLib.Interaction.Oracle.TypeTree.Decoration
+import ArkLib.Interaction.Reduction
 import ArkLib.OracleReduction.BCS.Basic
 import ArkLib.OracleReduction.Basic
 import ArkLib.OracleReduction.Cast
