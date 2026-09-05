@@ -50,6 +50,16 @@ Place durable, concrete applications under `ArkLibExamples/` and add them to the
 `./scripts/validate.sh` rejects all of its warnings, including admissions. Examples may import
 stable `ArkLib` owner modules; `ArkLib` must not import `ArkLibExamples`.
 
+The Reed–Solomon examples currently check exact arithmetic for ProveKit, ZisK, and LambdaVM:
+query budgets, supplied algebraic-count expressions, and specified payload models. They do not
+yet derive those supplied counts from the coding theorems. The generic
+`HiddenDerivative/Interpolation/FirstOrder` modules establish a capped support and a nonzero
+interpolant satisfying the actual local constraints under a dimension surplus. Completing the
+application bridge requires the sharper cutoff-sensitive rank formula, its finite support count,
+and the symbolic-height and geometric exceptional-count bounds. Keep these mathematical
+obligations distinct from numerical evaluation; a checked integer constant alone is not a
+verified bound on a bad event.
+
 ### Lean source-policy checks
 
 ```bash

@@ -1,1 +1,3 @@
+import ArkLibExamples.ReedSolomon.LambdaVM
 import ArkLibExamples.ReedSolomon.ProveKit
+import ArkLibExamples.ReedSolomon.ZisK
