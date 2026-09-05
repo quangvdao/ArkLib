@@ -37,9 +37,10 @@ private def quarterCanaryReceived : Fin 4 → ZMod 5 := fun i =>
 
 /-- The same gap-only theorem accepts both the minimum threshold and a stricter integer input. -/
 example : ∃ listTwo listThree : Finset (Polynomial (ZMod 5)),
-    0 ∈ listTwo ∧ 1 ∈ listTwo ∧ 0 ∉ listThree := by
-  obtain ⟨B, _hB, h⟩ := exists_capacity_list (1 / 4 : ℝ) (by norm_num) (by norm_num)
-  obtain ⟨listTwo, hTwo, _⟩ := h 4 1 5 2 (by norm_num) (by decide) (by decide)
+    0 ∈ listTwo ∧ 1 ∈ listTwo ∧ 0 ∉ listThree ∧ listTwo.card < 4 := by
+  have h := exists_capacity_list (1 / 4 : ℝ) (by norm_num) (by norm_num)
+  obtain ⟨listTwo, hTwo, _hEmpty, _hHalf, hQuarter, _hSmall⟩ :=
+    h 4 1 5 2 (by norm_num) (by decide) (by decide)
     (by decide) (by decide) (by norm_num) (by decide) quarterCanaryDomain quarterCanaryReceived
   obtain ⟨listThree, hThree, _⟩ := h 4 1 5 3 (by norm_num) (by decide) (by decide)
     (by decide) (by decide) (by norm_num) (by decide) quarterCanaryDomain quarterCanaryReceived
@@ -47,7 +48,7 @@ example : ∃ listTwo listThree : Finset (Polynomial (ZMod 5)),
       quarterCanaryReceived = 2 := by norm_num [Code.agree, quarterCanaryReceived]; decide
   have hone : Code.agree (fun i => (1 : Polynomial (ZMod 5)).eval (quarterCanaryDomain i))
       quarterCanaryReceived = 2 := by norm_num [Code.agree, quarterCanaryReceived]; decide
-  refine ⟨listTwo, listThree, ?_, ?_, ?_⟩
+  refine ⟨listTwo, listThree, ?_, ?_, ?_, hQuarter (by norm_num)⟩
   · exact (hTwo 0).mpr ⟨by simp, by omega⟩
   · exact (hTwo 1).mpr ⟨by simp, by omega⟩
   · intro hz

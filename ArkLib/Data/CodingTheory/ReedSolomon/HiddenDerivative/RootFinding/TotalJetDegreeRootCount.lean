@@ -14,6 +14,11 @@ import Mathlib.Algebra.MvPolynomial.SchwartzZippel
 First-nonzero chain witnesses inject into zeros of the original specialized equation.
 Centers with identically zero specialization contribute no witnesses. Thus Schwartz--Zippel
 charges the original total jet degree once, with no individual-degree or chain-length factor.
+
+## References
+
+* [Dao, Kominers, Thaler, and Zheng, *Reed-Solomon List Decoding up to Capacity at Every
+  Rate*][DKTZ26], total-jet-degree witness counting for the `4m` list prefactor.
 -/
 
 namespace ReedSolomon.HiddenDerivative

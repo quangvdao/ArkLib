@@ -7,15 +7,15 @@ Authors: Quang Dao
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.ConstructionContracts
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.InterpolantListBound
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AsymmetricBandInterpolation
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SeparantRootCount
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeExtension
 
 /-!
 # Construction and root bounds from the finite band certificate
 
-An actual nonzero band interpolant has individual jet degree at most `2m`, uniformly in the
+An actual nonzero band interpolant has total jet degree at most `2m`, uniformly in the
 ambient rate and field size. Thus the finite numerical band certificate, together with elementary
 degree and characteristic budgets, produces both a genuine construction and an exact point-list
-bound with prefactor `8*(d+1)*m²` and exponent `e*d`. The witness-field requirement uses the
+bound with prefactor `4m` and exponent `e*d`. The witness-field requirement uses the
 reduced separant budget. No executable interpolation or runtime theorem is asserted.
 
 The numerical dimension comparison remains explicit here; it must be proved from the prescribed
@@ -27,6 +27,21 @@ namespace ReedSolomon.AllRateListDecoding
 noncomputable section
 
 open HiddenDerivative ListDecoding
+
+/-- The band cutoff controls the sum of all jet exponents, not just each exponent separately. -/
+theorem jetTotalDegree_le_of_mem_asymmetricBandSpace
+    {F : Type*} [Field F] {D d m W Cmin Cmax t : ℕ} {L : ℝ}
+    (hD : 0 < D) (hL : L ≤ (D : ℝ) * t) {Q : DifferentialPolynomial F d}
+    (hQ : Q ∈ asymmetricBandSpace F D d m W Cmin Cmax L hD) :
+    jetTotalDegree Q ≤ t := by
+  rw [jetTotalDegree_le_iff]
+  intro u hu
+  have htotal := totalJetDegree_lt_of_asymmetricBandEligible hD
+    (mem_asymmetricBandSpace_iff.mp hQ u hu)
+  have hquot : L / D ≤ t := (div_le_iff₀ (by exact_mod_cast hD : (0 : ℝ) < D)).mpr
+    (by simpa only [mul_comm] using hL)
+  have hbound : totalJetDegree u ≤ t := by exact_mod_cast htotal.le.trans hquot
+  simpa [totalJetDegree, Finsupp.degree_eq_sum] using hbound
 
 /-- Extract an actual construction at a specified ambient dimension, together with its gap-only
 individual jet-degree bound. The finite rank comparison is explicit, not assumed by a typeclass. -/
@@ -78,7 +93,7 @@ theorem agreeingPolynomials_encard_le_of_band_certificate
     (hdim : n * asymmetricBandLocalBudget d m W ⌈L / (K - 1 : ℕ) - Cmin⌉₊ <
       asymmetricBandDimensionCount (K - 1) d m W Cmin Cmax L) :
     (agreeingPolynomials domain k A received).encard ≤
-      (8 * (d + 1) * m ^ 2 * Nat.card F ^ (e * d) : ℕ) := by
+      (4 * m * Nat.card F ^ (e * d) : ℕ) := by
   have hD : 0 < K - 1 := hd.trans hdK
   have hK : K - 1 + 1 = K := by omega
   obtain ⟨Q, hQ0, hQband, hQlocal⟩ := exists_nonzero_band_interpolant hd hD
@@ -90,10 +105,11 @@ theorem agreeingPolynomials_encard_le_of_band_certificate
     ⟨hKchar, fun j ↦ (hjet j).trans_lt hmchar⟩
   apply agreeingPolynomials_encard_le_of_boundedSolution_natCard_le
     (by simpa only [hK] using hkK) hmA hdK domain received hQexact hQlocal
-  have hroot := natCard_boundedSolution_le_extension_pow_of_interpolation_degree
+  have hroot := natCard_boundedSolution_le_extension_totalJetDegree_of_interpolation_degree
     Q e (m * A) (2 * m) he hdK.le hQ0 hchar
     (differentialWeightedDegree_lt_of_mem_exactInterpolationSpace hmA hdK hQexact)
-    hjet (by simpa only [hK] using hlarge)
+    (jetTotalDegree_le_of_mem_asymmetricBandSpace hD hLt hQband)
+    (by simpa only [hK] using hlarge)
   convert hroot using 1
   ring
 

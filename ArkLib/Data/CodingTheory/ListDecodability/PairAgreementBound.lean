@@ -143,4 +143,31 @@ theorem card_le_one_of_pairwise_agree_le
   have hpair := hPair word hword word' hword' hne
   omega
 
+/-- If distinct words never agree, their agreement sets with a received word are disjoint.
+Thus the total required agreements cannot exceed the number of positions. -/
+theorem card_mul_minAgreement_le_of_pairwise_agree_eq_zero
+    (received : index → alphabet) (words : Finset (index → alphabet)) (minAgreement : ℕ)
+    (hClose : ∀ word ∈ words, minAgreement ≤ agree word received)
+    (hPair : ∀ word ∈ words, ∀ word' ∈ words, word ≠ word' → agree word word' = 0) :
+    words.card * minAgreement ≤ Fintype.card index := by
+  classical
+  have hposition (i : index) : (words.filter fun word => word i = received i).card ≤ 1 := by
+    apply Finset.card_le_one.mpr
+    intro word hw word' hw'
+    obtain ⟨hw, hi⟩ := Finset.mem_filter.mp hw
+    obtain ⟨hw', hi'⟩ := Finset.mem_filter.mp hw'
+    by_contra hne
+    have hz := hPair word hw word' hw' hne
+    have hp : 0 < agree word word' := Finset.card_pos.mpr
+      ⟨i, Finset.mem_filter.mpr ⟨Finset.mem_univ i, hi.trans hi'.symm⟩⟩
+    omega
+  calc
+    words.card * minAgreement = ∑ _word ∈ words, minAgreement := by simp
+    _ ≤ ∑ word ∈ words, agree word received := Finset.sum_le_sum hClose
+    _ = ∑ i : index, (words.filter fun word => word i = received i).card := by
+      simp only [agree, Finset.card_filter]
+      rw [Finset.sum_comm]
+    _ ≤ ∑ _i : index, 1 := Finset.sum_le_sum fun i _ => hposition i
+    _ = Fintype.card index := by simp
+
 end Code

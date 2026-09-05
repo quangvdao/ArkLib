@@ -13,6 +13,11 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Regular
 A witness follows the deterministic highest-jet derivative chain, requiring the candidate to
 solve every preceding equation. This extra invariant makes jets injective across different
 stages, not just within one regular branch. No normalization or root-count assumption is used.
+
+## References
+
+* [Dao, Kominers, Thaler, and Zheng, *Reed-Solomon List Decoding up to Capacity at Every
+  Rate*][DKTZ26], first-nonzero separant witnesses in the differential root-counting proof.
 -/
 
 namespace ReedSolomon.HiddenDerivative

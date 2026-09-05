@@ -22,8 +22,10 @@ has size at most one. For gaps between one quarter and one half, the identity
 
 `(k + n / 4)^2 - n * (k - 1) = (k - n / 4)^2 + n`
 
-gives list size at most `n`, and therefore strictly less than `4q` when `n ≤ q`. This declarative
-proof supplies no interpolation algorithm or running-time claim.
+gives list size at most `n - k + 1`, which is strictly less than `n` when `k ≥ 2`.
+For `k = 1`, distinct constant messages have disjoint agreement sets and the threshold is at
+least two, again giving strictly fewer than `n` candidates. This declarative proof supplies no
+interpolation algorithm or running-time claim.
 
 ## References
 
@@ -187,7 +189,33 @@ private lemma agreementThreshold_half_gap
     nlinarith [mul_le_mul_of_nonneg_right hdelta hBlockLengthNonneg]
   exact_mod_cast hReal
 
-private lemma exactAgreementDecoder_card_le_blockLength
+/-- Constant messages have disjoint agreement sets, including over arbitrary finite fields. -/
+private theorem exactAgreementDecoder_card_mul_threshold_le_of_dimension_one
+    {F : Type*} [Field F] [Fintype F] [DecidableEq F]
+    {blockLength minAgreement : ℕ} (domain : Fin blockLength ↪ F)
+    (hn : 0 < blockLength) (received : Fin blockLength → F) :
+    (exactAgreementDecoder (messageDim := 1) (minAgreement := minAgreement)
+      domain received).card * minAgreement ≤ blockLength := by
+  classical
+  let embedding := evaluationEmbedding domain (show 1 ≤ blockLength by omega)
+  let messages := exactAgreementDecoder (messageDim := 1)
+    (minAgreement := minAgreement) domain received
+  have h := Code.card_mul_minAgreement_le_of_pairwise_agree_eq_zero received
+    (messages.map embedding) minAgreement ?_ ?_
+  · simpa only [Finset.card_map, Fintype.card_fin] using h
+  · intro word hw
+    obtain ⟨p, hp, rfl⟩ := Finset.mem_map.mp hw
+    exact (exactAgreementDecoder_isExact domain received p).mp hp
+  · intro word hw word' hw' hne
+    obtain ⟨p, hp, rfl⟩ := Finset.mem_map.mp hw
+    obtain ⟨p', hp', rfl⟩ := Finset.mem_map.mp hw'
+    have hlt := ReedSolomon.agree_lt_of_mem_code
+      (ReedSolomon.evalOnPoints_mem_code_of_degree_lt (Polynomial.mem_degreeLT.mp p.2))
+      (ReedSolomon.evalOnPoints_mem_code_of_degree_lt (Polynomial.mem_degreeLT.mp p'.2)) hne
+    change Code.agree (embedding p) (embedding p') < 1 at hlt
+    omega
+
+private lemma exactAgreementDecoder_card_lt_blockLength
     {F : Type*} [Field F] [Fintype F] [DecidableEq F]
     {delta : ℝ} (hdelta : (1 / 4 : ℝ) ≤ delta)
     {blockLength messageDim : ℕ} (domain : Fin blockLength ↪ F)
@@ -195,7 +223,22 @@ private lemma exactAgreementDecoder_card_le_blockLength
     (hMessageDimLe : messageDim ≤ blockLength) (received : Fin blockLength → F) :
     (exactAgreementDecoder (messageDim := messageDim)
       (minAgreement := agreementThreshold delta blockLength messageDim)
-      domain received).card ≤ blockLength := by
+      domain received).card < blockLength := by
+  by_cases hdim : messageDim = 1
+  · subst messageDim
+    have h := exactAgreementDecoder_card_mul_threshold_le_of_dimension_one
+      (minAgreement := agreementThreshold delta blockLength 1) domain hBlockLength received
+    have ht := agreementThreshold_quarter_gap hdelta blockLength 1
+    have hn : (0 : ℝ) < blockLength := by exact_mod_cast hBlockLength
+    have htwo : 2 ≤ agreementThreshold delta blockLength 1 := by
+      have hreal : (1 : ℝ) < agreementThreshold delta blockLength 1 := by
+        push_cast at ht
+        linarith
+      exact_mod_cast hreal
+    have hcard := Nat.mul_le_mul_left
+      (exactAgreementDecoder (messageDim := 1)
+        (minAgreement := agreementThreshold delta blockLength 1) domain received).card htwo
+    omega
   have hProduct := exactAgreementDecoder_card_mul_gap_le
     (minAgreement := agreementThreshold delta blockLength messageDim)
     domain hMessageDim hMessageDimLe received
@@ -216,8 +259,10 @@ private lemma exactAgreementDecoder_card_le_blockLength
   have hDecoderCard :
       ((exactAgreementDecoder (messageDim := messageDim)
         (minAgreement := agreementThreshold delta blockLength messageDim)
-        domain received).card : ℝ) ≤ blockLength := by
-    have hMessageSubNonneg : (0 : ℝ) ≤ (messageDim - 1 : ℕ) := by positivity
+        domain received).card : ℝ) < blockLength := by
+    have hMessageSubPos : (0 : ℝ) < (messageDim - 1 : ℕ) := by
+      exact_mod_cast (show 0 < messageDim - 1 by omega)
+    have hstrict := mul_pos hBlockLengthReal hMessageSubPos
     nlinarith [mul_nonneg (show (0 : ℝ) ≤
       (exactAgreementDecoder (messageDim := messageDim)
         (minAgreement := agreementThreshold delta blockLength messageDim)
@@ -238,20 +283,20 @@ private lemma exactAgreementDecoder_encard_eq
     simp [agreeingPolynomials, exactAgreementDecoder]
   rw [hSet, Set.encard_coe_eq_coe_finsetCard]
 
-/-- At a capacity gap of at least one quarter, every received word has at most `blockLength`
+/-- At a capacity gap of at least one quarter, every received word has fewer than `blockLength`
 agreeing degree-bounded polynomials. -/
-theorem agreeingPolynomials_encard_le_blockLength_of_quarter
+theorem agreeingPolynomials_encard_lt_blockLength_of_quarter
     {F : Type*} [Field F] [Finite F] [DecidableEq F]
     {delta : ℝ} (hdelta : (1 / 4 : ℝ) ≤ delta)
     {blockLength messageDim : ℕ} (domain : Fin blockLength ↪ F)
     (hBlockLength : 0 < blockLength) (hMessageDim : 0 < messageDim)
     (hMessageDimLe : messageDim ≤ blockLength) (received : Fin blockLength → F) :
     (agreeingPolynomials domain messageDim
-      (agreementThreshold delta blockLength messageDim) received).encard ≤
+      (agreementThreshold delta blockLength messageDim) received).encard <
         (blockLength : ℕ∞) := by
   let := Fintype.ofFinite F
   rw [exactAgreementDecoder_encard_eq domain received]
-  exact_mod_cast exactAgreementDecoder_card_le_blockLength hdelta domain hBlockLength
+  exact_mod_cast exactAgreementDecoder_card_lt_blockLength hdelta domain hBlockLength
     hMessageDim hMessageDimLe received
 
 /-- At a capacity gap of at least one half, every received word has at most one agreeing
@@ -286,8 +331,8 @@ theorem quarter_gap_list_bound : QuarterGapListBound := by
   have hCardLeBlockLength : ∀ received : Fin blockLength → ZMod fieldSize,
       (exactAgreementDecoder (messageDim := messageDim) (minAgreement := minAgreement)
         domain received).card ≤ blockLength :=
-    fun received => exactAgreementDecoder_card_le_blockLength hdelta domain hBlockLength
-      hMessageDim hMessageDimLe received
+    fun received => (exactAgreementDecoder_card_lt_blockLength hdelta domain hBlockLength
+      hMessageDim hMessageDimLe received).le
   have hFieldSizePos : 0 < fieldSize := hFieldPrime.pos
   have hCardLeListBound : ∀ received : Fin blockLength → ZMod fieldSize,
       (exactAgreementDecoder (messageDim := messageDim) (minAgreement := minAgreement)

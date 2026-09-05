@@ -13,8 +13,8 @@ import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.BandParameterAss
 
 The prescribed asymmetric band supplies an actual nonzero interpolant at order
 `ceil(exp(169/(25*delta)))`, multiplicity `ceil(100*d²*H)`, and block threshold `8m`.
-Its individual jet degrees are at most `2m`. The reduced-separant root count therefore gives
-the uniform prefactor `8*(d+1)*m²`, with exponent `2d` over prime fields `q >= n` and exponent
+Its total jet degree is at most `2m`. The whole-chain root count therefore gives
+the uniform prefactor `4m`, with exponent `2d` over prime fields `q >= n` and exponent
 `d` under the manuscript's larger-field condition. The original message dimension and the
 oversized-threshold empty-list case are preserved.
 
@@ -151,7 +151,7 @@ private theorem asymmetricBand_agreeingPolynomials_encard_le {delta : ℝ} {n k 
     (hlarge : 2 * (asymmetricBandMultiplicity delta * agreementThreshold delta n k +
       capacityDerivativeOrder delta - asymmetricBandAmbientDimension delta n k) ≤ q ^ e) :
     (agreeingPolynomials domain k (agreementThreshold delta n k) received).encard ≤
-      (8 * (capacityDerivativeOrder delta + 1) * asymmetricBandMultiplicity delta ^ 2 *
+      (4 * asymmetricBandMultiplicity delta *
         q ^ (e * capacityDerivativeOrder delta) : ℕ) := by
   let : Fact q.Prime := ⟨hq⟩
   obtain ⟨data⟩ := exists_band_instance_data hdelta hquarter hblock hk hkn hA
@@ -170,12 +170,18 @@ private theorem asymmetricBand_agreeingPolynomials_encard_le {delta : ℝ} {n k 
     data.cutoff_jet data.comparison
   simpa only [Nat.card_zmod] using h
 
-/-- Optimized all-rate exact-list cardinalities, including the reduced larger-field condition. -/
-theorem asymmetricBand_capacity_list_bound : AsymmetricBandListBound := by
-  intro delta hdelta hquarter
+/-- The prescribed band gives the explicit prefactor `4m` in both field regimes. -/
+theorem asymmetricBand_capacity_list_bound_four_mul
+    (delta : ℝ) (hdelta : 0 < delta) (hquarter : delta < (1 / 4 : ℝ)) :
+    ∀ n k q : ℕ, 8 * asymmetricBandMultiplicity delta ≤ n →
+      0 < k → k ≤ n → q.Prime → n ≤ q → ∀ domain : Fin n ↪ ZMod q,
+        Nonempty (CapacityGapCertificate delta domain k
+          (4 * asymmetricBandMultiplicity delta * q ^ (2 * capacityDerivativeOrder delta))) ∧
+        (LargeFieldCondition delta n k q (capacityDerivativeOrder delta)
+          (asymmetricBandMultiplicity delta) →
+          Nonempty (CapacityGapCertificate delta domain k
+            (4 * asymmetricBandMultiplicity delta * q ^ capacityDerivativeOrder delta))) := by
   have hm := asymmetricBandMultiplicity_pos hdelta hquarter
-  refine ⟨hm, 8 * (capacityDerivativeOrder delta + 1) * asymmetricBandMultiplicity delta ^ 2,
-    by positivity, ?_⟩
   intro n k q hblock hk hkn hq hnq domain
   constructor
   · refine ⟨CapacityGapCertificate.ofPointwiseBound hdelta.le (hk.trans_le hkn) domain ?_⟩
@@ -201,6 +207,13 @@ theorem asymmetricBand_capacity_list_bound : AsymmetricBandListBound := by
       simpa only [one_mul] using h
     · rw [agreeingPolynomials_eq_empty_of_card_lt (by simpa using Nat.lt_of_not_ge hA) received]
       simp
+
+/-- The explicit `4m` bounds also fulfill the gap-only prefactor contract. -/
+theorem asymmetricBand_capacity_list_bound : AsymmetricBandListBound := by
+  intro delta hdelta hquarter
+  have hm := asymmetricBandMultiplicity_pos hdelta hquarter
+  exact ⟨hm, 4 * asymmetricBandMultiplicity delta, by positivity,
+    asymmetricBand_capacity_list_bound_four_mul delta hdelta hquarter⟩
 
 end
 end ReedSolomon.AllRateListDecoding

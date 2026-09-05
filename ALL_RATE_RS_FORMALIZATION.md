@@ -9,7 +9,8 @@ ArkLib base: `Verified-zkEVM/ArkLib@22dbd4e836c15a21f68889afa69b7130da04abbb`
 Proof-source baseline: `quangvdao/all-rate-rs-list-decoding@9e4d6488ead94be47cca69e5be915b5667143b66`
 
 Current statement synchronization: the user-designated, uncommitted `main-minimal.tex` draft,
-reviewed on 2026-09-04. Section 2.6 records exact source blobs and the remaining verification gap.
+reviewed on 2026-09-04. Sections 2.6–2.7 record source blobs, alignment decisions, and the
+remaining verification gap.
 
 This document is the single source of truth for formalizing the all-rate hidden-derivative Reed-Solomon list-decoding theorem. It is deliberately kept on the integration branch with the proof. It records the theorem contract, provenance, dependencies, ownership boundaries, risks, and completion gates for a long-running multi-contributor effort.
 
@@ -232,18 +233,22 @@ The paper comparison uses the local minimal draft over paper repository head `e3
 | Source | Git content hash (uncommitted file) |
 |---|---|
 | `main-minimal.tex` | `be753a620115a621b5d19225c14c22c7030842eb` |
-| `shared/main-theorem.tex` | `d29d2bcc9b6e8b5b191fb28243622493575fb47b` |
-| `shared/decoder-procedure.tex` | `8deeefab2393a5794d5c3a0e5d4d577e05d4cb63` |
-| `shared/main-proof.tex` | `dcda1895f2d93e5459ace8bd7fb85cf529e3cf7b` |
+| `shared/main-theorem.tex` | `a0ca5040d0c6436f43b648c13e6fec5ef031f33c` |
+| `shared/root-core.tex` | `16b9e6a08b9c2ccdc7f587012cf5f70903f03302` |
+| `shared/decoder-procedure.tex` | `6d0af000bb61acee74cf0215c0442949c1194c7e` |
+| `shared/main-proof.tex` | `c7720c49f8a79c57b234df18c5e02ffc23890ccc` |
+| `shared/decoder-cost.tex` | `f082e4a8b9d7f43140f720070d6ffa736c419ec8` |
 
-These are content identifiers, not published revisions. The manuscript worktree was left untouched.
+These are working-draft content identifiers, not published revisions. The focused alignment
+edits preserve the existing manuscript structure and voice; unrelated manuscript changes remain
+owned by their original authors.
 The checked list theorem now permits every integer `A` in the paper's input range, rather than
 only the minimum ceiling threshold. Raising `A` restricts the exact list; monotonicity of natural
 subtraction also transfers the larger-field condition to the smaller interpolation threshold.
 It keeps zero as a candidate and proves empty output for `A > n`. It gives `N=1` above the
-quarter-gap boundary and `N=8m` below it. The current proof uses an existential prefactor witnessed
-by `8(d+1)m²`; the draft's improved `B=4m` derivation is not yet the checked prefactor. Both satisfy
-the theorem statement's existential `B(delta)` clause. Bit complexity remains unproved.
+quarter-gap boundary and `N=8m` below it. The current central statement spells out `4m` in both
+small-gap bounds and the strict bound `<n` at gaps at least one quarter. No existential prefactor
+hides a weaker constant. Executable correctness and bit complexity remain unproved.
 
 The first naming/packaging pass makes these transitions:
 
@@ -291,6 +296,57 @@ ingredients, report only `propext`, `Classical.choice`, and `Quot.sound`. The so
 example count. Full `validate.sh --axioms` passed again after the final naming-consistency pass,
 with 576 umbrella imports, 312 pre-existing tainted declarations, no new taint, and no non-sorry
 warnings. No permission, source-attribution, dependency-pin, or axiom-baseline files were changed.
+
+### 2.7 Focused paper–Lean alignment (2026-09-04)
+
+The user approved preserving the manuscript's existing outline and voice. This round changes
+only proof/theorem alignment, the search procedure, and the formalization-status paragraph.
+
+| Decision | Mathematical reason | Formalization state |
+|---|---|---|
+| Keep `d=ceil(exp(6.76/delta))`, `m=ceil(100*d²*H)`, `N=8m` | These finite estimates are proved; the proposed `5.75` improvement still needs a uniform tail estimate | Existing checked parameter proof retained |
+| Use the original equation, without mandatory coefficient-gcd normalization | A zero X-fiber has no regular witness anywhere along its jet-derivative chain | `TotalJetDegreeWitness.lean` |
+| Count the entire chain together | First-nonzero witnesses sharing a jet coincide; Schwartz–Zippel charges total jet degree once | `TotalJetDegreeRootCount.lean` |
+| Export `4m` in both field regimes | The band has total jet degree at most `2m`; half-field counting gives twice this degree | `TotalJetDegreeExtension.lean`, `BandConstruction.lean`, `Capacity.lean` |
+| Export `<n` for `delta>=1/4` | Disjoint agreement sets handle dimension one; pair-agreement counting is strict in higher dimensions | `PairAgreementBound.lean`, `QuarterGapListBound.lean` |
+| Descending first-success ambient-dimension scan in the manuscript | A successful band dimension ensures the returned dimension is no smaller; no monotonicity proof is needed | Algorithmic assembly remains open |
+
+The manuscript retains binary search as an optional optimization. The default direct-expansion
+scan costs `O_delta(n^4)` field operations, which fits the headline exponent. Do not silently
+attach this cost to the existing grid-evaluation matrix program: its current naive assembly may
+cost more per trial. Either prove a suitable polynomial bound for that actual program or refine
+it to direct truncated expansion. The generic lifting lemma's binary-exponent cost also needs
+fast powering if used beyond the bounded-exponent main-decoder regime.
+
+Worker C supplied the two chain/count modules at `50040a49`, integrated as `fcbc684e`. The central
+orchestrator read both proofs, supplied extension transport and band/frontend assembly, and
+added zero-fiber boundary canaries. Workers A and B independently audited the quarter-gap proof;
+Worker B also audited the complete sharp-count frontend and the focused manuscript changes.
+No mathematical findings remained. Targeted builds and the full `./scripts/validate.sh --axioms`
+gate pass: 594 umbrella imports, 379 source examples (+3), 183 source admissions (unchanged),
+312 pre-existing tainted declarations, and no nonstandard axioms or native trust. Seven principal
+axiom checks, including `exists_capacity_list`, report only `propext`, `Classical.choice`, and
+`Quot.sound`. The source inventory is compared against `0346cd94`; no admission or example was
+removed. These are cardinality proofs, not a decoder-correctness theorem.
+
+Both manuscript PDFs rebuild without final-log warnings, undefined references, or box warnings.
+The edited root-counting and search pages were rendered and inspected. The manuscript remains a
+working draft over `e32e2ba`; this Lean checkpoint does not commit other contributors' pre-existing
+manuscript changes or claim a published paper revision.
+
+Operational work was paused for this alignment. Preserve the completed private handoffs for the
+next assembly round; they are not implicitly integrated by this checkpoint:
+
+| Lane | Completed, queued commits | Next integration check |
+|---|---|---|
+| A | `5db0dde8` center shift; `578b0232` residual-zero decision | Center-shift sources read; residual-zero source audit and joint validation remain |
+| B | `ebc91977` prefix-axis materialization | Source audit and integration with Cartesian traversal remain |
+| C | `ff333cf3` pivot solve/back substitution | Main solver sources read; canary review and joint validation remain |
+
+All three workers stop after their bounded objectives. Reuse these lanes, with at most three
+active worker conversations and no nested fan-out. Next, integrate the queued operational
+components, connect finite support selection and a genuine nonzero kernel computation, assemble
+root enumeration/filtering, and prove execution and cost for that same closed decoder.
 
 ## 3. Gold trust and announcement gate
 

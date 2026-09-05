@@ -18,9 +18,10 @@ the real gap `delta` is fixed before any block length, rate, field, or received 
 The output is a finite set of ordinary polynomials. Membership explicitly means degree less than
 `k` and at least `A` agreements. In particular, zero is not excluded by a natural-degree convention.
 For gaps below one quarter, the prescribed derivative order and multiplicity give exponents `2d`
-and `d` in the two field-size regimes. For larger gaps the bounds are one and strictly less than
-`4q`. Taking `A = k + ceil(delta*n)` gives radius `1 - k/n - delta`; the exact rounding and
-`Code.Lambda` formulation are established in `AgreementRadius.lean`.
+and `d`, with the explicit prefactor `4m`, in the two field-size regimes.
+For larger gaps the bounds are one and strictly less than
+the block length `n`. Taking `A = k + ceil(delta*n)` gives radius `1 - k/n - delta`;
+the rounding and `Code.Lambda` formulation are established in `AgreementRadius.lean`.
 
 **Verification boundary.** This is a classical existence and list-cardinality theorem. It does
 not supply an executable decoder, a field-operation count, or a bit-complexity bound. Those parts
@@ -53,8 +54,7 @@ theorem exists_capacity_list (delta : ℝ) (hdelta : 0 < delta) (_hOne : delta <
     let m : ℕ := Nat.ceil (100 * (d : ℝ) ^ 2 *
       ∑ i ∈ Finset.range (d - 1), (1 : ℝ) / (i + 1))
     let N : ℕ := if (1 / 4 : ℝ) ≤ delta then 1 else 8 * m
-    ∃ B : ℕ, 0 < B ∧
-      ∀ n k q A : ℕ, N ≤ n → 0 < k → k ≤ n → q.Prime → n ≤ q →
+    ∀ n k q A : ℕ, N ≤ n → 0 < k → k ≤ n → q.Prime → n ≤ q →
         (k : ℝ) + delta * n ≤ A → A ≤ 2 * n →
         ∀ (alpha : Fin n ↪ ZMod q) (y : Fin n → ZMod q),
           ∃ list : Finset (Polynomial (ZMod q)),
@@ -62,27 +62,26 @@ theorem exists_capacity_list (delta : ℝ) (hdelta : 0 < delta) (_hOne : delta <
               P.degree < k ∧ A ≤ Code.agree (fun i => P.eval (alpha i)) y) ∧
             (n < A → list = ∅) ∧
             ((1 / 2 : ℝ) ≤ delta → list.card ≤ 1) ∧
-            ((1 / 4 : ℝ) ≤ delta → delta < (1 / 2 : ℝ) → list.card < 4 * q) ∧
+            ((1 / 4 : ℝ) ≤ delta → list.card < n) ∧
             (delta < (1 / 4 : ℝ) →
-              list.card ≤ B * q ^ (2 * d) ∧
+              list.card ≤ 4 * m * q ^ (2 * d) ∧
               (2 * (m * A + d - max k ⌊delta * (n : ℝ) / 2⌋₊) ≤ q →
-                list.card ≤ B * q ^ d)) := by
+                list.card ≤ 4 * m * q ^ d)) := by
   classical
   let d := capacityDerivativeOrder delta
   let m := asymmetricBandMultiplicity delta
-  change ∃ B : ℕ, 0 < B ∧ ∀ n k q A : ℕ,
+  change ∀ n k q A : ℕ,
     (if (1 / 4 : ℝ) ≤ delta then 1 else 8 * m) ≤ n → _
   by_cases hquarter : (1 / 4 : ℝ) ≤ delta
-  · refine ⟨1, by omega, ?_⟩
-    intro n k q A _hn hk hkn hq hnq hA _hAupper alpha y
+  · intro n k q A _hn hk hkn hq hnq hA _hAupper alpha y
     let : Fact q.Prime := ⟨hq⟩
     have hthreshold := (agreementThreshold_le_iff_real hdelta.le n k A).mpr hA
     have hmono := Set.encard_mono
       (agreeingPolynomials_antitone alpha k y hthreshold)
-    have hbound := hmono.trans (agreeingPolynomials_encard_le_blockLength_of_quarter
+    have hbound := hmono.trans_lt (agreeingPolynomials_encard_lt_blockLength_of_quarter
       hquarter alpha (hk.trans_le hkn) hk hkn y)
     obtain ⟨list, hexact, hcard⟩ := exists_finset_polynomial_list alpha k A y
-      (Set.finite_of_encard_le_coe hbound)
+      (Set.finite_of_encard_le_coe hbound.le)
     refine ⟨list, hexact, ?_, ?_, ?_, ?_⟩
     · intro hoversized
       apply Finset.eq_empty_iff_forall_notMem.mpr
@@ -96,15 +95,12 @@ theorem exists_capacity_list (delta : ℝ) (hdelta : 0 < delta) (_hOne : delta <
         hhalf alpha hk hkn y)
       rw [← hcard] at h
       exact_mod_cast h
-    · intro _hquarter _hhalf
-      have h : list.card ≤ n := by exact_mod_cast (hcard.le.trans hbound)
-      have := hq.pos
-      omega
+    · intro _hquarter
+      exact_mod_cast hcard.le.trans_lt hbound
     · intro hsmall
       exact (not_lt_of_ge hquarter hsmall).elim
   · have hsmall : delta < (1 / 4 : ℝ) := lt_of_not_ge hquarter
-    obtain ⟨_hm, B, hB, hbound⟩ := asymmetricBand_capacity_list_bound delta hdelta hsmall
-    refine ⟨B, hB, ?_⟩
+    have hbound := asymmetricBand_capacity_list_bound_four_mul delta hdelta hsmall
     intro n k q A hn hk hkn hq hnq hA _hAupper alpha y
     have hblock : 8 * asymmetricBandMultiplicity delta ≤ n := by
       simpa only [if_neg hquarter] using hn
@@ -129,13 +125,15 @@ theorem exists_capacity_list (delta : ℝ) (hdelta : 0 < delta) (_hOne : delta <
       exact (hquarter hquarter').elim
     · intro _hsmall
       refine ⟨?_, ?_⟩
-      · exact_mod_cast hcard.le.trans hbound'
+      · change list.card ≤ 4 * m * q ^ (2 * d)
+        exact_mod_cast hcard.le.trans hbound'
       · intro hfield
         have hbudget : LargeFieldCondition delta n k q d m := by
           apply le_trans _ hfield
           exact Nat.mul_le_mul_left 2 (Nat.sub_le_sub_right
             (Nat.add_le_add_right (Nat.mul_le_mul_left m hthreshold) d) _)
         obtain ⟨largeCertificate⟩ := hlarge hbudget
+        change list.card ≤ 4 * m * q ^ d
         exact_mod_cast hcard.le.trans (hmono.trans (largeCertificate.pointwiseListBound y).1)
 
 end
