@@ -20,6 +20,22 @@ This is the qualitative all-rate line conclusion of [DKTZ26]. Its proof uses ord
 joint-space incidence; it does not certify the manuscript's sharper numerical prefactor.
 The prescribed small-gap derivative order remains available in `PrescribedLineMCA`.
 
+## Reading the statement
+
+* `∃` means "there exist", `∀` means "for every", and `→` introduces an assumption.
+  Thus `N`, `d`, and `C` depend only on the positive gap `δ`, not on the later inputs.
+* `E n` is the polynomial exception budget. `A` is an integer agreement threshold;
+  `k + δ * n ≤ A` expresses the capacity gap without rounding conventions.
+* `α : Fin n ↪ F` is a list of `n` distinct evaluation points; `F[X]` means polynomials.
+* `S z P` is the whole set where `P(α i) = f i + z * g i`.
+  `T F₀ G₀` is the set where both `F₀(α i) = f i` and `G₀(α i) = g i`.
+* The exceptional set is chosen BEFORE `z` and `P`. The final equality is of full sets,
+  not merely a statement that some large common subset exists.
+
+Compared with the paper's qualitative theorem, `δ < 1` and `A ≤ n` are unnecessary:
+impossible agreement thresholds give a vacuous conclusion. The characteristic bound
+also includes equality `n = ringChar F`, covering prime fields of size exactly `n`.
+
 ## References
 
 * [Dao, Kominers, Thaler, and Zheng, *Reed–Solomon List Decoding up to Capacity at Every
@@ -39,17 +55,27 @@ challenges, uniformly over all rates. The conclusion identifies the whole agreem
 It covers characteristic zero and prime fields of size at least the block length. -/
 theorem exists_allRate_correlatedAgreement (δ : ℝ) (hδ : 0 < δ) :
     ∃ N d : ℕ, ∃ C : ℝ, 0 < C ∧
-      ∀ (n k A : ℕ), N ≤ n → 0 < k → k ≤ n → (k : ℝ) + δ * n ≤ A →
+      let E := fun n : ℕ ↦ C * (n : ℝ) ^ (d + 1)
+      -- Block length, message dimension, and agreement threshold.
+      ∀ (n k A : ℕ),
+        N ≤ n →
+        0 < k →
+        k ≤ n →
+        (k : ℝ) + δ * n ≤ A →
       ∀ (F : Type u) [Field F] [DecidableEq F],
         (ringChar F = 0 ∨ n ≤ ringChar F) →
-        ∀ (domain : Fin n ↪ F) (f g : Fin n → F),
-          ∃ exceptional : Finset F, (exceptional.card : ℝ) ≤ C * (n : ℝ) ^ (d + 1) ∧
+        ∀ (α : Fin n ↪ F) (f g : Fin n → F),
+          let S := fun z P ↦ polynomialAgreementSet α (fun i ↦ f i + z * g i) P
+          let T := fun F₀ G₀ ↦ commonPolynomialAgreementSet α f g F₀ G₀
+          -- One exceptional set works simultaneously for every close polynomial.
+          ∃ exceptional : Finset F, (exceptional.card : ℝ) ≤ E n ∧
             ∀ z ∉ exceptional, ∀ P : F[X], P.degree < k →
-              A ≤ (polynomialAgreementSet domain (fun i ↦ f i + z * g i) P).card →
-              ∃ P₀ P₁ : F[X], P₀.degree < k ∧ P₁.degree < k ∧
-                P = P₀ + Polynomial.C z * P₁ ∧
-                polynomialAgreementSet domain (fun i ↦ f i + z * g i) P =
-                  commonPolynomialAgreementSet domain f g P₀ P₁ := by
+              A ≤ (S z P).card →
+              ∃ F₀ G₀ : F[X],
+                F₀.degree < k ∧
+                G₀.degree < k ∧
+                P = F₀ + z • G₀ ∧
+                S z P = T F₀ G₀ := by
   classical
   let ε := min δ (1 / 8 : ℝ)
   have hε : 0 < ε := lt_min hδ (by norm_num)
@@ -63,6 +89,7 @@ theorem exists_allRate_correlatedAgreement (δ : ℝ) (hδ : 0 < δ) :
     positivity
   have hC : 0 < C := by dsimp [C]; linarith
   refine ⟨8 * m, d, C, hC, ?_⟩
+  dsimp only
   intro n k A hn hk _hkn hgap F _ _ hchar domain f g
   have hthreshold : agreementThreshold ε n k ≤ A := by
     apply (agreementThreshold_le_iff_real hε.le n k A).mpr
@@ -86,7 +113,7 @@ theorem exists_allRate_correlatedAgreement (δ : ℝ) (hδ : 0 < δ) :
       obtain ⟨pair, hleft, hright, heq, hsets⟩ :=
         hbasegood z hz P hdegree (hthreshold.trans hagree)
       refine ⟨pair.1, pair.2, hleft, hright, ?_, ?_⟩
-      · simpa [correlatedPairSpecialization] using heq
+      · simpa [correlatedPairSpecialization, Polynomial.smul_eq_C_mul] using heq
       · simpa [mappedDomain] using hsets
   · refine ⟨∅, ?_, ?_⟩
     · simp only [Finset.card_empty, Nat.cast_zero]

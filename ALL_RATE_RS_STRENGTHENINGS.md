@@ -4,6 +4,9 @@
 
 ### Completed qualitative all-rate MCA endpoints
 
+For the paper-to-Lean correspondence and an introduction requiring no Lean knowledge,
+start with [Reading the MCA theorem](ALL_RATE_RS_MCA_READING_GUIDE.md).
+
 The public mathematical statements are
 [`exists_allRate_correlatedAgreement`](ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/AllRateCorrelatedAgreement.lean)
 and

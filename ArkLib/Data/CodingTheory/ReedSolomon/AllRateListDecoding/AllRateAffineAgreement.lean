@@ -15,6 +15,15 @@ dimension, and evaluation domain. At distance radius `1 - k / n - δ`, the canon
 MCA error is bounded by `C * n ^ (d + 1) / |F|`, and the affine error by
 `C * n ^ (d + 1) / (|F| - 1)`, independently of affine dimension. One affine exceptional
 set also retains the exact full-agreement conclusion for every close polynomial.
+
+The paper-facing theorem spells out an affine received family as a constant word and its
+directions. The probability corollary separately states the canonical MCA errors.
+These are qualitative consequences of [DKTZ26], not its sharper numerical prefactor.
+
+## References
+
+* [Dao, Kominers, Thaler, and Zheng, *Reed–Solomon List Decoding up to Capacity at Every
+  Rate*][DKTZ26], mutual correlated agreement.
 -/
 
 noncomputable section
@@ -24,9 +33,10 @@ namespace ReedSolomon.AllRateListDecoding
 open Polynomial CoreDefinitions LinearCode
 open scoped BigOperators
 
-/-- Gap-only constants give line and dimension-independent affine MCA bounds at every rate,
-including a single affine exceptional set before every close polynomial witness. -/
-theorem exists_allRate_affineAgreement (δ : ℝ) (hδ : 0 < δ) :
+/-- Joint quantitative interface: one choice of constants gives both the probability bounds
+and exact affine witnesses. For the paper-facing presentations, see
+`exists_allRate_affineAgreement` and `exists_allRate_mcaError` below. -/
+theorem exists_allRate_affineAgreement_and_mcaError (δ : ℝ) (hδ : 0 < δ) :
     ∃ N d : ℕ, ∃ C : ℝ, 0 < C ∧
       ∀ n k : ℕ, N ≤ n → 0 < k → k ≤ n →
       ∀ (F : Type) [Field F] [Fintype F] [DecidableEq F],
@@ -66,7 +76,7 @@ theorem exists_allRate_affineAgreement (δ : ℝ) (hδ : 0 < δ) :
     exact Nat.le_ceil _
   have hexact : LineExactAgreementBound domain k A (C * (n : ℝ) ^ (d + 1)) := by
     intro f g
-    exact hline n k A hn hk hkn hgap F hchar domain f g
+    simpa only [Polynomial.smul_eq_C_mul] using hline n k A hn hk hkn hgap F hchar domain f g
   have hkthreshold : (k : ℝ) ≤ n * (1 - radius) := by
     rw [hthreshold]
     exact le_add_of_nonneg_right (mul_nonneg hδ.le hnpos.le)
@@ -77,5 +87,67 @@ theorem exists_allRate_affineAgreement (δ : ℝ) (hδ : 0 < δ) :
   simpa only [Fintype.card_fin, hthreshold] using
     exists_affine_exceptionalSet_full_agreement_of_exactLine domain _ hexact hs radius
       (le_refl A) hkthreshold U
+
+/-- **Affine-family agreement, qualitatively [DKTZ26].** For each positive gap, choose
+constants before the field, code, and affine dimension. For a constant word `a` and directions
+`u`, one exceptional set works for every parameter `t` and every close polynomial `P`.
+Outside it, `P` is the same affine combination of low-degree constituent polynomials, and
+its entire agreement set is their common agreement set. The exceptional density is at most
+`C * n ^ (d + 1) / (|F| - 1)`, independently of the number of directions. -/
+theorem exists_allRate_affineAgreement (δ : ℝ) (hδ : 0 < δ) :
+    ∃ N d : ℕ, ∃ C : ℝ, 0 < C ∧
+      ∀ n k : ℕ, N ≤ n → 0 < k → k ≤ n →
+      ∀ (F : Type) [Field F] [Fintype F] [DecidableEq F],
+        (ringChar F = 0 ∨ n ≤ ringChar F) → ∀ domain : Fin n ↪ F,
+          ∀ s : ℕ, 1 ≤ s → ∀ (a : Fin n → F) (u : Fin s → Fin n → F),
+            ∃ exceptional : Finset (Fin s → F),
+              (exceptional.card : ℝ) ≤ C * (n : ℝ) ^ (d + 1) *
+                (Fintype.card F : ℝ) ^ s / ((Fintype.card F : ℝ) - 1) ∧
+              ∀ t ∉ exceptional, ∀ P : F[X], P.degree < k →
+                ((Finset.univ.filter fun i ↦ P.eval (domain i) =
+                  a i + ∑ j, t j * u j i).card : ℝ) ≥ (k : ℝ) + δ * n →
+                ∃ (F₀ : F[X]) (G : Fin s → F[X]),
+                  F₀.degree < k ∧ (∀ j, (G j).degree < k) ∧
+                  P = F₀ + ∑ j, t j • G j ∧
+                  ∀ i, (P.eval (domain i) = a i + ∑ j, t j * u j i) ↔
+                    F₀.eval (domain i) = a i ∧ ∀ j, (G j).eval (domain i) = u j i := by
+  classical
+  obtain ⟨N, d, C, hC, hall⟩ := exists_allRate_affineAgreement_and_mcaError δ hδ
+  refine ⟨N, d, C, hC, ?_⟩
+  intro n k hn hk hkn F _ _ _ hchar domain s hs a u
+  obtain ⟨exceptional, hcard, hgood⟩ :=
+    ((hall n k hn hk hkn F hchar domain).2 s hs).2 (Fin.cons a u)
+  refine ⟨exceptional, hcard, ?_⟩
+  intro t ht P hp ha
+  have ha' : ((Finset.univ.filter fun i ↦ P.eval (domain i) =
+      ∑ j, AffineSpaceGenerator F s t j *
+        (Fin.cons a u : Fin (s + 1) → Fin n → F) j i).card : ℝ) ≥
+        (k : ℝ) + δ * n := by
+    simpa [AffineSpaceGenerator, Fin.sum_univ_succ] using ha
+  obtain ⟨P₀, hdegree, heq, hsets⟩ := hgood t ht P hp ha'
+  refine ⟨P₀ 0, fun j ↦ P₀ j.succ, hdegree 0, fun j ↦ hdegree j.succ, ?_, ?_⟩
+  · simpa [AffineSpaceGenerator, Fin.sum_univ_succ] using heq
+  · intro i
+    simpa [AffineSpaceGenerator, Fin.sum_univ_succ, Fin.forall_fin_succ] using hsets i
+
+/-- **MCA error bounds, qualitatively [DKTZ26].** The same gap-only constants work for
+every code and every positive affine dimension at distance radius `1 - k / n - δ`.
+The line error is at most `C * n ^ (d + 1) / |F|`; passing to affine spaces changes only
+the denominator to `|F| - 1`, with no dependence on their dimension. -/
+theorem exists_allRate_mcaError (δ : ℝ) (hδ : 0 < δ) :
+    ∃ N d : ℕ, ∃ C : ℝ, 0 < C ∧
+      ∀ n k : ℕ, N ≤ n → 0 < k → k ≤ n →
+      ∀ (F : Type) [Field F] [Fintype F] [DecidableEq F],
+        (ringChar F = 0 ∨ n ≤ ringChar F) → ∀ domain : Fin n ↪ F,
+          mcaError (AffineLineGenerator F) (code domain k) (1 - k / n - δ) ≤
+            ENNReal.ofReal (C * (n : ℝ) ^ (d + 1) / (Fintype.card F : ℝ)) ∧
+          ∀ s : ℕ, 1 ≤ s →
+            mcaError (AffineSpaceGenerator F s) (code domain k) (1 - k / n - δ) ≤
+              ENNReal.ofReal (C * (n : ℝ) ^ (d + 1) / ((Fintype.card F : ℝ) - 1)) := by
+  obtain ⟨N, d, C, hC, hall⟩ := exists_allRate_affineAgreement_and_mcaError δ hδ
+  refine ⟨N, d, C, hC, ?_⟩
+  intro n k hn hk hkn F _ _ _ hchar domain
+  exact ⟨(hall n k hn hk hkn F hchar domain).1,
+    fun s hs ↦ ((hall n k hn hk hkn F hchar domain).2 s hs).1⟩
 
 end ReedSolomon.AllRateListDecoding
