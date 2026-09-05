@@ -1128,10 +1128,10 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
-| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: canonical root list through actual base-field output collector, exact membership and polynomial uniqueness | `ListDecoding/CanonicalOutputProof*`; root selection frozen |
-| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: uniform stage fuel/work determined only by initial input sizes | `HiddenDerivative/RootFinding/{StageInputBounds,StageInputExecution}`; search frozen |
-| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: concrete quadratic-to-base lowering of jet Horner evaluation | `ArkLib/Data/Polynomial/QuadraticJetHorner*`; direct arithmetic tail frozen |
-| Central | Validate/integrate handoffs; explicit sparse base-to-quadratic input conversion and whole-decoder joins | `ArkLib/Data/MvPolynomial/QuadraticInput*`, collector integration, tracker and umbrella |
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Paused after exact prepared-decoder execution proof `7efc9101` | `ListDecoding/{CanonicalOutputProof*,PreparedDecoderCertificate,PreparedDecoderProof*}` |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Paused after actual large-gap interpolation witness `61277a0a` | `HiddenDerivative/OrderZero*`, initial-input stage bounds |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Paused after coordinate residual batching and retained-input correction `280e79c8` | Quadratic jet, residual sample and batch interpreters |
+| Central | Audit, full validation and integration; then outer decoder and global cost joins | `ListDecoding/PreparedDecoderMachine`, outer driver, tracker and umbrella |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
 except explicitly repository-relative paths beginning `ArkLib/`.
@@ -1200,11 +1200,18 @@ as a provisional planning range rather than a deadline. Each epoch comprises up 
 bounded worker assignments plus central integration and validation. It is not a count of
 remaining lemmas and is not a promise that unresolved cost-model joins are routine.
 
-1. Finish all-jets execution, point-block assembly and ordered chain generation.
-2. Complete center/stage enumeration and full matrix/kernel/interpolant construction.
-3. Close parameter search, field setup, canonical output filtering and the large-gap/order-zero path.
-4. Prove whole-decoder primitive-model composition and the stated polynomial runtime exponent.
-5. Integrate the full public theorem, independently audit statements/costs, and repair findings.
+1. Integrate the prepared-decoder exactness and large-gap witness checkpoints. All-jets,
+   center/stage enumeration, interpolation construction and canonical output correctness now
+   have actual-program component proofs; do not reassign these completed nodes.
+2. Connect actual setup and parameter selection to the prepared driver's characteristic,
+   distinct-sample and weighted-degree premises. Include the large-gap direct order-zero attempt
+   at `D = k - 1` (the descending search does not cover `D = 0`) and the `n = 1, 2` cases.
+3. Finish coordinate interpreters for Vandermonde/forward elimination, then compose residual
+   recovery, coefficient lifting, guards and root enumeration. Residual sampling and batching
+   are already lowered; no assumed constant-cost extension operation may replace the open nodes.
+4. Bound collector work and all outer costs from initial parameters, retaining the exponent of
+   the same executable program. Reconcile both field-size regimes with the paper-facing contract.
+5. Package the full algorithmic theorem, independently audit statements/costs, and repair findings.
 
 Field enumeration, nonsquare search and quadratic arithmetic already have proved component
 programs; the remaining field work is their initialization/composition and operation lowering.
@@ -1212,7 +1219,27 @@ Do not rebuild those components or count them as already proving the whole-decod
 
 ### Integrated foundations and current handoffs
 
-- Latest fully validated batch: canonical root selection (`a086827c`) and direct-coefficient
+- Latest fully validated integration batch: prepared driver plus collector proofs
+  (`96b19bda`, `7efc9101`), initial-input stage budgets (`f2125280`), order-zero observed
+  costs/counts/local image/witness (`4f8da80d`, `1b8b9cd`, `7ab6766e`, `61277a0a`), and
+  concrete quadratic jet/sample/batch lowering (`574032c9`, `a1f881e3`, `d80d32cc`, `280e79c8`).
+  `PreparedDecoderProof.run_exact` proves actual prepared execution and exact duplicate-free
+  base polynomial/vector output from actual search success, full distinct quadratic alphabet,
+  distinct samples, and explicit characteristic/weighted-degree bounds. Its existential trace
+  charge is not a global polynomial cost theorem. `OrderZeroWitness` constructs a genuine
+  eligible interpolant for quarter-gap parameters and `n >= 3`, using half-length multiplicity
+  and triangular rank; it does not close the two smallest block lengths. The stage budget is
+  determined by the initial sparse input, not by the output or visited chain. Coordinate batch
+  execution retains materialized child inputs and charges actual allocations and dispatches.
+  Central source/statement review and `./scripts/validate.sh --axioms` passed on the integrated
+  sources: 743 umbrella imports, 627 source examples (+26), 183 admissions unchanged,
+  312 pre-existing tainted declarations, and zero nonstandard/native axioms. The 25 dependency
+  blobs recorded for the prepared proof match the central checkout. No axiom baseline was
+  broadened. Local evidence: `/tmp/arklib-decoder-prepared-integration-validation.log` and
+  `/tmp/arklib-decoder-prepared-source-trust.json`, compared with `5db8c1e5`.
+  These checks validate this component integration, not the unfinished full algorithmic theorem.
+  All workers are paused at their completed checkpoints, ready for the next bounded assignments.
+- Previous fully validated batch (`5db8c1e5`): canonical root selection (`a086827c`) and direct-coefficient
   arithmetic-tail lowering (`4e551e02`). Selection proves that the actual stage specification,
   filtered by the execution-proved guard predicate, enumerates exactly all bounded initial roots
   without polynomial duplicates. Completeness chooses the first nonzero supplied sample at the
