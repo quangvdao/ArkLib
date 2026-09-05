@@ -41,6 +41,22 @@ def powerBatchedWord (w : Fin (ℓ + 1) → Fin n → F) (z : F) : Fin n → F :
 def powerBatchedPolynomial (P : Fin (ℓ + 1) → F[X]) (z : F) : F[X] :=
   ∑ t, z ^ t.val • P t
 
+/-- A received coordinate as a polynomial in the retained batching challenge. -/
+def powerBatchedCoordinate (w : Fin (ℓ + 1) → F) : F[X] :=
+  ∑ t, Polynomial.monomial t.val (w t)
+
+theorem powerBatchedCoordinate_eval (w : Fin (ℓ + 1) → F) (z : F) :
+    (powerBatchedCoordinate w).eval z = ∑ t, z ^ t.val * w t := by
+  change (Polynomial.evalRingHom z) (∑ t, Polynomial.monomial t.val (w t)) = _
+  rw [map_sum]
+  simp [mul_comm]
+
+theorem powerBatchedCoordinate_natDegree_le (w : Fin (ℓ + 1) → F) :
+    (powerBatchedCoordinate w).natDegree ≤ ℓ := by
+  apply Polynomial.natDegree_sum_le_of_forall_le
+  intro t _
+  exact (Polynomial.natDegree_monomial_le _).trans (Fin.is_le t)
+
 /-- Batching does not increase the message degree. This includes the zero-dimensional code. -/
 theorem powerBatchedPolynomial_degree_lt (P : Fin (ℓ + 1) → F[X]) (z : F) (k : ℕ)
     (hP : ∀ t, (P t).degree < k) : (powerBatchedPolynomial P z).degree < k := by

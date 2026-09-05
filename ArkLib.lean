@@ -192,6 +192,10 @@ import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.LineToAffine
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Pairs.ExceptionalSet
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Pairs.Family
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.Agreement
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.ComponentAgreement
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.ComponentRecognition
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.PointRecognition
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.Specialization
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Symbolic.Certificate
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Symbolic.RegularEquation
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.ComponentAgreement
