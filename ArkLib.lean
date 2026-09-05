@@ -216,6 +216,8 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Band.
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Certificates
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Counting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.DimensionBridge
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.Basic
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.Interpolation
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FreeOrderDimension
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.GlobalDimension
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.GlobalInterpolation

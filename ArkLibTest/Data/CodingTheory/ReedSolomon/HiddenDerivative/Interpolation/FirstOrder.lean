@@ -1,4 +1,16 @@
+/-
+Copyright (c) 2026 ArkLib Contributors. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Quang Dao
+-/
+
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.Interpolation
+
+/-!
+# Acceptance clients for finite first-order interpolation
+
+Check that downstream clients can use the rank, interpolation, and multiplicity interfaces.
+-/
 
 open PolynomialDifferential
 
