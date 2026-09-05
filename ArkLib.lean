@@ -253,6 +253,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CenterS
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Counting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DerivativeDescent
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DerivativeDescentCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DirectCoefficientCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DirectCoefficientMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DirectCoefficientRefinement
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DirectRegularCoefficient
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DirectRegularIteration
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ExecutableRegularIteration
@@ -410,6 +413,9 @@ import ArkLib.Data.MvPolynomial.Interpolation
 import ArkLib.Data.MvPolynomial.LinearMvExtension
 import ArkLib.Data.MvPolynomial.Multilinear
 import ArkLib.Data.MvPolynomial.NestedEvaluationTree
+import ArkLib.Data.MvPolynomial.PartialDerivativeMachine
+import ArkLib.Data.MvPolynomial.PartialDerivativeMachineCanary
+import ArkLib.Data.MvPolynomial.PartialDerivativeRefinement
 import ArkLib.Data.MvPolynomial.RestrictDegree
 import ArkLib.Data.MvPolynomial.RestrictDegreeVar
 import ArkLib.Data.MvPolynomial.SchwartzZippelCounting

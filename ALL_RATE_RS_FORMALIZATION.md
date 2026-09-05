@@ -1139,14 +1139,14 @@ wide dependency graph. Ask the central owner before editing a claimed interface.
 
 These epochs follow the fully validated executable checkpoint `78c3a2ab`. The target remains a
 single closed executable decoder, not merely a conjunction of independently costed components.
-A's frozen `b21f40bf` computes the actual direct affine lifting coefficient through two residual
-recoveries and explicit lookup/update/arithmetic; it awaits integration after the current gate.
+A's `b21f40bf` computes the actual direct affine lifting coefficient through two residual
+recoveries and explicit lookup/update/arithmetic; it is integrated and fully validated.
 The next loop must retain every nested recovery and update charge. B uses direct truncated
 expansion: vanishing of full sampled substitutions is not equivalent to the required low-contact
 constraints. The final matrix must retain exactly `i+d*b<m`. C permits duplicate sparse terms,
 but factor variable indices within each term must be distinct; exponent-to-scalar conversion is
 executed by repeated addition, not charged as a unit-time cast. The completed derivative
-handoff `42b6fe7a` awaits integration; C now normalizes terms under an explicit shared variable
+handoff `42b6fe7a` is integrated and fully validated; C now normalizes terms under a shared variable
 layout so syntactically present but cancelling terms cannot corrupt the active-variable scan.
 
 Nonzero kernel extraction now supports redundant rows: success follows from an actual nonzero
@@ -1166,6 +1166,14 @@ not supply an executable duplicate-free output algorithm.
 
 ### Integrated foundations and current handoffs
 
+- Direct coefficient recovery (`b21f40bf`) and sparse differentiation (`42b6fe7a`) pass the full
+  canonical gate: 625 umbrella imports, 451 source examples (+12), 183 admissions unchanged,
+  312 pre-existing tainted declarations and zero nonstandard/native axioms. The direct scalar
+  theorem identifies actual execution with `effectiveDirectRegularCoefficient`; the derivative
+  theorem identifies actual execution with `MvPolynomial.pderiv` under explicit per-term
+  distinct-index hypotheses. Central reviewed all six source/canary files. These remain
+  components: the regular-lift loop, normalized active-variable selection and whole decoder are
+  separate outstanding composition obligations.
 - Current integration batch: A's `5dddee4e` residual coefficient recovery, B's `8ebf6d4d`
   interpolation support and `a886c886` truncated affine powers, C's `463b1b41` nonzero homogeneous
   kernel extraction, and central degree truncation plus composed candidate filtering. The filter
