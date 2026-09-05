@@ -32,10 +32,14 @@ It is the **list-size part**, not yet the full algorithmic theorem.
 
 The same file now also exports `capacity_decoder_exact_output_and_primitive_work` for the
 actual integer-input decoder, including both field regimes and a bound on the same observed run.
-It is **not** a bit-time theorem. Pushed checkpoint `8a619227` contains validated bit-arithmetic,
+It is **not** a bit-time theorem. Pushed checkpoint `ac761d3f` contains validated bit-arithmetic,
 same-memory cell read/write/allocation, and fixed-width scalar interfaces, alongside coordinate
 root-finding lowerings. These pieces still require whole-driver composition and representation,
-width and input/output proofs. The current gate and precise frontier are maintained in
+width and input/output proofs. Current work includes a concrete same-memory Horner consumer,
+coordinate separant-stage generation and canonical guards. Lane A owns coordinate candidate
+acceptance/output; lane B owns physical Horner initialization and independent bit-interface audits;
+lane C owns coordinate prepared/separate-sample decoder composition. Central owns integration,
+the allocation-capacity invariant and the final theorem joins. The current gate and precise frontier are maintained in
 [the four-hour sprint record](ALL_RATE_RS_SPRINT.md). Historical open-task descriptions below
 are not the current assignment roster.
 

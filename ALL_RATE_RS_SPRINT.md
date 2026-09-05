@@ -163,3 +163,30 @@ The strengthening checkpoint constructs the unique Hilbert polynomial of each ac
 quotient, proves the principal-cut degree/coefficient inequalities and relative height one,
 and bounds zero-dimensional points by the actual quotient dimension. Absolute component-degree
 purity and the refined degree sum remain necessary before the stronger list theorem is proved.
+
+## Shared-memory evaluation and coordinate stages, 08:13 UTC
+
+`ac761d3f` is pushed and passed full validation: 26,433 declarations in 926 modules,
+312 pre-existing tainted declarations and no new taint or nonstandard axioms. Source admissions
+remain 183. The next integration contains physical fixed-width inverse and negation adapters,
+retained-modulus equality, a prepared reader and nil-aware uncons, and an actual shared-memory
+Horner loop. The loop charges its pointer/index clearing, tail-pointer movement, multiplication,
+addition and final nil scan. Its initial accumulator is explicit; lane B is implementing the
+physical zero initialization before claiming a closed evaluation entry.
+
+Coordinate normalization, differentiation, highest-variable selection, separant-chain generation,
+center and stage enumeration now execute their actual base arithmetic children. Their same-run
+refinements retain ordering, duplicates, complete stage contexts and failure tags. Lane A owns
+the disjoint canonical-guard/candidate/acceptance/output branch; lane C owns the prepared and
+separate-sample outer decoder. Their field-level ledgers are not bit-cost theorems.
+
+Central's allocation-capacity invariant derives the actual allocator's no-overflow premise from
+an explicit remaining budget and decreases that budget on the same successful RAM execution.
+It deliberately does not assume or claim the missing whole-decoder lifetime-allocation bound.
+The strengthening team has additionally proved invariance of Hilbert-polynomial degree under
+radicals, concrete localization filtration comparisons and finite-prime separator inequalities.
+Its absolute component-purity/refined-degree endpoint is still separate.
+
+The original full bit-time theorem remains open: closed driver lowering, global representation
+and width/lifetime invariants, physical input/output and the final same-program cost composition
+are not supplied by merely collecting these component results. The hard deadlines are unchanged.

@@ -210,3 +210,27 @@ review, axiom fixture matrix, and regression sweep; details appear below.
   and proof that each minimal component of a principal cut has the expected Hilbert
   polynomial degree. Scratch localization-growth work is pursuing the latter directly;
   the final manuscript list and small/intermediate MCA bounds remain unproved.
+
+## Sixth checkpoint certification (07:46 UTC)
+
+- Five independently audited modules (731 lines) establish finite-prime separator
+  injections, their canonical top-coefficient sum inequality, radical invariance of
+  Hilbert-polynomial degree, an actual principal-localization filtration sandwich,
+  and polynomial growth invariance under linear rescaling.
+- Radical invariance is proved directly: if radical(I)^t lies in I with t>0, exponent
+  division/remainder injects standard(I) into standard(radical(I)) times t^r residue
+  vectors. Thus HF(I,N)<=t^r HF(radical(I),N), while ideal inclusion supplies the
+  reverse degree comparison. No multiplicity or dimension law is assumed.
+- The separator theorem handles every finite incomparable prime family, including
+  empty and singleton families. The earlier unconsumed two-prime scratch theorem was
+  omitted because the finite-family theorem subsumes it; its scratch remains preserved.
+- The localization statement is an actual finrank bound for bounded numerators and
+  denominator powers, not yet a canonical Hilbert-polynomial presentation theorem.
+- Full default validation passed after adding a missing module docstring; root825.
+  Axiom sweep passed over22787 declarations/826 modules,312 preexisting sorry-tainted,
+  zero nonstandard axioms and no new taint. Source audit vs9c45b50c is exactly unchanged.
+- One targeted Away build initially read an evolving scratch snapshot after its frozen
+  version; the exact audited snapshot was restored and passed actual target/full gates.
+  No certificate includes that failed intermediate snapshot. Future transfers pin hashes.
+- Remaining central obstruction: principal-cut HP degree lower bound/purity for every
+  minimal component. The preceding coefficient sum does not count lower-degree children.
