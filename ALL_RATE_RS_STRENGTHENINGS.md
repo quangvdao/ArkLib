@@ -2,6 +2,47 @@
 
 ## Active MCA implementation: September 5 restart
 
+### Second checkpoint: symbolic degrees, stages, and exact pair exceptions
+
+The all-rate transfer remains the critical path. Sharp concrete numerical constants
+are deferred. Keep the actual active derivative order and every individual exponent
+cap in the stage data; keep the agreement threshold `L` free. Each retained pair
+contributes at most `n - L` accidental challenges, not `n`.
+
+The second checkpoint adds the following proved interfaces:
+
+- `SymbolicTaylorHeight`, `SymbolicTaylorDegree`, and `SymbolicTaylorCutDegree`:
+  joint challenge/jet degree bounds for the actual symbolic recurrence and cuts,
+  derived from the source coefficient height and jet degree at a constant center.
+- `SymbolicTaylorCuts` and `SourceGraphRecognition`: actual regular Taylor points
+  with high-coefficient cuts and a common `k`-sample reconstruct one base-field pair,
+  uniformly in the challenge, with all `K` cleared coefficient identities.
+- `SymbolicSeparantChain`: an actual finite symbolic derivative chain, strictly
+  decreasing jet degrees, nonincreasing active orders, per-variable selection caps,
+  and uniform regular-stage coverage outside at most `h` terminal-obstruction roots.
+- `CorrelatedPairExceptionalSet`: one exceptional set for a finite retained pair
+  family, of size at most `pairs.card * (n - L)`, with equality of the full agreement
+  sets outside it. The single-pair bound retains `n - common.card`.
+
+Full smaller-gap MCA is **not yet proved**. The next dependency chain is component
+recognition (including all coefficient identities and the restricted separant),
+counting admissible pairs at one common scalar, excluded incidence in joint source
+space, and assembly over actual-order stages. Only then instantiate the all-rate
+parameters and transfer from lines to affine families. No completed capacity proof
+or decoder implementation needs replacing.
+
+The three current worktrees are `ArkLib-mca-degree-epoch2`,
+`ArkLib-mca-cuts-epoch2`, and `ArkLib-mca-descent-epoch2`; integration stays in
+`ArkLib-mca-integration-epoch1`. Each has separate writable build outputs.
+The chronological first-checkpoint record below remains useful background.
+
+Second-checkpoint validation: full `./scripts/validate.sh --axioms` passed,
+including source policy, warning budget, compiled runtime fixtures, import boundaries,
+and the certified axiom sweep (30,396 declarations across 1,081 modules; no new
+axiom or admission taint). Independent review covered degree/challenge retention,
+coefficient-height preservation, graph recognition, and the `n - L` bound. The
+parent also reviewed the actual symbolic descent and its uniform exceptional set.
+
 This section supersedes the historical worktree assignments below. The current
 base is checkpoint 1, `0dbbcd160468d441ce4d85e2b3528104137df819`: mathematical
 capacity lives in `CapacityList.lean`, separately from decoder execution.

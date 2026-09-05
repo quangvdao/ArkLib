@@ -115,10 +115,13 @@ private lemma accidentalPolynomial_ne_zero {F : Type*} [Field F] [DecidableEq F]
 
 private lemma accidentalPolynomial_natDegree_le {F : Type*} [Field F] [DecidableEq F] {n : ℕ}
     (domain : Fin n ↪ F) (f g : Fin n → F) (F₀ G₀ : F[X]) :
-    (accidentalPolynomial domain f g F₀ G₀).natDegree ≤ n := by
+    (accidentalPolynomial domain f g F₀ G₀).natDegree ≤
+      n - (commonPolynomialAgreementSet domain f g F₀ G₀).card := by
   apply (Polynomial.natDegree_prod_le _ _).trans
   calc
-    ∑ i, (accidentalFactor domain f g F₀ G₀ i).natDegree ≤ ∑ _i : Fin n, 1 := by
+    ∑ i, (accidentalFactor domain f g F₀ G₀ i).natDegree ≤
+        ∑ i : Fin n, if F₀.eval (domain i) = f i ∧ G₀.eval (domain i) = g i
+          then 0 else 1 := by
       apply Finset.sum_le_sum
       intro i _
       simp only [accidentalFactor]
@@ -126,15 +129,25 @@ private lemma accidentalPolynomial_natDegree_le {F : Type*} [Field F] [Decidable
       · simp
       · exact (Polynomial.natDegree_add_le _ _).trans <| by
           exact max_le (by simp) <| Polynomial.natDegree_mul_le.trans (by simp)
-    _ = n := by simp
+    _ = n - (commonPolynomialAgreementSet domain f g F₀ G₀).card := by
+      simp only [Finset.sum_ite, Finset.sum_const_zero, zero_add,
+        Finset.sum_const, smul_eq_mul, mul_one]
+      have h := Finset.card_filter_add_card_filter_not
+        (s := Finset.univ) (p := fun i : Fin n ↦
+          F₀.eval (domain i) = f i ∧ G₀.eval (domain i) = g i)
+      simp only [Finset.card_univ, Fintype.card_fin] at h
+      unfold commonPolynomialAgreementSet
+      omega
 
-/-- Outside at most `n` extension-field challenges, the full agreement set of a fixed
-affine polynomial is exactly the common agreement set of its two constituents. -/
+/-- Each position outside the common agreement set contributes at most one exceptional
+challenge. Outside their union, affine agreement equals common agreement exactly. -/
 theorem exists_exceptional_graphLine_challenges
     {F E : Type*} [Field F] [Field E] [DecidableEq F] [DecidableEq E]
     {n : ℕ} (domain : Fin n ↪ F)
     (f g : Fin n → F) (F₀ G₀ : F[X]) (iota : F →+* E) :
-    ∃ exceptional : Finset E, exceptional.card ≤ n ∧ ∀ z ∉ exceptional,
+    ∃ exceptional : Finset E,
+      exceptional.card ≤ n - (commonPolynomialAgreementSet domain f g F₀ G₀).card ∧
+      ∀ z ∉ exceptional,
       polynomialAgreementSet (mappedDomain domain iota)
           (fun i ↦ iota (f i) + z * iota (g i))
           (F₀.map iota + Polynomial.C z * G₀.map iota) =
@@ -153,7 +166,8 @@ theorem exists_exceptional_graphLine_challenges
         (Multiset.toFinset_card_le extensionAccidental.roots).trans
           (Polynomial.card_roots' extensionAccidental)
       _ ≤ baseAccidental.natDegree := Polynomial.natDegree_map_le
-      _ ≤ n := accidentalPolynomial_natDegree_le domain f g F₀ G₀
+      _ ≤ n - (commonPolynomialAgreementSet domain f g F₀ G₀).card :=
+        accidentalPolynomial_natDegree_le domain f g F₀ G₀
   · intro z hz
     have haccidentalEval : extensionAccidental.eval z ≠ 0 := by
       intro heval
@@ -207,7 +221,9 @@ theorem exists_graphLine_polynomials_and_exceptional_challenges
     exists_graphLine_polynomials_of_sample domain f g sample hsampleCard
   refine ⟨F₀, G₀, hF₀, hG₀, hsample, hrecognize, ?_⟩
   intro E _ _ iota
-  exact exists_exceptional_graphLine_challenges domain f g F₀ G₀ iota
+  obtain ⟨exceptional, hcard, hagree⟩ :=
+    exists_exceptional_graphLine_challenges domain f g F₀ G₀ iota
+  exact ⟨exceptional, hcard.trans (Nat.sub_le _ _), hagree⟩
 
 end
 
