@@ -246,6 +246,8 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.SimplexB
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.SimplexCantelli
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.SimplexMoments
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.SimplexVariance
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CenterShiftCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CenterShiftMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Counting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DerivativeDescent
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DerivativeDescentCanary
@@ -278,6 +280,8 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Residua
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSystemCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSystemMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSystemRefinement
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualZeroCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualZeroMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RootCount
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RootCountCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SampledResidual
@@ -362,8 +366,12 @@ import ArkLib.Data.Lattices.ModuleSIS
 import ArkLib.Data.Lattices.Vectors
 import ArkLib.Data.List.CartesianProductMachine
 import ArkLib.Data.List.CartesianProductMachineCanary
+import ArkLib.Data.List.PrefixAxesMachine
+import ArkLib.Data.List.PrefixAxesMachineCanary
 import ArkLib.Data.Matrix.AugmentedColumnMachine
 import ArkLib.Data.Matrix.AugmentedColumnMachineCanary
+import ArkLib.Data.Matrix.BackSubstitutionMachine
+import ArkLib.Data.Matrix.BackSubstitutionMachineCanary
 import ArkLib.Data.Matrix.Basic
 import ArkLib.Data.Matrix.ColumnEliminationMachine
 import ArkLib.Data.Matrix.ColumnEliminationMachineCanary
@@ -374,6 +382,7 @@ import ArkLib.Data.Matrix.PivotEliminationMachine
 import ArkLib.Data.Matrix.PivotEliminationMachineCanary
 import ArkLib.Data.Matrix.PivotSelectionMachine
 import ArkLib.Data.Matrix.PivotSelectionMachineCanary
+import ArkLib.Data.Matrix.PivotSolveMachine
 import ArkLib.Data.Matrix.RowReductionMachine
 import ArkLib.Data.Matrix.RowReductionMachineCanary
 import ArkLib.Data.Matrix.Sparse
