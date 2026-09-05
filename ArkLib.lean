@@ -191,7 +191,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.Contracts
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.DonorConstruction
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.DonorFiniteCertificate
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.DonorRateBins
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.HalfGapCorrelatedAgreement
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.InterpolantListBound
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.MutualAgreement
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.QuarterGapListBound
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.RateCover
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.UniformListBound
@@ -389,6 +391,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRo
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsSound
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorSupport
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeExtension
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeRootCount
@@ -791,9 +794,12 @@ import ArkLib.ToMathlib.Finset.ToListWithProof
 import ArkLib.ToMathlib.InformationTheory.Hamming
 import ArkLib.ToMathlib.LinearAlgebra.FiniteDimensional
 import ArkLib.ToMathlib.LinearAlgebra.Matrix.Determinant
+import ArkLib.ToMathlib.LinearAlgebra.PolynomialKernelHeight
+import ArkLib.ToMathlib.LinearAlgebra.PrimitivePolynomialKernel
 import ArkLib.ToMathlib.List.Basic
 import ArkLib.ToMathlib.MvPolynomial.FirstOrderTaylor
 import ArkLib.ToMathlib.MvPolynomial.PDeriv
+import ArkLib.ToMathlib.MvPolynomial.SupportWeight
 import ArkLib.ToMathlib.Polynomial.AevalXPow
 import ArkLib.ToMathlib.Polynomial.CompositionDegree
 import ArkLib.ToMathlib.Polynomial.DegreeLT

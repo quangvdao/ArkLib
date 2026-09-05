@@ -2,12 +2,14 @@
 
 ## Priority and acceptance boundary
 
-This is a deferred formalization track, not a change to the active decoder target.
-First finish and audit the **pre-strengthening Theorem 1.1**, including an actual
-decoder, exact output, both stated field-size regimes, and the cost of that same
-program. The current three decoder workers keep their assignments. No geometric
-lemma, stronger output bound, or correlated-agreement theorem is a prerequisite
-for that milestone. The central owner may plan this track while integrating decoder work.
+This track is active in parallel with the decoder, by Quang’s explicit authorization on
+September 4, 2026. The Astra/medium strengthening coordinator may use three bounded
+Sol/high workers with no further nesting. The current three decoder workers keep their
+assignments. All strengthening edits belong to the private `quang/rs-strengthenings`
+worktree, starting at `77ad3e8b12f5c0537f99aaba1d10511edd5e4e4f`; central owns
+the sole final integration branch `quang/all-rate-rs-capacity-formalization`.
+The pre-strengthening decoder theorem and its exact program cost remain separate
+obligations. No geometric result is a prerequisite for that decoder milestone.
 
 The decoder target is the manuscript at commit `26e8ea0` in the private
 `all-rate-rs-list-decoding` repository: `shared/main-theorem.tex` and
@@ -133,10 +135,11 @@ can land before the joint-envelope and correlated-agreement work.
 | U | Half-gap line theorem in every characteristic | H+ordinary polynomial root bounds/Vandermonde; independent of G through J. Prove V is nonzero, choose usable positions, and exclude accidental roots. This can be an early complete CA endpoint. |
 | P | `cor:affine-mutual-ca` and probability/MCA translation | L/C/U as appropriate; multivariate rational function field, coefficient independence, witness descent and induction. Preserve exact sets, not just existence of witnesses at one parameter tuple. |
 
-## Three-lane schedule after decoder completion
+## User-authorized parallel strengthening team
 
-Maintain the existing limit: three workers plus the central integrator, no nested
-agents. The rows below are dependency waves, not promised one-epoch completions.
+This team has three Sol/high workers plus its Astra/medium coordinator, with no worker
+nesting. It operates alongside, without redirecting, the existing decoder team.
+The rows below are dependency waves, not promised one-epoch completions.
 
 | Wave | Lane A | Lane B | Lane C | Central |
 |---|---|---|---|---|
@@ -203,3 +206,87 @@ incompatible meaning of correlated agreement.
 - Each checkpoint needs strict builds, source/import checks, principal axiom
   footprints and nonvacuous boundary tests. Final closure requires the repository
   full gate and an independent statement audit. No new axioms/admissions are allowed.
+
+## Active source reconciliation and ownership (September 4, 2026)
+
+The current `core/correlated-agreement.tex` SHA-256 is
+`2edc6d8dfce412b59b1579c5260d929aa78d2a57020c0a8ce34443eb6b6f18d2`.
+The geometric-list and symbolic-interpolation hashes above are unchanged.
+The revised affine proof uses `lem:line-affine-mca` (BCGM25 Lemma 7.1):
+exceptional cardinality at most `E_delta(n)*q^s/(q-1)`, probability at most
+`E_delta(n)/(q-1)`, independently of `s`; the line retains `E_delta(n)/q`.
+This implies the earlier `s*E_delta(n)*q^(s-1)` contract for `s>=2`, since
+`q/(q-1)<=2<=s`. The exact full-set equality follows from subset MCA and
+RS uniqueness on at least `k` positions. The former function-field induction P
+is superseded by this shorter route, not an additional prerequisite.
+
+Pinned ArkLib already proves the core reduction in
+`AffineMCALemmas.exists_line_bound` and
+`AffineMCAMain.isMCAGenerator_affineSpaceGenerator_of_affineLineGenerator`
+in `ProximityGenerator/AffineGenerator.lean`. Audit its axiom cone and reuse it.
+Do not reimplement this averaging/quotient argument.
+
+| Owner | Exclusive active scope | Acceptance |
+|---|---|---|
+| Kernel worker | New `ArkLib/ToMathlib/LinearAlgebra/PolynomialKernelHeight.lean` | Genuine coefficient-space kernel vector, first row-count bound, then fraction-field rank bound; no assumed kernel existence |
+| Half-gap worker | New `AllRateListDecoding/HalfGapCorrelatedAgreement.lean` | All-characteristic line endpoint, one finite set before all challenges and polynomials, cardinality `<=2n`, exact full-set equality |
+| Independent geometry auditor | Read-only G/I/B/F and source audit | Exact pinned declarations; smallest absent substantive prerequisite; no assumed degree structure |
+| Coordinator | This plan, `ALL_RATE_RS_STRENGTHENINGS_PROGRESS.md`; unclaimed substantive prerequisite selected after audit | Integrate and independently check worker evidence; coordinate shared edits and full builds |
+
+The shortest central route still requires concrete degree and proper-cut theory G,
+then rational image I together with rational lift R, root envelope V, and incidence A.
+Small-gap CA additionally requires joint/generic-fiber geometry B/F/J.
+The independent half-gap lane does not close these obligations.
+
+## Hard sprint cutoff (supersedes persistence instructions)
+
+Quang authorized a four-hour sprint starting September 5, 2026, 05:51:04 UTC.
+Stop new proof/implementation at **09:21:04 UTC** (02:21 Phoenix). Deliver verified
+commits and separately preserved unfinished work to central by **09:36 UTC**, then
+stop. The final deadline is **09:51:04 UTC** (02:51 Phoenix), with no extension or
+automatic continuation. Read the clock before new substantial objectives.
+The coordinator must confirm all three workers have stopped at freeze/end.
+The read-only geometry worker remains reserved for independent integration audit.
+
+Central owns the final 30 minutes for consolidation, validation, push, and report.
+The strengthening team must coordinate its full gate to avoid contention.
+
+## First verified proof frontier and shortened geometric route
+
+Targeted strict checks and independent source review have passed for H (including
+primitive coordinates and nonvanishing over arbitrary extensions), the unconditional
+all-characteristic U endpoint, and the canonical MCA-to-exact-set bridge. Full repository
+validation is running; these are not yet published integration checkpoints.
+The U theorem proves the slightly stronger integer threshold `A>=k+floor(n/2)`
+for `k>0` and `A<=n`, with one finite exceptional set of size at most `2n` before
+all challenges and close polynomials. Its odd-length surplus is `k`, not `k+1`;
+`k*height<=n` is sufficient.
+
+For the field-independent list bound, count directly on regular rational Taylor charts.
+A stage of jet degree v and highest active order r<=d starts on the principal-open
+hypersurface `T(a,u)=0, S(a,u)!=0` in r+1 initial coefficients. The rational map
+retains those coefficients, so is injective. Pull back high-coefficient equations
+`c_k=...=c_(K-1)=0` first, then pull back agreement equations. All have degree<=b.
+The potential `sum(deg(C)*b^dim(C))` is nonincreasing under a degree-b cut: a
+retained component costs nothing, and each proper cut has children with dimension
+at most dim(C)-1 and summed degree at most b*deg(C). Discard children lying entirely
+on the denominator-zero locus after **every** cut; they contain no requested points.
+Vandermonde uniqueness then excludes positive-dimensional retained sets supported
+on k agreement equations. Incidence induction yields the original v*b^r factor.
+Thus list counting can bypass rational-image closure I and the V envelope; it still
+requires actual refined Bezout, dimension drop, and finite component theory.
+
+The independent pin audit recommends a concrete filtered-Hilbert route to Bezout:
+finite total-degree pieces of polynomial quotients; eventual Hilbert polynomial;
+leading-term degree; proper principal-cut degree inequality and minimal-prime
+additivity. Mathlib has finite minimal primes, primary decomposition, principal
+ideal height, and homogeneous polynomial pieces, but lacks the required quotient
+Hilbert-polynomial/multiplicity stack. A fabricated degree-law structure is not an
+acceptable substitute.
+
+Current next owners: kernel worker owns a scratch `AffineHilbertFunction.lean`
+proving the actual finite filtered quotient principal-cut rank-nullity inequality;
+half-gap worker owns scratch `HalfGapMutualAgreement.lean` for pointwise line/affine
+MCA and full-set corollaries; coordinator owns Taylor residual evaluation and
+rational numerator-degree recurrence; independent auditor remains read-only.
+All scratch stays under `.lake/strengthening-wip` while the frozen full gate runs.
