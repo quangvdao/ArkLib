@@ -1127,9 +1127,9 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
-| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: compose lifting, residual acceptance and global-coordinate translation | `HiddenDerivative/RootFinding/RegularRootMachine.lean`, semantics/canary |
-| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: execute U rewriting and low-contact projection for a column | `HiddenDerivative/LocalColumnRewriteMachine.lean`, semantics/canary |
-| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: execute the mathematically highest active jet selector after normalization | `ArkLib/Data/MvPolynomial/HighestJetMachine.lean`, refinement/canary; `HiddenDerivative/RootFinding/HighestJetTransport.lean` |
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: enumerate, prepare and execute every initial jet at one supplied center | `HiddenDerivative/RootFinding/JetRootsMachine.lean`, semantics/canary and bounds if needed |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: assemble one received-point matrix block from support and local columns | `HiddenDerivative/InterpolationPointBlockMachine.lean`, semantics/canary |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: construct the ordered separant chain with charged selection and differentiation | `ArkLib/Data/MvPolynomial/SeparantChainMachine.lean`, bounds/canary; `HiddenDerivative/RootFinding/SeparantChainRefinement.lean` |
 | Central | Validate/integrate handoffs; implement canonical witness selection and whole-decoder joins | Output processing, witness selection, tracker and umbrella |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
@@ -1154,12 +1154,13 @@ kernel witness, not fewer rows than columns. The interpolation certificate contr
 the weaker row-count-only solver guarantee would not close this interface.
 
 The regular-lift loop (`548ea423`), translated column (`bec82693`) and dense normalization
-(`bdff0cc3`) are now integrated and validated. A loop survivor still needs the actual residual
-identity test. A translated column still needs the actual U rewrite and low-contact projection.
-Normalization supplies true nonzero coefficients, but does not by itself compute the highest jet.
+(`bdff0cc3`) are integrated and validated. The next integrated components execute the complete
+one-jet lift/check/translate pipeline (`e886c93d`), the U rewrite and low-contact projection
+(`69fd8e82`), and the normalized highest-jet selector (`b1a28708` plus wrapper-charge repair
+`cb25e564`). They are still components, not the closed decoder.
 
-Next composition edges are residual coefficients to direct regular lifting, support and local
-constraints to nonzero interpolants, chain witnesses to finite root enumeration, and exact
+Next composition edges are support and local constraints to nonzero interpolants, ordered
+separant chains and initial jets to finite root enumeration, and exact
 degree/agreement filtering to the public output. Field setup, scalar-operation lowering, and
 whole-program cost remain explicit obligations. No lane may replace any of these by a callback
 whose charged cost is assumed.
@@ -1169,17 +1170,33 @@ all generated candidates can double the derivative-dependent exponent. Use an ex
 sorting/indexing method or prove a canonical-witness acceptance rule; set notation alone does
 not supply an executable duplicate-free output algorithm.
 
-The selected implementation route is a **canonical witness guard**, still unproved. At stage
+The selected implementation route is a **canonical witness guard**, not yet fully composed. At stage
 `G_j` of the ordered separant chain, retain a root candidate only if all earlier `G_i(P)` vanish
 identically, and its center is the first enumerated point where the current separant specializes
 nonzero. This should make stage, center and initial jet unique for each output polynomial.
-Actual residual-zero and residual-sample programs can perform these tests, with an additional
+`ResidualWitnessMachine.global_witness_runFuel_correct` now proves the actual batch evaluator
+followed by a charged first-nonzero scan selects exactly the first nonzero global residual
+sample. Under the explicit degree and distinct-sample hypotheses, no witness is equivalent to
+the full differential identity. The ordered prefix characterization gives uniqueness of this
+center; it does not yet prove unique stage/jet enumeration or a duplicate-free output list.
+Actual residual-zero and ordered-witness programs can perform the full guard, with an additional
 field-cardinality factor and gap-only chain length, rather than squaring the candidate count.
 The chain identity, guard soundness/completeness, uniqueness, execution and cost must all be
 proved before this route replaces the duplicate-removal obligation.
 
 ### Integrated foundations and current handoffs
 
+- Latest fully validated batch: one-jet root execution (`e886c93d`), complete local rewriting
+  (`69fd8e82`), highest-jet selection (`b1a28708`, `cb25e564`) and central ordered residual search.
+  Full `validate.sh --axioms` passes: 653 umbrella imports, 512 source examples (+31),
+  183 admissions unchanged, 312 pre-existing tainted declarations and zero nonstandard/native
+  axioms. Central has read all source and canaries, corrected the missing normalization caller charge,
+  and added literal-charge kernel tests for rewriting. The selector's bound is now
+  `5*DenseNormalizeMachine.budget(m,L)+m*(13L+9)+9`, including every actual delegated wrapper.
+  Residual witness work is bounded by complete batch work plus `3*batchFuel+6*sampleCount+16`.
+  The rewrite uses a structured-recursion ledger with 32 units per bounded clause plus actual
+  callee charges. Lowering these component ledgers to a single closed primitive model remains
+  part of the final cost proof; these results do not certify Lean-compiled runtime or bit cost.
 - Regular lifting (`548ea423`), translated interpolation columns (`bec82693`), dense aggregation
   (`bdff0cc3`) and central quadratic-coordinate descent/acceptance pass the full canonical gate:
   640 umbrella imports, 481 source examples (+30), 183 admissions unchanged, 312 pre-existing

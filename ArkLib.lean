@@ -227,6 +227,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationSpace
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationSupportMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationSupportMachineCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.KernelSliceIndependence
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalColumnRewriteCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalColumnRewriteMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalColumnRewriteSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalColumnTranslationCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalColumnTranslationMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalColumnTranslationSemantics
@@ -266,6 +269,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Executa
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ExecutableRegularStep
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Extension
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ExtensionRootCount
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.HighestJetTransport
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetPrefix
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetPrefixCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetPreparationCanary
@@ -282,6 +286,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Regular
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularLiftSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularLifting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularLiftingCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularRootCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularRootMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularRootSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularWitnessCounting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualBatchCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualBatchMachine
@@ -294,6 +301,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Residua
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSystemCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSystemMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSystemRefinement
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualWitnessCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualWitnessMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualWitnessSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualZeroCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualZeroMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RootCount
@@ -421,6 +431,9 @@ import ArkLib.Data.MvPolynomial.EvaluationMachine
 import ArkLib.Data.MvPolynomial.EvaluationMachineCanary
 import ArkLib.Data.MvPolynomial.EvenAndOdd
 import ArkLib.Data.MvPolynomial.GridSampling
+import ArkLib.Data.MvPolynomial.HighestJetMachine
+import ArkLib.Data.MvPolynomial.HighestJetMachineCanary
+import ArkLib.Data.MvPolynomial.HighestJetRefinement
 import ArkLib.Data.MvPolynomial.Interpolation
 import ArkLib.Data.MvPolynomial.LinearMvExtension
 import ArkLib.Data.MvPolynomial.Multilinear
