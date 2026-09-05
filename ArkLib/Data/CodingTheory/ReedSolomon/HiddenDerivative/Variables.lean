@@ -22,7 +22,7 @@ The contact weight of `T^i E^b` is `i + d*b`.  The local anisotropic weight assi
 to zero-based `localY j`, matching weight `(j+1)-1` on the paper variable `Y_(j+1)`.
 
 The definitions rework the sound algebraic part of ArkLib commits `1b827589`, `71214c68`, and
-`d3370654`.  They deliberately use the donor-compatible `JetVariable` API from
+`d3370654`.  They deliberately use the `JetVariable` API from
 `HiddenDerivative.InterpolationSpace`, rather than reintroducing the incompatible inductive
 global-variable type from that earlier stack.  No theorem from the proof-hole-bearing merge
 commits `3feac154` or `07cf41c1` is used.

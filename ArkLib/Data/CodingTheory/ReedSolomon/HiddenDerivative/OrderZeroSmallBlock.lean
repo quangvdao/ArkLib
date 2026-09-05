@@ -23,8 +23,8 @@ open NonzeroInterpolationMachine
 
 /-- Every positive gap oversizes the length-one threshold for positive message dimension. -/
 theorem threshold_one_oversized (delta : ℝ) (hdelta : 0 < delta) (k A : ℕ) (hk : 0 < k)
-    (hA : AllRateListDecoding.agreementThreshold delta 1 k ≤ A) : 1 < A := by
-  have h := (AllRateListDecoding.agreementThreshold_le_iff_real hdelta.le 1 k A).mp hA
+    (hA : ReedSolomon.agreementThreshold delta 1 k ≤ A) : 1 < A := by
+  have h := (ReedSolomon.agreementThreshold_le_iff_real hdelta.le 1 k A).mp hA
   have hkR : (1 : ℝ) ≤ k := by exact_mod_cast hk
   have hgt : (1 : ℝ) < A := by push_cast at h; nlinarith
   exact_mod_cast hgt
@@ -32,15 +32,15 @@ theorem threshold_one_oversized (delta : ℝ) (hdelta : 0 < delta) (k A : ℕ) (
 /-- The exact length-one agreement set is empty, so its outer branch may return an empty list. -/
 theorem agreeing_one_empty {F : Type*} [Field F] [DecidableEq F]
     (delta : ℝ) (hdelta : 0 < delta) (k A : ℕ) (hk : 0 < k)
-    (hA : AllRateListDecoding.agreementThreshold delta 1 k ≤ A)
+    (hA : ReedSolomon.agreementThreshold delta 1 k ≤ A)
     (domain : Fin 1 ↪ F) (received : Fin 1 → F) :
-    AllRateListDecoding.agreeingPolynomials domain k A received = ∅ := by
-  exact AllRateListDecoding.agreeingPolynomials_eq_empty_of_card_lt
+    ReedSolomon.agreeingPolynomials domain k A received = ∅ := by
+  exact ReedSolomon.agreeingPolynomials_eq_empty_of_card_lt
     (by simpa using threshold_one_oversized delta hdelta k A hk hA) received
 
 /-- The exact integer quarter-gap threshold at length two is at least k+1. -/
 theorem threshold_two_successor (delta : ℝ) (hdelta : (1 / 4 : ℝ) ≤ delta)
-    (k A : ℕ) (hA : AllRateListDecoding.agreementThreshold delta 2 k ≤ A) : k + 1 ≤ A := by
+    (k A : ℕ) (hA : ReedSolomon.agreementThreshold delta 2 k ≤ A) : k + 1 ≤ A := by
   have h := zero_threshold_quarter delta hdelta 2 k A hA
   have hgt : (k : ℝ) < A := by push_cast at h; linarith
   have hn : k < A := by exact_mod_cast hgt
@@ -60,7 +60,7 @@ variable {F : Type*} [Field F] [DecidableEq F]
 
 /-- The actual length-two direct attempt has full certification and returned-polynomial bounds. -/
 theorem two_attempt (delta : ℝ) (hdelta : (1 / 4 : ℝ) ≤ delta) (k A : ℕ) (hk : 0 < k)
-    (hA : AllRateListDecoding.agreementThreshold delta 2 k ≤ A) (centers values : Fin 2 → F) :
+    (hA : ReedSolomon.agreementThreshold delta 2 k ≤ A) (centers values : Fin 2 → F) :
     let D := k - 1
     let received := List.ofFn (fun i ↦ (centers i, values i))
     ∃ out c, run D 0 1 A received = (some out, c) ∧ Certified (d := 0) D 1 A received out ∧
@@ -81,7 +81,7 @@ theorem two_attempt (delta : ℝ) (hdelta : (1 / 4 : ℝ) ≤ delta) (k A : ℕ)
 
 /-- Length-two returned output is below characteristic when the characteristic is at least two. -/
 theorem two_attempt_characteristic (delta : ℝ) (hdelta : (1 / 4 : ℝ) ≤ delta)
-    (k A : ℕ) (hk : 0 < k) (hA : AllRateListDecoding.agreementThreshold delta 2 k ≤ A)
+    (k A : ℕ) (hk : 0 < k) (hA : ReedSolomon.agreementThreshold delta 2 k ≤ A)
     (hchar : 2 ≤ ringChar F) (centers values : Fin 2 → F) :
     let D := k - 1
     let received := List.ofFn (fun i ↦ (centers i, values i))

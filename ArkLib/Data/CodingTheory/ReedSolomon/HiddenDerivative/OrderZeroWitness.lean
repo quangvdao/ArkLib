@@ -180,7 +180,7 @@ theorem eligible_zero_jetDegree (D m A : ℕ) (Q : DifferentialPolynomial F 0) (
 Half-length multiplicity preserves the jet cap 2m≤n needed by the existing root pipeline. -/
 theorem exists_quarter_zero_witness (delta : ℝ) (hdelta : (1 / 4 : ℝ) ≤ delta)
     (n k A : ℕ) (hn : 3 ≤ n) (hk : 0 < k)
-    (hA : AllRateListDecoding.agreementThreshold delta n k ≤ A) (centers values : Fin n → F) :
+    (hA : ReedSolomon.agreementThreshold delta n k ≤ A) (centers values : Fin n → F) :
     let D := k - 1
     let m := n / 2
     ∃ Q : DifferentialPolynomial F 0, Q ≠ 0 ∧ NonzeroInterpolationMachine.Eligible D m A Q ∧
@@ -208,7 +208,7 @@ theorem eligible_zero_characteristic (D m A : ℕ) (Q : DifferentialPolynomial F
 This is deliberately a characteristic bound, not a field-cardinality bound for extension fields. -/
 theorem exists_quarter_zero_witness_characteristic (delta : ℝ)
     (hdelta : (1 / 4 : ℝ) ≤ delta) (n k A : ℕ) (hn : 3 ≤ n) (hk : 0 < k)
-    (hA : AllRateListDecoding.agreementThreshold delta n k ≤ A) (hchar : n ≤ ringChar F)
+    (hA : ReedSolomon.agreementThreshold delta n k ≤ A) (hchar : n ≤ ringChar F)
     (centers values : Fin n → F) :
     let D := k - 1
     let m := n / 2

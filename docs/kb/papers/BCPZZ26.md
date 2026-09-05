@@ -26,8 +26,9 @@ Their published theorem specializes the method to the low-rate regime.
 ## Main ArkLib Touchpoints
 
 - `ArkLib/Data/CodingTheory/ReedSolomon/HiddenDerivative/`
-- `ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/`
-- `ALL_RATE_RS_FORMALIZATION.md`
+- `ArkLib/Data/CodingTheory/ReedSolomon/ListDecoding/Capacity/`
+- `ArkLib/Data/CodingTheory/ReedSolomon/ListDecoding/Capacity.lean`
+- `ArkLib/Data/CodingTheory/ReedSolomon/ListDecoding/CapacityDecoder.lean`
 
 ## Known Divergences From ArkLib
 
@@ -37,7 +38,11 @@ capacity gap.
 
 ## Open Formalization Gaps
 
-See the active work packages in `ALL_RATE_RS_FORMALIZATION.md`.
+`ListDecoding/Capacity.lean` gives the mathematical exact-list theorem. `CapacityDecoder.lean`
+connects the executable decoder's output and primitive-work ledger. Restricted-machine
+execution and its cost bound remain under development in the
+[algebraic-machine plan](../../design/rs-algebraic-machine-plan.md); these claims should not
+be conflated with the list-size bound or a bit-time theorem.
 
 ## Source Access
 

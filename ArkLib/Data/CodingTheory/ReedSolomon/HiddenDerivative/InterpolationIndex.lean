@@ -137,7 +137,7 @@ theorem exactInterpolationMonomialWeight_eq (D : ℕ) (u : JetVariable d →₀ 
   simp [exactInterpolationMonomialWeight, Finsupp.weight_apply,
     Finsupp.sum_fintype, Fintype.sum_option, differentialWeight, mul_comm]
 
-/-- The exact paper weight is bounded by the donor space's coarser weight, which charges every
+/-- The exact weight is bounded by the coarse interpolation weight, which charges every
 jet variable by `D`. -/
 theorem exactInterpolationMonomialWeight_le_coarse (D : ℕ)
     (u : JetVariable d →₀ ℕ) :
@@ -261,7 +261,7 @@ theorem mem_exactInterpolationExponents {hdD : d < D} {u : JetVariable d →₀ 
       ExactInterpolationEligibleExponent D A d m M W u := by
   simp [exactInterpolationExponents, exactInterpolationExponentSet]
 
-/-- Every exponent from the landed donor's coarse support belongs to the exact cap-free support.
+/-- Every exponent from the landed source's coarse support belongs to the exact cap-free support.
 The ambient dimension is written `D+1`, so its coarse jet weight is exactly `D`. -/
 theorem GlobalEligibleExponent.toExactInterpolationEligibleExponent
     {B C : ℕ} {u : JetVariable d →₀ ℕ}
@@ -291,7 +291,7 @@ theorem mem_exactInterpolationSpace_iff [CommSemiring F] {hdD : d < D}
   rw [exactInterpolationSpace, MvPolynomial.mem_restrictSupport_iff]
   simp only [Set.subset_def, Finset.mem_coe, mem_exactInterpolationExponents]
 
-/-- The donor's coarse support-first space embeds in the exact cap-free space.  This adapter lets
+/-- The source's coarse support-first space embeds in the exact cap-free space.  This adapter lets
 the already-landed rectangular lower bound feed the exact paper interface without identifying the
 two spaces. -/
 theorem interpolationSpace_le_exactInterpolationSpace [CommSemiring F]
@@ -433,7 +433,7 @@ theorem finrank_exactInterpolationSpace_eq_card [Field F] (hdD : d < D) :
   rw [Module.finrank_eq_card_basis b]
   exact Fintype.card_coe _
 
-/-- Finrank monotonicity across the donor-to-exact support embedding.  This is the precise part of
+/-- Finrank monotonicity across the source-to-exact support embedding.  This is the precise part of
 I0 already discharged by the landed F4 rectangular dimension argument. -/
 theorem finrank_interpolationSpace_le_exactInterpolationSpace [Field F]
     {B C : ℕ} (hdD : d < D) :

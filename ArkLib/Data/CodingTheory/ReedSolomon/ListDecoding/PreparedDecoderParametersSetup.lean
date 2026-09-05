@@ -21,7 +21,7 @@ A runtime proof for that improved regime remains separate; this theorem uses qua
 
 namespace ReedSolomon.ListDecoding.PreparedDecoderParameters
 
-open Polynomial JetHornerMachine HiddenDerivative AllRateListDecoding
+open Polynomial JetHornerMachine HiddenDerivative ReedSolomon
 
 /-- Actual prescribed search and setup supply every premise of exact prepared decoding.
 Both child ledgers and the prepared trace are retained, without a combined runtime-cost claim. -/

@@ -24,7 +24,7 @@ decoding. This result does not assert the unfinished bit-RAM refinement.
 
 namespace ReedSolomon.ListDecoding.CoordinateDecoderMachine
 
-open HiddenDerivative AllRateListDecoding QuadraticAlgebra
+open HiddenDerivative ReedSolomon QuadraticAlgebra
 open SeparateSampleFieldExecution (ExactOutput)
 
 variable {q : ℕ} [Fact q.Prime]

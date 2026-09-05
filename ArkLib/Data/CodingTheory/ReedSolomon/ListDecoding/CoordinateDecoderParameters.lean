@@ -25,7 +25,7 @@ These are primitive-work bounds, not the unfinished bit-cost refinement.
 
 namespace ReedSolomon.ListDecoding.CoordinateDecoderMachine
 
-open HiddenDerivative AllRateListDecoding QuadraticAlgebra
+open HiddenDerivative ReedSolomon QuadraticAlgebra
 open SeparateSampleFieldExecution (ExactOutput)
 
 /-- The parameter-only coordinate budget preserves the ordering of the two center regimes. -/

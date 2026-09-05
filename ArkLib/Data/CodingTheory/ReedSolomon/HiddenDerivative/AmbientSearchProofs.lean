@@ -22,7 +22,7 @@ namespace ReedSolomon.HiddenDerivative.AmbientSearchMachine
 noncomputable section
 
 open NonzeroInterpolationMachine (Certified attemptBudget)
-open AllRateListDecoding ListDecoding
+open ReedSolomon ListDecoding
 
 variable {F : Type*} [Field F] [DecidableEq F]
 

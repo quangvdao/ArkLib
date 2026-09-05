@@ -19,7 +19,7 @@ interpolation band.  A monomial of exact weight less than `m * A` has exponent a
 Thus every polynomial in `exactInterpolationSpace` satisfies the same coordinatewise bound.  In
 particular, all jet degrees lie below the characteristic once the coarser global floor
 `exactInterpolationJetDegreeFloor D A d m` does.  These consequences use only the exact weighted
-support predicate; they do not import the total-degree cap of the older donor space.
+support predicate; they do not import the total-degree cap of the coarse interpolation space.
 
 The coefficient-facing endpoints apply directly to `exactInterpolationPolynomial`, so a kernel
 vector in exact interpolation coordinates can be passed to the root-finding interface without

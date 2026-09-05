@@ -28,15 +28,17 @@ parameters, root bounds, endpoint analysis, and characteristic limitations.
 
 ## Main ArkLib Touchpoints
 
-- `ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/Contracts.lean`
+- `ArkLib/Data/CodingTheory/ReedSolomon/ListDecoding/Capacity/Basic.lean`
 - `ArkLib/Data/CodingTheory/ReedSolomon/HiddenDerivative/`
-- `ALL_RATE_RS_FORMALIZATION.md`
+- `ArkLib/Data/CodingTheory/ReedSolomon/ListDecoding/Capacity.lean`
+- `ArkLib/Data/CodingTheory/ReedSolomon/CorrelatedAgreement/Capacity.lean`
+- `ArkLib/Data/CodingTheory/ReedSolomon/CorrelatedAgreement/AffineCapacity.lean`
 
 ## Version Notes
 
 The formalization is synchronized to private manuscript commit
-`9e4d6488ead94be47cca69e5be915b5667143b66`. A later source change must reopen work package
-`S0.1` before new quantitative or refinement work starts.
+`9e4d6488ead94be47cca69e5be915b5667143b66`. Recheck source correspondence before using
+later manuscript changes for quantitative or refinement work.
 
 ## Known Divergences From ArkLib
 
@@ -45,7 +47,11 @@ are separate parameter packages layered over the stable qualitative proof interf
 
 ## Open Formalization Gaps
 
-See work packages `S0.1`, `O0-O6`, `C2`, and `N0-N2` in `ALL_RATE_RS_FORMALIZATION.md`.
+The qualitative all-rate line and affine MCA conclusions are proved in the modules above.
+Sharper MCA constants and low-order refinements are separate obligations. The executable
+machine and cost work remains tracked in the
+[algebraic-machine plan](../../design/rs-algebraic-machine-plan.md); the mathematical
+agreement theorems do not assert a running-time bound.
 
 ## Source Access
 

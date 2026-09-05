@@ -17,7 +17,7 @@ all rates at a fixed additive capacity gap.
 The definitions are adapted, with permission, from Kai Zhe Zheng's `rs-ld-mca` formalization at
 commit `9699ee7a6143f6efe1d8cfed84998a4f8c79c40f`. The free-order extension was contributed through
 PR 1 by Pratyush Mishra; its source commit records Codex as author and Pratyush Mishra as
-committer. The two assumed Kopparty theorems and the donor's `FieldCost` wrapper are deliberately
+committer. The two assumed Kopparty theorems and the source's `FieldCost` wrapper are deliberately
 not imported.
 
 ## Main definitions
@@ -75,7 +75,7 @@ def higherJetDegreeBudget (theta : ℝ) (d : ℕ) : ℕ :=
 def interpolationBoxWidth (theta : ℝ) (d : ℕ) : ℕ :=
   ⌊theta * (multiplicity d : ℝ) / 16⌋₊
 
-/-- The donor proof's coarse public list-size expression, retained only as parameter data.
+/-- The source proof's coarse public list-size expression, retained only as parameter data.
 
 This definition does not assert the Kopparty root-counting theorem needed to establish the bound.
 -/

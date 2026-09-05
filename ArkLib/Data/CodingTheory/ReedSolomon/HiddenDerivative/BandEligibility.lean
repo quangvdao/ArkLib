@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.NonzeroInterpolationBasis
-import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.AsymmetricBandListBound
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.Capacity.AsymmetricBand
 
 /-!
 # Retained band witnesses satisfy the executable strict support
@@ -20,7 +20,7 @@ namespace ReedSolomon.HiddenDerivative
 
 noncomputable section
 
-open AllRateListDecoding ListDecoding
+open ReedSolomon ListDecoding
 open scoped BigOperators
 
 variable {F : Type*} [Field F]

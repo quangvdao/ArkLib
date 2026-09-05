@@ -17,10 +17,10 @@ specialization degree strictly below `m * A` at every polynomial of degree at mo
 The exact support predicate and its `(1, D, D - 1, ..., D - d)` weighted-degree consequence are
 proved in `InterpolationIndex.lean`.  The generic specialization estimate is proved in
 `RootFinding/SpecializationDegree.lean`; that proof is the coefficient-ring-general form of the
-authorized `kz99/rs-ld-mca` donor argument in
+authorized `kz99/rs-ld-mca` source argument in
 `RSListDecoding/Lemmas/GlobalBudgets.lean`, at commit
 `9699ee7a6143f6efe1d8cfed84998a4f8c79c40f`.  The two integration theorems below are
-ArkLib-specific adapters, not a further donor port.
+ArkLib-specific adapters, not a further source port.
 -/
 
 namespace ReedSolomon.HiddenDerivative

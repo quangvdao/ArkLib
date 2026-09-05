@@ -4,7 +4,7 @@ Status: project-owner attestation recorded; direct grant evidence and license te
 
 Record created: 2026-09-04
 
-Last updated: 2026-09-04
+Last updated: 2026-09-05
 
 ## Purpose
 
@@ -26,11 +26,16 @@ The antecedent of "they" was "one of the authors" of the partial formalization a
 received. The underlying message or other direct evidence from the grantor has not yet been
 archived in this repository.
 
+On 2026-09-05, Quang Dao further identified the grantor as his coauthor Kai Zhe Zheng
+(`kz99`) and confirmed that he had given full approval for seamless integration into ArkLib.
+Quang specifically authorized replacing provenance-based names such as `Donor` with intrinsic
+mathematical names while retaining authorship credit. This is an additional project-owner
+attestation; it does not replace the original grant message, which is not archived here.
+
 The attestation is currently understood to authorize adapting the source formalization for this
 Reed-Solomon list-decoding formalization, subject to explicit credit. It does **not**, by itself,
 establish any of the following:
 
-- the identity of the person who granted permission;
 - the date, medium, or exact wording of the original grant;
 - a blanket public software license for the source repository;
 - permission to relicense the donor source under Apache-2.0;
@@ -73,7 +78,7 @@ the adapted surface at that integration point.
 | `RSListDecoding/Lemmas/FreeParameters.lean`, `FreeRankThreshold.lean`, and related free-order estimates | [`Parameters/FreeOrder.lean`](../../../../ArkLib/Data/CodingTheory/ReedSolomon/HiddenDerivative/Parameters/FreeOrder.lean) | Kai Zhe Zheng and Pratyush Mishra |
 | `RSListDecoding/Lemmas/ScopedGlobalDimension.lean` and its free-order analogue | [`ScopedGlobalDimension.lean`](../../../../ArkLib/Data/CodingTheory/ReedSolomon/HiddenDerivative/ScopedGlobalDimension.lean) | Kai Zhe Zheng and Pratyush Mishra |
 
-[`DonorPortCanary.lean`](../../../../ArkLib/Data/CodingTheory/ReedSolomon/HiddenDerivative/DonorPortCanary.lean)
+[`FreeOrderDimensionCanary.lean`](../../../../ArkLib/Data/CodingTheory/ReedSolomon/HiddenDerivative/Interpolation/FreeOrderDimensionCanary.lean)
 is ArkLib-specific validation of the port rather than adapted donor material.
 
 Each adapted file names its contributors, source repository, and pinned source commit in its
@@ -88,12 +93,12 @@ Subsequent adaptations, from the same pinned donor revision `9699ee7...`, are re
 | `RSListDecoding/Lemmas/Contact.lean` | [`LocalContact.lean`](../../../../ArkLib/Data/CodingTheory/ReedSolomon/HiddenDerivative/LocalContact.lean) | `c88abc18` | Kai Zhe Zheng and Quang Dao; monomial divisibility adapted and composed with ArkLib's canonical specialization |
 | Translation-support argument in `RSListDecoding/Lemmas/ConstraintFactorization.lean` | [`LocalIntermediateSpace.lean`](../../../../ArkLib/Data/CodingTheory/ReedSolomon/HiddenDerivative/LocalIntermediateSpace.lean) | `0004a411`, lint repair `30ce14a6` | Kai Zhe Zheng, Quang Dao, and Justin Thaler; exact finite coordinate and kernel interfaces are new |
 | Signed support-weight helpers, via the preceding `LocalIntermediateSpace.lean` adaptation | [`AsymmetricBandLocalRank.lean`](../../../../ArkLib/Data/CodingTheory/ReedSolomon/HiddenDerivative/AsymmetricBandLocalRank.lean) | `73b968e4` (source `3ce3fcf2`) | Kai Zhe Zheng credited for the inherited support argument; asymmetric-band inequalities and coordinate rank bound are new |
-| `RSListDecoding/Defs/ScaledLattice.lean` and `RSListDecoding/Lemmas/ScaledLattice.lean` | [`Parameters/DonorScaledLattice.lean`](../../../../ArkLib/Data/CodingTheory/ReedSolomon/HiddenDerivative/Parameters/DonorScaledLattice.lean) | `2da2d754`, documentation `c59c3bc8` | Kai Zhe Zheng, Pratyush Mishra, and Quang Dao |
-| `RSListDecoding/Lemmas/ScaledShellDiscrete.lean` | [`Parameters/DonorShellDiscrete.lean`](../../../../ArkLib/Data/CodingTheory/ReedSolomon/HiddenDerivative/Parameters/DonorShellDiscrete.lean) | `c59c3bc8` | Kai Zhe Zheng, Pratyush Mishra, and Quang Dao |
-| `RSListDecoding/Lemmas/ScaledShell.lean` | [`Parameters/DonorLattice.lean`](../../../../ArkLib/Data/CodingTheory/ReedSolomon/HiddenDerivative/Parameters/DonorLattice.lean) | `c59c3bc8`, comment `ad5ca87b` | Kai Zhe Zheng, Pratyush Mishra, and Quang Dao |
-| Scalar comparison in `RSListDecoding/Lemmas/RankArithmetic.lean` and cancellation in `RSListDecoding/Lemmas/DimensionComparison.lean` | [`DonorInterpolationBridge.lean`](../../../../ArkLib/Data/CodingTheory/ReedSolomon/HiddenDerivative/DonorInterpolationBridge.lean) | `301597fb` | Kai Zhe Zheng, Pratyush Mishra, and Quang Dao; the certified-kernel residual arithmetic is ArkLib-specific |
+| `RSListDecoding/Defs/ScaledLattice.lean` and `RSListDecoding/Lemmas/ScaledLattice.lean` | [`Parameters/ScaledLattice.lean`](../../../../ArkLib/Data/CodingTheory/ReedSolomon/HiddenDerivative/Parameters/ScaledLattice.lean) | `2da2d754`, documentation `c59c3bc8` | Kai Zhe Zheng, Pratyush Mishra, and Quang Dao |
+| `RSListDecoding/Lemmas/ScaledShellDiscrete.lean` | [`Parameters/ScaledShellDiscrete.lean`](../../../../ArkLib/Data/CodingTheory/ReedSolomon/HiddenDerivative/Parameters/ScaledShellDiscrete.lean) | `c59c3bc8` | Kai Zhe Zheng, Pratyush Mishra, and Quang Dao |
+| `RSListDecoding/Lemmas/ScaledShell.lean` | [`Parameters/RoundedScaledShell.lean`](../../../../ArkLib/Data/CodingTheory/ReedSolomon/HiddenDerivative/Parameters/RoundedScaledShell.lean) | `c59c3bc8`, comment `ad5ca87b` | Kai Zhe Zheng, Pratyush Mishra, and Quang Dao |
+| Scalar comparison in `RSListDecoding/Lemmas/RankArithmetic.lean` and cancellation in `RSListDecoding/Lemmas/DimensionComparison.lean` | [`Interpolation/FreeOrderDimension.lean`](../../../../ArkLib/Data/CodingTheory/ReedSolomon/HiddenDerivative/Interpolation/FreeOrderDimension.lean) | `301597fb` | Kai Zhe Zheng, Pratyush Mishra, and Quang Dao; the certified-kernel residual arithmetic is ArkLib-specific |
 
-[`DonorFiniteCertificate.lean`](../../../../ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/DonorFiniteCertificate.lean)
+[`RateBinDimensionBound.lean`](../../../../ArkLib/Data/CodingTheory/ReedSolomon/ListDecoding/Capacity/RateBinDimensionBound.lean)
 at `dab8a72c` is ArkLib-specific uniform finite-bin assembly consuming these estimates, not a
 further donor port. These adaptations do not import the donor's root-counting or runtime axioms.
 

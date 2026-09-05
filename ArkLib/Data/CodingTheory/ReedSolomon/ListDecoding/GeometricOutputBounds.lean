@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.GeometricListBound
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.Capacity.GeometricBound
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CapacityOutputBounds
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CoordinateCapacityExecution
 
@@ -28,7 +28,7 @@ still obeys its previously proved field-dependent estimate. Full bit complexity 
 
 namespace ReedSolomon.ListDecoding.GeometricOutputBounds
 
-open Polynomial JetHornerMachine SeparateSampleFieldExecution AllRateListDecoding
+open Polynomial JetHornerMachine SeparateSampleFieldExecution ReedSolomon
 
 variable {F : Type*} [Field F] {n k A : ℕ}
 

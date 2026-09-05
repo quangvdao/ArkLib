@@ -65,7 +65,7 @@ theorem direct_of_witness (D m A : ℕ) (received : List (F × F))
 No real parameter, witness polynomial or returned size is an input to the runtime or its budget. -/
 theorem quarter_attempt (delta : ℝ) (hdelta : (1 / 4 : ℝ) ≤ delta)
     (n k A : ℕ) (hn : 3 ≤ n) (hk : 0 < k)
-    (hA : AllRateListDecoding.agreementThreshold delta n k ≤ A) (centers values : Fin n → F) :
+    (hA : ReedSolomon.agreementThreshold delta n k ≤ A) (centers values : Fin n → F) :
     let D := k - 1
     let m := n / 2
     let received := List.ofFn (fun i ↦ (centers i, values i))
@@ -84,7 +84,7 @@ theorem quarter_attempt (delta : ℝ) (hdelta : (1 / 4 : ℝ) ≤ delta)
 The hypothesis is about ring characteristic, so extension-field cardinality is not substituted. -/
 theorem quarter_attempt_characteristic (delta : ℝ) (hdelta : (1 / 4 : ℝ) ≤ delta)
     (n k A : ℕ) (hn : 3 ≤ n) (hk : 0 < k)
-    (hA : AllRateListDecoding.agreementThreshold delta n k ≤ A) (hchar : n ≤ ringChar F)
+    (hA : ReedSolomon.agreementThreshold delta n k ≤ A) (hchar : n ≤ ringChar F)
     (centers values : Fin n → F) :
     let D := k - 1
     let m := n / 2

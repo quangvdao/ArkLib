@@ -321,6 +321,18 @@ home_page/            site assets and assembled website root
   `ArkLib/Data/CodingTheory/ReedSolomon.lean`, and the folded/interleaved/multiplicity/multilinear
   variants under `ArkLib/Data/CodingTheory/ReedSolomon/` (see
   [coding-theory-conventions.md](coding-theory-conventions.md)).
+- Decoding regimes have distinct mathematical owners: unique decoding in
+  `Data/CodingTheory/BerlekampWelch`, Johnson-radius interpolation in `GuruswamiSudan`,
+  and capacity list bounds in `ReedSolomon/ListDecoding/Capacity.lean` and its subfolder.
+  `ReedSolomon/ListDecoding/CapacityDecoder.lean` is the separate executable endpoint.
+  Shared hidden-derivative symbolic interpolation lives in
+  `ReedSolomon/HiddenDerivative/Interpolation`, not under a list or MCA theorem.
+- Capacity mutual correlated agreement lives in `ReedSolomon/CorrelatedAgreement/Capacity.lean`
+  and `AffineCapacity.lean`; their module comments explain how to read the statements.
+  Unique-decoding and Johnson-range CA/MCA results remain in `ProximityGap`, including
+  `CapacityBounds/UniqueDecoding`, `JohnsonCa`, and `JohnsonMca`. Check each declaration's
+  assumptions and axiom dependencies: directory membership does not assert completeness,
+  and a list-size bound is not itself an MCA bound.
 - **Two different "folds" coexist and must not be confused.** GR08 *alphabet-enlarging* folding —
   a codeword symbol packs `(f̂(x), f̂(xω), …, f̂(xω^{s-1}))`, the degree bound is unchanged, and the
   code lives in `ι → Fin s → F` — is `ArkLib/Data/CodingTheory/ReedSolomon/Folded.lean`. The

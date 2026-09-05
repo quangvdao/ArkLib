@@ -16,8 +16,8 @@ differential root counting.  If `P` has degree at most `D`, substituting
 larger than the weight that assigns `1` to `X` and `D - j` to `Y_j`.
 
 The proof is the coefficient-field-general form of the argument in the authorized
-`kz99/rs-ld-mca` donor file `RSListDecoding/Lemmas/GlobalBudgets.lean`, pinned in the project
-provenance record.  It is included here from first principles rather than relying on the donor's
+`kz99/rs-ld-mca` source file `RSListDecoding/Lemmas/GlobalBudgets.lean`, pinned in the project
+provenance record.  It is included here from first principles rather than relying on the source's
 prime-field-specific statement.
 -/
 

@@ -139,7 +139,7 @@ theorem zero_count_surplus_nat (n k A : ℕ) (hn : 3 ≤ n) (hk : 0 < k)
 A local image/rank bound is still required to turn this count into an actual witness. -/
 theorem zero_quarter_columns (delta : ℝ) (hdelta : (1 / 4 : ℝ) ≤ delta)
     (n k A : ℕ) (hn : 3 ≤ n) (hk : 0 < k)
-    (hA : AllRateListDecoding.agreementThreshold delta n k ≤ A) :
+    (hA : ReedSolomon.agreementThreshold delta n k ≤ A) :
     0 < n / 2 ∧ 2 * (n / 2) ≤ n ∧
       n * ((n / 2) * (n / 2 + 1) / 2) <
         Fintype.card (ZeroInterpolationIndex (k - 1) (n / 2) A) := by

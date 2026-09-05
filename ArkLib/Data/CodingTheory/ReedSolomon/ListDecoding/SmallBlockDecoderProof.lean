@@ -126,7 +126,7 @@ theorem oversized_exact {n k A : ℕ} (domain : Fin n ↪ F) (received : Fin n �
 
 /-- A positive gap at length one always executes the charged empty branch. -/
 theorem one_exact (delta : ℝ) (hdelta : 0 < delta) (k A : ℕ) (hk : 0 < k)
-    (hA : AllRateListDecoding.agreementThreshold delta 1 k ≤ A)
+    (hA : ReedSolomon.agreementThreshold delta 1 k ≤ A)
     (domain : Fin 1 ↪ F) (received : Fin 1 → F) : CertifiedRun domain received k A := by
   exact oversized_exact domain received
     (HiddenDerivative.OrderZeroDecoderCertificate.threshold_one_oversized delta hdelta k A hk hA)
@@ -134,7 +134,7 @@ theorem one_exact (delta : ℝ) (hdelta : 0 < delta) (k A : ℕ) (hk : 0 < k)
 /-- At length two the feasible quarter-gap branch is exactly a constant with two agreements.
 This theorem uses no characteristic or nonsquare premise, so it includes the binary field. -/
 theorem two_quarter_exact (delta : ℝ) (hdelta : (1 / 4 : ℝ) ≤ delta) (k A : ℕ)
-    (hk : 0 < k) (hA : AllRateListDecoding.agreementThreshold delta 2 k ≤ A)
+    (hk : 0 < k) (hA : ReedSolomon.agreementThreshold delta 2 k ≤ A)
     (domain : Fin 2 ↪ F) (received : Fin 2 → F) : CertifiedRun domain received k A := by
   by_cases hos : 2 < A
   · exact oversized_exact domain received hos

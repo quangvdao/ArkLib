@@ -18,7 +18,7 @@ weights.
 
 The definitions and proofs are adapted, with permission, from Kai Zhe Zheng's `rs-ld-mca`
 formalization at commit `9699ee7a6143f6efe1d8cfed84998a4f8c79c40f`. The coefficient ring is made
-generic here; the donor stated the space over `ZMod q`.
+generic here; the source stated the space over `ZMod q`.
 
 ## Variable convention
 

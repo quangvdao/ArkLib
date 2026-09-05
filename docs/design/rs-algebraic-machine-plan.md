@@ -13,9 +13,9 @@ Do not make binary arithmetic or a Turing-machine backend a prerequisite.
 
 ## What is already proved, and what this revision adds
 
-[CapacityList.lean](../../ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/CapacityList.lean)
+[ListDecoding/Capacity.lean](../../ArkLib/Data/CodingTheory/ReedSolomon/ListDecoding/Capacity.lean)
 owns the exact-list existence theorem.
-[Capacity.lean](../../ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/Capacity.lean)
+[Capacity.lean](../../ArkLib/Data/CodingTheory/ReedSolomon/ListDecoding/CapacityDecoder.lean)
 owns `capacity_decoder_exact_output_and_primitive_work`, which connects the
 actual coordinate decoder's output to the specification and bounds its returned
 primitive-work ledger. These proofs remain useful.
@@ -49,7 +49,7 @@ Small algebraic machine → routine realization and cost proofs ─┤  │
 ```
 
 Keep the paper-facing full theorem in `Capacity.lean`. Give its purely
-mathematical list theorem a lightweight owner module, `CapacityList.lean`.
+mathematical list theorem a lightweight owner module, `ListDecoding/Capacity.lean`.
 The full capstone is deliberately allowed to import both
 sides; MCA development should import the mathematical owner, not the capstone.
 
@@ -67,7 +67,7 @@ callers directly: no compatibility aliases or forwarding modules remain.
 | --- | --- | --- |
 | `SymbolicReceivedInterpolation` imported `LocalColumnTranslationSemantics` for `LocalColumnTranslationMachine.sourceColumn` | Own the definition as `HiddenDerivative.sourceMonomial` in `HiddenDerivative/SourceMonomial.lean`; import it and `LocalConstraintMap` directly from symbolic interpolation | Mathematical consumers no longer import column execution; original semantics still compiles |
 | `TaylorAllSolutions` and `GeometricBandParameters` import `SeparantChainRefinement` for `jetDegree_le_total` and `separant_total_le` | Put those two purely mathematical lemmas in existing `TotalJetDegreeRootCount.lean`; update consumers | Taylor, characteristic-zero Taylor, and geometric bounds no longer import sparse execution through these lemmas |
-| `Capacity.lean` combined pure lists and execution | Own the pure public statement in `AllRateListDecoding/CapacityList.lean`; leave full assembly in `Capacity.lean` | Same theorem type, lightweight mathematical import path |
+| `Capacity.lean` combined pure lists and execution | Own the pure public statement in `ReedSolomon/ListDecoding/Capacity.lean`; leave execution in `ListDecoding/CapacityDecoder.lean` | Same theorem type, lightweight mathematical import path |
 
 Use intrinsic mathematical names in the new owner modules and update every
 caller in the integration patch. The degree lemmas now live directly in
@@ -243,10 +243,10 @@ Do not launch these workers merely because this planning document exists.
 ## Ownership alongside the MCA orchestrator
 
 The MCA orchestrator owns symbolic interpolation, rational Taylor geometry,
-field-independent list mathematics, and the unfinished full MCA argument in
-[the strengthening frontier](../../ALL_RATE_RS_STRENGTHENINGS_FRONTIER.md).
-That includes challenge-dependent Taylor charts, image/generic-fiber bounds,
-incidence accounting, exceptional challenges, and remaining small dimensions.
+field-independent list mathematics, and the qualitative MCA theorems in
+[`CorrelatedAgreement/Capacity.lean`](../../ArkLib/Data/CodingTheory/ReedSolomon/CorrelatedAgreement/Capacity.lean)
+and [`CorrelatedAgreement/AffineCapacity.lean`](../../ArkLib/Data/CodingTheory/ReedSolomon/CorrelatedAgreement/AffineCapacity.lean).
+The qualitative MCA argument is complete; sharper quantitative refinements remain separate.
 It does not wait for the algorithmic machine.
 
 The algorithm orchestrator owns executable routines, machine semantics, cost

@@ -27,7 +27,7 @@ theorem quarter_run_exact {q n k A : ℕ} [Fact q.Prime]
     (delta : ℝ) (hdelta : (1 / 4 : ℝ) ≤ delta)
     (domain : Fin n ↪ ZMod q) (received : Fin n → ZMod q)
     (hn : 3 ≤ n) (hk : 0 < k) (hkn : k ≤ n) (hnq : n ≤ q)
-    (hA : AllRateListDecoding.agreementThreshold delta n k ≤ A)
+    (hA : ReedSolomon.agreementThreshold delta n k ≤ A)
     (hL : (n / 2) * A ≤ q ^ 2) :
     let L := (n / 2) * A
     ∃ (a : ZMod q) (data : QuadraticAlgebra.SetupMachine.Prepared q a)
@@ -79,7 +79,7 @@ theorem quarter_run_exact_of_le_blockLength {q n k A : ℕ} [Fact q.Prime]
     (delta : ℝ) (hdelta : (1 / 4 : ℝ) ≤ delta)
     (domain : Fin n ↪ ZMod q) (received : Fin n → ZMod q)
     (hn : 3 ≤ n) (hk : 0 < k) (hkn : k ≤ n) (hnq : n ≤ q)
-    (hA : AllRateListDecoding.agreementThreshold delta n k ≤ A)
+    (hA : ReedSolomon.agreementThreshold delta n k ≤ A)
     (hAn : A ≤ n) :
     let L := (n / 2) * A
     ∃ (a : ZMod q) (data : QuadraticAlgebra.SetupMachine.Prepared q a)

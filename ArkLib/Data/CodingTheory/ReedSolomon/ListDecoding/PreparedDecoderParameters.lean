@@ -17,7 +17,7 @@ The integer sample count `m*A` fits the quadratic extension under the original `
 
 namespace ReedSolomon.ListDecoding.PreparedDecoderParameters
 
-open HiddenDerivative AllRateListDecoding
+open HiddenDerivative ReedSolomon
 
 variable {F : Type*} [Field F] [DecidableEq F]
 

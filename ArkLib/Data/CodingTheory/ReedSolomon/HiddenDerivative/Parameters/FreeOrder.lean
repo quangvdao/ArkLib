@@ -17,7 +17,7 @@ function of the agreement parameter. This file exposes that fact by proving the 
 estimates for an arbitrary positive order `d`.
 
 The proofs are adapted, with permission, from `rs-ld-mca` commit
-`9699ee7a6143f6efe1d8cfed84998a4f8c79c40f`. They exclude the donor's two Kopparty axioms and its
+`9699ee7a6143f6efe1d8cfed84998a4f8c79c40f`. They exclude the source's two Kopparty axioms and its
 non-executable cost wrapper. The rank-threshold theorem at the end is pointwise in
 `(epsilon, theta)`; it is not, by itself, the desired rate-uniform `d(delta)` theorem.
 -/
@@ -290,7 +290,7 @@ theorem exists_orderThreshold_for_boxWidth {theta : ℝ} (htheta : 0 < theta) :
   norm_num
   simpa [multiplicity] using hscaled
 
-/-- Positive exponent saved by the donor's rank comparison. -/
+/-- Positive exponent saved by the source's rank comparison. -/
 def rankSavingExponent (theta : ℝ) : ℝ :=
   2 * theta / (5 + theta)
 

@@ -24,7 +24,7 @@ primitive-work theorem for this same execution, not the unfinished bit-RAM compl
 
 namespace ReedSolomon.ListDecoding.CapacityDecoderMachine
 
-open HiddenDerivative AllRateListDecoding
+open HiddenDerivative ReedSolomon
 open SeparateSampleFieldExecution (ExactOutput)
 
 /-- A gap-dependent coefficient covering positive-order, order-zero and exceptional executions. -/

@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.AsymmetricBand
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.DonorScaledLattice
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.ScaledLattice
 import Mathlib.Algebra.BigOperators.Field
 import Mathlib.Analysis.SpecificLimits.Normed
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.DerivHyp

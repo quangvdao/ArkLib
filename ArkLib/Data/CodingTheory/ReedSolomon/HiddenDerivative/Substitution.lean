@@ -31,7 +31,7 @@ backward Taylor error and occurs as `T E`.  The normalized substitution addition
 
 The definitions rework the sound algebraic material from ArkLib commit `d3370654`, while exposing
 the intermediate `U` map needed by the later local-rank factorization.  The global variables are
-the donor-compatible `JetVariable` type; the old proof-hole-bearing merge stack is not imported.
+the `JetVariable` type; the old proof-hole-bearing merge stack is not imported.
 
 ## References
 

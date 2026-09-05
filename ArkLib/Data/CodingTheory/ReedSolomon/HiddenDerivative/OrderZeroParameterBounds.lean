@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.AgreementRadius
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.Capacity.Radius
 
 /-!
 # Characteristic-compatible order-zero parameter margins
@@ -16,7 +16,7 @@ not an interpolation witness or a decoder. The separate n=1,2 cases remain open 
 
 namespace ReedSolomon.HiddenDerivative
 
-open AllRateListDecoding
+open ReedSolomon
 
 /-- Half-length multiplicity is positive and keeps the strict 2m jet cap below any q≥n. -/
 theorem zero_multiplicity_bounds (n : ℕ) (hn : 3 ≤ n) :

@@ -5,8 +5,8 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleFieldExecution
-import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.AsymmetricBandListBound
-import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.QuarterGapListBound
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.Capacity.AsymmetricBand
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.Capacity.QuarterGap
 
 /-!
 # Capacity list bounds for the actual physical decoder output
@@ -20,7 +20,7 @@ results without importing the capacity capstone, which can import this bridge in
 
 namespace ReedSolomon.ListDecoding.CapacityOutputBounds
 
-open Polynomial JetHornerMachine SeparateSampleFieldExecution AllRateListDecoding
+open Polynomial JetHornerMachine SeparateSampleFieldExecution ReedSolomon
 
 variable {F : Type*} [Field F] [DecidableEq F] {n k A : ℕ}
 

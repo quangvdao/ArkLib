@@ -16,11 +16,13 @@ ROOT = Path(__file__).resolve().parent.parent
 LOCAL_LIBRARY = ROOT / ".lake/build/lib/lean"
 PREFIX = "ArkLib.Data.CodingTheory.ReedSolomon."
 ENTRY_POINTS = (
-    "AllRateListDecoding.CapacityList",
-    "AllRateListDecoding.SymbolicReceivedInterpolation",
+    "ListDecoding.Capacity",
+    "HiddenDerivative.Interpolation.Symbolic.ReceivedLine",
     "HiddenDerivative.RootFinding.TaylorAllSolutions",
     "HiddenDerivative.RootFinding.TaylorCharZeroSolutions",
-    "AllRateListDecoding.GeometricCodewordBound",
+    "ListDecoding.Capacity.CodewordBound",
+    "CorrelatedAgreement.Capacity",
+    "CorrelatedAgreement.AffineCapacity",
 )
 
 
@@ -43,7 +45,8 @@ def imports(module):
 
 
 def execution_module(module):
-    return module.startswith("ArkLib.Data.Computation.") or any(
+    return (module.startswith("ArkLib.Data.Computation.") or
+            module == PREFIX + "ListDecoding.CapacityDecoder") or any(
         word in module.rsplit(".", 1)[-1]
         for word in ("Machine", "Execution", "Cost", "Semantics", "Refinement")
     )
