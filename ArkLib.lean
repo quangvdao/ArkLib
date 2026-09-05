@@ -307,6 +307,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.Asymmetric
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.BandInterpolant
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.Basic
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.CodewordBound
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.FiniteField
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.FreeOrderBound
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.GeometricBound
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.QuarterGap

@@ -67,32 +67,42 @@ open Polynomial
 
 universe u
 
+/-- Mutual correlated agreement at a fixed gap and specified error bound.
+
+The exceptional set is chosen before the challenge and the close polynomial.
+Equality of full agreement sets excludes accidental agreements outside the common set. -/
+def HasCapacityLineAgreement (δ : ℝ) (N : ℕ) (E : ℕ → ℝ) : Prop :=
+  -- Block length, message dimension, and agreement threshold.
+  ∀ (n k A : ℕ),
+    N ≤ n →
+    0 < k →
+    k ≤ n →
+    (k : ℝ) + δ * n ≤ A →
+  -- Fields may be infinite; only their characteristic is restricted.
+  ∀ (F : Type u) [Field F] [DecidableEq F],
+    (ringChar F = 0 ∨ n ≤ ringChar F) →
+    ∀ (α : Fin n ↪ F) (f g : Fin n → F),
+      -- S records every agreement with the received line at challenge z.
+      let S := fun z P ↦ polynomialAgreementSet α (fun i ↦ f i + z * g i) P
+      -- T records simultaneous agreement of a polynomial pair with f and g.
+      let T := fun F₀ G₀ ↦ commonPolynomialAgreementSet α f g F₀ G₀
+      -- One exceptional set works simultaneously for every close polynomial.
+      ∃ exceptional : Finset F, (exceptional.card : ℝ) ≤ E n ∧
+        ∀ z ∉ exceptional, ∀ P : F[X], P.degree < k →
+          A ≤ (S z P).card →
+          ∃ F₀ G₀ : F[X],
+            F₀.degree < k ∧
+            G₀.degree < k ∧
+            -- Recover the candidate itself, not merely its evaluations on a subset.
+            P = F₀ + z • G₀ ∧
+            S z P = T F₀ G₀
+
 /-- Every positive gap has a field-independent polynomial bound on exceptional line
 challenges, uniformly over all rates. The conclusion identifies the whole agreement set.
 It covers characteristic zero and prime fields of size at least the block length. -/
 theorem exists_capacity_lineAgreement (δ : ℝ) (hδ : 0 < δ) :
     ∃ N d : ℕ, ∃ C : ℝ, 0 < C ∧
-      let E := fun n : ℕ ↦ C * (n : ℝ) ^ (d + 1)
-      -- Block length, message dimension, and agreement threshold.
-      ∀ (n k A : ℕ),
-        N ≤ n →
-        0 < k →
-        k ≤ n →
-        (k : ℝ) + δ * n ≤ A →
-      ∀ (F : Type u) [Field F] [DecidableEq F],
-        (ringChar F = 0 ∨ n ≤ ringChar F) →
-        ∀ (α : Fin n ↪ F) (f g : Fin n → F),
-          let S := fun z P ↦ polynomialAgreementSet α (fun i ↦ f i + z * g i) P
-          let T := fun F₀ G₀ ↦ commonPolynomialAgreementSet α f g F₀ G₀
-          -- One exceptional set works simultaneously for every close polynomial.
-          ∃ exceptional : Finset F, (exceptional.card : ℝ) ≤ E n ∧
-            ∀ z ∉ exceptional, ∀ P : F[X], P.degree < k →
-              A ≤ (S z P).card →
-              ∃ F₀ G₀ : F[X],
-                F₀.degree < k ∧
-                G₀.degree < k ∧
-                P = F₀ + z • G₀ ∧
-                S z P = T F₀ G₀ := by
+      HasCapacityLineAgreement δ N (fun n ↦ C * (n : ℝ) ^ (d + 1)) := by
   classical
   let ε := min δ (1 / 8 : ℝ)
   have hε : 0 < ε := lt_min hδ (by norm_num)
@@ -106,7 +116,7 @@ theorem exists_capacity_lineAgreement (δ : ℝ) (hδ : 0 < δ) :
     positivity
   have hC : 0 < C := by dsimp [C]; linarith
   refine ⟨8 * m, d, C, hC, ?_⟩
-  dsimp only
+  dsimp only [HasCapacityLineAgreement]
   intro n k A hn hk _hkn hgap F _ _ hchar domain f g
   have hthreshold : agreementThreshold ε n k ≤ A := by
     apply (agreementThreshold_le_iff_real hε.le n k A).mpr

@@ -4,16 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.AsymmetricBand
-import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.QuarterGap
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.FiniteField
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.GeometricBound
 
 
 /-!
 # Exact capacity lists at every rate
 
-This module proves exact-list existence and the explicit field-dependent bounds accompanying
-[DKTZ26, Theorem 1.1]. Its field-independent bound is proved separately in
-`ListDecodability/Capacity/GeometricBound` (Corollary 7.5 of the manuscript).
+This module assembles all mathematical list bounds accompanying [DKTZ26, Theorem 1.1].
+`HasCapacityLists` spells out the common exact-list property. `CapacityListBounds` collects
+the quantitative conclusions, led by the field-independent bound of Corollary 7.5.
 The capacity gap is fixed before the block length, dimension,
 prime field, evaluation points, and received word. The statement includes both
 field-size regimes and uses ordinary polynomial degree, including the zero polynomial.
@@ -58,99 +58,145 @@ open Polynomial
 
 noncomputable section
 
-/-- At every fixed positive capacity gap, all prime-field Reed-Solomon codes have uniformly
-bounded exact agreement lists, with the prescribed small-gap parameters and both field regimes.
 
-The constants depend only on `delta`. The degree inequality uses `Polynomial.degree`, so the
-zero polynomial is included whenever it meets the agreement threshold. A threshold greater than
-the block length gives the empty list. This theorem certifies no algorithmic running time. -/
-theorem exists_capacity_list (delta : ℝ) (hdelta : 0 < delta) (_hOne : delta < 1) :
-    let d : ℕ := if (1 / 4 : ℝ) ≤ delta then 0
-      else Nat.ceil (Real.exp (((169 : ℝ) / 25) / delta))
-    let m : ℕ := Nat.ceil (100 * (d : ℝ) ^ 2 *
-      ∑ i ∈ Finset.range (d - 1), (1 : ℝ) / (i + 1))
-    let N : ℕ := if (1 / 4 : ℝ) ≤ delta then 1 else 8 * m
-    ∀ n k q A : ℕ, N ≤ n → 0 < k → k ≤ n → q.Prime → n ≤ q →
-        (k : ℝ) + delta * n ≤ A → A ≤ 2 * n →
-        ∀ (alpha : Fin n ↪ ZMod q) (y : Fin n → ZMod q),
-          ∃ list : Finset (Polynomial (ZMod q)),
-            (∀ P : Polynomial (ZMod q), P ∈ list ↔
-              P.degree < k ∧ A ≤ Code.agree (fun i => P.eval (alpha i)) y) ∧
-            (n < A → list = ∅) ∧
-            ((1 / 2 : ℝ) ≤ delta → list.card ≤ 1) ∧
-            ((1 / 4 : ℝ) ≤ delta → list.card < n) ∧
-            (delta < (1 / 4 : ℝ) →
-              list.card ≤ 4 * m * q ^ (2 * d) ∧
-              (2 * (m * A + d - max k ⌊delta * (n : ℝ) / 2⌋₊) ≤ q →
-                list.card ≤ 4 * m * q ^ d)) := by
+/-! ## The paper-facing property and its quantitative instantiation
+
+The property below separates the meaning of an exact capacity list from the numerical
+bound one proves for it. Its bound argument can express several simultaneous estimates.
+The final theorem instantiates it with `CapacityListBounds`, so every estimate applies
+to the same exact list, not to separately chosen candidate families.
+-/
+
+/-- Minimum block length: one at gaps at least `1/4`, and `8m` for smaller gaps.
+Here `m = asymmetricBandMultiplicity δ` is the prescribed interpolation multiplicity. -/
+def capacityLengthThreshold (δ : ℝ) : ℕ :=
+  if (1 / 4 : ℝ) ≤ δ then 1 else 8 * asymmetricBandMultiplicity δ
+
+/-- Field-independent list bound. At small gaps it is `4m²(4m/δ)^d n^d`;
+at gaps at least `1/4` we use `n`, with strict inequality proved separately.
+The derivative order `d` and multiplicity `m` depend only on the gap. -/
+def capacityListBound (δ : ℝ) (n : ℕ) : ℝ :=
+  if (1 / 4 : ℝ) ≤ δ then n else
+    4 * (asymmetricBandMultiplicity δ : ℝ) ^ 2 *
+      (4 * asymmetricBandMultiplicity δ / δ) ^ capacityDerivativeOrder δ *
+      n ^ capacityDerivativeOrder δ
+
+/-- Exact list decodability at a fixed gap, uniformly over prime fields and code rates.
+
+`bounds n k q A ℓ` is a property of the list cardinality `ℓ`; it is not an assumption
+on the received word. Supplying a different bound does not change the exact-list contract.
+This is a mathematical property, with no executable algorithm or cost model. -/
+def HasCapacityLists (δ : ℝ) (N : ℕ)
+    (bounds : ℕ → ℕ → ℕ → ℕ → ℕ → Prop) : Prop :=
+  -- The gap and length threshold are fixed before all code parameters.
+  ∀ n k q A : ℕ,
+    N ≤ n →
+    --
+    -- Dimension k means degree strictly below k; the rate is k/n.
+    0 < k → k ≤ n →
+    --
+    -- The alphabet is the prime field 𝔽_q, large enough for n distinct points.
+    q.Prime → n ≤ q →
+    --
+    -- Agreement A ≥ k + δn is the capacity-gap decoding condition.
+    -- As in Theorem 1.1, thresholds up to 2n are allowed, even if impossible.
+    (k : ℝ) + δ * n ≤ A → A ≤ 2 * n →
+    --
+    -- `↪` asserts distinct evaluation points; the received word is arbitrary.
+    ∀ (α : Fin n ↪ ZMod q) (y : Fin n → ZMod q),
+      ∃ list : Finset (Polynomial (ZMod q)),
+        --
+        -- Exactly all qualifying polynomials: both completeness and exclusion
+        -- of spurious candidates. Polynomial.degree includes the zero polynomial.
+        (∀ P, P ∈ list ↔
+          P.degree < k ∧ A ≤ Code.agree (fun i => P.eval (α i)) y) ∧
+        --
+        -- Impossible agreement thresholds return the empty mathematical list.
+        (n < A → list = ∅) ∧
+        --
+        -- The specified estimates hold for this very list's cardinality.
+        bounds n k q A list.card
+
+/-- Any pointwise consequence of the cardinality estimates holds for the same exact lists.
+This lets a consumer retain only the estimate it needs, without redoing list extraction. -/
+theorem HasCapacityLists.mono {δ : ℝ} {N : ℕ}
+    {bounds bounds' : ℕ → ℕ → ℕ → ℕ → ℕ → Prop}
+    (h : HasCapacityLists δ N bounds)
+    (hbound : ∀ n k q A ℓ, bounds n k q A ℓ → bounds' n k q A ℓ) :
+    HasCapacityLists δ N bounds' := by
+  intro n k q A hn hk hkn hq hnq hA hAn α y
+  obtain ⟨list, hexact, hempty, hb⟩ := h n k q A hn hk hkn hq hnq hA hAn α y
+  exact ⟨list, hexact, hempty, hbound n k q A list.card hb⟩
+
+/-- The simultaneous list bounds accompanying [DKTZ26, Theorem 1.1].
+The field-independent estimate leads; field-dependent estimates remain useful when
+their constants give a smaller value. All bounds refer to the same cardinality `ℓ`. -/
+structure CapacityListBounds (δ : ℝ) (n k q A ℓ : ℕ) : Prop where
+  -- The headline estimate: polynomial in block length, independently of q.
+  fieldIndependent : (ℓ : ℝ) ≤ capacityListBound δ n
+
+  -- Large gaps admit stronger statements: fewer than n candidates, then uniqueness.
+  quarterGap : (1 / 4 : ℝ) ≤ δ → ℓ < n
+  halfGap : (1 / 2 : ℝ) ≤ δ → ℓ ≤ 1
+
+  -- At small gaps, finite-field root counting also gives 4m q^(2d).
+  finiteField : δ < (1 / 4 : ℝ) →
+    ℓ ≤ 4 * asymmetricBandMultiplicity δ * q ^ (2 * capacityDerivativeOrder δ)
+
+  -- A larger field improves this to 4m q^d. With K = max{k, ⌊δn/2⌋},
+  -- truncated natural subtraction expresses q ≥ 2 max{0, mA - K + d}.
+  largeField : δ < (1 / 4 : ℝ) →
+    2 * (asymmetricBandMultiplicity δ * A + capacityDerivativeOrder δ -
+      max k ⌊δ * (n : ℝ) / 2⌋₊) ≤ q →
+    ℓ ≤ 4 * asymmetricBandMultiplicity δ * q ^ capacityDerivativeOrder δ
+
+/-- **Capacity lists at every rate, with all prescribed list bounds.**
+
+Fix any gap `0 < δ < 1`. The threshold, derivative order, and multiplicity depend only
+on that gap. `HasCapacityLists` gives the exact agreement list for every admissible code
+and received word; `CapacityListBounds` gives the field-independent bound and both
+finite-field refinements, together with the quarter-gap and half-gap conclusions.
+
+This is the mathematical list portion of [DKTZ26, Theorem 1.1], including Corollary 7.5.
+It does not certify the separate decoder or running-time assertion. -/
+theorem exists_capacity_list (δ : ℝ) (hδ : 0 < δ) (hδ_one : δ < 1) :
+    HasCapacityLists δ (capacityLengthThreshold δ) (CapacityListBounds δ) := by
   classical
-  let d := capacityDerivativeOrder delta
-  let m := asymmetricBandMultiplicity delta
-  change ∀ n k q A : ℕ,
-    (if (1 / 4 : ℝ) ≤ delta then 1 else 8 * m) ≤ n → _
-  by_cases hquarter : (1 / 4 : ℝ) ≤ delta
-  · intro n k q A _hn hk hkn hq hnq hA _hAupper alpha y
-    let : Fact q.Prime := ⟨hq⟩
-    have hthreshold := (agreementThreshold_le_iff_real hdelta.le n k A).mpr hA
-    have hmono := Set.encard_mono
-      (agreeingPolynomials_antitone alpha k y hthreshold)
-    have hbound := hmono.trans_lt (agreeingPolynomials_encard_lt_blockLength_of_quarter
-      hquarter alpha (hk.trans_le hkn) hk hkn y)
-    obtain ⟨list, hexact, hcard⟩ := exists_finset_polynomial_list alpha k A y
-      (Set.finite_of_encard_le_coe hbound.le)
-    refine ⟨list, hexact, ?_, ?_, ?_, ?_⟩
-    · intro hoversized
-      apply Finset.eq_empty_iff_forall_notMem.mpr
-      intro P hP
-      have h := (hexact P).mp hP
-      have := Code.agree_le_card (u := ReedSolomon.evalOnPoints alpha P) (v := y)
-      simp only [Fintype.card_fin] at this
-      omega
-    · intro hhalf
-      have h := hmono.trans (agreeingPolynomials_encard_le_one_of_half
-        hhalf alpha hk hkn y)
-      rw [← hcard] at h
-      exact_mod_cast h
-    · intro _hquarter
-      exact_mod_cast hcard.le.trans_lt hbound
-    · intro hsmall
-      exact (not_lt_of_ge hquarter hsmall).elim
-  · have hsmall : delta < (1 / 4 : ℝ) := lt_of_not_ge hquarter
-    have hbound := asymmetricBand_capacity_list_bound_four_mul delta hdelta hsmall
-    intro n k q A hn hk hkn hq hnq hA _hAupper alpha y
-    have hblock : 8 * asymmetricBandMultiplicity delta ≤ n := by
-      simpa only [if_neg hquarter] using hn
-    obtain ⟨⟨certificate⟩, hlarge⟩ := hbound n k q hblock hk hkn hq hnq alpha
-    have hthreshold := (agreementThreshold_le_iff_real hdelta.le n k A).mpr hA
-    have hmono := Set.encard_mono
-      (agreeingPolynomials_antitone alpha k y hthreshold)
-    have hbound' := hmono.trans (certificate.pointwiseListBound y).1
-    obtain ⟨list, hexact, hcard⟩ := exists_finset_polynomial_list alpha k A y
-      (Set.finite_of_encard_le_coe hbound')
-    refine ⟨list, hexact, ?_, ?_, ?_, ?_⟩
-    · intro hoversized
-      apply Finset.eq_empty_iff_forall_notMem.mpr
-      intro P hP
-      have h := (hexact P).mp hP
-      have := Code.agree_le_card (u := ReedSolomon.evalOnPoints alpha P) (v := y)
-      simp only [Fintype.card_fin] at this
-      omega
-    · intro hhalf
-      linarith
-    · intro hquarter'
-      exact (hquarter hquarter').elim
-    · intro _hsmall
-      refine ⟨?_, ?_⟩
-      · change list.card ≤ 4 * m * q ^ (2 * d)
-        exact_mod_cast hcard.le.trans hbound'
-      · intro hfield
-        have hbudget : LargeFieldCondition delta n k q d m := by
-          apply le_trans _ hfield
-          exact Nat.mul_le_mul_left 2 (Nat.sub_le_sub_right
-            (Nat.add_le_add_right (Nat.mul_le_mul_left m hthreshold) d) _)
-        obtain ⟨largeCertificate⟩ := hlarge hbudget
-        change list.card ≤ 4 * m * q ^ d
-        exact_mod_cast hcard.le.trans (hmono.trans (largeCertificate.pointwiseListBound y).1)
+  intro n k q A hn hk hkn hq hnq hA hAn α y
+  obtain ⟨list, hexact, hempty, hhalf, hquarter, hsmall⟩ :=
+    exists_field_bounded_capacity_list δ hδ hδ_one n k q A hn hk hkn hq hnq hA hAn α y
+  refine ⟨list, hexact, hempty, ?_, hquarter, hhalf, ?_, ?_⟩
+  · by_cases hlarge : (1 / 4 : ℝ) ≤ δ
+    · simpa only [capacityListBound, if_pos hlarge] using
+        (show (list.card : ℝ) ≤ n by exact_mod_cast (hquarter hlarge).le)
+    · have hδsmall := lt_of_not_ge hlarge
+      by_cases hover : n < A
+      · rw [hempty hover, Finset.card_empty, Nat.cast_zero]
+        unfold capacityListBound
+        positivity
+      · let : Fact q.Prime := ⟨hq⟩
+        have hthreshold := (agreementThreshold_le_iff_real hδ.le n k A).mpr hA
+        have hblock : 8 * asymmetricBandMultiplicity δ ≤ n := by
+          simpa only [capacityLengthThreshold, if_neg hlarge] using hn
+        have hgeom := prescribed_geometric_finite_list_bound δ n k α y hδ hδsmall hk
+          (by simpa only [asymmetricBandMultiplicity, capacityDerivativeOrder, if_neg hlarge]
+            using hblock)
+          (hthreshold.trans (Nat.le_of_not_gt hover))
+          (Or.inr (by simpa only [ringChar.eq (ZMod q) q] using hnq)) list (by
+            intro P hP
+            have hp := (hexact P).mp hP
+            refine ⟨hp.1, ?_⟩
+            convert hthreshold.trans hp.2 using 1 <;> try rfl
+            unfold Code.agree
+            congr 1
+            ext i
+            simp)
+        simpa only [capacityListBound, asymmetricBandMultiplicity, capacityDerivativeOrder,
+          if_neg hlarge] using hgeom
+  · intro hs
+    exact (hsmall hs).1
+  · intro hs
+    exact (hsmall hs).2
 
 end
 
