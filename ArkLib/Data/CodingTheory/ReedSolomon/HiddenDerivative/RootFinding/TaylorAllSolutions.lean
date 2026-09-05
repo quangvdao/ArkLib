@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RecursiveCounting
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SeparantChainRefinement
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeRootCount
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorRegularCounting
 
 /-!
@@ -50,7 +50,7 @@ theorem jetTotalDegree_le_of_reflTransGen_singularStep
   | refl _ => exact le_rfl
   | single hstep =>
       obtain ⟨s, _hs, _hchar, rfl⟩ := hstep
-      exact (SeparantChainRefinement.separant_total_le _ s).trans (Nat.sub_le _ _)
+      exact (separant_total_le _ s).trans (Nat.sub_le _ _)
   | trans _ _ ihleft ihveryright => exact ihleft.trans ihveryright
 
 /-- The degree and agreement predicate retained while the equation changes along the singular
@@ -156,10 +156,10 @@ theorem boundedSolution_recursive_counting_totalJetDegree
           (isHighestActiveJet_of_highestActiveJet_eq_some hactive).1
         have htotalPos : 0 < jetTotalDegree equation :=
           hactiveDegree.trans_le
-            (SeparantChainRefinement.jetDegree_le_total equation s)
+            (jetDegree_le_total equation s)
         have hmeasure : jetTotalDegree (separant equation s) + 1 ≤
             jetTotalDegree equation := by
-          have := SeparantChainRefinement.separant_total_le equation s
+          have := separant_total_le equation s
           omega
         calc
           (currentRoots.card : ℚ) =
@@ -212,7 +212,7 @@ theorem regularBranchRatBudget_of_agreement
       rw [← MvPolynomial.degreeOf_rename_of_injective (jetPrefixEmbedding s).injective
         (some (Fin.last s.val)), jetPrefixEmbedding_top, hQ']
       exact hactive
-    exact hactive'.trans_le (SeparantChainRefinement.jetDegree_le_total Q' (Fin.last s.val))
+    exact hactive'.trans_le (jetDegree_le_total Q' (Fin.last s.val))
   have hstage := finite_regular_solutions_card_le Q' K k (hsle.trans_lt hK) hkK
     (by rw [← jetTotalDegree_eq_weightedTotalDegree_elim]; exact hv)
     domain received hk hkA hAn polys

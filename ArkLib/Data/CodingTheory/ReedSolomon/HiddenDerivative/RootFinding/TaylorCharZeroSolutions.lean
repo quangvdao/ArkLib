@@ -90,7 +90,7 @@ theorem regularSolutions_card_le_of_agreement_charZero
       rw [← MvPolynomial.degreeOf_rename_of_injective (jetPrefixEmbedding s).injective
         (some (Fin.last s.val)), jetPrefixEmbedding_top, hQ']
       exact hactive
-    exact hactive'.trans_le (SeparantChainRefinement.jetDegree_le_total Q' (Fin.last s.val))
+    exact hactive'.trans_le (jetDegree_le_total Q' (Fin.last s.val))
   have hstage := finite_regular_solutions_card_le Q' K k (hsle.trans_lt hK) hkK
     (by rw [← jetTotalDegree_eq_weightedTotalDegree_elim]; exact hv)
     domain received hk hkA hAn polys
@@ -217,9 +217,9 @@ theorem boundedSolution_card_le_sq_totalJetDegree_charZero
               apply hroots source.1
               exact (Finset.mem_filter.mp source.2).1
             have htotalPos : 0 < jetTotalDegree Q :=
-              hactiveJet.trans_le (SeparantChainRefinement.jetDegree_le_total Q s)
+              hactiveJet.trans_le (jetDegree_le_total Q s)
             have hmeasure : jetTotalDegree (separant Q s) + 1 ≤ jetTotalDegree Q := by
-              have := SeparantChainRefinement.separant_total_le Q s
+              have := separant_total_le Q s
               omega
             have hnextDegree : jetTotalDegree (separant Q s) ≤ ν := by omega
             have hmeasureLt : jetTotalDegree (separant Q s) < Δ := by omega

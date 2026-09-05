@@ -4,20 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.AsymmetricBandListBound
-import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.QuarterGapListBound
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CoordinateCapacityExecution
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CapacityOutputBounds
 
 /-!
-# Reed-Solomon capacity lists at every rate
+# Executable Reed-Solomon capacity decoding at every rate
 
-`exists_capacity_list` states the exact-list and cardinality clauses of the uniform capacity
-decoding theorem in [DKTZ26]. Its statement displays all parameters and quantifiers, without a
-proposition-valued contract wrapper. The integer agreement threshold `A` is an instance parameter;
+The purely mathematical list-existence theorem lives separately in `CapacityList.lean`.
+This module states the executable decoder's exact-output and primitive-work theorem.
+The integer agreement threshold `A` is an instance parameter;
 the real gap `delta` is fixed before any block length, rate, field, or received word is chosen.
 
-The output is a finite set of ordinary polynomials. Membership explicitly means degree less than
+The output is a list of coefficient vectors. Polynomial membership means degree less than
 `k` and at least `A` agreements. In particular, zero is not excluded by a natural-degree convention.
 For gaps below one quarter, the prescribed derivative order and multiplicity give exponents `2d`
 and `d`, with the explicit prefactor `4m`, in the two field-size regimes.
@@ -25,17 +23,17 @@ For larger gaps the bounds are one and strictly less than
 the block length `n`. Taking `A = k + ceil(delta*n)` gives radius `1 - k/n - delta`;
 the rounding and `Code.Lambda` formulation are established in `AgreementRadius.lean`.
 
-`capacity_decoder_exact_output_and_primitive_work` additionally executes the integer-input
+`capacity_decoder_exact_output_and_primitive_work` executes the integer-input
 coordinate decoder and attaches these bounds to its actual coefficient-list output, together
 with the observed primitive-work ledger. The runtime materializes its coordinate alphabets and
 executes the raw-coordinate recovery, guards and collection. Both field-size inequalities concern
 the identical run and list.
 
-**Verification boundary.** The classical theorem alone asserts no algorithmic bound. The
-executable theorem proves primitive work, not the paper's bit complexity: binary arithmetic,
-heap representation, scalar-fuel and interpreter administration, and serialization still need
-their same-program refinement. Therefore the full algorithmic Theorem 1.1 remains unfinished.
-No bit-RAM or native Lean running time is claimed by the primitive ledger below.
+**Verification boundary.** The theorem proves a bound on the returned primitive-work ledger.
+A same-output refinement to a restricted algebraic machine remains outstanding, including
+scalar preparation and control overhead. This is the next algorithmic proof obligation;
+a binary backend is not required for that algebraic-machine theorem. No bit-RAM or native
+Lean running time is claimed by the primitive ledger below.
 
 ## References
 
@@ -50,100 +48,6 @@ namespace ReedSolomon.AllRateListDecoding
 open Polynomial
 
 noncomputable section
-
-/-- At every fixed positive capacity gap, all prime-field Reed-Solomon codes have uniformly
-bounded exact agreement lists, with the prescribed small-gap parameters and both field regimes.
-
-The constants depend only on `delta`. The degree inequality uses `Polynomial.degree`, so the
-zero polynomial is included whenever it meets the agreement threshold. A threshold greater than
-the block length gives the empty list. This theorem certifies no algorithmic running time. -/
-theorem exists_capacity_list (delta : ℝ) (hdelta : 0 < delta) (_hOne : delta < 1) :
-    let d : ℕ := if (1 / 4 : ℝ) ≤ delta then 0
-      else Nat.ceil (Real.exp (((169 : ℝ) / 25) / delta))
-    let m : ℕ := Nat.ceil (100 * (d : ℝ) ^ 2 *
-      ∑ i ∈ Finset.range (d - 1), (1 : ℝ) / (i + 1))
-    let N : ℕ := if (1 / 4 : ℝ) ≤ delta then 1 else 8 * m
-    ∀ n k q A : ℕ, N ≤ n → 0 < k → k ≤ n → q.Prime → n ≤ q →
-        (k : ℝ) + delta * n ≤ A → A ≤ 2 * n →
-        ∀ (alpha : Fin n ↪ ZMod q) (y : Fin n → ZMod q),
-          ∃ list : Finset (Polynomial (ZMod q)),
-            (∀ P : Polynomial (ZMod q), P ∈ list ↔
-              P.degree < k ∧ A ≤ Code.agree (fun i => P.eval (alpha i)) y) ∧
-            (n < A → list = ∅) ∧
-            ((1 / 2 : ℝ) ≤ delta → list.card ≤ 1) ∧
-            ((1 / 4 : ℝ) ≤ delta → list.card < n) ∧
-            (delta < (1 / 4 : ℝ) →
-              list.card ≤ 4 * m * q ^ (2 * d) ∧
-              (2 * (m * A + d - max k ⌊delta * (n : ℝ) / 2⌋₊) ≤ q →
-                list.card ≤ 4 * m * q ^ d)) := by
-  classical
-  let d := capacityDerivativeOrder delta
-  let m := asymmetricBandMultiplicity delta
-  change ∀ n k q A : ℕ,
-    (if (1 / 4 : ℝ) ≤ delta then 1 else 8 * m) ≤ n → _
-  by_cases hquarter : (1 / 4 : ℝ) ≤ delta
-  · intro n k q A _hn hk hkn hq hnq hA _hAupper alpha y
-    let : Fact q.Prime := ⟨hq⟩
-    have hthreshold := (agreementThreshold_le_iff_real hdelta.le n k A).mpr hA
-    have hmono := Set.encard_mono
-      (agreeingPolynomials_antitone alpha k y hthreshold)
-    have hbound := hmono.trans_lt (agreeingPolynomials_encard_lt_blockLength_of_quarter
-      hquarter alpha (hk.trans_le hkn) hk hkn y)
-    obtain ⟨list, hexact, hcard⟩ := exists_finset_polynomial_list alpha k A y
-      (Set.finite_of_encard_le_coe hbound.le)
-    refine ⟨list, hexact, ?_, ?_, ?_, ?_⟩
-    · intro hoversized
-      apply Finset.eq_empty_iff_forall_notMem.mpr
-      intro P hP
-      have h := (hexact P).mp hP
-      have := Code.agree_le_card (u := ReedSolomon.evalOnPoints alpha P) (v := y)
-      simp only [Fintype.card_fin] at this
-      omega
-    · intro hhalf
-      have h := hmono.trans (agreeingPolynomials_encard_le_one_of_half
-        hhalf alpha hk hkn y)
-      rw [← hcard] at h
-      exact_mod_cast h
-    · intro _hquarter
-      exact_mod_cast hcard.le.trans_lt hbound
-    · intro hsmall
-      exact (not_lt_of_ge hquarter hsmall).elim
-  · have hsmall : delta < (1 / 4 : ℝ) := lt_of_not_ge hquarter
-    have hbound := asymmetricBand_capacity_list_bound_four_mul delta hdelta hsmall
-    intro n k q A hn hk hkn hq hnq hA _hAupper alpha y
-    have hblock : 8 * asymmetricBandMultiplicity delta ≤ n := by
-      simpa only [if_neg hquarter] using hn
-    obtain ⟨⟨certificate⟩, hlarge⟩ := hbound n k q hblock hk hkn hq hnq alpha
-    have hthreshold := (agreementThreshold_le_iff_real hdelta.le n k A).mpr hA
-    have hmono := Set.encard_mono
-      (agreeingPolynomials_antitone alpha k y hthreshold)
-    have hbound' := hmono.trans (certificate.pointwiseListBound y).1
-    obtain ⟨list, hexact, hcard⟩ := exists_finset_polynomial_list alpha k A y
-      (Set.finite_of_encard_le_coe hbound')
-    refine ⟨list, hexact, ?_, ?_, ?_, ?_⟩
-    · intro hoversized
-      apply Finset.eq_empty_iff_forall_notMem.mpr
-      intro P hP
-      have h := (hexact P).mp hP
-      have := Code.agree_le_card (u := ReedSolomon.evalOnPoints alpha P) (v := y)
-      simp only [Fintype.card_fin] at this
-      omega
-    · intro hhalf
-      linarith
-    · intro hquarter'
-      exact (hquarter hquarter').elim
-    · intro _hsmall
-      refine ⟨?_, ?_⟩
-      · change list.card ≤ 4 * m * q ^ (2 * d)
-        exact_mod_cast hcard.le.trans hbound'
-      · intro hfield
-        have hbudget : LargeFieldCondition delta n k q d m := by
-          apply le_trans _ hfield
-          exact Nat.mul_le_mul_left 2 (Nat.sub_le_sub_right
-            (Nat.add_le_add_right (Nat.mul_le_mul_left m hthreshold) d) _)
-        obtain ⟨largeCertificate⟩ := hlarge hbudget
-        change list.card ≤ 4 * m * q ^ d
-        exact_mod_cast hcard.le.trans (hmono.trans (largeCertificate.pointwiseListBound y).1)
 
 /-- A single integer-input decoder outputs exactly the capacity list with both sharp size bounds.
 The positive coefficient depends only on the gap. The observed `work` belongs to this same run.

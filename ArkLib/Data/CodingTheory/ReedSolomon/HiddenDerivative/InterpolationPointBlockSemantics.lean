@@ -144,7 +144,7 @@ def columnValue (d m : ℕ) (a y : F) (v : List ℕ) : DenseColumn F :=
 
 /-- Source monomial in the exact support-vector coordinate order. -/
 def sourceValue (d : ℕ) : List ℕ → DifferentialPolynomial F d
-  | x :: b :: xs => LocalColumnTranslationMachine.sourceColumn x b
+  | x :: b :: xs => sourceMonomial x b
       (fun j => xs.getD j.val 0)
   | _ => 0
 

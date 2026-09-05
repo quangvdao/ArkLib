@@ -1,8 +1,8 @@
 # Separating RS mathematics from executable cost proofs
 
-Status: proposed implementation plan, inspected at `e3567c1c` on
-`quang/all-rate-rs-capacity-formalization`, 2026-09-05. No Lean changes are implied
-by this document. Audience: the mathematics/MCA orchestrator, the decoder
+Status: checkpoint A implemented and validated. Remaining checkpoints
+are proposed work on `quang/all-rate-rs-capacity-formalization`, 2026-09-05.
+Initial inspection: `e3567c1c`. Audience: the mathematics/MCA orchestrator, the decoder
 orchestrator, and reviewers of the computational claim.
 
 The recommendation is to separate the mathematical theorems from executable
@@ -12,9 +12,10 @@ Do not make binary arithmetic or a Turing-machine backend a prerequisite.
 
 ## What is already proved, and what this revision adds
 
+[CapacityList.lean](../../ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/CapacityList.lean)
+owns the exact-list existence theorem.
 [Capacity.lean](../../ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/Capacity.lean)
-contains both an exact-list existence theorem and
-`capacity_decoder_exact_output_and_primitive_work`. The latter connects the
+owns `capacity_decoder_exact_output_and_primitive_work`, which connects the
 actual coordinate decoder's output to the specification and bounds its returned
 primitive-work ledger. These proofs remain useful.
 
@@ -47,8 +48,8 @@ Small algebraic machine → routine realization and cost proofs ─┤  │
 ```
 
 Keep the paper-facing full theorem in `Capacity.lean`. Give its purely
-mathematical list theorem a lightweight owner module, with compatibility exports
-through `Capacity.lean`. The full capstone is deliberately allowed to import both
+mathematical list theorem a lightweight owner module, `CapacityList.lean`.
+The full capstone is deliberately allowed to import both
 sides; MCA development should import the mathematical owner, not the capstone.
 
 The existing
@@ -58,19 +59,26 @@ An extensional decoder certificate alone does not supply an algorithm.
 
 ## First integration patch: remove the actual import leaks
 
-These are small extractions, not a directory migration. Proposed new filenames
-below do not yet exist.
+These are small extractions, not a directory migration. The cutover updates all
+callers directly: no compatibility aliases or forwarding modules remain.
 
 | Current dependency | Revision | Check |
 | --- | --- | --- |
-| `SymbolicReceivedInterpolation` imports `LocalColumnTranslationSemantics` for `LocalColumnTranslationMachine.sourceColumn` | Move that polynomial definition into proposed `HiddenDerivative/SourceColumn.lean`; import it and `LocalConstraintMap` directly from symbolic interpolation | Mathematical consumers no longer import column execution; original semantics still compiles |
+| `SymbolicReceivedInterpolation` imported `LocalColumnTranslationSemantics` for `LocalColumnTranslationMachine.sourceColumn` | Own the definition as `HiddenDerivative.sourceMonomial` in `HiddenDerivative/SourceMonomial.lean`; import it and `LocalConstraintMap` directly from symbolic interpolation | Mathematical consumers no longer import column execution; original semantics still compiles |
 | `TaylorAllSolutions` and `GeometricBandParameters` import `SeparantChainRefinement` for `jetDegree_le_total` and `separant_total_le` | Put those two purely mathematical lemmas in existing `TotalJetDegreeRootCount.lean`; update consumers | Taylor, characteristic-zero Taylor, and geometric bounds no longer import sparse execution through these lemmas |
-| `Capacity.lean` combines pure lists and execution | Extract the pure public statement into proposed `AllRateListDecoding/CapacityList.lean`; leave full assembly in `Capacity.lean` | Same theorem type, lightweight mathematical import path |
+| `Capacity.lean` combined pure lists and execution | Own the pure public statement in `AllRateListDecoding/CapacityList.lean`; leave full assembly in `Capacity.lean` | Same theorem type, lightweight mathematical import path |
 
-Use intrinsic mathematical names in the new owner modules. Preserve old
-qualified names with compatibility aliases where needed so other workers do not
-have to chase renames. Do not replace the executable separant-chain relation:
+Use intrinsic mathematical names in the new owner modules and update every
+caller in the integration patch. The degree lemmas now live directly in
+`ReedSolomon.HiddenDerivative`. Do not replace the executable separant-chain relation:
 the mathematical consumers need only the two degree lemmas, not that relation.
+
+The import boundary is checked by `python3 scripts/check-rs-math-imports.py`,
+also run by repository validation. Lean parses the dependency headers; the guard
+traverses local imports and rejects the current execution/cost owner names.
+The mathematical entry points contain 87, 18, 74, 75, and 135 local modules,
+respectively, in the guard's displayed order. Both removed execution bridges
+were also checked as negative examples and rejected.
 
 Integration owns this patch and publishes its commit hash before parallel edits
 to affected files. Freeze shared signatures after that checkpoint.
@@ -212,7 +220,7 @@ and blockers, not routine progress chatter.
   gap-only constants, and both final exponents independently.
 - Run repository validation before commits/pushes, and the axiom gate for proof
   changes. Do not run competing builds in the same writable build directory.
-- Retain useful internal lemmas and compatibility APIs. Defer broad file moves,
+- Retain useful internal lemmas, without compatibility aliases. Defer broad file moves,
   incidental renames, binary backends, and a general verified Lean compiler.
 
 Completion means reviewers can inspect a small machine definition and a clear

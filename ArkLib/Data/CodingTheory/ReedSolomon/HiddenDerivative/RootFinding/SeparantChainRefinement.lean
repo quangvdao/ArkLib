@@ -93,24 +93,6 @@ theorem OrderedChain.record_contract {ts : List (Term F)} {Q : DifferentialPolyn
       · exact ⟨Q, rep, nonzero, by simp [highest], hchar⟩
       · exact ih (fun k => (jetDegree_separant_le Q j k).trans_lt (hchar k)) r hr
 
-omit [DecidableEq F] in
-/-- Every individual jet degree is bounded by total jet degree. -/
-theorem jetDegree_le_total (Q : DifferentialPolynomial F d) (j : Fin (d + 1)) :
-    jetDegree Q j ≤ jetTotalDegree Q := by
-  classical
-  apply MvPolynomial.degreeOf_le_iff.mpr
-  intro u hu
-  have hb := (jetTotalDegree_le_iff Q _).mp le_rfl u hu
-  exact (Finset.single_le_sum (fun k _ => Nat.zero_le (u (some k)))
-    (Finset.mem_univ j)).trans hb
-
-omit [DecidableEq F] in
-/-- Every active separant decreases total jet degree by at least one. -/
-theorem separant_total_le (Q : DifferentialPolynomial F d) (j : Fin (d + 1)) :
-    jetTotalDegree (separant Q j) ≤ jetTotalDegree Q - 1 := by
-  exact weightedTotalDegree_pderiv_le_sub
-    (fun v : JetVariable d => match v with | none => 0 | some _ => 1) (some j) Q
-
 /-- Sparse differentiation transports to the literal next differential separant equation. -/
 theorem derivative_rep (ts : List (Term F)) (Q : DifferentialPolynomial F d)
     (hl : DenseLayout (List.range (d + 2)) ts)

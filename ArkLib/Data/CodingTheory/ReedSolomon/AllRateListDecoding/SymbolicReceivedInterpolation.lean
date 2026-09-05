@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalColumnTranslationSemantics
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.SourceMonomial
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalConstraintMap
 import ArkLib.ToMathlib.LinearAlgebra.PrimitivePolynomialKernel
 
 /-!
@@ -128,11 +129,11 @@ private theorem localCorrection_coeffDegreeLE_zero (d : ℕ) :
 
 /-- For one source monomial, every unscaled local-substitution coefficient has challenge degree at
 most its source `Y₀` exponent. -/
-theorem sourceColumn_unscaled_coeffDegreeLE (a f g : F) (x b : ℕ)
+theorem sourceMonomial_unscaled_coeffDegreeLE (a f g : F) (x b : ℕ)
     (higher : Fin d → ℕ) :
     CoeffDegreeLE
       (unscaledLocalSubstitution d (Polynomial.C a) (receivedLine f g)
-        (LocalColumnTranslationMachine.sourceColumn x b higher)) b := by
+        (sourceMonomial x b higher)) b := by
   have hcenter : (Polynomial.C a).natDegree ≤ 0 := by rw [Polynomial.natDegree_C]
   have hcenterC : CoeffDegreeLE
       (MvPolynomial.C (Polynomial.C a) : LocalPolynomial F[X] d) 0 :=
@@ -163,19 +164,19 @@ theorem sourceColumn_unscaled_coeffDegreeLE (a f g : F) (x b : ℕ)
     apply CoeffDegreeLE.prod_zero
     intro j _
     simpa using (coeffDegreeLE_X (F := F) (localY j)).pow (higher j)
-  simp only [LocalColumnTranslationMachine.sourceColumn, map_mul, map_pow, map_prod,
+  simp only [sourceMonomial, map_mul, map_pow, map_prod,
     unscaledLocalSubstitution_X, unscaledLocalSubstitution_Y_zero,
     unscaledLocalSubstitution_Y_succ]
   simpa using ((hXimage.pow x).mul (hYimage.pow b)).mul hhigher
 
 /-- For one source monomial, every projected local-constraint coefficient has challenge degree at
 most its source `Y₀` exponent. -/
-theorem sourceColumn_localConstraint_coeffDegreeLE (a f g : F) (x b m : ℕ)
+theorem sourceMonomial_localConstraint_coeffDegreeLE (a f g : F) (x b m : ℕ)
     (higher : Fin d → ℕ) :
     CoeffDegreeLE
       (localConstraintAt m (Polynomial.C a) (receivedLine f g)
-        (LocalColumnTranslationMachine.sourceColumn x b higher)) b := by
-  have hunscaled := sourceColumn_unscaled_coeffDegreeLE
+        (sourceMonomial x b higher)) b := by
+  have hunscaled := sourceMonomial_unscaled_coeffDegreeLE
     (d := d) a f g x b higher
   intro e
   rw [localConstraintAt, LinearMap.comp_apply, AlgHom.toLinearMap_apply,
@@ -199,12 +200,12 @@ def SourceColumn.exponent (c : SourceColumn d) : JetVariable d →₀ ℕ :=
 def SourceColumn.polynomial {R : Type*} [CommSemiring R] (c : SourceColumn d) :
     DifferentialPolynomial R d := MvPolynomial.monomial c.exponent 1
 
-theorem SourceColumn.polynomial_eq_sourceColumn {R : Type*} [CommRing R]
+theorem SourceColumn.polynomial_eq_sourceMonomial {R : Type*} [CommRing R]
     (c : SourceColumn d) :
     (c.polynomial : DifferentialPolynomial R d) =
-      LocalColumnTranslationMachine.sourceColumn (F := R) c.x c.y₀ c.higher := by
+      sourceMonomial (F := R) c.x c.y₀ c.higher := by
   classical
-  rw [LocalColumnTranslationMachine.sourceColumn, SourceColumn.polynomial]
+  rw [sourceMonomial, SourceColumn.polynomial]
   simp only [MvPolynomial.X_pow_eq_monomial, MvPolynomial.monomial_mul, mul_one]
   have hhigher :
       (∏ j, MvPolynomial.monomial (Finsupp.single (some j.succ) (c.higher j)) (1 : R)) =
@@ -388,14 +389,14 @@ theorem finMatrix_mulVec_eq_zero_iff {n N : ℕ} (m : ℕ) (centers f g : Fin n 
 theorem matrix_entry_natDegree_le_y₀ {n N : ℕ} (m : ℕ) (centers f g : Fin n → F)
     (columns : Fin N → SourceColumn d) (row : Fin n × LowContactIndex d m) (j : Fin N) :
     (matrix m centers f g columns row j).natDegree ≤ (columns j).y₀ := by
-  have h := sourceColumn_unscaled_coeffDegreeLE
+  have h := sourceMonomial_unscaled_coeffDegreeLE
     (d := d) (centers row.1) (f row.1) (g row.1)
       (columns j).x (columns j).y₀ (columns j).higher
   rw [show matrix m centers f g columns row j = MvPolynomial.coeff row.2.1
     (unscaledLocalSubstitution d (Polynomial.C (centers row.1))
       (receivedLine (f row.1) (g row.1)) (columns j).polynomial) by
         simp [matrix, localConstraintCoordinatesAt, lowContactCoefficients]]
-  rw [SourceColumn.polynomial_eq_sourceColumn]
+  rw [SourceColumn.polynomial_eq_sourceMonomial]
   exact h row.2.1
 
 theorem finMatrix_entry_natDegree_le_y₀ {n N : ℕ} (m : ℕ) (centers f g : Fin n → F)

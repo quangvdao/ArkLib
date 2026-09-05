@@ -303,7 +303,7 @@ theorem execute_width (m : ℕ) (xs : List ℕ) (hx : xs.length = d)
 theorem execute_column_polynomial (a y : F) (x b m : ℕ) (higherJets : Fin d → ℕ) :
     denseRepresented d (execute d m (List.ofFn higherJets)
       (LocalColumnTranslationMachine.columnSpec a y x b m)).1 =
-        localConstraintAt m a y (LocalColumnTranslationMachine.sourceColumn x b higherJets) := by
+        localConstraintAt m a y (sourceMonomial x b higherJets) := by
   rw [execute_polynomial m _ (List.length_ofFn)]
   have hh : higher d (List.ofFn higherJets) =
       LocalColumnTranslationMachine.higherExponent higherJets := by
@@ -358,7 +358,7 @@ theorem columnSpec_u_bound (a y : F) (x b m : ℕ) :
 theorem column_refines (a y : F) (x b m : ℕ) (higherJets : Fin d → ℕ) :
     ∃ ts c, column d m (List.ofFn higherJets) a y x b = (some ts, c) ∧
       denseRepresented d ts =
-        localConstraintAt m a y (LocalColumnTranslationMachine.sourceColumn x b higherJets) ∧
+        localConstraintAt m a y (sourceMonomial x b higherJets) ∧
       (∀ t ∈ ts, t.2.length = d + 2) ∧
       ts.length ≤ (d + 2) ^ (m + 2) * (m * m) ∧
       c ≤ 288 * (x + b + m + 2) * (m + 1) +
@@ -472,7 +472,7 @@ theorem lookup_column (a y : F) (x b m : ℕ) (higherJets : Fin d → ℕ)
     (hc : column d m (List.ofFn higherJets) a y x b = (some ts, c))
     (q : Term F) (hq : q.jets.length = d) :
     (lookup (q.t :: q.e :: q.jets) ts).1 = coeff (exponent d q)
-      (localConstraintAt m a y (LocalColumnTranslationMachine.sourceColumn x b higherJets)) := by
+      (localConstraintAt m a y (sourceMonomial x b higherJets)) := by
   obtain ⟨out, cost, he, hp, hw, _⟩ := column_refines a y x b m higherJets
   have hs : out = ts := by simpa using congrArg (fun r => r.1) (he.symm.trans hc)
   subst out

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.Capacity
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.CapacityList
 
 /-!
 # Public capacity-list interface and threshold boundaries
@@ -13,7 +13,7 @@ The quarter-gap branch is not a uniqueness theorem. Over `ZMod 5`, four distinct
 points and the received word `(0, 0, 1, 1)` contain both constant zero and constant one at the exact
 quarter-gap threshold `1 + ceil((1/4) * 4) = 2`. This concrete example rejects an accidental
 strengthening of the quarter-gap branch to list size one. Raising the integer threshold to three
-excludes zero. An ordinary import of the central theorem suffices; no contract wrapper or
+excludes zero. An import of the mathematical list theorem suffices; no contract wrapper or
 internal list representation appears in the consumer.
 -/
 

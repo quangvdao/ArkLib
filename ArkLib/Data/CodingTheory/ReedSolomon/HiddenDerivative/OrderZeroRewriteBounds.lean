@@ -77,7 +77,7 @@ unchanged from the generic column theorem. -/
 theorem column_zero_refines (a y : F) (x b m : ℕ) :
     ∃ ts c, column 0 m [] a y x b = (some ts, c) ∧
       denseRepresented 0 ts = localConstraintAt m a y
-        (LocalColumnTranslationMachine.sourceColumn x b (fun j : Fin 0 ↦ j.elim0)) ∧
+        (sourceMonomial x b (fun j : Fin 0 ↦ j.elim0)) ∧
       (∀ t ∈ ts, t.2.length = 2) ∧ ts.length ≤ m * m ∧
       c ≤ 288 * (x + b + m + 2) * (m + 1) + (224 * m + 224) * (m * m) + 128 := by
   obtain ⟨c, hc, hcost⟩ := LocalColumnTranslationMachine.construction_correct a y x b m

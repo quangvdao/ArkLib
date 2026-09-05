@@ -40,6 +40,22 @@ theorem jetTotalDegree_le_iff (Q : DifferentialPolynomial F d) (Δ : ℕ) :
   unfold jetTotalDegree MvPolynomial.weightedTotalDegree
   simp [Finset.sup_le_iff, Finsupp.weight_apply, Finsupp.sum_fintype]
 
+/-- Every individual jet degree is bounded by total jet degree. -/
+theorem jetDegree_le_total (Q : DifferentialPolynomial F d) (j : Fin (d + 1)) :
+    jetDegree Q j ≤ jetTotalDegree Q := by
+  classical
+  apply MvPolynomial.degreeOf_le_iff.mpr
+  intro u hu
+  have hb := (jetTotalDegree_le_iff Q _).mp le_rfl u hu
+  exact (Finset.single_le_sum (fun k _ => Nat.zero_le (u (some k)))
+    (Finset.mem_univ j)).trans hb
+
+/-- Every active separant decreases total jet degree by at least one. -/
+theorem separant_total_le (Q : DifferentialPolynomial F d) (j : Fin (d + 1)) :
+    jetTotalDegree (separant Q j) ≤ jetTotalDegree Q - 1 := by
+  exact weightedTotalDegree_pderiv_le_sub
+    (fun v : JetVariable d => match v with | none => 0 | some _ => 1) (some j) Q
+
 /-- Partial specialization cannot increase total degree in jet variables. -/
 theorem totalDegree_jetFiberHom_le (Q : DifferentialPolynomial F d) (a : F) :
     (jetFiberHom a Q).totalDegree ≤ jetTotalDegree Q := by

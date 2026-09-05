@@ -72,7 +72,7 @@ theorem sourceValue_eq_monomial (v : List ℕ) (hv : v.length = d + 2) :
     | cons x v => cases v with
       | nil => simp at hv
       | cons b xs => exact ⟨x, b, xs, rfl⟩
-  simp only [InterpolationPointBlockMachine.sourceValue, LocalColumnTranslationMachine.sourceColumn]
+  simp only [InterpolationPointBlockMachine.sourceValue, sourceMonomial]
   rw [exponent, Fin.sum_univ_succ]
   simp only [List.getD_eq_getElem?_getD, List.getElem?_cons_zero, Option.getD_some,
     Fin.val_zero, Nat.zero_add, List.getElem?_cons_succ, Fin.val_succ]

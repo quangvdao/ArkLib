@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SymbolicBandCertificate
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.GeometricListConstants
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SeparantChainRefinement
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeRootCount
 
 /-! # Prescribed band parameters for the geometric list count -/
 
@@ -58,7 +58,7 @@ theorem geometric_below_characteristic {F : Type*} [Field F] {d n k ν : ℕ}
     IsBelowCharacteristic (k - 1) Q := by
   refine ⟨by omega, ?_⟩
   intro j
-  exact (SeparantChainRefinement.jetDegree_le_total Q j).trans_lt
+  exact (jetDegree_le_total Q j).trans_lt
     (hdegree.trans_lt (hνn.trans_le hchar))
 
 end ReedSolomon.AllRateListDecoding

@@ -6,6 +6,7 @@ Authors: Quang Dao
 
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalColumnTranslationMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalConstraintMap
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.SourceMonomial
 import Mathlib.Algebra.Polynomial.Inductions
 
 /-!
@@ -192,10 +193,6 @@ theorem represented_column (h : LocalVariable d →₀ ℕ) (hT : h (localT d) =
 def higherExponent (higher : Fin d → ℕ) : LocalVariable d →₀ ℕ :=
   ∑ j, Finsupp.single (localY j) (higher j)
 
-/-- Ordinary source monomial in the column's X,Y0 and higher-jet coordinates. -/
-def sourceColumn (x b : ℕ) (higher : Fin d → ℕ) : DifferentialPolynomial F d :=
-  X none ^ x * X (some 0) ^ b * ∏ j, X (some j.succ) ^ higher j
-
 private theorem higherExponent_T (higher : Fin d → ℕ) :
     higherExponent higher (localT d) = 0 := by
   simp [higherExponent, localT, localY]
@@ -218,10 +215,10 @@ private theorem higher_factor (higher : Fin d → ℕ) :
 theorem represented_eq_translatedLocalTruncation (a y : F) (x b m : ℕ)
     (higher : Fin d → ℕ) :
     represented (higherExponent higher) (columnSpec a y x b m) =
-      translatedLocalTruncation m a y (sourceColumn (F := F) x b higher) := by
+      translatedLocalTruncation m a y (sourceMonomial (F := F) x b higher) := by
   rw [represented_column _ (higherExponent_T higher)]
   simp only [translatedLocalTruncation, LinearMap.comp_apply, AlgHom.toLinearMap_apply,
-    sourceColumn, map_mul, map_pow, map_prod]
+    sourceMonomial, map_mul, map_pow, map_prod]
   simp only [translateToU, bind₁_X_right, Fin.cases_zero, Fin.cases_succ]
   rw [higher_factor]
 
@@ -229,7 +226,7 @@ theorem represented_eq_translatedLocalTruncation (a y : F) (x b m : ℕ)
 This equality does not execute the pending U rewrite or low-contact projection. -/
 theorem localConstraintAt_eq_enlarged_represented (a y : F) (x b m : ℕ)
     (higher : Fin d → ℕ) :
-    localConstraintAt m a y (sourceColumn (F := F) x b higher) =
+    localConstraintAt m a y (sourceMonomial (F := F) x b higher) =
       enlargedLocalConstraintMap m
         (represented (higherExponent higher) (columnSpec a y x b m)) := by
   rw [localConstraintAt_apply_eq_enlarged_translated, represented_eq_translatedLocalTruncation]
@@ -268,7 +265,7 @@ Higher-jet coordinates are fixed metadata; this stage performs no U-to-E rewrite
 theorem translate_refines (a y : F) (x b m : ℕ) (higher : Fin d → ℕ) :
     ∃ ts c, translate a y x b m = (.done ts, c) ∧
       represented (higherExponent higher) ts =
-        translatedLocalTruncation m a y (sourceColumn (F := F) x b higher) ∧
+        translatedLocalTruncation m a y (sourceMonomial (F := F) x b higher) ∧
       ts.length ≤ m * m ∧ c ≤ 288 * (x + b + m + 2) * (m + 1) := by
   obtain ⟨c, hr, hc⟩ := construction_correct a y x b m
   refine ⟨columnSpec a y x b m, c, hr,

@@ -52,6 +52,19 @@ rejects source-level linter suppressions in their actual parsed context.
 If the task is specifically Lean warning cleanup, follow
 [`../skills/fix-lean-warnings.md`](../skills/fix-lean-warnings.md).
 
+### RS mathematical import boundary
+
+`./scripts/validate.sh` checks that the mathematical RS entry points do not
+transitively import execution, machine, cost, semantics, or refinement modules
+under the current module naming conventions. Run the source-level check alone with:
+
+```bash
+python3 scripts/check-rs-math-imports.py
+```
+
+This is a dependency regression check, not a proof of semantic purity. The
+[RS separation plan](../design/rs-algebraic-machine-plan.md) describes module ownership.
+
 ### Filling a `sorry`, or work that must stay axiom-clean
 
 ```bash
