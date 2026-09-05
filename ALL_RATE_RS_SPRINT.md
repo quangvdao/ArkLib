@@ -217,3 +217,33 @@ Ownership: A audits the coordinate core and outer composition; B completes regis
 C supplies same-run coordinate numerical bounds; central closes the integer dispatch and integrates.
 The strengthening coordinator retains geometry/list/MCA and its three bounded descendants. The
 09:21 proof stop, 09:36 worker stop and 09:51 final hard stop remain in force.
+
+## Three-hour risk checkpoint, 08:51 UTC
+
+`188a9820` is pushed after full validation: 29,312 declarations in 1,034 modules,
+312 pre-existing tainted declarations, no new taint/nonstandard axioms, and 183 source admissions
+unchanged. `CoordinateCapacityMachine.run_exact` now proves all-rate exact execution on the
+same integer coordinate decoder, including exceptional blocks and both field regimes. The
+central `Capacity.lean` primitive-work theorem is being switched to this implementation without
+adding another public theorem or changing its mathematical output/list-size clauses. Independent
+audits accepted the core, parameter branches and integer dispatch, and all four physical
+ADD/MUL/NEG/INV register instructions. Durable independent full-bank replays are integrated.
+
+The full bit-time theorem is **not expected to close in the remaining proof window**. Local
+tape-update shape alone does not force finite-control/head-only branching. A separate finite
+head-program interpreter and exact word-copy refinement are being proved to expose that
+adequacy obligation. Whole-decoder instruction compilation, bounded lifetime allocation and
+representation widths, integer/fuel arithmetic and physical input/output remain outstanding.
+Standalone arithmetic instructions do not discharge those obligations by themselves.
+
+The strengthening team has certified the actual regular-solution field-independent bound
+`ν * (n * (1 + 2K(ν - 1)) / (A - k + 1))^r`, via the explicit algebraic-closure embedding,
+actual chart geometry and cardinality preservation. The singular/order-restriction join is
+its immediate priority. General small/intermediate-gap MCA and its image/envelope/generic-fiber
+argument remain unproved and are unlikely to finish in this sprint. No conditional geometry
+interface or regular-only result is being presented as the final all-solution theorem.
+
+The deadline fallback remains preservation of verified progress, not mathematical completion.
+All workers acknowledged the unchanged cutoffs. Central owns register initialization and final
+integration; A owns finite-head adequacy; B owns remaining load/output/dispatcher instructions;
+C independently audits new instructions and initialization. No overlapping implementation claims.

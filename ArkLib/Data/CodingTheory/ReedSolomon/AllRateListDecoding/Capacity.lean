@@ -6,7 +6,7 @@ Authors: Quang Dao
 
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.AsymmetricBandListBound
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.QuarterGapListBound
-import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CapacityDecoderExecution
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CoordinateCapacityExecution
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.CapacityOutputBounds
 
 /-!
@@ -25,9 +25,11 @@ For larger gaps the bounds are one and strictly less than
 the block length `n`. Taking `A = k + ceil(delta*n)` gives radius `1 - k/n - delta`;
 the rounding and `Code.Lambda` formulation are established in `AgreementRadius.lean`.
 
-`capacity_decoder_exact_output_and_primitive_work` additionally executes a closed integer-input
-decoder and attaches these bounds to its actual physical output, together with the observed
-primitive-work ledger. Both field-size inequalities concern the identical run and list.
+`capacity_decoder_exact_output_and_primitive_work` additionally executes the integer-input
+coordinate decoder and attaches these bounds to its actual coefficient-list output, together
+with the observed primitive-work ledger. The runtime materializes its coordinate alphabets and
+executes the raw-coordinate recovery, guards and collection. Both field-size inequalities concern
+the identical run and list.
 
 **Verification boundary.** The classical theorem alone asserts no algorithmic bound. The
 executable theorem proves primitive work, not the paper's bit complexity: binary arithmetic,
@@ -165,7 +167,7 @@ theorem capacity_decoder_exact_output_and_primitive_work
         let : Fact q.Prime := ⟨hq⟩
         ∀ (alpha : Fin n ↪ ZMod q) (y : Fin n → ZMod q),
           ∃ (out : List (List (ZMod q))) (work : ℕ),
-            ListDecoding.CapacityDecoderMachine.run n k d m A
+            ListDecoding.CoordinateCapacityMachine.run n k d m A
               (List.ofFn (fun i ↦ (alpha i, y i))) = (some out, work) ∧
             out.Nodup ∧ (out.map JetHornerMachine.coefficientPolynomial).Nodup ∧
             (∀ P : Polynomial (ZMod q),
@@ -184,15 +186,15 @@ theorem capacity_decoder_exact_output_and_primitive_work
                 out.length ≤ 4 * m * q ^ d ∧ work ≤ C * q ^ (d + 29))) := by
   let d := capacityDerivativeOrder delta
   let m := asymmetricBandMultiplicity delta
-  refine ⟨ListDecoding.CapacityDecoderMachine.workCoefficient d m, ?_, ?_⟩
-  · unfold ListDecoding.CapacityDecoderMachine.workCoefficient
+  refine ⟨ListDecoding.CoordinateCapacityMachine.workCoefficient d m, ?_, ?_⟩
+  · unfold ListDecoding.CoordinateCapacityMachine.workCoefficient
     omega
   · intro n k q A hn hk hkn hq hnq hA hAupper
     let : Fact q.Prime := ⟨hq⟩
     dsimp only
     intro alpha y
     have hthreshold := (agreementThreshold_le_iff_real hdelta.le n k A).mpr hA
-    obtain ⟨out, work, hr, he, hw, hlarger⟩ := ListDecoding.CapacityDecoderMachine.run_exact
+    obtain ⟨out, work, hr, he, hw, hlarger⟩ := ListDecoding.CoordinateCapacityMachine.run_exact
       delta hdelta n k A hn hk hkn hnq hthreshold alpha y
     obtain ⟨hos, hhalf, hquarter, hsmall⟩ :=
       ListDecoding.CapacityOutputBounds.capacity_output_bounds

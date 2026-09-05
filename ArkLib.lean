@@ -446,6 +446,11 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRo
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsSound
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorAgreementGeometry
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorDenominator
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorHighCutGeometry
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorInitialGeometry
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorRegularCounting
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorSolutionEmbedding
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorSolutionExtension
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorSolutionGeometry
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorSupport
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorSupportEvaluation
@@ -582,6 +587,7 @@ import ArkLib.Data.Computation.BitMemoryRead
 import ArkLib.Data.Computation.BitMemoryReadCheck
 import ArkLib.Data.Computation.CellPayloadMachine
 import ArkLib.Data.Computation.FieldLiteralMachine
+import ArkLib.Data.Computation.FiniteHeadProgram
 import ArkLib.Data.Computation.FixedWidthWordCheck
 import ArkLib.Data.Computation.FixedWidthWordMachine
 import ArkLib.Data.Computation.HeapAllocationBudget
@@ -598,12 +604,18 @@ import ArkLib.Data.Computation.PaddedNegate
 import ArkLib.Data.Computation.PaddedNegateCheck
 import ArkLib.Data.Computation.QuadraticArithmeticBitAdd
 import ArkLib.Data.Computation.QuadraticArithmeticBitAddExecution
+import ArkLib.Data.Computation.QuadraticArithmeticBitCheck
+import ArkLib.Data.Computation.QuadraticArithmeticBitEqual
+import ArkLib.Data.Computation.QuadraticArithmeticBitEqualExecution
 import ArkLib.Data.Computation.QuadraticArithmeticBitInv
 import ArkLib.Data.Computation.QuadraticArithmeticBitInvExecution
+import ArkLib.Data.Computation.QuadraticArithmeticBitLoad
 import ArkLib.Data.Computation.QuadraticArithmeticBitMul
 import ArkLib.Data.Computation.QuadraticArithmeticBitMulExecution
 import ArkLib.Data.Computation.QuadraticArithmeticBitNeg
 import ArkLib.Data.Computation.QuadraticArithmeticBitNegExecution
+import ArkLib.Data.Computation.QuadraticRegisterInitialization
+import ArkLib.Data.Computation.QuadraticRegisterInitializationCheck
 import ArkLib.Data.Computation.ScalarWordPadding
 import ArkLib.Data.Computation.SharedListAllocator
 import ArkLib.Data.Computation.SharedListCellMachine
@@ -619,6 +631,8 @@ import ArkLib.Data.Computation.SharedListRead
 import ArkLib.Data.Computation.SharedListScalarAllocate
 import ArkLib.Data.Computation.SharedListUncons
 import ArkLib.Data.Computation.WordCopyCheck
+import ArkLib.Data.Computation.WordCopyFiniteControl
+import ArkLib.Data.Computation.WordCopyFiniteControlCheck
 import ArkLib.Data.Computation.WordCopyMachine
 import ArkLib.Data.Domain.CosetFftDomain.Block
 import ArkLib.Data.Domain.CosetFftDomain.Defs

@@ -32,11 +32,12 @@ It is the **list-size part**, not yet the full algorithmic theorem.
 
 The same file now also exports `capacity_decoder_exact_output_and_primitive_work` for the
 actual integer-input decoder, including both field regimes and a bound on the same observed run.
-It is **not** a bit-time theorem. Pushed checkpoint `9e551abe` contains validated bit-arithmetic,
-same-memory cell read/write/allocation and Horner execution, alongside coordinate stage generation.
-The next integration closes the coordinate prepared/separate-sample driver, executed alphabet
-conversion, and interpolation/setup composition. It adds alias-safe physical register ADD/MUL,
-closed Horner zero initialization and the unconditional affine principal-cut degree sum.
+It is **not** a bit-time theorem. Pushed checkpoint `188a9820` closes the coordinate
+prepared/separate-sample driver, executed alphabet conversion, interpolation/setup composition
+and all-rate integer dispatch. It adds alias-safe physical register ADD/MUL/NEG/INV, closed
+Horner zero initialization and the unconditional affine principal-cut degree sum. The next
+integration switches this existing public capstone to the coordinate implementation and adds
+finite-head word-copy adequacy, physical register initialization, equality and input loads.
 These pieces still require a whole-driver bit compiler, representation/width/lifetime invariants,
 physical input/output, and the final same-program bit-cost join. Lane A independently audits the
 coordinate outer driver; lane B implements the remaining physical scalar-register instructions;

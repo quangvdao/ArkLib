@@ -293,3 +293,20 @@ review, axiom fixture matrix, and regression sweep; details appear below.
   without suppressions and the complete gate rerun passed.
 - Arbitrary-field extension transport and initial-hypersurface assembly are next;
   the final manuscript list and remaining MCA theorems are not yet established.
+
+## Tenth checkpoint certification (08:47 UTC)
+
+- Five independently audited modules (614 lines) complete actual initial hypersurface
+  geometry and the finite regular Taylor chart bound with the sharp degree factor.
+- Actual regular polynomial solutions over ANY base field satisfy
+  card(S) <= v * (n*(1+2K*(v-1))/(A-k+1))^r under the explicit degree,
+  agreement, regularity, and binomial-pivot hypotheses. The proof maps coefficients,
+  candidates, and received symbols into the actual algebraic closure; exact
+  cardinality and agreement are preserved. No HP base-change assertion is assumed.
+- High-cut potential converts to the incidence ratio using dimension<=r and
+  n/(A-k+1)>=1, without paying an extra factor of the cut degree.
+- Full default validation passed with850 umbrella imports. Axiom sweep passed:
+  22952 declarations/851 modules,312 old sorry-tainted,zero nonstandard axioms,
+  no new taint. Source audit vs5a8125ee is unchanged.
+- Remaining endpoint: singular-branch/order-restriction summation and manuscript
+  constants, then final list assembly; remaining small/intermediate MCA is unproved.
