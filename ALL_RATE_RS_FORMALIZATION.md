@@ -1129,7 +1129,7 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 |---|---|---|
 | A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Center loop handed off; next: execute root enumeration across generated chain stages and prove unique-jet output | New root-stage driver and uniqueness modules, API freeze pending |
 | B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Full matrix handed off; next: connect kernel extraction to a nonzero sparse interpolant | New interpolation/kernel conversion modules, API freeze pending |
-| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: adapt each chain stage to its actual highest derivative order, retaining raw sparse terms | `HiddenDerivative/RootFinding/ActiveOrderAdapter.lean`; `OrderedChainRegularWitness.lean` if scope permits |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active-order and regular-record bridge handed off; next: compose quadratic field and sample initialization | New field/sample preparation modules, API freeze pending |
 | Central | Validate/integrate handoffs; implement canonical witness selection and whole-decoder joins | Output processing, witness selection, tracker and umbrella |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
@@ -1211,7 +1211,18 @@ Do not rebuild those components or count them as already proving the whole-decod
 
 ### Integrated foundations and current handoffs
 
-- Latest fully validated batch: all-jets execution (`8d1debe6`), one-point interpolation matrix
+- Latest fully validated batch: center enumeration (`a381994f`), full received-point matrix
+  (`d5c221ec`), active-order presentation and actual-record regular witness (`634b61db`), and
+  central guard exclusivity. Central has read all source and canaries. The full
+  `validate.sh --axioms` gate passes with 678 umbrella imports, 549 source examples (+12),
+  183 admissions unchanged, 312 pre-existing tainted declarations and no nonstandard/native axioms.
+  The matrix imposes precisely the common-support low-contact constraints at all received points.
+  The center loop has a single alphabet exponent `S^(r+2)`, retaining raw duplicates.
+  The active-order presentation is proof-only and preserves the exact sparse polynomial and
+  weighted degree; it requires no uncharged runtime trimming. Guard exclusivity distinguishes
+  a later prefix containing the first stage's separant from the immediately adjacent stage,
+  which must instead supply its current-equation zero certificate.
+- Previous fully validated batch: all-jets execution (`8d1debe6`), one-point interpolation matrix
   (`cb1d1726`), ordered separant-chain generation (`a1756098`) and central canonical guard.
   Central has read every source and canary. The chain has at most `Δ+1` records, including its
   nonzero terminal equation, with exact adjacent separant identities and nonincreasing sparse
@@ -1221,9 +1232,6 @@ Do not rebuild those components or count them as already proving the whole-decod
   Full `validate.sh --axioms` passes: 668 umbrella imports, 537 source examples (+25),
   183 admissions unchanged, 312 pre-existing tainted declarations and zero nonstandard/native
   axioms. The canonical guard has five kernel-checked execution and exact-cost cases.
-- Pending central audit/integration: center enumeration (`a381994f`) and full received-point
-  matrix assembly (`d5c221ec`). Worker-local compilation and canaries are complete; these
-  handoffs are not yet included in the canonical full validation result above.
 - Previous fully validated batch: one-jet root execution (`e886c93d`), complete local rewriting
   (`69fd8e82`), highest-jet selection (`b1a28708`, `cb25e564`) and central ordered residual search.
   Full `validate.sh --axioms` passes: 653 umbrella imports, 512 source examples (+31),

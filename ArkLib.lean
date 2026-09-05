@@ -257,10 +257,19 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.SimplexB
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.SimplexCantelli
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.SimplexMoments
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.SimplexVariance
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.ReceivedInterpolationMatrixCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.ReceivedInterpolationMatrixMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.ReceivedInterpolationMatrixSemantics
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ActiveOrderAdapter
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CanonicalGuardBounds
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CanonicalGuardCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CanonicalGuardMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CanonicalGuardSemantics
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CanonicalGuardUnique
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CenterRootsBounds
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CenterRootsCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CenterRootsMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CenterRootsSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CenterShiftCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CenterShiftMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Counting
@@ -285,6 +294,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetRoot
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetRootsCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetRootsMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.JetRootsSemantics
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.OrderedChainRegularWitness
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RecursiveCounting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RecursiveCountingCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularCounting
