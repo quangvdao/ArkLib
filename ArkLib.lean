@@ -253,6 +253,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.LocalSamplingDegree
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.NonzeroInterpolationBasis
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.NonzeroInterpolationCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.NonzeroInterpolationMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.NonzeroInterpolationOutputBounds
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.NonzeroInterpolationProofs
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.NonzeroInterpolationZeroBounds
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.OrderZeroAssemblyBounds
@@ -361,6 +362,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Residua
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualWitnessSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualZeroCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualZeroMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RestrictedRootSelection
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RestrictedStageRoots
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RootCount
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RootCountCanary
@@ -415,6 +417,12 @@ import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.PreparedInterpolationPr
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticCandidateCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticCandidateMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticCandidateSemantics
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.RestrictedCollectorProof
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleDecoder
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleExecution
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SmallBlockDecoderMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SmallBlockDecoderProof
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.Specification
 import ArkLib.Data.CodingTheory.ReedSolomon.Multilinear
 import ArkLib.Data.CodingTheory.ReedSolomon.Multiplicity
@@ -502,6 +510,9 @@ import ArkLib.Data.Matrix.PivotEliminationMachineCanary
 import ArkLib.Data.Matrix.PivotSelectionMachine
 import ArkLib.Data.Matrix.PivotSelectionMachineCanary
 import ArkLib.Data.Matrix.PivotSolveMachine
+import ArkLib.Data.Matrix.QuadraticPivotCanary
+import ArkLib.Data.Matrix.QuadraticPivotMachine
+import ArkLib.Data.Matrix.QuadraticPivotRefinement
 import ArkLib.Data.Matrix.QuadraticRowCanary
 import ArkLib.Data.Matrix.QuadraticRowMachine
 import ArkLib.Data.Matrix.QuadraticRowRefinement
@@ -584,6 +595,9 @@ import ArkLib.Data.Probability.Instances
 import ArkLib.Data.Probability.KoalaBear
 import ArkLib.Data.Probability.Notation
 import ArkLib.Data.QuadraticAlgebra.ArithmeticMachine
+import ArkLib.Data.QuadraticAlgebra.BaseEmbeddingCanary
+import ArkLib.Data.QuadraticAlgebra.BaseEmbeddingMachine
+import ArkLib.Data.QuadraticAlgebra.BaseEmbeddingSemantics
 import ArkLib.Data.QuadraticAlgebra.CoefficientDescentCanary
 import ArkLib.Data.QuadraticAlgebra.CoefficientDescentMachine
 import ArkLib.Data.QuadraticAlgebra.CoefficientDescentSemantics

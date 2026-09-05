@@ -1134,10 +1134,10 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
-| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: canonical base-center completeness and restricted exact collector; separate recovery/guard uniqueness checkpoint complete | `HiddenDerivative/RootFinding/RestrictedRootSelection`, `ListDecoding/RestrictedCollectorProof` |
-| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: charged tiny-block and oversized branches, including `q=2`; direct interpolation/prepared exactness checkpoint complete | `ListDecoding/SmallBlockDecoderMachine`, `ListDecoding/SmallBlockDecoderProof` |
-| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: coordinate pivot elimination with actual arithmetic and row children; coordinate Vandermonde and row checkpoints complete | `ArkLib/Data/Matrix/QuadraticPivot*` |
-| Central | Integrate/audit; initial-size collector bounds; outer and dual-sample driver; plan strengthenings without starting their lanes | `ListDecoding/CollectorInputBounds`, `ListDecoding/CollectorStageBounds`, `HiddenDerivative/RootFinding/GuardInputBounds`, outer drivers and trackers |
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Exactness and initial-input cost for the same separate-sample run, both field regimes; awaiting central dependency freeze | New `ListDecoding/SeparateSampleExactness` and restricted companion |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Numerical polynomial budgets from actual sparse-output bounds; awaiting central dependency freeze | New numerical budget modules, interface to be frozen before implementation |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: coordinate column elimination and augmented RHS packing/unpacking; pivot lowering checkpoint complete | `ArkLib/Data/Matrix/QuadraticColumn*`, `ArkLib/Data/Matrix/QuadraticAugment*` |
+| Central | Integrate/audit; outer executable setup/search/branch composition; preserve strengthening plan without starting its lanes | `ListDecoding/SeparateSampleDecoder`, `ListDecoding/SeparateSampleExecution`, `ArkLib/Data/QuadraticAlgebra/BaseEmbedding*`, outer drivers and trackers |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
 except explicitly repository-relative paths beginning `ArkLib/`.
@@ -1200,6 +1200,20 @@ matching them to generated chain records, proving unique stage/jet retention, an
 guard to a collected output list remain open.
 
 ### Near-term completion plan
+
+The distinct-grid driver now composes conversion, roots and collection into one actual trace
+with initial-input fuel and primitive-work bounds (`SeparateSampleExecution`). Equal grids
+preserve every original prepared-driver state and charge. Runtime canaries use different grids
+to detect accidentally reusing recovery samples for canonical guards. Restricted collector
+completeness now derives a canonical base center from the reduced separant degree bound, while
+recovery still uses the extension grid. The physical base alphabet is built by charged scalar
+allocation and reversal (`BaseEmbeddingMachine`), not a proof-side list map at runtime.
+
+The tiny-block leaf handles `q=2`, `n=1,2` and oversized thresholds with explicit charged
+execution. Sparse interpolation outputs now have proved physical term-count and exponent-mass
+bounds, including order zero with growing multiplicity. Coordinate pivot elimination includes
+actual equality, inversion, negation, multiplication and the row child. The full outer program,
+final exponent specialization and complete base-field/bit-cost refinement remain open.
 
 The next integrated checkpoint adds parameter-derived small-gap setup, direct order-zero
 prepared correctness, restricted-alphabet root completeness, separate-grid uniqueness,
