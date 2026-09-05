@@ -1134,9 +1134,9 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
-| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Exactness and initial-input cost for the same separate-sample run, both field regimes; awaiting central dependency freeze | New `ListDecoding/SeparateSampleExactness` and restricted companion |
-| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Numerical polynomial budgets from actual sparse-output bounds; awaiting central dependency freeze | New numerical budget modules, interface to be frozen before implementation |
-| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: coordinate column elimination and augmented RHS packing/unpacking; pivot lowering checkpoint complete | `ArkLib/Data/Matrix/QuadraticColumn*`, `ArkLib/Data/Matrix/QuadraticAugment*` |
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: exactness and initial-input cost for the same separate-sample run, both field regimes, from direct interpolation | New `ListDecoding/SeparateSampleExactness` and restricted companion |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: field-size specialization of the proved degree-five budget; both fixed-order regimes and growing-multiplicity order zero | `ListDecoding/SeparateSampleFieldBounds` |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: coordinate pivot selection; column elimination and augmented RHS checkpoints complete | `ArkLib/Data/Matrix/QuadraticSelection*` |
 | Central | Integrate/audit; outer executable setup/search/branch composition; preserve strengthening plan without starting its lanes | `ListDecoding/SeparateSampleDecoder`, `ListDecoding/SeparateSampleExecution`, `ArkLib/Data/QuadraticAlgebra/BaseEmbedding*`, outer drivers and trackers |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
@@ -1214,6 +1214,19 @@ execution. Sparse interpolation outputs now have proved physical term-count and 
 bounds, including order zero with growing multiplicity. Coordinate pivot elimination includes
 actual equality, inversion, negation, multiplication and the row child. The full outer program,
 final exponent specialization and complete base-field/bit-cost refinement remain open.
+
+`SeparateSamplePolynomialBounds` bounds both fuel and primitive work by one alphabet power
+times an absolute degree-five polynomial in original numerical sizes. The outer dispatch now
+distinguishes actual direct order-zero interpolation from descending search, and every returned
+search result has a proved originating successful direct attempt. `CertifiedSetup` retains the
+actual observed setup values with erased integrity proofs; it performs no extra nonsquare search
+or field choice. Its caller still needs the explicit handoff charge and whole-program composition.
+
+After the same-run exactness join, reserve an independent lane for the bit-cost boundary while
+coordinate solver lowering continues. In particular, fuel administration, integer parameters,
+address/data representation and memory access must be justified. A primitive field-operation
+ledger is not a proof of the old manuscript's bit-operation bound. A naive whole-memory scan
+per access can square the candidate-dependent exponent and is not an acceptable shortcut.
 
 The next integrated checkpoint adds parameter-derived small-gap setup, direct order-zero
 prepared correctness, restricted-alphabet root completeness, separate-grid uniqueness,

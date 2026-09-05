@@ -226,6 +226,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.GlobalMultiplicityC
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationAttemptProofs
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationDimensionBridge
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationDimensionBridgeCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationDispatch
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationIndex
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationIndexCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationPointBlockCanary
@@ -421,6 +422,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.RestrictedCollectorProo
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleDecoder
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleExecution
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSamplePolynomialBounds
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SmallBlockDecoderMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SmallBlockDecoderProof
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.Specification
@@ -510,6 +512,12 @@ import ArkLib.Data.Matrix.PivotEliminationMachineCanary
 import ArkLib.Data.Matrix.PivotSelectionMachine
 import ArkLib.Data.Matrix.PivotSelectionMachineCanary
 import ArkLib.Data.Matrix.PivotSolveMachine
+import ArkLib.Data.Matrix.QuadraticAugmentCanary
+import ArkLib.Data.Matrix.QuadraticAugmentMachine
+import ArkLib.Data.Matrix.QuadraticAugmentRefinement
+import ArkLib.Data.Matrix.QuadraticColumnCanary
+import ArkLib.Data.Matrix.QuadraticColumnMachine
+import ArkLib.Data.Matrix.QuadraticColumnRefinement
 import ArkLib.Data.Matrix.QuadraticPivotCanary
 import ArkLib.Data.Matrix.QuadraticPivotMachine
 import ArkLib.Data.Matrix.QuadraticPivotRefinement
@@ -598,6 +606,8 @@ import ArkLib.Data.QuadraticAlgebra.ArithmeticMachine
 import ArkLib.Data.QuadraticAlgebra.BaseEmbeddingCanary
 import ArkLib.Data.QuadraticAlgebra.BaseEmbeddingMachine
 import ArkLib.Data.QuadraticAlgebra.BaseEmbeddingSemantics
+import ArkLib.Data.QuadraticAlgebra.CertifiedSetup
+import ArkLib.Data.QuadraticAlgebra.CertifiedSetupCanary
 import ArkLib.Data.QuadraticAlgebra.CoefficientDescentCanary
 import ArkLib.Data.QuadraticAlgebra.CoefficientDescentMachine
 import ArkLib.Data.QuadraticAlgebra.CoefficientDescentSemantics
