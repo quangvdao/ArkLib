@@ -1128,9 +1128,9 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
-| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: canonical generated-root soundness, first-supplied-center completeness and polynomial uniqueness | `HiddenDerivative/RootFinding/CanonicalRootSelection*`; `StageRoots*` frozen |
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: canonical root list through actual base-field output collector, exact membership and polynomial uniqueness | `ListDecoding/CanonicalOutputProof*`; root selection frozen |
 | B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: uniform stage fuel/work determined only by initial input sizes | `HiddenDerivative/RootFinding/{StageInputBounds,StageInputExecution}`; search frozen |
-| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: concrete quadratic-to-base lowering of the direct coefficient arithmetic tail | `HiddenDerivative/RootFinding/DirectArithmetic*`; setup and evaluator lowering frozen |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: concrete quadratic-to-base lowering of jet Horner evaluation | `ArkLib/Data/Polynomial/QuadraticJetHorner*`; direct arithmetic tail frozen |
 | Central | Validate/integrate handoffs; explicit sparse base-to-quadratic input conversion and whole-decoder joins | `ArkLib/Data/MvPolynomial/QuadraticInput*`, collector integration, tracker and umbrella |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
@@ -1212,7 +1212,21 @@ Do not rebuild those components or count them as already proving the whole-decod
 
 ### Integrated foundations and current handoffs
 
-- Latest fully validated batch: descending integer search
+- Latest fully validated batch: canonical root selection (`a086827c`) and direct-coefficient
+  arithmetic-tail lowering (`4e551e02`). Selection proves that the actual stage specification,
+  filtered by the execution-proved guard predicate, enumerates exactly all bounded initial roots
+  without polynomial duplicates. Completeness chooses the first nonzero supplied sample at the
+  first globally nonzero separant stage. Adjacent-stage exclusion uses the current root equation;
+  later-stage exclusion uses the recorded earlier prefix. The base-field collector join remains
+  active, and the selected subsequence here is only a proof-side specification.
+  The arithmetic-tail lowering covers actual negation, slope addition, equality, inverse, product
+  and emission, with source-transition correspondence and concrete base instruction traces.
+  Residual recovery, coefficient update/lookup and enclosing root drivers remain outside it.
+  The full `validate.sh --axioms` gate passes: 719 umbrella imports, 601 source examples (+8),
+  183 admissions unchanged, 312 pre-existing tainted declarations and no nonstandard/native axioms.
+  Central read all seven source files and matched the arithmetic handoff's recorded dependency
+  source identities against the integration checkout.
+- Previous fully validated batch (`71462b5d`): descending integer search
   (`83ae3755`) and central sparse base-to-quadratic input conversion. Search executes only integer
   parameters, charges failed attempts, and guarantees a successful ambient degree at least the
   prescribed one; this preserves the sharp separant field-size slack. Arbitrary returned successes

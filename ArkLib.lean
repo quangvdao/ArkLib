@@ -277,6 +277,10 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Canonic
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CanonicalGuardMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CanonicalGuardSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CanonicalGuardUnique
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CanonicalRootSelection
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CanonicalRootSelectionCheck
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CanonicalRootSelectionProof
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CanonicalRootSelectionSound
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CenterRootsBounds
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CenterRootsCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CenterRootsMachine
@@ -286,6 +290,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.CenterS
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Counting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DerivativeDescent
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DerivativeDescentCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DirectArithmeticCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DirectArithmeticMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DirectArithmeticRefinement
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DirectCoefficientCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DirectCoefficientMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DirectCoefficientRefinement
