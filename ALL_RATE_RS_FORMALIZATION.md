@@ -1071,10 +1071,10 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
-| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Complete and stopped; batch sampling source `77303d75`, queued for integration | `HiddenDerivative/RootFinding/ResidualBatchMachine.lean` and canaries |
-| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Complete and stopped; Vandermonde source `8df9d37c`, queued; independent capacity-statement audit complete | `ArkLib/Data/Matrix/VandermondeMachine.lean` and canaries |
-| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Complete and stopped; forward-echelon source `4a6d3c53`, queued for integration | `ArkLib/Data/Matrix/ForwardEchelonMachine.lean` and helpers/canaries |
-| Central | User-priority capacity theorem packaging, validation, integration and push | `AllRateListDecoding/Capacity.lean`, naming migration, tracker and umbrella |
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: materialized initial-jet preparation and change of center | `HiddenDerivative/RootFinding/JetPreparationMachine.lean`, `CenterShiftMachine.lean` and canaries |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: closed Cartesian-product enumeration for grids and support boxes | `ArkLib/Data/List/CartesianProductMachine.lean` and canaries |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: back-substitution and residual consistency checking | `ArkLib/Data/Matrix/BackSubstitutionMachine.lean` and bounded helpers/canaries |
+| Central | Compose actual residual sampling, Vandermonde construction and forward elimination; integrate and validate | `HiddenDerivative/RootFinding/ResidualSystemMachine.lean`, refinements, tracker and umbrella |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
 except explicitly repository-relative paths beginning `ArkLib/`.
@@ -1371,10 +1371,9 @@ serialization/output boundaries, and rejection. There are no new admissions, exp
 or native trust. Worker B's independent source review of this machine and both grid inequalities
 is complete and found no actionable correctness issue; it did not rerun the central build.
 
-### Frozen runtime handoffs awaiting central integration
+### Integrated sampling, Vandermonde, and forward-echelon checkpoint
 
-These commits are present in local worker branches, not yet in the integration branch. Their
-worker-local checks do not replace the central full validation gate.
+The following worker commits have passed central source review and the full integration gate.
 
 - A `77303d75ab8392d0a07c01a73de960741b83f712`: actual residual-sample batches preserving ordered
   point/value pairs and all callee/wrapper/allocation costs. Main has read the source and canaries.
@@ -1384,12 +1383,20 @@ worker-local checks do not replace the central full validation gate.
 - C `4a6d3c53f85553d02b3e335ae5133ebd45573958`: actual forward-echelon driver, increasing
   nonzero pivot invariants, retained zero-coefficient residual rows, solution equivalence, and
   polynomial modeled cost. Main has read the source, invariants, and canaries with no actionable
-  correctness finding; central integration and full validation remain pending. This is not
+  correctness finding. This is not
   back-substitution, inconsistency detection, nonzero-kernel-vector extraction, or a full solver.
 
-The packaging pass does not change these workers' active runtime APIs. All three workers stopped
-after their bounded objectives; the central owner will review and integrate this batch before
-assigning the next epoch.
+Central `validate.sh --axioms` passed with 583 umbrella imports and no new axiom taint. The batch
+adds 15 kernel examples, including repeated ordered samples, output-emission boundaries, zero-width
+matrices, skipped pivot columns, and contradictory residual RHS values. No new admissions, explicit
+axioms, or native trust were introduced. The source commits remain recorded above for attribution.
+
+The user resumed all three lanes after the capacity-packaging checkpoint `0a7ff1cb`. Their new
+objectives appear in the roster. Back-substitution consumes materialized echelon outputs and a
+supplied free-coordinate vector; Cartesian products supply actual grid/support tuples; initial-jet
+preparation and unshifting close the coefficient-list representation boundaries. Main is composing
+the three landed machines with explicitly charged handoffs. None of these components alone proves
+the full decoder or its bit-complexity bound.
 
 ### Next critical-path work
 

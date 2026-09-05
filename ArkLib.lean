@@ -268,6 +268,8 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Regular
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularLifting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularLiftingCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RegularWitnessCounting
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualBatchCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualBatchMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSampleCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSampleMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.ResidualSampleRefinement
@@ -354,6 +356,9 @@ import ArkLib.Data.Matrix.AugmentedColumnMachineCanary
 import ArkLib.Data.Matrix.Basic
 import ArkLib.Data.Matrix.ColumnEliminationMachine
 import ArkLib.Data.Matrix.ColumnEliminationMachineCanary
+import ArkLib.Data.Matrix.ForwardEchelonMachine
+import ArkLib.Data.Matrix.ForwardEchelonMachineCanary
+import ArkLib.Data.Matrix.ForwardEchelonSemantics
 import ArkLib.Data.Matrix.PivotEliminationMachine
 import ArkLib.Data.Matrix.PivotEliminationMachineCanary
 import ArkLib.Data.Matrix.PivotSelectionMachine
@@ -362,6 +367,8 @@ import ArkLib.Data.Matrix.RowReductionMachine
 import ArkLib.Data.Matrix.RowReductionMachineCanary
 import ArkLib.Data.Matrix.Sparse
 import ArkLib.Data.Matrix.Vandermonde
+import ArkLib.Data.Matrix.VandermondeMachine
+import ArkLib.Data.Matrix.VandermondeMachineCanary
 import ArkLib.Data.Misc.Basic
 import ArkLib.Data.MvPolynomial.Degrees
 import ArkLib.Data.MvPolynomial.EvaluationMachine
