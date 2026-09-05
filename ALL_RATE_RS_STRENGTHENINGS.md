@@ -2,6 +2,31 @@
 
 ## Active MCA implementation: September 5 restart
 
+### Third checkpoint: components and hypersurface incidence
+
+The component-recognition bridge is now proved in `SourceComponentRecognition` and
+`SourceComponentAgreement`: a positive-dimensional regular prime containing the
+high cuts and any `L ≥ k` agreement cuts yields a base-field pair with at least `L`
+common agreements. Its initial equation, high cuts, and **all** reconstruction
+coefficient errors restrict to zero along the pair graph; its restricted separant
+is nonzero. These are derived from actual source equations, not assumed graph laws.
+
+`SymbolicJetPrefix` transports each symbolic chain equation to its actual highest
+order before specialization, preserving coefficients, degree caps, height, and
+the selected separant. `AffineHypersurfaceCutFamily` proves retained-component
+coverage, dimension, degree potential, and excluded incidence for a concretely cut
+hypersurface. In joint challenge/jet coordinates its exponent is `r + 1`.
+
+Still in progress: the specialized source-incidence theorem, admissible-pair
+counting at one scalar, and a common-center embedding of finite witness families.
+Then assemble stage exceptions and instantiate the all-rate theorem. No full-MCA
+endpoint is claimed by this checkpoint.
+
+Third-checkpoint validation: full `./scripts/validate.sh --axioms` passed
+(30,449 declarations across 1,085 modules; no new axiom/admission taint).
+The generic hypersurface incidence argument and concrete component recognition
+were independently reviewed, including empty-coordinate and arbitrary-threshold cases.
+
 ### Second checkpoint: symbolic degrees, stages, and exact pair exceptions
 
 The all-rate transfer remains the critical path. Sharp concrete numerical constants

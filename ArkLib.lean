@@ -210,6 +210,8 @@ import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.InterpolantListB
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.MutualAgreement
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.QuarterGapListBound
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.RateCover
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SourceComponentAgreement
+import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SourceComponentRecognition
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SourceGraphRecognition
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SymbolicBandCertificate
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.SymbolicBandInterpolation
@@ -455,6 +457,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRo
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsSemantics
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.StageRootsSound
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicJetPrefix
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicSeparantChain
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicTaylorCutDegree
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SymbolicTaylorCuts
@@ -1021,6 +1024,7 @@ import ArkLib.ToMathlib.AlgebraicGeometry.AffineGraphPullback
 import ArkLib.ToMathlib.AlgebraicGeometry.AffineHilbertDegree
 import ArkLib.ToMathlib.AlgebraicGeometry.AffineHilbertFunction
 import ArkLib.ToMathlib.AlgebraicGeometry.AffineHilbertPolynomial
+import ArkLib.ToMathlib.AlgebraicGeometry.AffineHypersurfaceCutFamily
 import ArkLib.ToMathlib.AlgebraicGeometry.AffinePrincipalOpenCuts
 import ArkLib.ToMathlib.AlgebraicGeometry.AffinePrincipalOpenFinite
 import ArkLib.ToMathlib.AlgebraicGeometry.AffineStandardMonomials
