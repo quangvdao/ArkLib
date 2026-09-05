@@ -197,6 +197,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.PointRecognition
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.Specialization
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Symbolic.Certificate
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Symbolic.Equation
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Symbolic.RegularEquation
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.ComponentAgreement
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.ComponentRecognition
@@ -217,7 +218,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Certi
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Counting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.DimensionBridge
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.Basic
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.Counting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.Interpolation
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.SymbolicRank
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FreeOrderDimension
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.GlobalDimension
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.GlobalInterpolation
@@ -236,6 +239,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Space
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.SpecializationDegree
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.Band
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.BandCertificate
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.ColumnHeight
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.CurveBand
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.CurveCertificate
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.CurveHeight
@@ -604,6 +608,7 @@ import ArkLib.ToMathlib.FieldTheory.Kummer
 import ArkLib.ToMathlib.Finset.Basic
 import ArkLib.ToMathlib.Finset.ToListWithProof
 import ArkLib.ToMathlib.InformationTheory.Hamming
+import ArkLib.ToMathlib.LinearAlgebra.ColumnDegreeKernel
 import ArkLib.ToMathlib.LinearAlgebra.FiniteDimensional
 import ArkLib.ToMathlib.LinearAlgebra.Matrix.Determinant
 import ArkLib.ToMathlib.LinearAlgebra.PolynomialKernelHeight

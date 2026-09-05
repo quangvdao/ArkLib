@@ -10,12 +10,49 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local
 
 
 /-!
-# First-order interpolation certificates
+# A nonzero first-order interpolant from a finite dimension surplus
 
-The capped support is connected here to the actual hidden-derivative local constraint map.
-Restriction cannot increase rank, so the existing exhibited-kernel theorem supplies a uniform
-local rank certificate.  Rank--nullity then turns the finite inequality `N > n r` into a nonzero
-polynomial satisfying every received-point constraint.
+Interpolation imposes homogeneous linear conditions on the coefficients of `Q`.
+If the support has `N` monomials and each of `n` received points imposes at most `r`
+independent conditions, `n*r < N` leaves a nonzero solution. This module proves that
+argument for the actual hidden-derivative constraints and the capped first-order
+support, rather than for an abstract matrix supplied by the caller.
+
+## Reading the statements
+
+* `D`, `A`, `m`, `M`, and `μ` have the meaning given in `FirstOrder.Basic`.
+* `ι` indexes the received points; `centers i` and `received i` are their coordinates.
+  No distinctness assumption is needed for interpolation itself. Distinct centers
+  become necessary when adding root multiplicities in a later root-count argument.
+* `firstOrderLocalConstraintAt` is the existing local constraint map restricted to
+  this support. Its kernel expresses the multiplicity conditions at one point.
+* `firstOrderGlobalConstraint` combines all those maps. The rank bound is
+  `Fintype.card ι * certifiedEnlargedRankBound 1 m M 0`.
+* `hdim` is a strict numerical surplus, not an assumption that an interpolant exists.
+  The existential conclusion supplies one nonzero `Q` satisfying all the constraints.
+
+The field is arbitrary. The hypothesis `1 < D` is needed by the reused exact-support
+rank theorem, not by the linear algebra. The bound currently used here is the envelope
+rank: it does not exploit the total-degree cap or specialization cutoff to reduce rank.
+
+## Why the constraints are sound
+
+The support embeds into the exact first-order interpolation space, so restriction
+cannot increase its certified local rank. Map the global range into the product of
+local ranges to obtain the sum bound, then apply rank--nullity. The final corollary
+uses the contact theorem: if `P` agrees at a received point, specializing `Q` at `P`
+is divisible by `(X - center)^m`. This step is valid in every characteristic because
+the construction uses Hasse derivatives.
+
+The first existence theorem chooses `Q` using only the received data. It can therefore
+be applied to every candidate `P`; it is not necessary to re-interpolate for each
+candidate. This is a fixed-received-word theorem. The challenge-degree bound required
+for symbolic interpolation of an entire received line is a further construction.
+
+## References
+
+* [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated
+  Agreement up to Capacity*][DKTZ26], finite first-order interpolation certificate.
 -/
 
 open PolynomialDifferential

@@ -8,18 +8,50 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Dimen
 
 
 /-!
-# Finite first-order interpolation supports
+# The finite support for first-order interpolation
 
-This file defines the derivative-weighted support
+To tune a code of length `n` and message dimension `k`, choose an integer agreement
+threshold `A` and interpolation parameters `m`, `M`, and `μ`. Instead of fixing them from
+an asymptotic capacity gap, count the monomials available at these actual parameters:
 
 ```text
 X^x Y₀^a Y₁^b,  b ≤ M,  a + b ≤ μ,
                     x + D a + (D - 1) b < m A.
 ```
 
-It is a bounded slice of the exact hidden-derivative interpolation support at derivative order
-one.  Keeping this relationship explicit lets the finite certificate reuse the actual local
-constraint map rather than a separate combinatorial surrogate.
+Here `D` bounds the degree of a message polynomial. Substituting `P` for `Y₀` and its
+first Hasse derivative for `Y₁` gives degree at most `x + D*a + (D-1)*b`. The strict
+cutoff therefore ensures degree below `m*A`. The separate cap `M` controls how often
+`Y₁` can occur; the total cap `μ` bounds the degree in both jet variables together.
+These are the support restrictions used by the finite first-order certificate in [DKTZ26].
+
+## Reading the definitions
+
+* `JetVariable 1` has three coordinates: the ordinary variable `X` and the two jet
+  variables `Y₀`, `Y₁`. A finitely supported function `u` records their exponents.
+* `firstOrderExponents D A m M μ` is precisely the finite set displayed above.
+  The coordinate characterization states both directions, so it is an exact support.
+* `firstOrderSpace F ...` consists of polynomials over `F` supported on that set.
+  Its dimension is the cardinality of the support, independently of the field.
+* Natural subtraction is truncated. In particular, `D - 1` is zero when `D ≤ 1`.
+  Finiteness holds even then because the total jet degree is separately capped.
+
+## Proof route and use
+
+Bound the ordinary exponent by `m*A` and the sum of jet exponents by `μ` to prove
+finiteness. The monomial basis then identifies dimension with support cardinality.
+For `1 < D`, this space embeds into the existing exact first-order interpolation
+space, allowing `FirstOrder.Interpolation` to reuse its local rank theorem. The
+weighted-degree result here is the other ingredient: sufficiently many roots, each
+of multiplicity `m`, force the specialized interpolant to vanish identically.
+
+The cutoff-sensitive rank and geometric transfer are separate claims; a large support
+alone does not bound a decoding list or an exceptional challenge set.
+
+## References
+
+* [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated
+  Agreement up to Capacity*][DKTZ26], finite first-order interpolation certificate.
 -/
 
 open PolynomialDifferential
