@@ -1121,9 +1121,14 @@ are not on the current work queue.
 
 The active acceptance target is the pre-strengthening manuscript Theorem 1.1 at paper
 revision `26e8ea0`, including exact output and bit-operation bounds. The newer
-field-independent list-size and mutual correlated-agreement results are planned in
+field-independent list-size and mutual correlated-agreement results are assigned to
 [the separate strengthening track](ALL_RATE_RS_STRENGTHENINGS.md). They are not prerequisites
 for completing this decoder and do not take workers from its three active lanes.
+On September 4, the user authorized an additional autonomous Astra/medium coordinator,
+task `01a07013-4475-7522-ace6-e5dab07fad0a`, with up to three Sol/high subagents.
+That team works in `ArkLib-rs-strengthenings` on private branch `quang/rs-strengthenings`
+and returns audited commits to this same integration branch. Its coordinator owns the
+strengthening plan and reports major blockers and integration-ready results, not routine polls.
 
 ### Three-worker execution roster
 
@@ -1134,9 +1139,9 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
-| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: exactness and initial-input cost for the same separate-sample run, both field regimes, from direct interpolation | New `ListDecoding/SeparateSampleExactness` and restricted companion |
-| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: field-size specialization of the proved degree-five budget; both fixed-order regimes and growing-multiplicity order zero | `ListDecoding/SeparateSampleFieldBounds` |
-| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: coordinate pivot selection; column elimination and augmented RHS checkpoints complete | `ArkLib/Data/Matrix/QuadraticSelection*` |
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Active: explicit address-serial bit-RAM access controller and same-run read/write/frame proofs | New `ArkLib/Data/Computation/AddressedBits*` and `docs/design/rs-bit-cost-backend.md` |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Active: sum the interpolation, setup, embedding and decoder budgets into both final q-exponents | `ListDecoding/QuadraticDecoderBounds` |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Active: coordinate pivot correction, the missing child of back substitution; forward echelon checkpoint complete | `ArkLib/Data/Matrix/QuadraticPivotSolve*` |
 | Central | Integrate/audit; outer executable setup/search/branch composition; preserve strengthening plan without starting its lanes | `ListDecoding/SeparateSampleDecoder`, `ListDecoding/SeparateSampleExecution`, `ArkLib/Data/QuadraticAlgebra/BaseEmbedding*`, outer drivers and trackers |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
@@ -1222,8 +1227,21 @@ search result has a proved originating successful direct attempt. `CertifiedSetu
 actual observed setup values with erased integrity proofs; it performs no extra nonsquare search
 or field choice. Its caller still needs the explicit handoff charge and whole-program composition.
 
-After the same-run exactness join, reserve an independent lane for the bit-cost boundary while
-coordinate solver lowering continues. In particular, fuel administration, integer parameters,
+`QuadraticDecoderMachine` now executes interpolation, certified setup, the actual reduced-field
+branch, base embedding when selected, and the decoder at original-parameter fuel.
+`QuadraticDecoderProof.run_exact_of_interpolation` proves exact output for that same combined
+run. `QuadraticDecoderParameters.small_gap_run_exact` discharges interpolation success and setup
+preconditions with the prescribed 6.76 parameters, at every rate and with both field regimes.
+These statements retain the actual primitive cost; they do not prove bit complexity. The remaining
+outer work includes the large-gap/tiny-block wrapper, final polynomial-cost and list-cardinality
+packaging, all coordinate refinements, and the concrete bit-RAM compilation/representation proofs.
+
+The same-run exactness and field-size join is now available in `SeparateSampleFieldExecution`.
+Lane A is implementing the first concrete bit-cost prerequisite while coordinate solver lowering
+continues. Its model is explicitly an address-serial bit RAM: transfer/reset of address bits is
+executed, and terminal one-bit random access is the declared architectural primitive. This is
+not a proved tape simulation or a bound on native Lean execution. The final theorem must name
+that model unless a further adequacy theorem is supplied. In particular, fuel administration, integer parameters,
 address/data representation and memory access must be justified. A primitive field-operation
 ledger is not a proof of the old manuscript's bit-operation bound. A naive whole-memory scan
 per access can square the candidate-dependent exponent and is not an acceptable shortcut.

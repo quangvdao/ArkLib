@@ -227,6 +227,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationAttemp
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationDimensionBridge
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationDimensionBridgeCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationDispatch
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationDispatchBounds
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationIndex
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationIndexCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.InterpolationPointBlockCanary
@@ -418,12 +419,18 @@ import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.PreparedInterpolationPr
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticCandidateCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticCandidateMachine
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticCandidateSemantics
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticDecoderCanary
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticDecoderComposition
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticDecoderMachine
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticDecoderParameters
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.QuadraticDecoderProof
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.RestrictedCollectorProof
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleCanary
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleDecoder
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleExactness
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleExecution
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleFieldBounds
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleFieldExecution
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSamplePolynomialBounds
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SeparateSampleRestricted
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.SmallBlockDecoderMachine
@@ -432,6 +439,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.Specification
 import ArkLib.Data.CodingTheory.ReedSolomon.Multilinear
 import ArkLib.Data.CodingTheory.ReedSolomon.Multiplicity
 import ArkLib.Data.CodingTheory.SubspaceDesign
+import ArkLib.Data.Computation.AddressedBits
+import ArkLib.Data.Computation.AddressedBitsCheck
+import ArkLib.Data.Computation.AddressedBitsSemantics
 import ArkLib.Data.Domain.CosetFftDomain.Block
 import ArkLib.Data.Domain.CosetFftDomain.Defs
 import ArkLib.Data.Domain.CosetFftDomain.Log
@@ -521,6 +531,9 @@ import ArkLib.Data.Matrix.QuadraticAugmentRefinement
 import ArkLib.Data.Matrix.QuadraticColumnCanary
 import ArkLib.Data.Matrix.QuadraticColumnMachine
 import ArkLib.Data.Matrix.QuadraticColumnRefinement
+import ArkLib.Data.Matrix.QuadraticForwardEchelonCanary
+import ArkLib.Data.Matrix.QuadraticForwardEchelonMachine
+import ArkLib.Data.Matrix.QuadraticForwardEchelonRefinement
 import ArkLib.Data.Matrix.QuadraticPivotCanary
 import ArkLib.Data.Matrix.QuadraticPivotMachine
 import ArkLib.Data.Matrix.QuadraticPivotRefinement
