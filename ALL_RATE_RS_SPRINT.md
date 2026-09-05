@@ -190,3 +190,30 @@ Its absolute component-purity/refined-degree endpoint is still separate.
 The original full bit-time theorem remains open: closed driver lowering, global representation
 and width/lifetime invariants, physical input/output and the final same-program cost composition
 are not supplied by merely collecting these component results. The hard deadlines are unchanged.
+
+## Complete coordinate outer and affine degree checkpoint, 08:41 UTC
+
+`9e551abe` passed the full canonical gate and is pushed: 27,858 declarations in 975 modules,
+312 pre-existing tainted declarations, zero new taint/nonstandard axioms, and 183 unchanged source
+admissions. The next checkpoint contains the full prepared/separate-sample coordinate pipeline,
+canonical filtering and collection, actual three-alphabet materialization, and executed
+interpolation/setup composition. Its fixed fuel uses only initial integer parameters. Exact
+output and the work bound refer to the same actual program; they still do not assert bit time.
+
+Physical Horner evaluation now constructs its own zero accumulator. Main's word-copy controller
+and allocation budget, padded inverse and padded negation passed independent worker-B audits.
+Main's alphabet materializer passed worker-A audit. The literal register ADD passed worker-C
+audit, including all alias partitions and observations of the entire fixed 28-tape bank. MUL
+likewise copies both operands before overwriting a possibly aliased destination and explicitly
+clears retained temporaries. Main read both implementations and their actual source-step joins.
+
+The strengthening integration now proves the unconditional refined principal-cut degree sum.
+Degree is factorial times the leading coefficient of the actual coordinate quotient's Hilbert
+polynomial. Noether normalization and finite-extension growth prove purity; no purity or degree
+law is postulated. Finite principal-open and terminal point-count lemmas are also proved. The
+finite agreement-incidence/list/MCA endpoint remains a separate assembly obligation.
+
+Ownership: A audits the coordinate core and outer composition; B completes register-level NEG/INV;
+C supplies same-run coordinate numerical bounds; central closes the integer dispatch and integrates.
+The strengthening coordinator retains geometry/list/MCA and its three bounded descendants. The
+09:21 proof stop, 09:36 worker stop and 09:51 final hard stop remain in force.

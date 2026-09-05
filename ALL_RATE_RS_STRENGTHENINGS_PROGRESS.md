@@ -234,3 +234,62 @@ review, axiom fixture matrix, and regression sweep; details appear below.
   No certificate includes that failed intermediate snapshot. Future transfers pin hashes.
 - Remaining central obstruction: principal-cut HP degree lower bound/purity for every
   minimal component. The preceding coefficient sum does not count lower-degree children.
+
+## Seventh checkpoint certification (08:13 UTC)
+
+- Six independently audited modules (847 lines) prove exact polynomial-hypersurface
+  Hilbert degree, finite-intersection coefficient equality, the actual minimal-prime
+  principal-cut coefficient sum, explicit localization presentation/filtration
+  comparisons, affine polynomial growth comparison, and actual intermediate local
+  constraint rank at most28152.
+- For every nonzero polynomial generating a proper ideal, HP degree plus one equals
+  the number of variables. Its exact HP is the backward difference of the usual
+  polynomial-ring binomial polynomial. No purity or dimension-formula premise is used.
+- The principal-cut factorial degree sum still explicitly assumes that every child
+  has HP degree parent-minus-one; lower-dimensional components contribute zero to the
+  unconditional coefficient-sum theorem. This is not yet the completed geometric bound.
+- The next genuine purity route uses Noether normalization, integral going-down,
+  contraction to a principal height-one ideal in a polynomial ring, and finite
+  extension growth. The latter is now proved in scratch and awaiting canonical
+  integration; actual coordinate-quotient maps are being constructed separately.
+- Full default validation passed with831 umbrella imports. Axiom sweep passed:
+  22830 declarations/832 modules,312 preexisting sorry-tainted,zero nonstandard
+  axioms,no new taint. Source audit vs4faf12ae is exactly unchanged.
+- Targeted checks first caught an unused Fintype instance, flexible simplification,
+  and one overlong line; all were fixed and actual target/full gates passed.
+
+## Eighth checkpoint certification (08:30 UTC)
+
+- Eight independently audited modules (1049 lines) complete actual principal-cut
+  Hilbert-degree purity and the unconditional refined affine Bezout degree sum.
+  No geometric-degree law, purity premise, or extra axiom remains in these theorems.
+- Noether normalization, going-down, actual finite injective coordinate quotient
+  maps, and two-direction filtration growth establish the dimension statement.
+- Actual affine degree is positive on proper ideals, agrees with finite quotient
+  dimension and hypersurface total degree, and bounds zero-dimensional points.
+  A finite principal open of a prime component forces Hilbert degree zero.
+- Full default validation passed with839 umbrella imports. Axiom sweep passed:
+  22883 declarations/840 modules,312 preexisting sorry-tainted,zero nonstandard
+  axioms,no new taint. Source audit vsf4099c90 has no added constructs.
+- The all-rate list bound and remaining mutual correlated agreement assembly are
+  still incomplete; these geometric foundations alone do not establish them.
+
+## Ninth checkpoint certification (08:39 UTC)
+
+- Six independently audited modules (919 lines) prove the complete recursive
+  prime-component agreement incidence bound, finite high-cut family iteration with
+  actual degree potential, Taylor high-cut uniqueness, and actual regular-solution
+  common center, injective jet map, high-cut inclusion, and exact agreement equations.
+- Incidence bounds a finite candidate set by actual affine degree times
+  (n*b/(A-k+1))^actual Hilbert dimension, with only explicit geometric membership
+  and k-cut uniqueness hypotheses. Every child comes from retained minimal primes.
+- Finite-family iteration covers the full regular cut locus and preserves
+  sum(degree*b^dimension), including duplicate child components.
+- Full default validation passed with845 umbrella imports. Axiom sweep passed:
+  22925 declarations/846 modules,312 old sorry-tainted,zero nonstandard axioms,
+  no new taint. Source audit vsdc73687b is unchanged.
+- Initial gate attempts caught a broad tactic import, global Classical scope,
+  and module names exceeding generated import line limits; these were corrected
+  without suppressions and the complete gate rerun passed.
+- Arbitrary-field extension transport and initial-hypersurface assembly are next;
+  the final manuscript list and remaining MCA theorems are not yet established.
