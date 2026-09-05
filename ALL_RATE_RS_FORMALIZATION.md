@@ -6,7 +6,10 @@ Last updated: 2026-09-04
 Integration branch: `quang/all-rate-rs-capacity-formalization`  
 Fork: <https://github.com/quangvdao/ArkLib>  
 ArkLib base: `Verified-zkEVM/ArkLib@22dbd4e836c15a21f68889afa69b7130da04abbb`
-Normative paper: `quangvdao/all-rate-rs-list-decoding@9e4d6488ead94be47cca69e5be915b5667143b66`
+Proof-source baseline: `quangvdao/all-rate-rs-list-decoding@9e4d6488ead94be47cca69e5be915b5667143b66`
+
+Current statement synchronization: the user-designated, uncommitted `main-minimal.tex` draft,
+reviewed on 2026-09-04. Section 2.6 records exact source blobs and the remaining verification gap.
 
 This document is the single source of truth for formalizing the all-rate hidden-derivative Reed-Solomon list-decoding theorem. It is deliberately kept on the integration branch with the proof. It records the theorem contract, provenance, dependencies, ownership boundaries, risks, and completion gates for a long-running multi-contributor effort.
 
@@ -20,10 +23,16 @@ This certifies the scoped qualitative list/construction results, not full Theore
 to announce the full paper result. The concrete lifting suite now includes direct-affine solver
 checks, while the closed runtime theorem remains a separate obligation.
 
-The optimized mathematical endpoint was validated and pushed at `1d77f94a` and is in
-[`StrongBand.lean`](ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/StrongBand.lean):
-`strong_hidden_derivative_construction`, `strong_asymmetric_band`, and
-`strong_quantitative_all_rate`. These preserve the exact `169/25` order constant, prescribed
+The central paper-facing result is
+[`Capacity.lean`](ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/Capacity.lean),
+`ReedSolomon.AllRateListDecoding.exists_capacity_list`. Its single statement displays the
+parameters, integer input threshold, exact polynomial list, and both field-size regimes.
+It is the **list-size part**, not yet the full algorithmic theorem.
+
+The optimized mathematical ingredients were validated and pushed at `1d77f94a`; they now live in
+[`AsymmetricBandListBound.lean`](ArkLib/Data/CodingTheory/ReedSolomon/AllRateListDecoding/AsymmetricBandListBound.lean):
+`exists_asymmetricBand_hiddenDerivativeConstruction` and `asymmetricBand_capacity_list_bound`.
+These preserve the exact `169/25` order constant, prescribed
 multiplicity, threshold `8m`, arbitrary prime-field evaluation sets, and the larger-field condition.
 They prove construction existence and exact-list cardinality, **not** the deterministic runtime
 clause. The remaining critical path is executable interpolation, root enumeration, representation
@@ -105,7 +114,7 @@ Hasse routine has a value-refinement proof but lacks an operational adequacy bri
 is accepted as a decoder runtime certificate. The first closed-program consumer is Horner
 evaluation; input representation conversion remains an explicit obligation.
 
-#### Real-gap input issue: required statement repair
+#### Integer-threshold input and real-gap performance parameter
 
 An independent operational audit on 2026-09-04 found that the literal manuscript input list
 `(n,k,q,domain,y)`, followed by `A = k + ceil(delta*n)` for every arbitrary fixed real `delta`,
@@ -128,10 +137,11 @@ integer parameters, with existence supplied by the real analysis and the search 
 That route is a proposal, not an implemented or verified algorithm. Gap-only natural parameters
 may be fixed once per gap; they cannot encode unbounded real-rounding information.
 
-The current extensional list and construction contracts remain valid. The manuscript wording and
-the eventual algorithmic contract must be reconciled explicitly before the gold gate. Do not
-report the literal no-threshold-input executable statement as proved, and do not silently replace
-the exact list by a superset to evade the issue.
+The current user-designated minimal draft now supplies `A` explicitly, with
+`k + delta*n ≤ A ≤ 2*n`, and uses finite support search. Its real-gap input issue is therefore
+resolved at the manuscript-statement level. `Capacity.exists_capacity_list` aligns the checked
+list-size result with this input convention. Execution and cost of the search remain open;
+the mathematical real-valued padding is not a free algorithmic operation.
 
 ### 2.3 Uniformity test
 
@@ -187,7 +197,7 @@ The preferred generic root-counting contract is division-free. If `S` is the wit
 
 The `q^(2d)` and larger-field `q^d` bounds should be corollaries. This avoids field division and keeps the exact finite hypotheses visible.
 
-### 2.5 Strong quantitative capstone
+### 2.5 Explicit capacity parameters
 
 The quantitative contract was temporarily unfrozen while the current paper source was reconciled
 with the Lean statements. The source-alignment audit is now pinned to paper commit `9e4d648` and
@@ -207,6 +217,80 @@ The strong contract is therefore split into an order-zero statement and a small-
 This repinning releases `S0.1` and its quantitative descendants for implementation. It does not
 replace the independent theorem and source-correspondence audit required by `A0` before publication
 or announcement.
+
+### 2.6 Canonical theorem packaging and final cleanup
+
+Readers should start at `AllRateListDecoding/Capacity.lean`, not at a proposition-valued
+`...Statement` definition or a historical milestone. The final executable capacity theorem
+belongs in this same file, with its quantifiers, exact output, representation, cost model,
+and complexity guarantee visible. Until that proof exists, `exists_capacity_list` names exactly
+what is proved and the module explicitly lists the missing algorithmic clauses. Do not add an
+assumed decoder-cost premise, a fabricated cost field, or an admitted full-theorem declaration.
+
+The paper comparison uses the local minimal draft over paper repository head `e32e2ba`:
+
+| Source | Git content hash (uncommitted file) |
+|---|---|
+| `main-minimal.tex` | `be753a620115a621b5d19225c14c22c7030842eb` |
+| `shared/main-theorem.tex` | `d29d2bcc9b6e8b5b191fb28243622493575fb47b` |
+| `shared/decoder-procedure.tex` | `8deeefab2393a5794d5c3a0e5d4d577e05d4cb63` |
+| `shared/main-proof.tex` | `dcda1895f2d93e5459ace8bd7fb85cf529e3cf7b` |
+
+These are content identifiers, not published revisions. The manuscript worktree was left untouched.
+The checked list theorem now permits every integer `A` in the paper's input range, rather than
+only the minimum ceiling threshold. Raising `A` restricts the exact list; monotonicity of natural
+subtraction also transfers the larger-field condition to the smaller interpolation threshold.
+It keeps zero as a candidate and proves empty output for `A > n`. It gives `N=1` above the
+quarter-gap boundary and `N=8m` below it. The current proof uses an existential prefactor witnessed
+by `8(d+1)m²`; the draft's improved `B=4m` derivation is not yet the checked prefactor. Both satisfy
+the theorem statement's existential `B(delta)` clause. Bit complexity remains unproved.
+
+The first naming/packaging pass makes these transitions:
+
+| Previous entry | Current mathematical entry |
+|---|---|
+| Qualitative `Main.lean` | `UniformListBound.lean`, a consequence of uniform constructions |
+| `StrongBand.lean` | `AsymmetricBandListBound.lean`, the band construction and root-count proof |
+| `LowOrderRegime.lean` | `QuarterGapListBound.lean`, pair-agreement list bounds |
+| `strongDerivativeOrder` | `capacityDerivativeOrder` |
+| `strongBandMultiplicity`, `strongBandAmbientDimension` | `asymmetricBandMultiplicity`, `asymmetricBandAmbientDimension` |
+| `StrongAsymmetricBandStatement`, `StrongHiddenDerivativeConstructionStatement` | `AsymmetricBandListBound`, `AsymmetricBandConstruction` |
+| `OrderZeroQuarterStatement` | `QuarterGapListBound` |
+| Combined `StrongQuantitativeAllRateStatement` / `strong_quantitative_all_rate` | Removed; the explicit central theorem replaces this redundant conjunction |
+
+All local consumers are migrated together. Historical commit reports retain their original
+identifiers when needed to locate old evidence; they do not define the current public API.
+
+Final cleanup after the executable theorem closes:
+
+1. Keep one paper-facing executable theorem and its useful mathematical corollaries. Intermediate
+   proof lemmas remain in their mathematical owner modules, not as competing main statements.
+2. Retire unused milestone wrappers only after checking the full import and declaration dependency
+   graph. Do not delete reusable coarse root bounds, finite-cover lemmas, or proved cost components
+   just because the headline theorem is stronger.
+3. Rename the remaining `Donor*` families by their actual lattice, rectangular-interpolation,
+   finite-rate-cover, and uniform-construction content. Audit each statement before selecting its
+   replacement name. These broad migrations are deferred from the active runtime interfaces.
+4. Keep mathematical attribution in module reference sections and descriptive content in
+   declaration docstrings. Keep source commits, reuse permissions, adaptation records, and audit
+   chronology in the provenance records and this tracker; preserve Kai Zhe Zheng's credit.
+5. Recheck ordinary-import usability, all paper quantifiers, both field regimes, the zero and empty
+   cases, statement dependency closure, standard axiom footprints, and the full repository gate.
+
+The central theorem and the integer-threshold/cardinality bridge received an independent
+read-only source audit from Worker B, with no actionable finding. The decisive theorem blob is
+`e056f8f73b94a2d747eebd05d1faf33897bf98ac`. `CapacityCanary.lean` replaces the previous quarter-gap
+canary with an ordinary-import consumer: at gap one quarter, the same theorem supplies polynomial
+lists for `A=2` and `A=3`; zero and one occur at the first threshold, while zero is excluded at the
+second. This checks the visible polynomial output interface and a nonminimum integer threshold,
+without duplicating an abstract theorem statement. It does not test decoder execution.
+
+Seven principal axiom checks, including the central theorem and both construction/counting
+ingredients, report only `propext`, `Classical.choice`, and `Quot.sound`. The source audit against
+`5de7a3bb` preserves 183 admissions, zero explicit axioms, zero native trust, and the same total
+example count. Full `validate.sh --axioms` passed again after the final naming-consistency pass,
+with 576 umbrella imports, 312 pre-existing tainted declarations, no new taint, and no non-sorry
+warnings. No permission, source-attribution, dependency-pin, or axiom-baseline files were changed.
 
 ## 3. Gold trust and announcement gate
 
@@ -684,7 +768,7 @@ This lane is expected to be the main schedule risk. ArkLib's existing Hensel cod
 | O0 | Prove the actual asymmetric band with `K = max{k, floor(δn/2)}`, `m = ceil(100d²H_(d-1))`, and lower/upper higher-jet degree cutoffs. | C0, I4, U0a, S0.1 | landed: complete finite comparison and construction in `BandParameterAssembly` and `StrongBand` | Reproduces the finite certificate without changing the landed cap-free index or qualitative `m = d³` package. Finite ambient rounding, actual local rank, dimension, and nonzero interpolation are all proved. |
 | O1 | Prove `d(δ) = ceil(exp((169/25)/δ))` for `0 < δ < 1/4`. | O0 | landed: `StrongBand.strong_hidden_derivative_construction` | Every numerical inequality is kernel-checked; `169/25`, not a decimal approximation, occurs in proof terms. |
 | O2 | Prove the order-zero branch for every `δ ≥ 1/4`: list size `≤ 1` for `δ ≥ 1/2` and `< 4q` below `1/2`. | M0, S0.1 | list bounds landed (`53d3b9b8`, validated `3a551066`); efficient order-zero algorithm open | The bivariate interpolation module is independent of exact hidden-derivative indices requiring `0 < d`; multiplicity `k-1` and the direct `k=1` case are explicit. The `d=1,m=64,M=16` certificate at gap `1/4` is an optional corollary. |
-| O3 | Formalize sharpened root counts `O_δ(q^(2d))` and `O_δ(q^d)` under `q ≥ 2 max{0,mA-K+d}`. | R6, S0.1 | landed: `StrongBand.strong_asymmetric_band` with prefactor `8(d+1)m²` | Explicit characteristic hypotheses and the reduced separant budget are discharged. This node certifies list cardinality; executable root enumeration and runtime remain R7/M1. |
+| O3 | Formalize sharpened root counts `O_δ(q^(2d))` and `O_δ(q^d)` under `q ≥ 2 max{0,mA-K+d}`. | R6, S0.1 | landed: `asymmetricBand_capacity_list_bound` with prefactor `8(d+1)m²` | Explicit characteristic hypotheses and the reduced separant budget are discharged. This node certifies list cardinality; executable root enumeration and runtime remain R7/M1. |
 | O4 | Formalize the shrinking-gap result `δ_n = C/log n` for `C > 13.52`. | O0, O1, O3, S0.1 | queued | Gives `d = n^(6.76/C+o(1))`, `m = n^(13.52/C+o(1))`, and list size `exp(n^(6.76/C+o(1)))`. A runtime clause additionally requires M1 with an explicit proved cost model; parameter substitution alone does not prove runtime. |
 | O5 | Formalize primitive-part normalization, first-separant degree, residual-chain bounds, exact resonance counts, and randomized regular-witness enumeration. | M0, R6 | queued | These strengthen rather than replace the generic division-free root theorem; each theorem states its characteristic and algorithmic scope independently. |
 | O6 | Formalize the full local-kernel monomial ideal and the exact finite-matrix block decomposition of the actual local rank. | I4 | queued | Preserve the distinction between the actual local map and the enlarged map. Do not retroactively strengthen `I3-I4` acceptance criteria or block `M0`. |
@@ -966,14 +1050,14 @@ The following project decisions do not need to be revisited unless a formal obst
 These questions do not block phase-one proof work, but should be resolved before publication or upstream submission:
 
 1. Can direct evidence of the `kz99/rs-ld-mca` permission grant, including its grantor and scope, be archived or linked from [`docs/kb/sources/rs-ld-mca/PERMISSION.md`](docs/kb/sources/rs-ld-mca/PERMISSION.md)? The durable storage location is now fixed, but the direct grant and license-compatibility terms remain unrecorded.
-2. Approve the explicit-integer-threshold algorithm interface described in Section 2.2, or agree
-   on a represented-gap alternative, before amending the manuscript. The user has been asked;
-   no paper change is authorized by the tracking note alone. The literal arbitrary-real-gap
-   rounding operation cannot remain hidden in an ordinary finite executable program.
+
+The integer-threshold interface is no longer awaiting a choice: the user-designated minimal
+draft implements it. The remaining obligation is a verified finite support search, not permission
+to change the manuscript.
 
 The decision to target the full executable theorem with optimized constants has already been made.
-Independent interpolation, counting, and operational-subroutine work continues while the input
-wording is resolved. Optional lower bounds, exact-rank optimality, and characteristic obstructions
+Independent interpolation, counting, and operational-subroutine work continues. Optional lower
+bounds, exact-rank optimality, and characteristic obstructions
 are not on the current work queue.
 
 ## 15. Next actionable assignments
@@ -987,10 +1071,10 @@ Each epoch ends with a frozen commit, evidence, residual obligations, and a wait
 
 | Worker task | Current bounded objective | Exclusive new file claim |
 |---|---|---|
-| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Batch actual scalar residual samples into materialized point/value pairs | `HiddenDerivative/RootFinding/ResidualBatchMachine.lean` and minimal canaries |
-| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Construct augmented Vandermonde rows with charged power/list loops | `ArkLib/Data/Matrix/VandermondeMachine.lean` and minimal canaries |
-| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Compose selection and elimination into full forward-echelon execution | `ArkLib/Data/Matrix/ForwardEchelonMachine.lean` and bounded helpers/canaries |
-| Central | Interpolation/residual representation interfaces, integration, audits and push | Sampling refinements, generated umbrella and integration fixes |
+| A: `01a06e56-bed2-72f2-9bba-78de078e8a81` | Complete and stopped; batch sampling source `77303d75`, queued for integration | `HiddenDerivative/RootFinding/ResidualBatchMachine.lean` and canaries |
+| B: `01a06e56-c0dc-7ea0-90fd-499425b394f9` | Complete and stopped; Vandermonde source `8df9d37c`, queued; independent capacity-statement audit complete | `ArkLib/Data/Matrix/VandermondeMachine.lean` and canaries |
+| C: `01a06e56-c2e1-7101-8774-21db0a570b2d` | Complete and stopped; forward-echelon source `4a6d3c53`, queued for integration | `ArkLib/Data/Matrix/ForwardEchelonMachine.lean` and helpers/canaries |
+| Central | User-priority capacity theorem packaging, validation, integration and push | `AllRateListDecoding/Capacity.lean`, naming migration, tracker and umbrella |
 
 Proof paths in this table are relative to `ArkLib/Data/CodingTheory/ReedSolomon/`,
 except explicitly repository-relative paths beginning `ArkLib/`.
@@ -1009,7 +1093,7 @@ wide dependency graph. Ask the central owner before editing a claimed interface.
 - `RootCount.lean` proves the unconditional coarse differential-root bound
   `2*(d+1)*q^(3*d+2)`, with regular injectivity and singular recursion discharged.
   Checkpoint `3a551066` passed full validation and the axiom-regression gate and was pushed.
-- `LowOrderRegime.lean` proves the large-gap list-size contracts. Its exhaustive
+- `QuarterGapListBound.lean` proves the large-gap list-size contracts. Its exhaustive
   finite-set witness is not an efficient order-zero algorithm.
 - Construction source `e036bb6e` (integrated as `a7caaac5`) proves
   `uniform_hidden_derivative_construction : UniformHiddenDerivativeConstructionStatement`.
@@ -1025,7 +1109,8 @@ wide dependency graph. Ask the central owner before editing a claimed interface.
   regular uniqueness in the executable representation, full enumeration, and runtime remain open.
   Concrete opaque-implementation vectors run in `scripts/RegularLiftRuntime.lean` via
   `lake exe regular-lift-runtime`, not through native proof evaluation.
-- `Main.lean` is proved, independently statement-audited, fully validated and pushed at `81096328`.
+- `UniformListBound.lean` (then named `Main.lean`) was independently statement-audited,
+  fully validated and pushed at `81096328`.
   Its scope is the qualitative list theorem plus actual uniform construction, not full Theorem 1.1.
 - Extension root counts (`cf791027`, source `951e25e5`), closed Horner-machine adequacy and cost
   (`95fa420e`, source `0ac29623`), actual band local rank (`73b968e4`, source `3ce3fcf2`), and
@@ -1129,10 +1214,10 @@ wide dependency graph. Ask the central owner before editing a claimed interface.
   In particular `delta*n >= 5408*d²` implies the necessary finite ambient room. The endpoint
   gives `n*actualBandBudget < actualBandDimensionCount` without an assumed rank or mass bound.
   Worker A independently audited every parameter conversion and the strict comparison.
-- `StrongBand.lean` consumes that numerical certificate and proves both strong mathematical
+- `AsymmetricBandListBound.lean` consumes that numerical certificate and proves the mathematical
   contracts without extra assumptions. The small-gap prefactor is `8*(d+1)*m²`, chosen before
   every instance parameter. The two witness fields give exponents `2d` and `d`; thresholds above
-  `n` give empty lists. Combining with `LowOrderRegime` proves the optimized quantitative contract.
+  `n` give empty lists. `Capacity.lean` combines these bounds with the quarter-gap estimates.
   Worker B independently checked the exact quantifiers, original/padded dimension distinction,
   prime characteristic, larger-field natural subtraction, and canonical exact-list/radius wrapper.
 - `DirectRegularCoefficient.lean` source `bb7d8809` replaces a field scan by direct affine
@@ -1283,11 +1368,32 @@ asserted by these numerical inequalities.
 Central source review and full `validate.sh --axioms` passed with 575 imports. Seven principal
 endpoints have only baseline logical axioms; six new kernel examples cover RHS changes,
 serialization/output boundaries, and rejection. There are no new admissions, explicit axioms,
-or native trust. Worker B has a queued independent review after its Vandermonde construction.
+or native trust. Worker B's independent source review of this machine and both grid inequalities
+is complete and found no actionable correctness issue; it did not rerun the central build.
+
+### Frozen runtime handoffs awaiting central integration
+
+These commits are present in local worker branches, not yet in the integration branch. Their
+worker-local checks do not replace the central full validation gate.
+
+- A `77303d75ab8392d0a07c01a73de960741b83f712`: actual residual-sample batches preserving ordered
+  point/value pairs and all callee/wrapper/allocation costs. Main has read the source and canaries.
+- B `8df9d37c97b99e3d77bcdb1c23872407805e84f0`: actual augmented Vandermonde construction,
+  rectangular/system representation proofs, and bilinear primitive cost. Main has read the source
+  and canaries. Do not cherry-pick its private dependency-sync parent `af9d9652`.
+- C `4a6d3c53f85553d02b3e335ae5133ebd45573958`: actual forward-echelon driver, increasing
+  nonzero pivot invariants, retained zero-coefficient residual rows, solution equivalence, and
+  polynomial modeled cost. Main has read the source, invariants, and canaries with no actionable
+  correctness finding; central integration and full validation remain pending. This is not
+  back-substitution, inconsistency detection, nonzero-kernel-vector extraction, or a full solver.
+
+The packaging pass does not change these workers' active runtime APIs. All three workers stopped
+after their bounded objectives; the central owner will review and integrate this batch before
+assigning the next epoch.
 
 ### Next critical-path work
 
-1. Preserve both mathematical capstones and their no-extra-assumption theorem statements.
+1. Preserve the explicit central list theorem and its no-extra-assumption mathematical ingredients.
    Optimized analysis and list counting are no longer the main critical path.
 2. Finish the closed Gaussian-elimination kernel, including pivot selection, matrix materialization,
    preservation of solution spaces, and nonzero-kernel-vector extraction with a proved cost bound.
@@ -1329,8 +1435,8 @@ end-to-end cost bound:
 The plan still requires charged coefficient-list updates, sparse-equation serialization, sample
 enumeration, Vandermonde construction/solving, final base-field descent, and complete root enumeration.
 No bulk polynomial operation, residual evaluation, matrix solve, or representation conversion is
-accepted as an unexplained unit-cost callback. The integer-threshold input decision in Section 2.2
-remains pending and is not settled by this implementation plan.
+accepted as an unexplained unit-cost callback. The integer-threshold input convention now agrees
+with the minimal draft; implementing and costing its finite parameter search remains open.
 
 Contributors should read this document, fetch the integration branch, claim a narrow node and
 files, use a private worktree, preserve the no-new-admissions/no-native-trust boundary, and return

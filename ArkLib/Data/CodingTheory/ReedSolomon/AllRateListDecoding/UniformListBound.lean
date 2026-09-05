@@ -17,12 +17,14 @@ differential roots of the construction. The existing cubic-extension root count 
 bound `2 * (d + 1) * q^(3*d + 2)`, where `d` depends only on the capacity gap. Oversized agreement
 thresholds yield empty lists, without requiring an impossible interpolant.
 
-This proves the combinatorial content of [Dao, Kominers, Thaler, and Zheng,
-*Reed--Solomon List Decoding up to Capacity at Every Rate*][DKTZ26], Theorem 1.1, at source revision
-`9e4d6488ead94be47cca69e5be915b5667143b66`, with unoptimized constants. It does not prove the full
-theorem: the explicit derivative order, sharper list exponent, and deterministic algorithm with
-a justified execution-cost bound remain separate obligations. The exact decoder in the resulting
-certificate is a classical finite-set witness, not a polynomial-time implementation.
+The finite-set decoder is a classical witness, not a polynomial-time implementation. The
+paper-facing quantitative list theorem is in `Capacity.lean`; this module supplies the separate
+consequence of a uniform family of interpolation witnesses without prescribing its parameters.
+
+## References
+
+* [Dao, Kominers, Thaler, and Zheng, *Reed-Solomon List Decoding up to Capacity at Every
+  Rate*][DKTZ26], uniform list-decoding capacity.
 -/
 
 namespace ReedSolomon.AllRateListDecoding

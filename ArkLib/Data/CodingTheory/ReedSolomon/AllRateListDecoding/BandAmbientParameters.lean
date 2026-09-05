@@ -23,19 +23,19 @@ namespace ReedSolomon.AllRateListDecoding
 noncomputable section
 
 /-- The padded dimension contains every original message and remains positive. -/
-theorem strongBandAmbientDimension_pos {delta : ℝ} {n k : ℕ} (hk : 0 < k) :
-    0 < strongBandAmbientDimension delta n k :=
+theorem asymmetricBandAmbientDimension_pos {delta : ℝ} {n k : ℕ} (hk : 0 < k) :
+    0 < asymmetricBandAmbientDimension delta n k :=
   hk.trans_le (Nat.le_max_left _ _)
 
 /-- The finite ambient rate lies in the interval needed by the endpoint comparison.
 The upper bound uses feasibility of the requested agreement threshold. -/
-theorem strongBandAmbientRate_bounds {delta : ℝ} {n k : ℕ}
+theorem asymmetricBandAmbientRate_bounds {delta : ℝ} {n k : ℕ}
     (hdelta : 0 < delta) (hquarter : delta < (1 / 4 : ℝ)) (hk : 0 < k)
     (hsize : 12 ≤ delta * n) (hfeasible : agreementThreshold delta n k ≤ n) :
-    let D := strongBandAmbientDimension delta n k - 1
+    let D := asymmetricBandAmbientDimension delta n k - 1
     0 < D ∧ delta / 3 ≤ (D : ℝ) / n ∧ (D : ℝ) / n ≤ 1 - delta := by
-  let K := strongBandAmbientDimension delta n k
-  have hK : 0 < K := strongBandAmbientDimension_pos hk
+  let K := asymmetricBandAmbientDimension delta n k
+  have hK : 0 < K := asymmetricBandAmbientDimension_pos hk
   have hn : (0 : ℝ) < n := by
     by_contra h
     have hz : (n : ℝ) = 0 := le_antisymm (le_of_not_gt h) (Nat.cast_nonneg _)
@@ -73,14 +73,14 @@ theorem strongBandAmbientRate_bounds {delta : ℝ} {n k : ℕ}
 
 /-- Padding and capped relative slack fit strictly below the requested agreement budget.
 The statement uses the integer threshold directly; no computation of a real ceiling is claimed. -/
-theorem strongBandAmbientDegree_slack_le_agreement {delta : ℝ} {n k A : ℕ}
+theorem asymmetricBandAmbientDegree_slack_le_agreement {delta : ℝ} {n k A : ℕ}
     (hdelta : 0 < delta) (hk : 0 < k)
-    (hD : 0 < strongBandAmbientDimension delta n k - 1)
+    (hD : 0 < asymmetricBandAmbientDimension delta n k - 1)
     (hA : (k : ℝ) + delta * n ≤ A) :
-    let D := strongBandAmbientDimension delta n k - 1
+    let D := asymmetricBandAmbientDimension delta n k - 1
     (D : ℝ) * (1 + min 1 (delta * n / D)) ≤ A := by
-  let K := strongBandAmbientDimension delta n k
-  have hK : 0 < K := strongBandAmbientDimension_pos hk
+  let K := asymmetricBandAmbientDimension delta n k
+  have hK : 0 < K := asymmetricBandAmbientDimension_pos hk
   have hDcast : ((K - 1 : ℕ) : ℝ) = K - 1 := by
     rw [Nat.cast_sub (by omega : 1 ≤ K), Nat.cast_one]
   have hDp : (0 : ℝ) < (K - 1 : ℕ) := by exact_mod_cast hD

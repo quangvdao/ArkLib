@@ -9,7 +9,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.GlobalMultiplicity
 import Mathlib.Algebra.Field.ZMod
 
 /-!
-# Actual hidden-derivative construction contracts
+# Hidden-derivative interpolation witnesses
 
 The list-only propositions in `Contracts.lean` do not certify a proof method. This file separately
 ties the order parameter to a nonzero differential polynomial, local interpolation constraints,
@@ -18,11 +18,15 @@ Order `d` means that the construction uses derivatives of order at most `d`; it 
 nontrivially on the last variable. Changing `d` changes the type of the interpolant and its local
 constraints, not merely a numerical exponent in a list bound.
 
-These are existence contracts, not executable algorithms. The full [DKTZ26, Theorem 1.1,
-`thm:intro-main-informal`; precise `thm:main`] at source revision
-`9e4d6488ead94be47cca69e5be915b5667143b66` additionally requires an executable realization,
-output-refinement proof, and a justified polynomial operation bound. No runtime claim is encoded
-by attaching an arbitrary cost annotation to the witnesses below.
+These are existence statements, not executable algorithms. The uniform capacity decoding theorem
+additionally requires a decoder with proved output refinement and bit complexity.
+
+## References
+
+* [Dao, Kominers, Thaler, and Zheng, *Reed-Solomon List Decoding up to Capacity at Every
+  Rate*][DKTZ26], asymmetric-band interpolation and uniform capacity decoding.
+* [Brakensiek, Chen, Putterman, Zhang, and Zheng, *Algorithmic List Decoding of Reed-Solomon
+  Codes up to Capacity in the Low-Rate Regime*][BCPZZ26], hidden-derivative interpolation.
 -/
 
 namespace ReedSolomon.AllRateListDecoding
@@ -90,18 +94,17 @@ def UniformHiddenDerivativeConstructionStatement : Prop :=
         Nonempty (HiddenDerivativeConstruction (k := k)
           (A := agreementThreshold delta n k) d m domain received)
 
-/-- The explicit small-gap construction target. Unlike the numerical list target, this requires
-an actual interpolant at the paper's stated order and multiplicity, with its stated ambient
-dimension and block threshold. The order-zero algorithm is a separate obligation. -/
-def StrongHiddenDerivativeConstructionStatement : Prop :=
+/-- Asymmetric-band interpolants at the prescribed order, multiplicity, ambient dimension, and
+block threshold. The order indexes an actual differential polynomial and its local constraints. -/
+def AsymmetricBandConstruction : Prop :=
   ∀ delta : ℝ, 0 < delta → delta < (1 / 4 : ℝ) →
-    ∀ n k q : ℕ, 8 * strongBandMultiplicity delta ≤ n →
+    ∀ n k q : ℕ, 8 * asymmetricBandMultiplicity delta ≤ n →
       0 < k → k ≤ n → q.Prime → n ≤ q → agreementThreshold delta n k ≤ n →
       ∀ (domain : Fin n ↪ ZMod q) (received : Fin n → ZMod q),
         ∃ construction : HiddenDerivativeConstruction (k := k)
             (A := agreementThreshold delta n k)
-            (strongDerivativeOrder delta) (strongBandMultiplicity delta) domain received,
-          construction.ambientDim = strongBandAmbientDimension delta n k
+            (capacityDerivativeOrder delta) (asymmetricBandMultiplicity delta) domain received,
+          construction.ambientDim = asymmetricBandAmbientDimension delta n k
 
 end
 end ReedSolomon.AllRateListDecoding

@@ -52,7 +52,7 @@ theorem band_block_size_bounds (δ : ℝ) (n k : ℕ)
       harmonicNumber (Nat.ceil (Real.exp ((169 / 25) / δ)) - 1)) ≤ n)
     (hA : agreementThreshold δ n k ≤ n) :
     let d := Nat.ceil (Real.exp ((169 / 25) / δ))
-    let D := strongBandAmbientDimension δ n k - 1
+    let D := asymmetricBandAmbientDimension δ n k - 1
     12 ≤ δ * n ∧ 0 < D ∧ d < D ∧ δ / 3 ≤ (D : ℝ) / n ∧
       (D : ℝ) / n ≤ 1 - δ := by
   let d := Nat.ceil (Real.exp ((169 / 25) / δ))
@@ -74,15 +74,15 @@ theorem band_block_size_bounds (δ : ℝ) (n k : ℕ)
   have hd' : (1000 : ℝ) ≤ d := by exact_mod_cast hd
   have hbig : 5408 * (d : ℝ) ^ 2 ≤ δ * n := by nlinarith
   have hsize : 12 ≤ δ * n := by nlinarith
-  obtain ⟨hD, hlo, hhi⟩ := strongBandAmbientRate_bounds hδ hδ' hk hsize hA
+  obtain ⟨hD, hlo, hhi⟩ := asymmetricBandAmbientRate_bounds hδ hδ' hk hsize hA
   have hn : (0 : ℝ) < n := by
     by_contra h
     have hz : (n : ℝ) = 0 := le_antisymm (le_of_not_gt h) (Nat.cast_nonneg n)
     rw [hz, mul_zero] at hsize
     norm_num at hsize
   have hlow := (le_div_iff₀ hn).mp hlo
-  have hdD : d < strongBandAmbientDimension δ n k - 1 := by
-    have : (d : ℝ) < (strongBandAmbientDimension δ n k - 1 : ℕ) := by nlinarith
+  have hdD : d < asymmetricBandAmbientDimension δ n k - 1 := by
+    have : (d : ℝ) < (asymmetricBandAmbientDimension δ n k - 1 : ℕ) := by nlinarith
     exact_mod_cast this
   exact ⟨hsize, hD, hdD, hlo, hhi⟩
 
@@ -149,7 +149,7 @@ theorem band_prescribed_budget_lt_finrank {F : Type*} [Field F]
     let d := Nat.ceil (Real.exp ((169 / 25) / δ))
     let H := harmonicNumber (d - 1)
     let m := Nat.ceil (100 * (d : ℝ) ^ 2 * H)
-    let D := strongBandAmbientDimension δ n k - 1
+    let D := asymmetricBandAmbientDimension δ n k - 1
     let g := min 1 (δ / ((D : ℝ) / n))
     let W := Nat.floor ((1 + g / 2) * d * m / H)
     let Cmin := Nat.floor ((1 - g / 10) * m)
@@ -162,7 +162,7 @@ theorem band_prescribed_budget_lt_finrank {F : Type*} [Field F]
   let d := Nat.ceil (Real.exp ((169 / 25) / δ))
   let H := harmonicNumber (d - 1)
   let m := Nat.ceil (100 * (d : ℝ) ^ 2 * H)
-  let D := strongBandAmbientDimension δ n k - 1
+  let D := asymmetricBandAmbientDimension δ n k - 1
   let ρ := (D : ℝ) / n
   let g := min 1 (δ / ρ)
   let W := Nat.floor ((1 + g / 2) * d * m / H)
@@ -224,7 +224,7 @@ theorem band_prescribed_budget_lt_dimensionCount
     let d := Nat.ceil (Real.exp ((169 / 25) / δ))
     let H := harmonicNumber (d - 1)
     let m := Nat.ceil (100 * (d : ℝ) ^ 2 * H)
-    let D := strongBandAmbientDimension δ n k - 1
+    let D := asymmetricBandAmbientDimension δ n k - 1
     let g := min 1 (δ / ((D : ℝ) / n))
     let W := Nat.floor ((1 + g / 2) * d * m / H)
     let Cmin := Nat.floor ((1 - g / 10) * m)
@@ -247,12 +247,12 @@ theorem band_prescribed_field_size_bounds
     let d := Nat.ceil (Real.exp ((169 / 25) / δ))
     let H := harmonicNumber (d - 1)
     let m := Nat.ceil (100 * (d : ℝ) ^ 2 * H)
-    let D := strongBandAmbientDimension δ n k - 1
+    let D := asymmetricBandAmbientDimension δ n k - 1
     d < D ∧ D < n ∧ d < q ∧ 2 * m < q ∧
       8 * (m * agreementThreshold δ n k) ≤ q ^ 2 := by
   let d := Nat.ceil (Real.exp ((169 / 25) / δ))
   let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
-  let D := strongBandAmbientDimension δ n k - 1
+  let D := asymmetricBandAmbientDimension δ n k - 1
   obtain ⟨hsize, hD, hdD, hlo, hhi⟩ := band_block_size_bounds δ n k hδ hδ' hk hblock hA
   have hn : 0 < n := by
     by_contra h

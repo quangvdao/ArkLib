@@ -9,10 +9,10 @@ import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.Specification
 import Mathlib.Analysis.SpecialFunctions.Exp
 
 /-!
-# Contracts for all-rate Reed-Solomon list decoding up to capacity
+# Capacity-gap parameters and list-bound certificates
 
-This module freezes extensional list-size targets for all-rate list decoding. For each positive
-capacity gap `delta`, the list prefactor and exponent are chosen before the block length,
+This module defines parameters and extensional certificates for all-rate list decoding. For each
+positive capacity gap `delta`, the list prefactor and exponent are chosen before the block length,
 dimension, prime field, evaluation set, and received word. These propositions certify neither
 the derivative order of a construction nor an efficient implementation. Construction witnesses
 are specified separately in `ConstructionContracts.lean`.
@@ -25,8 +25,9 @@ The contracts expose both the exact polynomial list at that threshold and ArkLib
 `Code.Lambda` value at relative radius `1 - messageDim / blockLength - delta`. When the threshold
 exceeds the block length, the exact list is required to be empty explicitly.
 
-No declaration in this file asserts that these targets have been proved. They are definitions of
-the propositions to be discharged by later modules.
+The paper-facing theorem is `exists_capacity_list` in `Capacity.lean`. The certificates here
+support its interpolation, counting, and relative-radius interfaces; they are not algorithmic
+specifications.
 
 ## References
 
@@ -56,6 +57,34 @@ def agreeingPolynomials {F index : Type*} [Semiring F] [DecidableEq F] [Fintype 
     (domain : index ↪ F) (messageDim minAgreement : ℕ) (received : index → F) :
     Set (MessagePolynomial F messageDim) :=
   {p | minAgreement ≤ Code.agree (ReedSolomon.evalOnPoints domain p) received}
+
+/-- Raising the required number of agreements can only remove candidate polynomials. -/
+theorem agreeingPolynomials_antitone {F index : Type*} [Semiring F] [DecidableEq F]
+    [Fintype index] (domain : index ↪ F) (messageDim : ℕ) (received : index → F) :
+    Antitone (fun A => agreeingPolynomials domain messageDim A received) := by
+  intro A B hAB p hp
+  exact hAB.trans hp
+
+/-- A finite set of agreeing messages has a duplicate-free polynomial list with the same
+cardinality. The degree condition is explicit and includes the zero polynomial.
+This is classical finite-set extraction, not an algorithm or a complexity estimate. -/
+theorem exists_finset_polynomial_list {F index : Type*} [Semiring F] [DecidableEq F]
+    [Fintype index] (domain : index ↪ F) (k A : ℕ) (received : index → F)
+    (hfinite : (agreeingPolynomials domain k A received).Finite) :
+    ∃ list : Finset (Polynomial F),
+      (∀ P, P ∈ list ↔ P.degree < k ∧
+        A ≤ Code.agree (ReedSolomon.evalOnPoints domain P) received) ∧
+      (list.card : ℕ∞) = (agreeingPolynomials domain k A received).encard := by
+  classical
+  refine ⟨hfinite.toFinset.map (messagePolynomialValue k), ?_, ?_⟩
+  · intro P
+    simp only [Finset.mem_map, Set.Finite.mem_toFinset]
+    constructor
+    · rintro ⟨p, hp, rfl⟩
+      exact ⟨Polynomial.mem_degreeLT.mp p.property, hp⟩
+    · rintro ⟨hdegree, hagree⟩
+      exact ⟨⟨P, Polynomial.mem_degreeLT.mpr hdegree⟩, hagree, rfl⟩
+  · rw [Finset.card_map, hfinite.encard_eq_coe_toFinset_card]
 
 /-- No polynomial can meet an agreement threshold strictly larger than the block length. -/
 theorem agreeingPolynomials_eq_empty_of_card_lt {F index : Type*} [Semiring F]
@@ -145,16 +174,9 @@ theorem CapacityGapCertificate.pointwiseListBound {delta : ℝ}
   · intro hThreshold
     exact agreeingPolynomials_eq_empty_of_card_lt (by simpa using hThreshold) received
 
-/-- **Canonical qualitative polynomial-list target; no runtime guarantee.**
-
-This is the extensional list-size content of [DKTZ26, Theorem 1.1 / `thm:intro-main-informal`,
-precise `thm:main`], source revision `9e4d6488ead94be47cca69e5be915b5667143b66`, with
-unoptimized constants. It is not the full algorithmic theorem. The single exponent and prefactor
-depend only on the gap. An actual construction's derivative order is specified separately.
-
-The certificate already implies pointwise, `Lambda`, and oversized-threshold empty-list bounds;
-they are not repeated as independent obligations. The assumptions `0 < messageDim ≤ blockLength`
-imply positive block length, as needed by the relative-radius interpretation. -/
+/-- For every fixed positive gap, one polynomial list bound works at every code rate. The
+prefactor, exponent, and block threshold depend only on the gap. Each certificate includes the
+exact list, relative-radius bound, and empty oversized-threshold case, but no running-time claim. -/
 def QualitativeAllRateStatement : Prop :=
   ∀ delta : ℝ, 0 < delta → delta < 1 →
     ∃ blockLengthThreshold listFactor listExponent : ℕ,
@@ -167,8 +189,7 @@ def QualitativeAllRateStatement : Prop :=
           Nonempty (CapacityGapCertificate delta domain messageDim
             (polynomialListBound fieldSize listFactor listExponent))
 
-/-- The canonical target supplies the same gap-only polynomial bound at every received word.
-This is a consequence of the certificate, not an additional capstone obligation. -/
+/-- A uniform capacity-gap certificate bounds the polynomial list at every received word. -/
 theorem QualitativeAllRateStatement.exists_uniform_pointwise_bound
     (h : QualitativeAllRateStatement) {delta : ℝ} (hdelta : 0 < delta) (hOne : delta < 1) :
     ∃ N B E : ℕ, 0 < B ∧ ∀ n k q : ℕ,
@@ -180,22 +201,22 @@ theorem QualitativeAllRateStatement.exists_uniform_pointwise_bound
   obtain ⟨certificate⟩ := hCertificate n k q hn hk hkn hq hnq domain
   exact certificate.pointwiseListBound received
 
-/-- The derivative order in the strong prime-field target.
+/-- The prescribed derivative order for uniform prime-field capacity decoding.
 
 The order-zero branch covers every gap at least `1 / 4`. Below that boundary, the constant
 `169 / 25` is the exact rational representation of `6.76`. -/
-def strongDerivativeOrder (delta : ℝ) : ℕ :=
+def capacityDerivativeOrder (delta : ℝ) : ℕ :=
   if (1 / 4 : ℝ) ≤ delta then 0
   else Nat.ceil (Real.exp (((169 : ℝ) / 25) / delta))
 
 @[simp]
-theorem strongDerivativeOrder_eq_zero {delta : ℝ} (hdelta : (1 / 4 : ℝ) ≤ delta) :
-    strongDerivativeOrder delta = 0 := by
-  rw [strongDerivativeOrder, if_pos hdelta]
+theorem capacityDerivativeOrder_eq_zero {delta : ℝ} (hdelta : (1 / 4 : ℝ) ≤ delta) :
+    capacityDerivativeOrder delta = 0 := by
+  rw [capacityDerivativeOrder, if_pos hdelta]
 
-theorem strongDerivativeOrder_eq_ceil {delta : ℝ} (hdelta : delta < (1 / 4 : ℝ)) :
-    strongDerivativeOrder delta = Nat.ceil (Real.exp (((169 : ℝ) / 25) / delta)) := by
-  rw [strongDerivativeOrder, if_neg (not_le_of_gt hdelta)]
+theorem capacityDerivativeOrder_eq_ceil {delta : ℝ} (hdelta : delta < (1 / 4 : ℝ)) :
+    capacityDerivativeOrder delta = Nat.ceil (Real.exp (((169 : ℝ) / 25) / delta)) := by
+  rw [capacityDerivativeOrder, if_neg (not_le_of_gt hdelta)]
 
 /-- The harmonic number `H_r = sum_{i=1}^r 1/i` used by the asymmetric-band parameters. -/
 def harmonicNumber (r : ℕ) : ℝ :=
@@ -204,12 +225,12 @@ def harmonicNumber (r : ℕ) : ℝ :=
 /-- The optimized asymmetric-band multiplicity `ceil(100 d^2 H_{d-1})`. This parameter package
 is used only below gap `1 / 4`; the order-zero branch instead uses an instance-dependent
 multiplicity and is deliberately specified separately. -/
-def strongBandMultiplicity (delta : ℝ) : ℕ :=
-  let derivOrder := strongDerivativeOrder delta
+def asymmetricBandMultiplicity (delta : ℝ) : ℕ :=
+  let derivOrder := capacityDerivativeOrder delta
   Nat.ceil (100 * (derivOrder : ℝ) ^ 2 * harmonicNumber (derivOrder - 1))
 
 /-- The ambient dimension in the optimized asymmetric-band certificate. -/
-def strongBandAmbientDimension (delta : ℝ) (blockLength messageDim : ℕ) : ℕ :=
+def asymmetricBandAmbientDimension (delta : ℝ) (blockLength messageDim : ℕ) : ℕ :=
   max messageDim ⌊(delta * (blockLength : ℝ)) / 2⌋₊
 
 /-- The larger-field condition under which the asymmetric-band target improves its root exponent
@@ -219,19 +240,12 @@ def LargeFieldCondition (delta : ℝ)
     (blockLength messageDim fieldSize derivOrder multiplicity : ℕ) :
     Prop :=
   2 * (multiplicity * agreementThreshold delta blockLength messageDim + derivOrder -
-    strongBandAmbientDimension delta blockLength messageDim) ≤ fieldSize
+    asymmetricBandAmbientDimension delta blockLength messageDim) ≤ fieldSize
 
-/-- **Order-zero target for gaps at least one quarter.**
-
-This is an extensional exact-list specification; it certifies no derivative-zero construction
-and no running-time bound. The terminology identifies the corresponding regime of [DKTZ26,
-`thm:main`], source revision `9e4d6488ead94be47cca69e5be915b5667143b66`.
-
-For gaps at least `1 / 2`, the target list has size at most one. Between `1 / 4` and `1 / 2`,
-the target is the manuscript's strict `< 4q` bound. The statement does not require a multiplicity
-depending only on the gap: the order-zero interpolation proof uses multiplicity `messageDim - 1`,
-with `messageDim = 1` handled directly. -/
-def OrderZeroQuarterStatement : Prop :=
+/-- Capacity lists have size at most one for gaps at least one half and strictly less than `4q`
+for gaps between one quarter and one half. This asserts list cardinalities, not an interpolation
+construction or an efficient decoding algorithm. -/
+def QuarterGapListBound : Prop :=
   ∀ delta : ℝ, (1 / 4 : ℝ) ≤ delta → delta < 1 →
     ∃ blockLengthThreshold : ℕ,
       ∀ blockLength messageDim fieldSize : ℕ,
@@ -247,19 +261,14 @@ def OrderZeroQuarterStatement : Prop :=
                   (agreementThreshold delta blockLength messageDim) received).encard <
                     ((4 * fieldSize : ℕ) : ℕ∞))
 
-/-- **Strong asymmetric-band target below gap one quarter.**
-
-The derivative order and multiplicity are the explicit optimized values from the manuscript.
-The block threshold is `8m`. The list bound is `B(delta) * q^(2d)` over every prime field with
-`q ≥ n`, improving to `B(delta) * q^d` under `LargeFieldCondition`.
-This is an extensional exact-list specification with no runtime guarantee. Here `d` specifies
-the numerical list exponent, not an interpolant's order; the actual construction witness is a
-separate obligation in `ConstructionContracts.lean`. Source: [DKTZ26, `thm:main`] at
-`9e4d6488ead94be47cca69e5be915b5667143b66`. -/
-def StrongAsymmetricBandStatement : Prop :=
+/-- Below gap one quarter, asymmetric-band parameters give list bounds `B(delta) * q^(2d)`
+for all prime fields `q ≥ n` and `B(delta) * q^d` under `LargeFieldCondition`, once `n ≥ 8m`.
+The prefactor depends only on the gap. These are exact-list bounds, with no runtime guarantee;
+order-indexed interpolants are specified by `AsymmetricBandConstruction`. -/
+def AsymmetricBandListBound : Prop :=
   ∀ delta : ℝ, 0 < delta → delta < (1 / 4 : ℝ) →
-    let derivOrder := strongDerivativeOrder delta
-    let multiplicity := strongBandMultiplicity delta
+    let derivOrder := capacityDerivativeOrder delta
+    let multiplicity := asymmetricBandMultiplicity delta
     0 < multiplicity ∧
     ∃ listFactor : ℕ, 0 < listFactor ∧
       ∀ blockLength messageDim fieldSize : ℕ,
@@ -272,17 +281,6 @@ def StrongAsymmetricBandStatement : Prop :=
           (LargeFieldCondition delta blockLength messageDim fieldSize derivOrder multiplicity →
             Nonempty (CapacityGapCertificate delta domain messageDim
               (listFactor * fieldSize ^ derivOrder)))
-
-/-- **Strong quantitative all-rate target.**
-
-This combines the numerical list-bound clauses of [DKTZ26, Theorem 1.1 / `thm:main`] at
-`9e4d6488ead94be47cca69e5be915b5667143b66`. It remains an extensional exact-list specification:
-neither an executable decoder nor the paper's running-time claim follows from this proposition.
-
-The split is load-bearing: derivative order zero above gap `1 / 4` does not imply a constant list
-bound in the interval `[1 / 4, 1 / 2)`, and the order-zero multiplicity is not gap-only. -/
-def StrongQuantitativeAllRateStatement : Prop :=
-  OrderZeroQuarterStatement ∧ StrongAsymmetricBandStatement
 
 end
 end AllRateListDecoding

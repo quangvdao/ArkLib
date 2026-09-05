@@ -10,9 +10,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability
 import Mathlib.Algebra.Field.ZMod
 
 /-!
-# The elementary low-order Reed--Solomon regime
+# Reed-Solomon list bounds at gaps of at least one quarter
 
-This module proves the order-zero contract for capacity gaps at least one quarter. The proof is the
+This module proves list bounds for capacity gaps at least one quarter. The proof is the
 elementary agreement-counting argument from [DKTZ26]: distinct degree-`< k` Reed--Solomon words
 agree in at most `k - 1` positions, and the exact Cauchy--Schwarz estimate from
 `Code.card_mul_sq_minAgreement_sub_pairAgreement_le` bounds every finite high-agreement family.
@@ -239,7 +239,7 @@ private lemma exactAgreementDecoder_encard_eq
   rw [hSet, Set.encard_coe_eq_coe_finsetCard]
 
 /-- At a capacity gap of at least one quarter, every received word has at most `blockLength`
-agreeing degree-bounded polynomials. This is the pointwise order-zero counting checkpoint. -/
+agreeing degree-bounded polynomials. -/
 theorem agreeingPolynomials_encard_le_blockLength_of_quarter
     {F : Type*} [Field F] [Finite F] [DecidableEq F]
     {delta : ℝ} (hdelta : (1 / 4 : ℝ) ≤ delta)
@@ -269,9 +269,8 @@ theorem agreeingPolynomials_encard_le_one_of_half
   exact_mod_cast exactAgreementDecoder_card_le_one domain hMessageDim hMessageDimLe
     (agreementThreshold_half_gap hdelta blockLength messageDim hMessageDim) received
 
-/-- The order-zero Reed--Solomon regime: unique decoding from a half-gap and a strict `< 4q`
-bound from a quarter-gap. -/
-theorem orderZeroQuarterStatement : OrderZeroQuarterStatement := by
+/-- Unique decoding from a half-gap and a strict `< 4q` list bound from a quarter-gap. -/
+theorem quarter_gap_list_bound : QuarterGapListBound := by
   intro delta hdelta hdelta_lt_one
   refine ⟨0, ?_⟩
   intro blockLength messageDim fieldSize _ hMessageDim hMessageDimLe hFieldPrime

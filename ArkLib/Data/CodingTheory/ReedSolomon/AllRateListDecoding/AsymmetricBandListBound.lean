@@ -7,10 +7,9 @@ Authors: Quang Dao
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.AgreementRadius
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.BandConstruction
 import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.BandParameterAssembly
-import ArkLib.Data.CodingTheory.ReedSolomon.AllRateListDecoding.LowOrderRegime
 
 /-!
-# Optimized all-rate construction and list bounds
+# Asymmetric-band interpolation and capacity list bounds
 
 The prescribed asymmetric band supplies an actual nonzero interpolant at order
 `ceil(exp(169/(25*delta)))`, multiplicity `ceil(100*d²*H)`, and block threshold `8m`.
@@ -37,11 +36,11 @@ noncomputable section
 open HiddenDerivative ListDecoding
 
 /-- The prescribed small-gap multiplicity is positive. -/
-theorem strongBandMultiplicity_pos {delta : ℝ} (hdelta : 0 < delta)
-    (hquarter : delta < (1 / 4 : ℝ)) : 0 < strongBandMultiplicity delta := by
+theorem asymmetricBandMultiplicity_pos {delta : ℝ} (hdelta : 0 < delta)
+    (hquarter : delta < (1 / 4 : ℝ)) : 0 < asymmetricBandMultiplicity delta := by
   obtain ⟨_, _, _, _, _, _, _, _, hm, _, _⟩ :=
     band_rate_parameter_estimates delta (1 - delta) hdelta hquarter.le (by linarith) le_rfl
-  simpa only [strongBandMultiplicity, strongDerivativeOrder_eq_ceil hquarter] using hm
+  simpa only [asymmetricBandMultiplicity, capacityDerivativeOrder_eq_ceil hquarter] using hm
 
 /-- Proof-facing finite data shared by construction and counting; no algorithmic witness. -/
 private structure BandInstanceData (n k A d m K : ℕ) where
@@ -62,14 +61,14 @@ private structure BandInstanceData (n k A d m K : ℕ) where
 /-- All numerical premises of the band bridge follow from the prescribed block threshold. -/
 private theorem exists_band_instance_data {delta : ℝ} {n k : ℕ}
     (hdelta : 0 < delta) (hquarter : delta < (1 / 4 : ℝ))
-    (hblock : 8 * strongBandMultiplicity delta ≤ n) (hk : 0 < k) (hkn : k ≤ n)
+    (hblock : 8 * asymmetricBandMultiplicity delta ≤ n) (hk : 0 < k) (hkn : k ≤ n)
     (hA : agreementThreshold delta n k ≤ n) :
     Nonempty (BandInstanceData n k (agreementThreshold delta n k)
-      (strongDerivativeOrder delta) (strongBandMultiplicity delta)
-      (strongBandAmbientDimension delta n k)) := by
-  let d := strongDerivativeOrder delta
-  let m := strongBandMultiplicity delta
-  let K := strongBandAmbientDimension delta n k
+      (capacityDerivativeOrder delta) (asymmetricBandMultiplicity delta)
+      (asymmetricBandAmbientDimension delta n k)) := by
+  let d := capacityDerivativeOrder delta
+  let m := asymmetricBandMultiplicity delta
+  let K := asymmetricBandAmbientDimension delta n k
   let D := K - 1
   let g := min 1 (delta / ((D : ℝ) / n))
   let H := harmonicNumber (d - 1)
@@ -78,19 +77,19 @@ private theorem exists_band_instance_data {delta : ℝ} {n k : ℕ}
   let Cmax := Nat.ceil ((1 + 13 * g / 20) * m)
   have hblock' : 8 * Nat.ceil (100 * (Nat.ceil (Real.exp ((169 / 25) / delta)) : ℝ) ^ 2 *
       harmonicNumber (Nat.ceil (Real.exp ((169 / 25) / delta)) - 1)) ≤ n := by
-    simpa only [strongBandMultiplicity, strongDerivativeOrder_eq_ceil hquarter] using hblock
+    simpa only [asymmetricBandMultiplicity, capacityDerivativeOrder_eq_ceil hquarter] using hblock
   obtain ⟨hsize, hD, hdD, hrlo, hrhi⟩ :=
     band_block_size_bounds delta n k hdelta hquarter hk hblock' hA
   have hdD' : d < D := by
-    simpa only [d, strongDerivativeOrder_eq_ceil hquarter] using hdD
-  have hm : 0 < m := strongBandMultiplicity_pos hdelta hquarter
+    simpa only [d, capacityDerivativeOrder_eq_ceil hquarter] using hdD
+  have hm : 0 < m := asymmetricBandMultiplicity_pos hdelta hquarter
   have hn : 0 < n := hk.trans_le hkn
   have hD' : 0 < D := hD
   have hd : 0 < d := by
     dsimp only [d]
-    rw [strongDerivativeOrder_eq_ceil hquarter]
+    rw [capacityDerivativeOrder_eq_ceil hquarter]
     exact Nat.ceil_pos.mpr (Real.exp_pos _)
-  have hK : 0 < K := strongBandAmbientDimension_pos hk
+  have hK : 0 < K := asymmetricBandAmbientDimension_pos hk
   have hKn : K ≤ n := by
     have hfloor := Nat.floor_le (by positivity : 0 ≤ delta * (n : ℝ) / 2)
     have hnR : (0 : ℝ) ≤ n := Nat.cast_nonneg n
@@ -99,7 +98,7 @@ private theorem exists_band_instance_data {delta : ℝ} {n k : ℕ}
   have hAreal : (k : ℝ) + delta * n ≤ agreementThreshold delta n k :=
     (agreementThreshold_le_iff_real hdelta.le _ _ _).mp le_rfl
   have hslack : (D : ℝ) * (1 + g) ≤ agreementThreshold delta n k := by
-    have h := strongBandAmbientDegree_slack_le_agreement hdelta hk hD' hAreal
+    have h := asymmetricBandAmbientDegree_slack_le_agreement hdelta hk hD' hAreal
     simpa only [g, band_relativeSlack_rate_eq hn hD'] using h
   have hg1 : g ≤ 1 := min_le_left _ _
   have hL : (D : ℝ) * m * (1 + g) ≤ (m * agreementThreshold delta n k : ℕ) := by
@@ -115,8 +114,8 @@ private theorem exists_band_instance_data {delta : ℝ} {n k : ℕ}
     delta n k hdelta hquarter hk hblock' hA
   have hdim' : n * asymmetricBandLocalBudget d m W ⌈(m : ℝ) * (1 + g) - Cmin⌉₊ <
       asymmetricBandDimensionCount D d m W Cmin Cmax ((D : ℝ) * m * (1 + g)) := by
-    simpa only [d, m, H, W, Cmin, Cmax, strongBandMultiplicity,
-      strongDerivativeOrder_eq_ceil hquarter] using hdim
+    simpa only [d, m, H, W, Cmin, Cmax, asymmetricBandMultiplicity,
+      capacityDerivativeOrder_eq_ceil hquarter] using hdim
   have hquot : (D : ℝ) * m * (1 + g) / D = (m : ℝ) * (1 + g) := by
     have hDn : (D : ℝ) ≠ 0 := by positivity
     field_simp
@@ -131,12 +130,12 @@ private theorem exists_band_instance_data {delta : ℝ} {n k : ℕ}
   simpa only [hquot] using hdim'
 
 /-- An actual optimized hidden-derivative construction, at the prescribed ambient dimension. -/
-theorem strong_hidden_derivative_construction : StrongHiddenDerivativeConstructionStatement := by
+theorem exists_asymmetricBand_hiddenDerivativeConstruction : AsymmetricBandConstruction := by
   intro delta hdelta hquarter n k q hblock hk hkn hq hnq hA domain received
   let : Fact q.Prime := ⟨hq⟩
   obtain ⟨data⟩ := exists_band_instance_data hdelta hquarter hblock hk hkn hA
-  have hm := strongBandMultiplicity_pos hdelta hquarter
-  have hmq : 2 * strongBandMultiplicity delta < q := by omega
+  have hm := asymmetricBandMultiplicity_pos hdelta hquarter
+  have hmq : 2 * asymmetricBandMultiplicity delta < q := by omega
   have hcontact := band_contact_budget_le_eighth hblock hA hnq
   obtain ⟨construction, hK, _⟩ := exists_band_construction domain received
     data.message_le data.ambient_le hnq data.order_pos data.order_lt data.product_pos hmq
@@ -144,25 +143,25 @@ theorem strong_hidden_derivative_construction : StrongHiddenDerivativeConstructi
   exact ⟨construction, hK⟩
 
 /-- The optimized point-list bound uses the same finite band and characteristic budgets. -/
-private theorem strong_band_pointwise {delta : ℝ} {n k q e : ℕ}
+private theorem asymmetricBand_agreeingPolynomials_encard_le {delta : ℝ} {n k q e : ℕ}
     (hdelta : 0 < delta) (hquarter : delta < (1 / 4 : ℝ))
-    (hblock : 8 * strongBandMultiplicity delta ≤ n) (hk : 0 < k) (hkn : k ≤ n)
+    (hblock : 8 * asymmetricBandMultiplicity delta ≤ n) (hk : 0 < k) (hkn : k ≤ n)
     (hq : q.Prime) (hnq : n ≤ q) (hA : agreementThreshold delta n k ≤ n)
     (domain : Fin n ↪ ZMod q) (received : Fin n → ZMod q) (he : 0 < e)
-    (hlarge : 2 * (strongBandMultiplicity delta * agreementThreshold delta n k +
-      strongDerivativeOrder delta - strongBandAmbientDimension delta n k) ≤ q ^ e) :
+    (hlarge : 2 * (asymmetricBandMultiplicity delta * agreementThreshold delta n k +
+      capacityDerivativeOrder delta - asymmetricBandAmbientDimension delta n k) ≤ q ^ e) :
     (agreeingPolynomials domain k (agreementThreshold delta n k) received).encard ≤
-      (8 * (strongDerivativeOrder delta + 1) * strongBandMultiplicity delta ^ 2 *
-        q ^ (e * strongDerivativeOrder delta) : ℕ) := by
+      (8 * (capacityDerivativeOrder delta + 1) * asymmetricBandMultiplicity delta ^ 2 *
+        q ^ (e * capacityDerivativeOrder delta) : ℕ) := by
   let : Fact q.Prime := ⟨hq⟩
   obtain ⟨data⟩ := exists_band_instance_data hdelta hquarter hblock hk hkn hA
-  have hm := strongBandMultiplicity_pos hdelta hquarter
-  have hchar : strongBandAmbientDimension delta n k - 1 < ringChar (ZMod q) := by
+  have hm := asymmetricBandMultiplicity_pos hdelta hquarter
+  have hchar : asymmetricBandAmbientDimension delta n k - 1 < ringChar (ZMod q) := by
     rw [ringChar.eq (ZMod q) q]
     have := data.ambient_le
     have := data.order_lt
     omega
-  have hmchar : 2 * strongBandMultiplicity delta < ringChar (ZMod q) := by
+  have hmchar : 2 * asymmetricBandMultiplicity delta < ringChar (ZMod q) := by
     rw [ringChar.eq (ZMod q) q]
     omega
   have h := agreeingPolynomials_encard_le_of_band_certificate domain received data.message_le
@@ -172,10 +171,10 @@ private theorem strong_band_pointwise {delta : ℝ} {n k q e : ℕ}
   simpa only [Nat.card_zmod] using h
 
 /-- Optimized all-rate exact-list cardinalities, including the reduced larger-field condition. -/
-theorem strong_asymmetric_band : StrongAsymmetricBandStatement := by
+theorem asymmetricBand_capacity_list_bound : AsymmetricBandListBound := by
   intro delta hdelta hquarter
-  have hm := strongBandMultiplicity_pos hdelta hquarter
-  refine ⟨hm, 8 * (strongDerivativeOrder delta + 1) * strongBandMultiplicity delta ^ 2,
+  have hm := asymmetricBandMultiplicity_pos hdelta hquarter
+  refine ⟨hm, 8 * (capacityDerivativeOrder delta + 1) * asymmetricBandMultiplicity delta ^ 2,
     by positivity, ?_⟩
   intro n k q hblock hk hkn hq hnq domain
   constructor
@@ -185,7 +184,8 @@ theorem strong_asymmetric_band : StrongAsymmetricBandStatement := by
     · have hcontact := band_contact_budget_le_eighth hblock hA hnq
       obtain ⟨data⟩ := exists_band_instance_data hdelta hquarter hblock hk hkn hA
       have hdK := data.order_lt
-      apply strong_band_pointwise hdelta hquarter hblock hk hkn hq hnq hA domain received
+      apply asymmetricBand_agreeingPolynomials_encard_le hdelta hquarter hblock hk hkn hq hnq hA
+        domain received
         (by norm_num : 0 < (2 : ℕ))
       omega
     · rw [agreeingPolynomials_eq_empty_of_card_lt (by simpa using Nat.lt_of_not_ge hA) received]
@@ -194,16 +194,13 @@ theorem strong_asymmetric_band : StrongAsymmetricBandStatement := by
     refine ⟨CapacityGapCertificate.ofPointwiseBound hdelta.le (hk.trans_le hkn) domain ?_⟩
     intro received
     by_cases hA : agreementThreshold delta n k ≤ n
-    · have h := strong_band_pointwise hdelta hquarter hblock hk hkn hq hnq hA domain received
+    · have h := asymmetricBand_agreeingPolynomials_encard_le hdelta hquarter hblock hk hkn hq hnq hA
+        domain received
         (by norm_num : 0 < (1 : ℕ))
         (by simpa only [pow_one, LargeFieldCondition] using hlarge)
       simpa only [one_mul] using h
     · rw [agreeingPolynomials_eq_empty_of_card_lt (by simpa using Nat.lt_of_not_ge hA) received]
       simp
-
-/-- The full optimized cardinality contract, not the remaining algorithmic runtime theorem. -/
-theorem strong_quantitative_all_rate : StrongQuantitativeAllRateStatement :=
-  ⟨orderZeroQuarterStatement, strong_asymmetric_band⟩
 
 end
 end ReedSolomon.AllRateListDecoding
