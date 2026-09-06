@@ -57,6 +57,17 @@ theorem jetWeight_le (cert : FirstOrderCurveCertificate.{u, u} D A m M μ k h do
   simpa [totalJetDegree, Finsupp.degree_eq_sum, Finsupp.weight_apply,
     Finsupp.sum_fintype] using hbound
 
+/-- The actual first-derivative degree retains the asymmetric support cap. -/
+theorem jetDegree_one_le
+    (cert : FirstOrderCurveCertificate.{u, u} D A m M μ k h domain w columns) :
+    jetDegree cert.Q (1 : Fin 2) ≤ M := by
+  change degreeOf (some (1 : Fin 2)) cert.Q ≤ M
+  rw [degreeOf_eq_sup]
+  apply Finset.sup_le
+  intro u hu
+  simpa [firstJetExponent, Finsupp.weight_apply, Finsupp.sum_fintype] using
+    cert.firstJetDegree_le u hu
+
 /-- Construct the derivative chain from the finite certificate. -/
 theorem exists_separant_chain
     (cert : FirstOrderCurveCertificate.{u, u} D A m M μ k h domain w columns)
