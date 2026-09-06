@@ -50,15 +50,30 @@ Place durable, concrete applications under `ArkLibExamples/` and add them to the
 `./scripts/validate.sh` rejects all of its warnings, including admissions. Examples may import
 stable `ArkLib` owner modules; `ArkLib` must not import `ArkLibExamples`.
 
-The Reed–Solomon examples currently check exact arithmetic for ProveKit, ZisK, and LambdaVM:
-query budgets, supplied algebraic-count expressions, and specified payload models. They do not
-yet derive those supplied counts from the coding theorems. The generic
-`HiddenDerivative/Interpolation/FirstOrder` modules establish a capped support and a nonzero
-interpolant satisfying the actual local constraints under a dimension surplus. Completing the
-application bridge requires the sharper cutoff-sensitive rank formula, its finite support count,
-and the symbolic-height and geometric exceptional-count bounds. Keep these mathematical
-obligations distinct from numerical evaluation; a checked integer constant alone is not a
-verified bound on a bad event.
+The Reed–Solomon examples separate numerical consequences from the mathematical certificates
+that justify them. `ProveKit`, `ZisK`, and `LambdaVM` record supplied count expressions and
+query/payload arithmetic. Their `Interpolation` modules derive primitive, specialization-sound
+certificates from exact support and height sums. `ProveKitMCA` also derives an actual scalar
+MCA bound and finite-list bound for the BN254 profile, using the proved source-incidence envelope.
+`ProveKitQueryTuning` derives the same mathematical bounds for a retuned support, then proves
+the 108-query arithmetic with a slightly stricter grinding threshold and unchanged OOD count.
+
+Read the generic development in this order:
+
+1. `FirstOrder/Basic` and `Counting`: the monomial support and its exact dimension sum.
+2. `FirstOrder/Interpolation` and `SymbolicRank`: the actual local and symbolic matrix rank.
+3. `ToMathlib/LinearAlgebra/ColumnDegreeKernel`, `Symbolic/ColumnHeight`, and
+   `FirstOrder/HeightCounting`: column-sensitive kernel construction and executable height test.
+4. `FirstOrder/Symbolic` and `FiniteCertificate`: one primitive polynomial chosen before all
+   extension fields, challenges, and close candidates.
+5. `FirstOrder/ListBound` and `CorrelatedAgreement/Symbolic/FirstOrderEnvelope`: list counting
+   and the stage-free scalar MCA bound.
+
+The remaining sharper exceptional counts require the manuscript's bidegree geometric transfer.
+The interpolation examples for powers profiles establish the underlying affine-line layer;
+those modules do not themselves prove powers transfer or interleaved protocol conclusions.
+The envelope rank suffices for the recorded supports: a sharper cutoff-sensitive rank would
+expand tuning options, but is not needed to validate those interpolation certificates.
 
 ### Lean source-policy checks
 
