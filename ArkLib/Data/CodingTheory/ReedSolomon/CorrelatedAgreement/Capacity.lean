@@ -45,8 +45,8 @@ Affine densities and the final probability formulation require finite fields.
 
 These are mathematical agreement theorems, not running-time bounds. In the small-gap regime,
 `exists_prescribedLineMCA` and `exists_prescribedCurveMCA` use the manuscript's exact
-mixed-bidegree constant `prescribedMCAConstant`. The existential presentations below enlarge
-that constant by one only to supply an unconditional positive witness. The half-gap line theorem
+mixed-bidegree constant `prescribedMCAConstant`. The existential presentations below use that
+same constant in this regime. The half-gap line theorem
 states the sharper `2 * n` bound separately, over every field. For gaps between one quarter and
 one half, these existential presentations still use small-gap parameters; the manuscript's
 special quadratic bound in that interval is not claimed here.
@@ -196,11 +196,8 @@ theorem exists_capacity_lineAgreement (δ : ℝ) (hδ : 0 < δ) :
     · linarith
   let d := Nat.ceil (Real.exp ((169 / 25) / ε))
   let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
-  let C := prescribedMCAConstant ε + 1
-  have hC₀ : 0 ≤ prescribedMCAConstant ε := by
-    unfold prescribedMCAConstant polynomialCurveSharpMCAConstant
-    positivity
-  have hC : 0 < C := by dsimp [C]; linarith
+  let C := prescribedMCAConstant ε
+  have hC : 0 < C := prescribedMCAConstant_pos hε hεquarter
   refine ⟨8 * m, d, C, hC, ?_⟩
   dsimp only [HasCapacityLineAgreement]
   intro n k A hn hk _hkn hgap F _ _ hchar domain f g
@@ -423,11 +420,8 @@ theorem exists_capacity_powerBatchingAgreement (δ : ℝ) (hδ : 0 < δ) :
     · linarith
   let d := Nat.ceil (Real.exp ((169 / 25) / ε))
   let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
-  let C := prescribedMCAConstant ε + 1
-  have hC₀ : 0 ≤ prescribedMCAConstant ε := by
-    unfold prescribedMCAConstant polynomialCurveSharpMCAConstant
-    positivity
-  have hC : 0 < C := by dsimp only [C]; linarith
+  let C := prescribedMCAConstant ε
+  have hC : 0 < C := prescribedMCAConstant_pos hε hεquarter
   refine ⟨8 * m, d, C, hC, ?_⟩
   dsimp only [HasCapacityPowerBatchingAgreement]
   intro ℓ n k A hℓ hn hk _hkn hgap F _ _ hchar domain w
