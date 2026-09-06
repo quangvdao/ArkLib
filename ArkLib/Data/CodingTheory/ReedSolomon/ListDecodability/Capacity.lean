@@ -39,7 +39,7 @@ unique decoding (`CodingTheory/BerlekampWelch`) and Johnson-radius interpolation
 (`CodingTheory/GuruswamiSudan`). Those are separate developments, not assumptions here.
 Field-independent geometric list bounds are in `ListDecodability/Capacity/GeometricBound`.
 Mutual correlated agreement at capacity is in `CorrelatedAgreement/Capacity` and
-`CorrelatedAgreement/AffineCapacity`; list cardinality and MCA are different properties.
+`CorrelatedAgreement/Capacity`; list cardinality and MCA are different properties.
 
 ## References
 

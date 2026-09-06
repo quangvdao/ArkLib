@@ -22,7 +22,6 @@ ENTRY_POINTS = (
     "HiddenDerivative.RootFinding.TaylorCharZeroSolutions",
     "ListDecodability.Capacity.CodewordBound",
     "CorrelatedAgreement.Capacity",
-    "CorrelatedAgreement.AffineCapacity",
 )
 GENERIC_ENTRY_POINTS = (
     "ArkLib.Data.Polynomial.Differential.Basic",
