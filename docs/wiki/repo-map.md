@@ -61,8 +61,9 @@ home_page/            site assets and assembled website root
 ### Reed–Solomon capacity and its mathematical foundations
 
 The public entry points are `ReedSolomon/ListDecodability/Capacity.lean` and
-`ReedSolomon/CorrelatedAgreement/Capacity.lean`. The latter imports line, affine-family,
-and power-batching MCA together. Their supporting modules
+`ReedSolomon/CorrelatedAgreement/Capacity.lean`. The latter contains the annotated properties,
+theorem statements, and proofs for line, affine-family, and power-batching MCA together.
+Their supporting modules
 are grouped by mathematical role:
 
 - `HiddenDerivative/Interpolation/Local` contains contact identities, constraint maps and kernels,
