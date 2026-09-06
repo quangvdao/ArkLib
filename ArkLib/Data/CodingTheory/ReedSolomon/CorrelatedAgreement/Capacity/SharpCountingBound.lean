@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.CountingBound
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.Midpoint
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.SharpGeneralEquation
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.Parameters
 
@@ -57,7 +57,7 @@ theorem sourceCurveCutChallengeDegree_mul_le (n K ℓ H h : ℕ)
 
 /-- The exact mixed degree of a source stage admits the paper's sharp scalar bound when its
 jet degree and challenge height are bounded by the certificate caps. -/
-theorem sourceCurveInitialMixedDegree_le_paper (r n K ℓ j H v h : ℕ)
+theorem sourceCurveInitialMixedDegree_le_uniformCaps (r n K ℓ j H v h : ℕ)
     (hn : 0 < n) (hKn : K ≤ n) (hj : 0 < j) (hh : 0 < h)
     (hjv : j ≤ v) (hH : H ≤ ℓ * h) :
     sourceCurveInitialMixedDegree r ℓ K j H ≤
@@ -131,7 +131,7 @@ noncomputable def polynomialCurveSharpStageBound
 /-- The exact arbitrary-order regular-chart budget at the midpoint is bounded by the paper's
 single-stage scalar.  The stage may use any positive jet degree `j ≤ v` and challenge height
 `H ≤ ell*h`. -/
-theorem regularSymbolicCurveMCASharpBound_midpoint_le_paper (δ : ℝ)
+theorem regularSymbolicCurveMCASharpBound_midpoint_le_stageBound (δ : ℝ)
     (r n K k A ℓ j H v h : ℕ)
     (hδ : 0 < δ) (hn : 0 < n) (hk : 0 < k) (hj : 0 < j) (hh : 0 < h)
     (hKn : K ≤ n) (hjv : j ≤ v) (hH : H ≤ ℓ * h)
@@ -143,7 +143,7 @@ theorem regularSymbolicCurveMCASharpBound_midpoint_le_paper (δ : ℝ)
   let L := correlatedMidpoint δ n k
   have hratios := correlatedMidpoint_ratios_le_two_div δ n k A hδ hn hk hgap hAn
   have hL := correlatedMidpoint_bounds δ n k A hδ.le hgap hAn
-  have hJnat := sourceCurveInitialMixedDegree_le_paper r n K ℓ j H v h
+  have hJnat := sourceCurveInitialMixedDegree_le_uniformCaps r n K ℓ j H v h
     hn hKn hj hh hjv hH
   have hJ : (sourceCurveInitialMixedDegree r ℓ K j H : ℝ) ≤
       (ℓ : ℝ) * h * (3 * r + 5) * 2 ^ r * v ^ (r + 1) * n ^ (r + 1) := by
@@ -262,7 +262,7 @@ theorem regularSymbolicCurveMCASharp_finiteStage_uniform_le
   have hstage (i : ι) (hi : i ∈ S) :
       (regularSymbolicCurveMCASharpBound (order i) n ℓ K k L A
         (jetDegree i) (height i) : ℝ) ≤ B := by
-    exact (regularSymbolicCurveMCASharpBound_midpoint_le_paper δ
+    exact (regularSymbolicCurveMCASharpBound_midpoint_le_stageBound δ
       (order i) n K k A ℓ (jetDegree i) (height i) v h hδ hn hk
         (hjetPos i hi) hh hKn (hjet i hi) (hheight i hi) hgap hAn).trans
       (polynomialCurveSharpStageBound_le_uniform δ n ℓ v h (order i) d

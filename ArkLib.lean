@@ -180,11 +180,11 @@ import ArkLib.Data.CodingTheory.ReedSolomon
 import ArkLib.Data.CodingTheory.ReedSolomon.Agreement
 import ArkLib.Data.CodingTheory.ReedSolomon.Constrained
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity
-import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.CountingBound
-import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.CurveCountingBound
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.Midpoint
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.Parameters
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.PrescribedCurve
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.PrescribedLine
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.SharpCountingBound
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.ExtensionDescent
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.FirstOrder
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.FirstOrderCurve

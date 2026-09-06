@@ -43,11 +43,13 @@ Every witness conclusion recovers the candidate polynomial and its **full** agre
 not merely a large common subset. Line and power-batching results allow infinite fields.
 Affine densities and the final probability formulation require finite fields.
 
-These are mathematical agreement theorems, not running-time bounds. The numerical constants
-are not the manuscript's sharp mixed-bidegree constants; the capacity gap, block-length
-exponent, linear batching loss, and batching-independent characteristic condition are retained.
-Prescribed small-gap parameters remain available in `exists_prescribedLineMCA` and
-`exists_prescribedCurveMCA`.
+These are mathematical agreement theorems, not running-time bounds. In the small-gap regime,
+`exists_prescribedLineMCA` and `exists_prescribedCurveMCA` use the manuscript's exact
+mixed-bidegree constant `prescribedMCAConstant`. The existential presentations below enlarge
+that constant by one only to supply an unconditional positive witness. The half-gap line theorem
+states the sharper `2 * n` bound separately, over every field. For gaps between one quarter and
+one half, these existential presentations still use small-gap parameters; the manuscript's
+special quadratic bound in that interval is not claimed here.
 
 ## References
 
@@ -194,9 +196,9 @@ theorem exists_capacity_lineAgreement (δ : ℝ) (hδ : 0 < δ) :
     · linarith
   let d := Nat.ceil (Real.exp ((169 / 25) / ε))
   let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
-  let C := prescribedLineMCAConstant ε + 1
-  have hC₀ : 0 ≤ prescribedLineMCAConstant ε := by
-    unfold prescribedLineMCAConstant
+  let C := prescribedMCAConstant ε + 1
+  have hC₀ : 0 ≤ prescribedMCAConstant ε := by
+    unfold prescribedMCAConstant polynomialCurveSharpMCAConstant
     positivity
   have hC : 0 < C := by dsimp [C]; linarith
   refine ⟨8 * m, d, C, hC, ?_⟩
@@ -421,9 +423,9 @@ theorem exists_capacity_powerBatchingAgreement (δ : ℝ) (hδ : 0 < δ) :
     · linarith
   let d := Nat.ceil (Real.exp ((169 / 25) / ε))
   let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
-  let C := prescribedCurveMCAConstant ε + 1
-  have hC₀ : 0 ≤ prescribedCurveMCAConstant ε := by
-    unfold prescribedCurveMCAConstant polynomialCurveUniformMCAConstant
+  let C := prescribedMCAConstant ε + 1
+  have hC₀ : 0 ≤ prescribedMCAConstant ε := by
+    unfold prescribedMCAConstant polynomialCurveSharpMCAConstant
     positivity
   have hC : 0 < C := by dsimp only [C]; linarith
   refine ⟨8 * m, d, C, hC, ?_⟩
