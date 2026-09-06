@@ -5,6 +5,10 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RootCount
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.Extension
+import
+  ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.RecursiveCounting
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.RegularCounting
 
 
 /-!
@@ -129,25 +133,26 @@ theorem natCard_boundedSolution_le_extension_pow
       Nat.mul_le_mul_left 2 hcount
     _ = Nat.card F ^ e * (2 * (d + 1) * t ^ 2 * Nat.card F ^ (e * d)) := by ring
 
-/-- Base-field witnesses yield exponent `d` when twice the weighted budget fits in the field. -/
-theorem natCard_boundedSolution_le_base_pow
-    (Q : DifferentialPolynomial F d) (H t : ℕ)
+/-- The characteristic contract supplies a uniform individual jet-degree bound by the base-field
+cardinality. This is the convenient extension-degree-polymorphic form for consumers that do not
+have a sharper jet-degree estimate. -/
+theorem natCard_boundedSolution_le_extension_pow_of_weightedDegree
+    (Q : DifferentialPolynomial F d) (e H : ℕ) (he : 0 < e)
     (hQ : Q ≠ 0) (hchar : IsBelowCharacteristic D Q)
     (hWeight : differentialWeightedDegree D Q ≤ H)
-    (hDegree : ∀ s, jetDegree Q s ≤ t) (hlarge : 2 * H ≤ Nat.card F) :
-    Nat.card (BoundedSolution Q D) ≤ 2 * (d + 1) * t ^ 2 * Nat.card F ^ d := by
-  simpa using natCard_boundedSolution_le_extension_pow Q 1 H t (by decide) hQ hchar
-    hWeight hDegree (by simpa using hlarge)
-
-/-- Quadratic-extension witnesses yield exponent `2*d` when twice the weighted budget fits in
-the square of the base-field cardinality. -/
-theorem natCard_boundedSolution_le_quadratic_pow
-    (Q : DifferentialPolynomial F d) (H t : ℕ)
-    (hQ : Q ≠ 0) (hchar : IsBelowCharacteristic D Q)
-    (hWeight : differentialWeightedDegree D Q ≤ H)
-    (hDegree : ∀ s, jetDegree Q s ≤ t) (hlarge : 2 * H ≤ Nat.card F ^ 2) :
-    Nat.card (BoundedSolution Q D) ≤ 2 * (d + 1) * t ^ 2 * Nat.card F ^ (2 * d) :=
-  natCard_boundedSolution_le_extension_pow Q 2 H t (by decide) hQ hchar hWeight hDegree hlarge
+    (hlarge : 2 * H ≤ Nat.card F ^ e) :
+    Nat.card (BoundedSolution Q D) ≤
+      2 * (d + 1) * Nat.card F ^ 2 * Nat.card F ^ (e * d) := by
+  let _ := Fintype.ofFinite F
+  have hCharCard : ringChar F ≤ Nat.card F := by
+    obtain ⟨extensionDegree, _hprime, hcard⟩ := FiniteField.card F (ringChar F)
+    apply Nat.le_of_dvd Nat.card_pos
+    rw [Nat.card_eq_fintype_card, hcard]
+    exact dvd_pow_self _ extensionDegree.ne_zero
+  apply natCard_boundedSolution_le_extension_pow Q e H (Nat.card F) he hQ hchar hWeight
+  · intro s
+    exact (hchar.2 s).le.trans hCharCard
+  · exact hlarge
 
 end
 end ReedSolomon.HiddenDerivative

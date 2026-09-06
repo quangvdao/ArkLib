@@ -6,7 +6,8 @@ Authors: Quang Dao
 
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.Radius
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.RatePartition.Interpolant
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RootCount
+import
+  ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.ExtensionRootCount
 
 
 /-!
@@ -14,9 +15,10 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RootCou
 
 Actual uniform hidden-derivative constructions imply the canonical all-rate polynomial-list
 contract. Each agreeing message embeds, with its original polynomial unchanged, into the bounded
-differential roots of the construction. The existing cubic-extension root count gives the coarse
-bound `2 * (d + 1) * q^(3*d + 2)`, where `d` depends only on the capacity gap. Oversized agreement
-thresholds yield empty lists, without requiring an impossible interpolant.
+differential roots of the construction. The general extension-field root count, instantiated at
+degree three, gives the coarse bound `2 * (d + 1) * q^(3*d + 2)`, where `d` depends only on the
+capacity gap. Oversized agreement thresholds yield empty lists, without requiring an impossible
+interpolant.
 
 The finite-set decoder is a classical witness, not a polynomial-time implementation. The
 paper-facing quantitative list theorem is in `Capacity.lean`; this module supplies the separate
@@ -88,10 +90,25 @@ theorem HiddenDerivativeInterpolationCertificate.agreeingPolynomials_encard_le
       HiddenDerivativeInterpolationCertificate (k := k) (A := A) d m domain received) :
     (agreeingPolynomials domain k A received).encard ≤
       (2 * (d + 1) * q ^ (3 * d + 2) : ℕ) := by
-  have hRoots := natCard_boundedSolution_le_two_mul_pow_of_weightedDegree
-    construction.interpolant construction.nonzero construction.below_characteristic
+  have hq : 2 ≤ q := (Fact.out : q.Prime).two_le
+  have hlarge : 2 * q ^ 2 ≤ q ^ 3 := by
+    calc
+      2 * q ^ 2 ≤ q * q ^ 2 := Nat.mul_le_mul_right (q ^ 2) hq
+      _ = q ^ 3 := by ring
+  have hRoots := natCard_boundedSolution_le_extension_pow_of_weightedDegree
+    construction.interpolant 3 (q ^ 2) (by decide) construction.nonzero
+    construction.below_characteristic
     (by simpa only [Nat.card_zmod] using
       construction.weighted_degree_lt.le.trans construction.contact_budget_le)
+    (by simpa only [Nat.card_zmod] using hlarge)
+  have hRootsQ : Nat.card (BoundedSolution construction.interpolant
+      (construction.ambientDim - 1)) ≤ 2 * (d + 1) * q ^ 2 * q ^ (3 * d) := by
+    simpa only [Nat.card_zmod] using hRoots
+  have hRoots' : Nat.card (BoundedSolution construction.interpolant
+      (construction.ambientDim - 1)) ≤ 2 * (d + 1) * q ^ (3 * d + 2) := by
+    convert hRootsQ using 1
+    rw [pow_add, pow_mul]
+    ring
   calc
     (agreeingPolynomials domain k A received).encard
         ≤ ENat.card (BoundedSolution construction.interpolant (construction.ambientDim - 1)) :=
@@ -99,7 +116,7 @@ theorem HiddenDerivativeInterpolationCertificate.agreeingPolynomials_encard_le
     _ = (Nat.card (BoundedSolution construction.interpolant
         (construction.ambientDim - 1)) : ℕ∞) := ENat.card_eq_coe_natCard _
     _ ≤ (2 * (d + 1) * q ^ (3 * d + 2) : ℕ) := by
-      exact_mod_cast (by simpa only [Nat.card_zmod] using hRoots)
+      exact_mod_cast hRoots'
 
 /-- Uniform actual constructions imply gap-only polynomial bounds for all rates, including the
 canonical relative-radius and empty-list conventions. There is no algorithmic claim. -/

@@ -6,7 +6,8 @@ Authors: Quang Dao
 
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.Basic
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.GlobalMultiplicity
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RootCount
+import
+  ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.ExtensionRootCount
 
 
 /-!
@@ -178,9 +179,18 @@ theorem agreeingPolynomials_encard_le_two_mul_pow_of_exactInterpolant [Field F] 
       using hmessageDim
   apply agreeingPolynomials_encard_le_of_boundedSolution_natCard_le
       hmessageAmbient hbudget hdK domain received hQspace hconstraints
-  apply natCard_boundedSolution_le_two_mul_pow_of_weightedDegree Q hQ hchar
-  exact (differentialWeightedDegree_lt_of_mem_exactInterpolationSpace
-    hbudget hdK hQspace).le.trans hfield
+  have hq : 2 ≤ Nat.card F := Finite.one_lt_card
+  have hlarge : 2 * Nat.card F ^ 2 ≤ Nat.card F ^ 3 := by
+    calc
+      2 * Nat.card F ^ 2 ≤ Nat.card F * Nat.card F ^ 2 :=
+        Nat.mul_le_mul_right (Nat.card F ^ 2) hq
+      _ = Nat.card F ^ 3 := by ring
+  have hroot := natCard_boundedSolution_le_extension_pow_of_weightedDegree
+    Q 3 (Nat.card F ^ 2) (by decide) hQ hchar
+    ((differentialWeightedDegree_lt_of_mem_exactInterpolationSpace
+      hbudget hdK hQspace).le.trans hfield) hlarge
+  convert hroot using 1
+  ring
 
 end
 
