@@ -300,4 +300,22 @@ noncomputable def prescribedMCAConstant (δ : ℝ) : ℝ :=
   let v := 2 * m - 1
   polynomialCurveSharpMCAConstant δ v (338 * v) d
 
+/-- The prescribed small-gap scalar is strictly positive. -/
+theorem prescribedMCAConstant_pos {δ : ℝ} (hδ : 0 < δ) (hδquarter : δ < 1 / 4) :
+    0 < prescribedMCAConstant δ := by
+  let d := Nat.ceil (Real.exp ((169 / 25) / δ))
+  let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
+  let v := 2 * m - 1
+  have hlower := HiddenDerivative.band_prescribed_order_lower δ hδ hδquarter.le
+  have hratio : (0 : ℝ) < (169 / 25) / δ := by positivity
+  have hH : 0 < harmonicNumber (d - 1) := by
+    rw [harmonicNumber_eq_harmonic]
+    exact hratio.trans_le hlower.2.2
+  have hmReal : (0 : ℝ) < m := lt_of_lt_of_le (by positivity) (Nat.le_ceil _)
+  have hm : 0 < m := by exact_mod_cast hmReal
+  have hv : 0 < v := by dsimp only [v]; omega
+  change 0 < polynomialCurveSharpMCAConstant δ v (338 * v) d
+  unfold polynomialCurveSharpMCAConstant
+  positivity
+
 end ReedSolomon
