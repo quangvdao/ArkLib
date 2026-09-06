@@ -1,0 +1,212 @@
+/-
+Copyright (c) 2026 ArkLib Contributors. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Quang Dao
+-/
+
+import ArkLibExamples.ReedSolomon.ConcreteCurveBounds
+import ArkLibExamples.ReedSolomon.ProveKitInterpolation
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.FirstOrderCurve
+
+/-!
+# Concrete polynomial-curve agreement bounds
+
+This module instantiates the first-order polynomial-curve theorem for every ZisK and LambdaVM
+curve row and for the two published ProveKit profiles. Each conclusion constructs an actual
+base-field exceptional set and gives exact power agreement outside it.
+
+## Reading the statements
+
+Fix an evaluation-domain embedding and a tuple of received words. The theorem chooses one
+exceptional set before the scalar challenge and before any close candidate polynomial.
+Outside that set, every candidate of degree below `k` agreeing in at least `A` positions is
+an exact power combination of constituent messages. Its entire agreement set is the common
+agreement set of those messages with the received tuple. This is stronger than recovering a
+correlated tuple on some chosen subset of `A` positions.
+
+`LineProfile.exists_exceptional_exact_powerAgreement` is the reusable specialization step.
+Its inputs are the executable interpolation-height certificate, an admissible split, a rational
+envelope inequality, and the characteristic condition. The named application theorems discharge
+all the numerical inputs. The final exceptional-cardinality bound is a conclusion, not a premise.
+
+## Proof route
+
+The finite first-order curve theorem constructs a primitive interpolation equation, follows its
+separant chain, and counts the geometric exceptional fibers using the separate first-derivative
+cap. It then descends the exact agreement conclusion to the base field. The algebraically closed
+extension in these statements is a proof device; both the exceptional set and recovered messages
+live over `F`. The certified-budget modules choose an algebraic closure automatically and connect
+these counts to the canonical finite fields and local error arithmetic.
+-/
+
+open Polynomial
+open ReedSolomon
+open ReedSolomon.HiddenDerivative
+
+namespace ArkLibExamples.ReedSolomon.ConcreteCurveMCA
+
+open ConcreteCurves ConcreteCurveBounds LambdaVMInterpolation
+
+noncomputable section
+
+set_option maxRecDepth 4096
+
+universe u
+
+/-- Any verified concrete curve profile inherits the semantic exceptional-set theorem once a
+split and integer ceiling have been checked. -/
+theorem LineProfile.exists_exceptional_exact_powerAgreement
+    {F E : Type u} [Field F] [Field E] [DecidableEq F] [IsAlgClosed E]
+    {p : LineProfile} (hp : LineProfile.CurveVerified p)
+    (split budget : ℕ)
+    (hsplit : p.k ≤ split ∧ split ≤ p.agreement ∧ p.agreement ≤ p.n)
+    (hcurve : 0 < p.batchingDegree + p.height)
+    (hbound : ConcreteCurveBounds.envelope p split ≤ budget)
+    (domain : Fin p.n ↪ F)
+    (values : Fin (p.batchingDegree + 1) → Fin p.n → F)
+    (iota : F →+* E)
+    (hchar : ringChar F = 0 ∨
+      max (p.k - 1) p.totalJetCap < ringChar F) :
+    ∃ exceptional : Finset F, (exceptional.card : ℚ) ≤ budget ∧
+      ∀ z ∉ exceptional, ∀ P : F[X], P.degree < p.k →
+        p.agreement ≤
+          (polynomialAgreementSet domain (powerBatchedWord values z) P).card →
+        HasExactPowerAgreement domain values (RingHom.id F) p.k z P := by
+  rcases hp with ⟨hD, hcoeff, hkD, hheight, _, _, _, _⟩
+  have hk : 0 < p.k := by
+    simp only [LineProfile.D] at hD
+    omega
+  have hK : 1 < p.k := by
+    simp only [LineProfile.D] at hD
+    omega
+  have hheight' :
+      p.n * certifiedEnlargedRankBound 1 p.multiplicity p.firstDerivativeCap 0 *
+          (p.height + 1) <
+        firstOrderCurveHeightSlotCount p.D p.agreement p.multiplicity
+          p.firstDerivativeCap p.totalJetCap p.batchingDegree p.height := by
+    simpa only [LineProfile.computedLocalRank, LineProfile.curveHeightSlots] using hheight
+  obtain ⟨exceptional, hcard, hgood⟩ :=
+    exists_baseExceptional_firstOrderCurve_of_heightSlotCount
+      (D := p.D) (A := p.agreement) (m := p.multiplicity)
+      (M := p.firstDerivativeCap) (mu := p.totalJetCap) (k := p.k)
+      (h := p.height) (n := p.n) (K := p.k) (L := split)
+      (ell := p.batchingDegree) domain values iota hD hcoeff hkD hheight'
+        hK le_rfl hk hsplit.1 hsplit.2.1 hsplit.2.2 hcurve hchar
+  refine ⟨exceptional, hcard.trans ?_, hgood⟩
+  simpa only [ConcreteCurveBounds.envelope] using hbound
+
+/-- Every ZisK curve row has an actual base-field exceptional set within its recorded budget. -/
+theorem zisK_exists_exceptional_exact_powerAgreement
+    {F E : Type u} [Field F] [Field E] [DecidableEq F] [IsAlgClosed E]
+    (i : Fin 6) (domain : Fin (zisK i).n ↪ F)
+    (values : Fin ((zisK i).batchingDegree + 1) → Fin (zisK i).n → F)
+    (iota : F →+* E)
+    (hchar : ringChar F = 0 ∨
+      max ((zisK i).k - 1) (zisK i).totalJetCap < ringChar F) :
+    ∃ exceptional : Finset F, (exceptional.card : ℚ) ≤ zisKBudget i ∧
+      ∀ z ∉ exceptional, ∀ P : F[X], P.degree < (zisK i).k →
+        (zisK i).agreement ≤
+          (polynomialAgreementSet domain (powerBatchedWord values z) P).card →
+        HasExactPowerAgreement domain values (RingHom.id F) (zisK i).k z P := by
+  apply LineProfile.exists_exceptional_exact_powerAgreement
+    (F := F) (E := E) (p := zisK i) (zisK_verified i)
+    (zisKSplit i) (zisKBudget i) (zisK_split_admissible i)
+  · fin_cases i <;> decide
+  · exact zisK_envelope_le i
+  · exact iota
+  · exact hchar
+
+/-- Every LambdaVM curve row has an actual base-field exceptional set within its recorded
+budget. -/
+theorem lambdaVM_exists_exceptional_exact_powerAgreement
+    {F E : Type u} [Field F] [Field E] [DecidableEq F] [IsAlgClosed E]
+    (i : Fin 35) (domain : Fin (lambdaVM i).n ↪ F)
+    (values : Fin ((lambdaVM i).batchingDegree + 1) → Fin (lambdaVM i).n → F)
+    (iota : F →+* E)
+    (hchar : ringChar F = 0 ∨
+      max ((lambdaVM i).k - 1) (lambdaVM i).totalJetCap < ringChar F) :
+    ∃ exceptional : Finset F, (exceptional.card : ℚ) ≤ lambdaVMBudget i ∧
+      ∀ z ∉ exceptional, ∀ P : F[X], P.degree < (lambdaVM i).k →
+        (lambdaVM i).agreement ≤
+          (polynomialAgreementSet domain (powerBatchedWord values z) P).card →
+        HasExactPowerAgreement domain values (RingHom.id F) (lambdaVM i).k z P := by
+  apply LineProfile.exists_exceptional_exact_powerAgreement
+    (F := F) (E := E) (p := lambdaVM i) (lambdaVM_verified i)
+    (lambdaVMSplit i) (lambdaVMBudget i) (lambdaVM_split_admissible i)
+  · fin_cases i <;> decide
+  · exact lambdaVM_envelope_le i
+  · exact iota
+  · exact hchar
+
+/-- The published BN254 exceptional budget bounds the sharp curve envelope. -/
+theorem bn254_curve_envelope_le :
+    firstOrderCurveBound 1048576 262144 262144 262197 492831 688 168 1 1905902 ≤
+      ProveKit.bn254.exceptionalCount := by
+  decide +kernel
+
+/-- The published cubic-Goldilocks exceptional budget bounds the sharp curve envelope. -/
+theorem goldilocksCubic_curve_envelope_le :
+    firstOrderCurveBound 1048576 262144 262144 266249 512754 24 5 1 423 ≤
+      ProveKit.goldilocksCubic.exceptionalCount := by
+  decide +kernel
+
+/-- Height 1905902 passes the actual degree-one polynomial-curve coefficient test. -/
+theorem bn254_curve_interpolation_height :
+    1048576 * certifiedEnlargedRankBound 1 384 168 0 * (1905902 + 1) <
+      firstOrderCurveHeightSlotCount 262143 492831 384 168 688 1 1905902 := by
+  decide +kernel
+
+/-- Height 423 passes the actual degree-one polynomial-curve coefficient test. -/
+theorem goldilocksCubic_curve_interpolation_height :
+    1048576 * certifiedEnlargedRankBound 1 13 5 0 * (423 + 1) <
+      firstOrderCurveHeightSlotCount 262143 512754 13 5 24 1 423 := by
+  decide +kernel
+
+/-- The published BN254 profile's exact exceptional count is derived from the sharp
+polynomial-curve theorem. -/
+theorem bn254_exists_exceptional_exact_powerAgreement
+    {F E : Type u} [Field F] [Field E] [DecidableEq F] [IsAlgClosed E]
+    (domain : Fin 1048576 ↪ F) (values : Fin 2 → Fin 1048576 → F)
+    (iota : F →+* E)
+    (hchar : ringChar F = 0 ∨ 262143 < ringChar F) :
+    ∃ exceptional : Finset F,
+      (exceptional.card : ℚ) ≤ ProveKit.bn254.exceptionalCount ∧
+      ∀ z ∉ exceptional, ∀ P : F[X], P.degree < 262144 →
+        492831 ≤ (polynomialAgreementSet domain (powerBatchedWord values z) P).card →
+        HasExactPowerAgreement domain values (RingHom.id F) 262144 z P := by
+  obtain ⟨exceptional, hcard, hgood⟩ :=
+    exists_baseExceptional_firstOrderCurve_of_heightSlotCount
+      (D := 262143) (A := 492831) (m := 384) (M := 168) (mu := 688)
+      (k := 262144) (h := 1905902) (n := 1048576) (K := 262144)
+      (L := 262197) (ell := 1) domain values iota
+      (by norm_num) (by norm_num) (by norm_num) bn254_curve_interpolation_height
+      (by norm_num) le_rfl (by norm_num) (by norm_num) (by norm_num) (by norm_num)
+      (by norm_num) (by simpa using hchar)
+  exact ⟨exceptional, hcard.trans bn254_curve_envelope_le, hgood⟩
+
+/-- The published cubic-Goldilocks profile's exact exceptional count is derived from the sharp
+polynomial-curve theorem. -/
+theorem goldilocksCubic_exists_exceptional_exact_powerAgreement
+    {F E : Type u} [Field F] [Field E] [DecidableEq F] [IsAlgClosed E]
+    (domain : Fin 1048576 ↪ F) (values : Fin 2 → Fin 1048576 → F)
+    (iota : F →+* E)
+    (hchar : ringChar F = 0 ∨ 262143 < ringChar F) :
+    ∃ exceptional : Finset F,
+      (exceptional.card : ℚ) ≤ ProveKit.goldilocksCubic.exceptionalCount ∧
+      ∀ z ∉ exceptional, ∀ P : F[X], P.degree < 262144 →
+        512754 ≤ (polynomialAgreementSet domain (powerBatchedWord values z) P).card →
+        HasExactPowerAgreement domain values (RingHom.id F) 262144 z P := by
+  obtain ⟨exceptional, hcard, hgood⟩ :=
+    exists_baseExceptional_firstOrderCurve_of_heightSlotCount
+      (D := 262143) (A := 512754) (m := 13) (M := 5) (mu := 24)
+      (k := 262144) (h := 423) (n := 1048576) (K := 262144)
+      (L := 266249) (ell := 1) domain values iota
+      (by norm_num) (by norm_num) (by norm_num)
+      goldilocksCubic_curve_interpolation_height
+      (by norm_num) le_rfl (by norm_num) (by norm_num) (by norm_num) (by norm_num)
+      (by norm_num) (by simpa using hchar)
+  exact ⟨exceptional, hcard.trans goldilocksCubic_curve_envelope_le, hgood⟩
+
+end
+
+end ArkLibExamples.ReedSolomon.ConcreteCurveMCA

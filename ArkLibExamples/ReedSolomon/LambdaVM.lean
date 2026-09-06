@@ -46,9 +46,10 @@ All error-budget statements are closed propositions about this fixed table. Only
 
 The proof first evaluates the supplied count formulas and then normalizes the resulting rational
 inequalities. It establishes the local equality-table budget conditional on the shared LogUp
-prefix. The supplied counts still require their interpolation and polynomial-curve derivations,
-and the VM wrapper needs a verifier-enforced per-table parameter policy. These statements therefore
-do not constitute an end-to-end LambdaVM security theorem.
+prefix. `LambdaVMCertifiedBudget` derives the exceptional sets and width-18 list bounds from the
+interpolation and polynomial-curve theorems for all five tables, then applies this arithmetic.
+The VM wrapper still needs a verifier-enforced per-table parameter policy; these statements do
+not constitute an end-to-end LambdaVM security theorem.
 -/
 
 namespace ArkLibExamples.ReedSolomon.LambdaVM
