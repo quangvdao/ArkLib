@@ -31,6 +31,24 @@ then consumes the resulting actual collision fraction in the local sum.  `payloa
 checks the paper's net byte reductions after charging 576 bytes for two openings of twelve
 cubic-field elements.
 
+## Reading the paper's final EQ-table statement
+
+Start at `exists_certified_anchored_main_budgets`, corresponding to `eq:lambda-local-bound`
+and `tab:lambda-local`. The five indices select trace lengths 2048, 4096, 8192, 16384, and 32768.
+Here `profiles` supplies the original main-tuple dimension `T + 3`, while `lambdaVM` supplies
+the initial and folding curve profiles. Distinguishing these prevents a degree-`T + 2` recovered
+main polynomial from being mistaken for a degree-`< T` DEEP quotient.
+
+The inputs after `∀ ... candidates` describe any finite collection of twelve-column tuples
+whose joint agreement meets the threshold. No list-size, collision-rate, or exceptional-set
+bound is assumed. The conclusion bounds each of these quantities, then puts the actual
+collision fraction and exceptional cardinalities into one rational error expression.
+`ExceptionalFamily` also carries exact polynomial recovery outside its sets.
+
+The term-by-term comments on `localErrorWithCollision` follow the order of the paper's equation.
+The final inequality is strict. `payload_reduction` is the separate byte calculation, including
+the 576 bytes for two openings of twelve cubic-field elements.
+
 This is the local analytical model used by the application table.  It does not model transcript
 serialization, the full VM protocol, or unrelated LogUp error terms.
 -/
@@ -73,12 +91,17 @@ def localError (i : Fin 5) (exceptional list : ℕ) : ℚ :=
 /-- The same local expression with an actual exceptional-pair fraction in place of its
 closed-form upper bound. -/
 def localErrorWithCollision (i : Fin 5) (exceptional list : ℕ) (collision : ℚ) : ℚ :=
+  -- Initial powers batching and all binary folds: (E_17 + sum_j E_j) / q.
   (exceptional : ℚ) / LambdaVM.challengeCardinality +
+    -- Query term a^t; this is the only term receiving the 20 grinding bits.
     (1 / 2 ^ 20 : ℚ) *
       (((profiles i).agreement : ℚ) / (profiles i).n) ^ (tables i).queries +
+    -- Candidate-dependent cancellation contribution, 7 Lambda / q.
     (7 * list : ℕ) / LambdaVM.challengeCardinality +
+    -- AIR/OOD residual contribution after restoring the cubic main-column quotient.
     (((4 * traceRows i + 6) * list + 2 * (profiles i).n + 2 : ℕ) : ℚ) /
       (LambdaVM.challengeCardinality - (profiles i).n - traceRows i : ℕ) +
+    -- Actual fraction of anchor pairs that fail to distinguish the candidate tuples.
     collision
 
 /-- The five exact paper inputs make the changed local expression strictly smaller than
@@ -204,26 +227,35 @@ word and every finite family of jointly agreeing degree-bounded candidates, the 
 and anchor-collision fraction are derived, and the local expression using that actual fraction is
 strictly below `2^-128`. -/
 theorem exists_certified_anchored_main_budgets
+    -- Arbitrary received data for all 35 curves; these are not assumed valid codewords.
     (curveDomains : ∀ i : Fin 35, Fin (lambdaVM i).n ↪ GoldilocksCubic)
     (curveValues : ∀ i : Fin 35,
       Fin ((lambdaVM i).batchingDegree + 1) → Fin (lambdaVM i).n → GoldilocksCubic) :
+    -- Construct one family of exceptional sets, with exact recovery, before choosing candidates.
     ∃ family : ExceptionalFamily curveDomains curveValues,
+      -- Fix a table size and any received main word, with any finite set of close candidates.
       ∀ (i : Fin 5)
         (received : Matrix (Fin (profiles i).n) (Fin 12) GoldilocksCubic)
         (candidates : Finset (Fin 12 → GoldilocksCubic[X])),
+        -- Membership conditions only: each column has the specified degree and the tuple is close.
         (∀ tuple ∈ candidates, ∀ j, (tuple j).degree < (profiles i).k) →
         (∀ tuple ∈ candidates,
           (profiles i).agreement ≤
             Code.agree (tupleEvaluation (initialListDomain curveDomains i) tuple) received) →
+        -- Conclusion 1: the same actual curve exceptions fit this table's summed budget.
         windowSum (fun j ↦ (family.exceptional j).card) i ≤
             (tables i).exceptionalBudget ∧
+        -- Conclusion 2: joint agreement itself bounds the number of candidate tuples.
         candidates.card ≤ listBounds i ∧
+        -- Conclusion 3: two early openings distinguish them except on this fraction of pairs.
         collisionRate (initialListDomain curveDomains i) candidates ≤
             anchorCollisionError i (listBounds i) ∧
+        -- Conclusion 4: combine the actual exceptions/collisions with the proved list ceiling.
         localErrorWithCollision i
             (windowSum (fun j ↦ (family.exceptional j).card) i) (listBounds i)
             (collisionRate (initialListDomain curveDomains i) candidates) <
               (1 / 2 ^ 128 : ℚ) := by
+  -- Obtain geometric witnesses, then apply the list, collision, and arithmetic theorems in order.
   let family := (exists_exceptionalFamily curveDomains curveValues).some
   refine ⟨family, fun i received candidates hdegree hagreement ↦
     ⟨family.window_card_le i, ?_, ?_, ?_⟩⟩

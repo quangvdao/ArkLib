@@ -20,6 +20,11 @@ The rows belonging to the five table sizes occupy the consecutive windows of len
 `5, 6, 7, 8, 9`, starting at `0, 5, 11, 18, 26`.  Their actual exceptional-set cardinalities sum
 to at most the corresponding table budget.  The same theorem supplies the independently proved
 width-18 list bound and concludes that the resulting local error expression is below `2^-128`.
+For the paper's final EQ-table statement, continue to
+`LambdaVMAnchoredBudget.exists_certified_anchored_main_budgets`. That theorem uses the curve
+family constructed here and adds the two early openings, the width-12 main-tuple list, and its
+actual collision fraction. The width-18 result here concerns the DEEP tuple.
+
 This is the local correlated-agreement model; it does not account for the full protocol,
 serialization, or LogUp.
 -/
@@ -88,8 +93,11 @@ structure ExceptionalFamily
     (domains : ∀ i : Fin 35, Fin (lambdaVM i).n ↪ GoldilocksCubic)
     (values : ∀ i : Fin 35,
       Fin ((lambdaVM i).batchingDegree + 1) → Fin (lambdaVM i).n → GoldilocksCubic) where
+  -- A separate set for each initial/folding curve, fixed before its challenge and candidate.
   exceptional : Fin 35 → Finset GoldilocksCubic
+  -- The recorded integer budget bounds the cardinality of the set actually constructed.
   card_le : ∀ i, ((exceptional i).card : ℚ) ≤ lambdaVMBudget i
+  -- Outside that set, recovery holds for every close candidate, with full agreement equality.
   exactAgreement : ∀ i z, z ∉ exceptional i → ∀ P : GoldilocksCubic[X],
     P.degree < (lambdaVM i).k →
     (lambdaVM i).agreement ≤
@@ -135,19 +143,24 @@ theorem ExceptionalFamily.window_card_le
 simultaneously have semantic exceptional sets, the width-18 list bound, and strict `2^-128`
 local error using the actual summed exceptional cardinalities. -/
 theorem exists_certified_local_budgets
+    -- All 35 domains and received tuples are arbitrary; the five table profiles are fixed data.
     (curveDomains : ∀ i : Fin 35, Fin (lambdaVM i).n ↪ GoldilocksCubic)
     (curveValues : ∀ i : Fin 35,
       Fin ((lambdaVM i).batchingDegree + 1) → Fin (lambdaVM i).n → GoldilocksCubic) :
+    -- The returned family contains both the sets and their uniform exact-recovery proofs.
     ∃ family : ExceptionalFamily curveDomains curveValues,
       ∀ i : Fin 5,
+        -- Sum the initial and folding exceptions belonging to this table size.
         windowSum (fun j ↦ (family.exceptional j).card) i ≤
             (tables i).exceptionalBudget ∧
+        -- The width-18 DEEP list bound holds for every received interleaved word.
         Lambda
             (Code.interleavedCodeSet (κ := Fin 18)
               (ReedSolomon.code (initialListDomain curveDomains i) (profiles i).k :
                 Set (Fin (profiles i).n → GoldilocksCubic)))
             (capacityRadius (LambdaVMInterleaving.gap i) (profiles i).n (profiles i).k) ≤
               ((tables i).listBudget : ℕ∞) ∧
+        -- Evaluate the local expression using the same actual sets, not replacement witnesses.
         localError (tables i)
             (windowSum (fun j ↦ (family.exceptional j).card) i)
             (tables i).listBudget < (1 / 2 ^ 128 : ℚ) := by

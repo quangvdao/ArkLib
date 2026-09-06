@@ -23,6 +23,28 @@ queries and the independently derived bounds `E = 93006457356522169112176655917`
 `L = 1011109123693944`. The cubic Goldilocks package uses the revised 113-query row and bounds
 `E = 14436064712520704240`, `L = 8279136487`.
 
+## Reading this file alongside the paper
+
+The ProveKit subsection (`sec:modular-applications`, table `tab:modular-whir`) uses `E` for
+exceptional challenges and `Λ` for close candidates. Here these are `exceptionalCount` and
+`listSize`. Start with `GoldilocksCubic113CertifiedLocalBudget` or
+`BN254Retuned108CertifiedLocalBudget`, then read the constructor theorem immediately below.
+A `structure ... : Prop` lists the claims to prove; the theorem ending in `where` proves every
+field by naming its supporting theorem. Thus the package itself is a conclusion.
+
+In these statements, `domain : Fin 1048576 ↪ F` means any choice of distinct evaluation points.
+The code dimension is 262144, so its messages have degree strictly below 262144.
+`^⋈ (Fin 8)` packs eight codewords into each received row. `Lambda` is the worst-case number of
+close codewords over all received words; `mcaError` supplies the corresponding uniform affine
+agreement guarantee. `ENNReal.ofReal` and the casts to `ℚ`, `ℝ`, or `ℕ∞` change the number type,
+not the numerical bound. `s` counts affine directions, and `hs : 1 ≤ s` excludes dimension zero.
+
+The affine term uses the exact denominator `q - 1`; the list term uses `q`.
+Each arithmetic field names a separate affected check. In particular, bounding the displayed
+MCA-plus-list sum by `2^-128` does not sum it with the OOD, query, and opening slots.
+The paper's expected authentication savings are proved in `ProveKitExpectedPayload`;
+`payloadLowerBounds` below gives the conservative byte inequalities.
+
 No exceptional or list bound is an input to the package theorems. The MCA bounds quantify over
 all received affine families through `mcaError`, and the `Code.Lambda` bounds quantify over all
 received width-eight words. The numerical fields reproduce the local error and raw-payload model;
@@ -234,6 +256,7 @@ theorem bn254Scalar_retuned108_mcaError_add_list_le
 
 /-- All closed local arithmetic attached to the accepted original BN254 row. -/
 structure BN254OriginalArithmetic : Prop where
+  -- Pairwise candidate collisions at the initial out-of-domain sample(s).
   initialOodSlot :
     bn254.listSize * (bn254.listSize - 1) * (bn254.vectorSize - 1) * 2 ^ 128 ≤
       2 * bn254.fieldSize
@@ -242,6 +265,7 @@ structure BN254OriginalArithmetic : Prop where
     (bn254.exceptionalCount : ℚ) / (bn254.fieldSize - 1) +
         (2 * bn254.listSize : ℚ) / bn254.fieldSize ≤ (1 : ℚ) / 2 ^ 128
   openingSlot : 2 * (1 + bn254.queries) * 160 * 2 ^ 128 ≤ bn254.fieldSize
+  -- The exact query/grinding inequality; the stored hash threshold is inclusive.
   querySelection :
     (bn254.powThreshold + 1) * bn254.agreementNumerator ^ bn254.queries * 2 ^ 128 ≤
         2 ^ 64 * bn254.n ^ bn254.queries ∧
@@ -258,6 +282,7 @@ structure BN254OriginalArithmetic : Prop where
 
 /-- All closed local arithmetic attached to the published cubic-Goldilocks row. -/
 structure GoldilocksCubic113Arithmetic : Prop where
+  -- Pairwise candidate collisions at the initial out-of-domain sample(s).
   initialOodSlot :
     goldilocksCubic113.listSize * (goldilocksCubic113.listSize - 1) *
           (goldilocksCubic113.vectorSize - 1) ^ 2 * 2 ^ 128 ≤
@@ -269,6 +294,7 @@ structure GoldilocksCubic113Arithmetic : Prop where
       (1 : ℚ) / 2 ^ 128
   openingSlot :
     2 * (1 + goldilocksCubic113.queries) * 160 * 2 ^ 128 ≤ goldilocksCubic113.fieldSize
+  -- The exact query/grinding inequality; the stored hash threshold is inclusive.
   querySelection :
     (goldilocksCubic113.powThreshold + 1) *
           goldilocksCubic113.agreementNumerator ^ goldilocksCubic113.queries * 2 ^ 128 ≤
@@ -286,6 +312,7 @@ structure GoldilocksCubic113Arithmetic : Prop where
 
 /-- Closed local arithmetic for the accepted retuned 108-query BN254 option. -/
 structure BN254Retuned108Arithmetic : Prop where
+  -- Pairwise candidate collisions at the initial out-of-domain sample(s).
   initialOodSlot :
     (retunedListSize : ℕ) * (retunedListSize - 1) * (2097152 - 1) * 2 ^ 128 ≤
       2 * bn254.fieldSize
@@ -293,8 +320,10 @@ structure BN254Retuned108Arithmetic : Prop where
     (retunedExceptionalCount : ℚ) / (bn254.fieldSize - 1) +
         (2 * retunedListSize : ℚ) / bn254.fieldSize ≤ (1 : ℚ) / 2 ^ 128
   openingSlot : (2 * (1 + 108) * 160 : ℕ) * 2 ^ 128 ≤ bn254.fieldSize
+  -- The exact query/grinding inequality; the stored hash threshold is inclusive.
   querySelection :
     QueryMeetsTarget (2 ^ 64) 17350852076870155 491867 1048576 108 128
+  -- Why 109 remains an alternative: 108 needs 8.2--8.3% more expected grinding.
   grindingWork :
     (1082 : ℚ) / 1000 <
         (bn254.powThreshold + 1 : ℚ) / (17350852076870155 + 1) ∧
@@ -304,28 +333,35 @@ structure BN254Retuned108Arithmetic : Prop where
 
 /-- The original BN254 closed arithmetic has no supplied count premise. -/
 theorem bn254OriginalArithmetic : BN254OriginalArithmetic where
+  -- Pairwise candidate collisions at the initial out-of-domain sample(s).
   initialOodSlot := bn254_changed_slots_meet_target.1
   listSlot := bn254_changed_slots_meet_target.2.2.1
   affineMCAAndListSlot := bn254_original_affineMCA_list_slot_le
   openingSlot := bn254_changed_slots_meet_target.2.2.2.2
+  -- The exact query/grinding inequality; the stored hash threshold is inclusive.
   querySelection := bn254_query_selection
   payloadLowerBounds := bn254_payload_lower_bounds
 
 /-- The cubic-Goldilocks closed arithmetic has no supplied count premise. -/
 theorem goldilocksCubic113Arithmetic : GoldilocksCubic113Arithmetic where
+  -- Pairwise candidate collisions at the initial out-of-domain sample(s).
   initialOodSlot := goldilocksCubic113_changed_slots_meet_target.1
   listSlot := goldilocksCubic113_changed_slots_meet_target.2.2.1
   affineMCAAndListSlot := goldilocksCubic113_affineMCA_list_slot_le
   openingSlot := goldilocksCubic113_changed_slots_meet_target.2.2.2.2
+  -- The exact query/grinding inequality; the stored hash threshold is inclusive.
   querySelection := goldilocksCubic113_query_selection
   payloadLowerBounds := goldilocksCubic113_payload_lower_bounds
 
 /-- The accepted retuned BN254 closed arithmetic has no supplied count premise. -/
 theorem bn254Retuned108Arithmetic : BN254Retuned108Arithmetic where
+  -- Pairwise candidate collisions at the initial out-of-domain sample(s).
   initialOodSlot := retuned_count_slots.2.1
   affineMCAAndListSlot := bn254_retuned108_affineMCA_list_slot_le
   openingSlot := retuned_count_slots.2.2
+  -- The exact query/grinding inequality; the stored hash threshold is inclusive.
   querySelection := retuned_query108
+  -- Why 109 remains an alternative: 108 needs 8.2--8.3% more expected grinding.
   grindingWork := retuned_grinding_work
   extraPayloadLowerBound := retuned_extra_payload_lower_bound
 
@@ -334,33 +370,39 @@ theorem bn254Retuned108Arithmetic : BN254Retuned108Arithmetic where
 /-- Semantic coding bounds and local arithmetic for the accepted original BN254 row. -/
 structure BN254OriginalCertifiedLocalBudget {s : ℕ}
     (domain : Fin 1048576 ↪ BN254Scalar) : Prop where
+  -- All received affine families: the exceptional-count bound becomes E / (q - 1).
   affineMCA :
     mcaError (AffineSpaceGenerator BN254Scalar s)
         ((ReedSolomon.code domain 262144) ^⋈ (Fin 8))
           (sharpBN254OriginalRadius : ℝ) ≤
       ENNReal.ofReal ((bn254.exceptionalCount : ℝ) / (bn254.fieldSize - 1))
+  -- The combined changed algebraic slot, including the two list-dependent terms.
   affineMCAAndList :
     mcaError (AffineSpaceGenerator BN254Scalar s)
           ((ReedSolomon.code domain 262144) ^⋈ (Fin 8))
           (sharpBN254OriginalRadius : ℝ) +
         ENNReal.ofReal ((2 * bn254.listSize : ℝ) / bn254.fieldSize) ≤
       ENNReal.ofReal ((1 : ℝ) / 2 ^ 128)
+  -- For every received width-eight word, at most L codewords lie within this radius.
   interleavedList :
     Lambda
         (Code.interleavedCodeSet (κ := Fin 8)
           (ReedSolomon.code domain 262144 : Set (Fin 1048576 → BN254Scalar)))
         (original109Radius : ℝ) ≤ (bn254.listSize : ℕ∞)
+  -- The remaining named query/OOD/opening/payload checks are proved as part of the package.
   arithmetic : BN254OriginalArithmetic
 
 /-- Semantic coding bounds and local arithmetic for the published cubic-Goldilocks row. -/
 structure GoldilocksCubic113CertifiedLocalBudget {s : ℕ}
     (domain : Fin 1048576 ↪ GoldilocksCubic) : Prop where
+  -- All received affine families: the exceptional-count bound becomes E / (q - 1).
   affineMCA :
     mcaError (AffineSpaceGenerator GoldilocksCubic s)
         ((ReedSolomon.code domain 262144) ^⋈ (Fin 8))
           (sharpGoldilocksCubic113Radius : ℝ) ≤
       ENNReal.ofReal ((goldilocksCubic113.exceptionalCount : ℝ) /
         (goldilocksCubic113.fieldSize - 1))
+  -- The combined changed algebraic slot, including the two list-dependent terms.
   affineMCAAndList :
     mcaError (AffineSpaceGenerator GoldilocksCubic s)
           ((ReedSolomon.code domain 262144) ^⋈ (Fin 8))
@@ -368,30 +410,36 @@ structure GoldilocksCubic113CertifiedLocalBudget {s : ℕ}
         ENNReal.ofReal ((2 * goldilocksCubic113.listSize : ℝ) /
           goldilocksCubic113.fieldSize) ≤
       ENNReal.ofReal ((1 : ℝ) / 2 ^ 128)
+  -- For every received width-eight word, at most L codewords lie within this radius.
   interleavedList :
     Lambda
         (Code.interleavedCodeSet (κ := Fin 8)
           (ReedSolomon.code domain 262144 : Set (Fin 1048576 → GoldilocksCubic)))
         (sharpGoldilocksCubic113Radius : ℝ) ≤ (goldilocksCubic113.listSize : ℕ∞)
+  -- The remaining named query/OOD/opening/payload checks are proved as part of the package.
   arithmetic : GoldilocksCubic113Arithmetic
 
 /-- Semantic coding bounds and local arithmetic for the accepted retuned 108-query BN254 row. -/
 structure BN254Retuned108CertifiedLocalBudget {s : ℕ}
     (domain : Fin 1048576 ↪ BN254Scalar) : Prop where
+  -- All received affine families: the exceptional-count bound becomes E / (q - 1).
   affineMCA :
     mcaError (AffineSpaceGenerator BN254Scalar s)
         ((ReedSolomon.code domain 262144) ^⋈ (Fin 8)) (retuned108Radius : ℝ) ≤
       ENNReal.ofReal ((retunedExceptionalCount : ℝ) / (bn254.fieldSize - 1))
+  -- The combined changed algebraic slot, including the two list-dependent terms.
   affineMCAAndList :
     mcaError (AffineSpaceGenerator BN254Scalar s)
           ((ReedSolomon.code domain 262144) ^⋈ (Fin 8)) (retuned108Radius : ℝ) +
         ENNReal.ofReal ((2 * retunedListSize : ℝ) / bn254.fieldSize) ≤
       ENNReal.ofReal ((1 : ℝ) / 2 ^ 128)
+  -- For every received width-eight word, at most L codewords lie within this radius.
   interleavedList :
     Lambda
         (Code.interleavedCodeSet (κ := Fin 8)
           (ReedSolomon.code domain 262144 : Set (Fin 1048576 → BN254Scalar)))
         (retuned108Radius : ℝ) ≤ (retunedListSize : ℕ∞)
+  -- The remaining named query/OOD/opening/payload checks are proved as part of the package.
   arithmetic : BN254Retuned108Arithmetic
 
 open Classical in
@@ -399,6 +447,7 @@ open Classical in
 theorem bn254Scalar_original109_certifiedLocalBudget
     {s : ℕ} (domain : Fin 1048576 ↪ BN254Scalar) (hs : 1 ≤ s) :
     BN254OriginalCertifiedLocalBudget (s := s) domain where
+  -- Each assignment supplies a proof of the matching field above, starting with actual MCA.
   affineMCA := bn254Scalar_original109_widthEight_affine_mcaError_le_count domain hs
   affineMCAAndList := bn254Scalar_original109_mcaError_add_list_le domain hs
   interleavedList := bn254_original109_widthEight_lambda_le_sharp domain (by
@@ -412,6 +461,7 @@ open Classical in
 theorem goldilocksCubic113_certifiedLocalBudget
     {s : ℕ} (domain : Fin 1048576 ↪ GoldilocksCubic) (hs : 1 ≤ s) :
     GoldilocksCubic113CertifiedLocalBudget (s := s) domain where
+  -- Each assignment supplies a proof of the matching field above, starting with actual MCA.
   affineMCA := goldilocksCubic113_concrete_widthEight_affine_mcaError_le_count domain hs
   affineMCAAndList := goldilocksCubic113_mcaError_add_list_le domain hs
   interleavedList := goldilocksCubic113_widthEight_lambda_le_sharp domain (by
@@ -425,6 +475,7 @@ open Classical in
 theorem bn254Scalar_retuned108_certifiedLocalBudget
     {s : ℕ} (domain : Fin 1048576 ↪ BN254Scalar) (hs : 1 ≤ s) :
     BN254Retuned108CertifiedLocalBudget (s := s) domain where
+  -- Each assignment supplies a proof of the matching field above, starting with actual MCA.
   affineMCA := bn254Scalar_retuned108_widthEight_affine_mcaError_le_count domain hs
   affineMCAAndList := bn254Scalar_retuned108_mcaError_add_list_le domain hs
   interleavedList := retuned108_widthEight_lambda_le domain (by
