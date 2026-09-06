@@ -45,7 +45,7 @@ open ReedSolomon.HiddenDerivative
 
 namespace ArkLibExamples.ReedSolomon.ConcreteCurveMCA
 
-open ConcreteCurves ConcreteCurveBounds LambdaVMInterpolation
+open CurveProfile ConcreteCurves ConcreteCurveBounds
 
 noncomputable section
 
@@ -57,11 +57,11 @@ universe u
 split and integer ceiling have been checked. -/
 theorem LineProfile.exists_exceptional_exact_powerAgreement
     {F E : Type u} [Field F] [Field E] [DecidableEq F] [IsAlgClosed E]
-    {p : LineProfile} (hp : LineProfile.CurveVerified p)
+    {p : LineProfile} (hp : p.CurveVerification)
     (split budget : ℕ)
     (hsplit : p.k ≤ split ∧ split ≤ p.agreement ∧ p.agreement ≤ p.n)
     (hcurve : 0 < p.batchingDegree + p.height)
-    (hbound : ConcreteCurveBounds.envelope p split ≤ budget)
+    (hbound : ConcreteCurveBounds.legacyEnvelope p split ≤ budget)
     (domain : Fin p.n ↪ F)
     (values : Fin (p.batchingDegree + 1) → Fin p.n → F)
     (iota : F →+* E)
@@ -93,7 +93,7 @@ theorem LineProfile.exists_exceptional_exact_powerAgreement
       (ell := p.batchingDegree) domain values iota hD hcoeff hkD hheight'
         hK le_rfl hk hsplit.1 hsplit.2.1 hsplit.2.2 hcurve hchar
   refine ⟨exceptional, hcard.trans ?_, hgood⟩
-  simpa only [ConcreteCurveBounds.envelope] using hbound
+  simpa only [ConcreteCurveBounds.legacyEnvelope] using hbound
 
 /-- Every ZisK curve row has an actual base-field exceptional set within its recorded budget. -/
 theorem zisK_exists_exceptional_exact_powerAgreement
@@ -112,7 +112,7 @@ theorem zisK_exists_exceptional_exact_powerAgreement
     (F := F) (E := E) (p := zisK i) (zisK_verified i)
     (zisKSplit i) (zisKBudget i) (zisK_split_admissible i)
   · fin_cases i <;> decide
-  · exact zisK_envelope_le i
+  · exact zisK_legacyEnvelope_le i
   · exact iota
   · exact hchar
 
@@ -134,7 +134,7 @@ theorem lambdaVM_exists_exceptional_exact_powerAgreement
     (F := F) (E := E) (p := lambdaVM i) (lambdaVM_verified i)
     (lambdaVMSplit i) (lambdaVMBudget i) (lambdaVM_split_admissible i)
   · fin_cases i <;> decide
-  · exact lambdaVM_envelope_le i
+  · exact lambdaVM_legacyEnvelope_le i
   · exact iota
   · exact hchar
 

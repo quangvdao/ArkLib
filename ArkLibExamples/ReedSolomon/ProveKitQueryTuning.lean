@@ -38,6 +38,8 @@ open ReedSolomon.HiddenDerivative.SymbolicReceivedInterpolation
 
 namespace ArkLibExamples.ReedSolomon.ProveKit
 
+open ArkLib.FiniteFieldBudget
+
 set_option maxRecDepth 16384
 
 set_option maxHeartbeats 4000000 in
@@ -111,13 +113,13 @@ theorem retuned_count_slots :
 
 /-- 108 queries meet the target after tightening the existing inclusive grinding threshold. -/
 theorem retuned_query108 :
-    (17350852076870155 + 1 : ℕ) * 491867 ^ 108 * 2 ^ 128 ≤ 2 ^ 64 * 1048576 ^ 108 := by
-  norm_num
+    QueryMeetsTarget (2 ^ 64) 17350852076870155 491867 1048576 108 128 := by
+  norm_num [QueryMeetsTarget]
 
 /-- Retuning the agreement alone is insufficient for 108 queries with the old grinding. -/
 theorem retuned_query108_old_grinding_fails :
-    (2 : ℕ) ^ 64 * 1048576 ^ 108 < (bn254.powThreshold + 1) * 491867 ^ 108 * 2 ^ 128 := by
-  norm_num [bn254]
+    QueryFailsTarget (2 ^ 64) bn254.powThreshold 491867 1048576 108 128 := by
+  norm_num [QueryFailsTarget, bn254]
 
 /-- The expected grinding-work ratio lies between 1.082 and 1.083. -/
 theorem retuned_grinding_work :

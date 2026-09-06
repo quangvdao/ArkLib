@@ -6,7 +6,10 @@ Authors: Quang Dao
 
 import ArkLibExamples.ReedSolomon.ConcreteCurves
 import ArkLibExamples.ReedSolomon.LambdaVMTables
+import ArkLibExamples.ReedSolomon.ProveKit
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Symbolic.FirstOrderCurveBound
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Symbolic.FirstOrderCurveStageSum
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Taylor.Numerator
 
 /-!
 # Exact exceptional-envelope arithmetic for the concrete curve profiles
@@ -23,10 +26,83 @@ open ReedSolomon.HiddenDerivative
 
 namespace ArkLibExamples.ReedSolomon.ConcreteCurveBounds
 
-open LambdaVMInterpolation ConcreteCurves
+open CurveProfile ConcreteCurves
 
-/-- Evaluate the sharp expression at a profile and an integer split threshold. -/
+/-! ## Revised ZisK initial row -/
+
+/-- Retained-pair split for the revised ZisK initial powers row. -/
+def zisKRevisedInitialSplit : ℕ := 136608
+
+/-- Shifted finite-constructor height for the revised ZisK initial powers row. -/
+def zisKRevisedInitialHeight : ℕ := 22707
+
+/-- The ZisK initial row uses `τ = 2k - 3 = 262141`. -/
+theorem zisKRevisedInitial_taylorExponent :
+    2 * (zisK 0).k - 3 = 262141 := by
+  norm_num [zisK]
+
+/-- The revised ZisK exponent is sufficient at every derivative order. -/
+theorem zisKRevisedInitial_taylorExponent_sufficient (r : ℕ) :
+    TaylorExponentSufficient r (zisK 0).k 262141 := by
+  simpa [zisK] using
+    taylorExponentSufficient_two_mul_sub_three r (by norm_num : 2 ≤ 131072)
+
+/-- The revised ZisK `λ₁η` envelope lies below the one-bit-grinding count.  The semantic
+exceptional-set theorem remains conditional on the shifted finite certificate at height 22707. -/
+theorem zisKRevisedInitial_envelope_le :
+    firstOrderCurveBound 524288 131072 131072 zisKRevisedInitialSplit 260512
+        17 3 181 zisKRevisedInitialHeight 262141
+          (firstOrderCurveDirectRatio 524288 131072 260512) ≤
+      32400105256997946305 := by
+  decide +kernel
+
+/-! ## Revised ProveKit cubic-Goldilocks row -/
+
+/-- The retained-pair split selected for the revised cubic-Goldilocks row. -/
+def proveKitGoldilocksCubicSplit : ℕ := 268399
+
+/-- The shifted finite constructor's challenge height for the revised row. -/
+def proveKitGoldilocksCubicHeight : ℕ := 339
+
+/-- The exact common Taylor exponent is `2k - 3 = 524285`. -/
+theorem proveKitGoldilocksCubic_taylorExponent :
+    2 * ProveKit.goldilocksCubic113.k - 3 = 524285 := by
+  norm_num [ProveKit.goldilocksCubic113]
+
+/-- This exponent is sufficient at every derivative order, including the order-one stages. -/
+theorem proveKitGoldilocksCubic_taylorExponent_sufficient (r : ℕ) :
+    TaylorExponentSufficient r ProveKit.goldilocksCubic113.k 524285 := by
+  simpa [ProveKit.goldilocksCubic113] using
+    taylorExponentSufficient_two_mul_sub_three r (by norm_num : 2 ≤ 262144)
+
+/-- The revised `λ₁η` envelope at `τ = 2k - 3` lies below its recorded integer ceiling.
+This is exact arithmetic for the geometric conclusion; producing the corresponding exceptional
+set still requires the shifted finite certificate and dimension-sensitive incidence bridge. -/
+theorem proveKitGoldilocksCubic_envelope_le :
+    firstOrderCurveBound 1048576 262144 262144 proveKitGoldilocksCubicSplit 508263
+        30 7 1 proveKitGoldilocksCubicHeight 524285
+          (firstOrderCurveDirectRatio 1048576 262144 508263) ≤
+      ProveKit.goldilocksCubic113.exceptionalCount := by
+  decide +kernel
+
+/-- Minimal common Taylor exponent used by the first-order geometry when `2 ≤ k`. -/
+def taylorExponent (p : LineProfile) : ℕ := 2 * p.k - 3
+
+/-- The chosen exponent is sufficient at every derivative order when `2 ≤ k`. -/
+theorem taylorExponent_sufficient (p : LineProfile) (hk : 2 ≤ p.k) (r : ℕ) :
+    TaylorExponentSufficient r p.k (taylorExponent p) := by
+  simpa [taylorExponent] using taylorExponentSufficient_two_mul_sub_three r hk
+
+/-- Evaluate the revised sharp expression at one profile and split.  Order-one stages use the
+independent direct ratio from `k` to agreement `A`, while every stage uses `τ = 2k - 3`. -/
 def envelope (p : LineProfile) (split : ℕ) : ℚ :=
+  firstOrderCurveBound p.n p.k p.k split p.agreement p.totalJetCap
+    p.firstDerivativeCap p.batchingDegree p.height (taylorExponent p)
+      (firstOrderCurveDirectRatio p.n p.k p.agreement)
+
+/-- Temporary coarse expression used by semantic clients that have not yet been moved to the
+sufficient-exponent, dimension-sensitive incidence theorem. -/
+def legacyEnvelope (p : LineProfile) (split : ℕ) : ℚ :=
   firstOrderCurveBound p.n p.k p.k split p.agreement p.totalJetCap
     p.firstDerivativeCap p.batchingDegree p.height
 
@@ -59,6 +135,11 @@ theorem zisK_split_admissible (i : Fin 6) :
 /-- The exact rational envelope is below its displayed integer ceiling. -/
 theorem zisK_envelope_le (i : Fin 6) :
     envelope (zisK i) (zisKSplit i) ≤ zisKBudget i := by
+  fin_cases i <;> decide +kernel
+
+/-- The existing semantic route remains within the same displayed ZisK ceilings. -/
+theorem zisK_legacyEnvelope_le (i : Fin 6) :
+    legacyEnvelope (zisK i) (zisKSplit i) ≤ zisKBudget i := by
   fin_cases i <;> decide +kernel
 
 /-- Recorded split for each lambdaVM curve profile. -/
@@ -148,6 +229,11 @@ theorem lambdaVM_split_admissible (i : Fin 35) :
 /-- The exact rational envelope is below its displayed integer ceiling. -/
 theorem lambdaVM_envelope_le (i : Fin 35) :
     envelope (lambdaVM i) (lambdaVMSplit i) ≤ lambdaVMBudget i := by
+  fin_cases i <;> decide +kernel
+
+/-- The existing semantic route remains within the same displayed LambdaVM ceilings. -/
+theorem lambdaVM_legacyEnvelope_le (i : Fin 35) :
+    legacyEnvelope (lambdaVM i) (lambdaVMSplit i) ≤ lambdaVMBudget i := by
   fin_cases i <;> decide +kernel
 
 /-- Sum the initial curve and every fold belonging to one table configuration. -/

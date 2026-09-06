@@ -5,6 +5,8 @@ Authors: Quang Dao
 -/
 
 import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalOpen.Finite
+import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.FiniteAlgebraGrowth
+import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalCut.Polynomial
 
 /-! # Polynomial identities along polynomial graphs
 
@@ -85,6 +87,60 @@ theorem polynomialGraphPullback_vanishes_of_principalOpen [IsAlgClosed F] [Finit
     rw [hz, Polynomial.eval_zero, ← hgraph x hx] at heval
     exact hx.2 heval.symm
 
+/-- A prime principal open contained in a one-parameter polynomial graph has Hilbert dimension
+at most one.
+
+The proof constructs the coordinate-algebra map in the dimension-preserving direction.  Its
+kernel is exactly the source prime: a polynomial in the kernel vanishes on the principal open,
+so its product with the open denominator vanishes on the whole prime zero locus.  The
+Nullstellensatz and primality then put the polynomial itself in the source prime. -/
+theorem hilbertPolynomial_natDegree_le_one_of_principalOpen_subset_polynomialGraph
+    [IsAlgClosed F] [Finite σ]
+    {P : Ideal (MvPolynomial (Option σ) F)} (hP : P.IsPrime)
+    {s : MvPolynomial (Option σ) F} (hs : s ∉ P)
+    (hd : 0 < (hilbertPolynomial P).natDegree) (w : σ → Polynomial F)
+    (hgraph : ∀ x ∈ principalOpenZeroLocus P s,
+      x = polynomialGraphPoint w (x none)) :
+    (hilbertPolynomial P).natDegree ≤ 1 := by
+  have hvanish := (polynomialGraphPullback_vanishes_of_principalOpen hP hs hd w hgraph).1
+  have hker : RingHom.ker (polynomialGraphPullback w).toRingHom = P := by
+    apply le_antisymm
+    · intro p hp
+      change polynomialGraphPullback w p = 0 at hp
+      have hsp : s * p ∈ P.radical := by
+        rw [← vanishingIdeal_zeroLocus_eq_radical (K := F)]
+        intro x hx
+        by_cases hxs : aeval x s = 0
+        · simp [map_mul, hxs]
+        · have hxopen : x ∈ principalOpenZeroLocus P s := ⟨hx, hxs⟩
+          have heval := eval_polynomialGraphPullback w (x none) p
+          rw [hp, Polynomial.eval_zero, ← hgraph x hxopen] at heval
+          rw [map_mul, ← heval, mul_zero]
+      have hspP : s * p ∈ P := by simpa only [hP.radical] using hsp
+      exact (hP.mem_or_mem hspP).resolve_left hs
+    · exact hvanish
+  let graphMv : MvPolynomial (Option σ) F →ₐ[F] MvPolynomial Unit F :=
+    (MvPolynomial.uniqueAlgEquiv F Unit).symm.toAlgHom.comp (polynomialGraphPullback w)
+  have hkerMv : RingHom.ker graphMv.toRingHom = P := by
+    rw [show graphMv.toRingHom =
+      (MvPolynomial.uniqueAlgEquiv F Unit).symm.toRingHom.comp
+        (polynomialGraphPullback w).toRingHom by rfl]
+    rw [RingHom.ker_comp_of_injective _ (MvPolynomial.uniqueAlgEquiv F Unit).symm.injective]
+    exact hker
+  have hle : P ≤ (⊥ : Ideal (MvPolynomial Unit F)).comap graphMv := by
+    change P ≤ RingHom.ker graphMv.toRingHom
+    rw [hkerMv]
+  let qmap : (MvPolynomial (Option σ) F ⧸ P) →ₐ[F]
+      (MvPolynomial Unit F ⧸ (⊥ : Ideal (MvPolynomial Unit F))) :=
+    Ideal.quotientMapₐ ⊥ graphMv hle
+  have hqinj : Function.Injective qmap := by
+    change Function.Injective (Ideal.quotientMap ⊥ graphMv.toRingHom hle)
+    exact Ideal.quotientMap_injective' (H := hle) (by
+      change RingHom.ker graphMv.toRingHom ≤ P
+      rw [hkerMv])
+  have hdegree := hilbertPolynomial_natDegree_le_of_injective_algHom qmap hqinj hP.ne_top
+  simpa only [hilbertPolynomial_bot_natDegree, Nat.card_unique] using hdegree
+
 /-- The point on an affine graph with parameter `z` and coordinate slopes `b`. -/
 def affineGraphPoint (a b : σ → F) (z : F) : Option σ → F :=
   fun i ↦ i.elim z (fun j ↦ a j + z * b j)
@@ -152,5 +208,29 @@ theorem graphPullback_vanishes_of_principalOpen
     have heval := eval_affineGraphPullback a b (x none) s
     rw [hz, Polynomial.eval_zero, ← hgraph x hx] at heval
     exact hx.2 heval.symm
+
+/-- An affine graph is a one-parameter polynomial graph, so a positive-dimensional prime
+principal open contained in it has Hilbert dimension at most one. -/
+theorem hilbertPolynomial_natDegree_le_one_of_principalOpen_subset_affineGraph
+    {P : Ideal (MvPolynomial (Option σ) F)} (hP : P.IsPrime)
+    {s : MvPolynomial (Option σ) F} (hs : s ∉ P)
+    (hd : 0 < (hilbertPolynomial P).natDegree) (a b : σ → F)
+    (hgraph : ∀ x ∈ principalOpenZeroLocus P s,
+      x = affineGraphPoint a b (x none)) :
+    (hilbertPolynomial P).natDegree ≤ 1 := by
+  let w : σ → Polynomial F := fun i ↦
+    Polynomial.C (a i) + Polynomial.X * Polynomial.C (b i)
+  apply hilbertPolynomial_natDegree_le_one_of_principalOpen_subset_polynomialGraph
+    hP hs hd w
+  intro x hx
+  rw [hgraph x hx]
+  funext i
+  cases i with
+  | none => rfl
+  | some i =>
+      change a i + x none * b i =
+        (Polynomial.C (a i) + Polynomial.X * Polynomial.C (b i)).eval (x none)
+      simp only [Polynomial.eval_add, Polynomial.eval_C, Polynomial.eval_mul,
+        Polynomial.eval_X]
 
 end AffineHilbert

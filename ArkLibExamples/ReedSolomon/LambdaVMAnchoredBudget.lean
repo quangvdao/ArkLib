@@ -45,6 +45,7 @@ open LambdaVMAnchoredLists LambdaVMFields LambdaVMTables
 open LambdaVMAnchoredCandidates
 open LambdaVMCertifiedBudget
 open ArkLib.TwoPointPolynomialCollision
+open ArkLib.FiniteFieldBudget
 
 noncomputable section
 
@@ -249,6 +250,12 @@ theorem payload_reduction (i : Fin 5) (unchanged : ℕ) :
       (tables i).queries * (tables i).responseBytes + anchorProofBytes + savedBytes i := by
     fin_cases i <;> decide
   omega
+
+/-- Net anchored savings through the shared fixed-payload calculation. -/
+theorem fixed_payload_saving (i : Fin 5) :
+    fixedPayloadSaving 219 (tables i).queries (tables i).responseBytes anchorProofBytes =
+      savedBytes i := by
+  fin_cases i <;> norm_num [fixedPayloadSaving, tables, anchorProofBytes, savedBytes]
 
 end
 

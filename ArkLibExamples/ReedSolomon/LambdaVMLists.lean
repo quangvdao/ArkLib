@@ -5,6 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLibExamples.ReedSolomon.LambdaVMInterpolation
+import ArkLibExamples.ReedSolomon.CurveProfile
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.SharpListBound
 
 /-!
@@ -40,7 +41,7 @@ open ReedSolomon.HiddenDerivative
 
 namespace ArkLibExamples.ReedSolomon.LambdaVMLists
 
-open LambdaVMInterpolation
+open CurveProfile LambdaVMInterpolation
 
 /-- Original-tuple profiles, ordered by increasing table size. -/
 def profiles : Fin 5 → LineProfile := ![

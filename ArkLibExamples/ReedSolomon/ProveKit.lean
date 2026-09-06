@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
+import ArkLib.Data.Probability.FiniteFieldBudget
 import Mathlib.Tactic.NormNum
 
 /-!
@@ -13,12 +14,13 @@ This module checks two proposed local replacements for the pinned ProveKit WHIR 
 profile at revision `8804e80e8e890d01bb585f2bd5e5b564ac0fd80d`. Both rows have Reed--Solomon
 block length `n = 2^20`, message dimension `k = 2^18`, interleaving width eight, batch size one,
 and vector size `2^21`. The BN254 row selects agreement `492831 / 1048576` and 109 queries. The
-cubic Goldilocks row selects agreement `512754 / 1048576`, 115 queries, and a second initial
+cubic Goldilocks row selects agreement `508263 / 1048576`, 113 queries, and a second initial
 out-of-domain sample.
 
 The BN254 certificate supplies `E = 1126820196482631879700641773` and
-`L = 147000408479737`. The cubic Goldilocks certificate supplies `E = 8210316778177167673` and
-`L = 5089296970`.
+`L = 147000408479737`. The cubic Goldilocks arithmetic uses
+`E = 14436064712520704240` and `L = 8279136487`. Their derivation from the revised finite
+certificate remains a separate geometric seam.
 
 ## Reading the statements
 
@@ -58,6 +60,8 @@ theorem or a measured serialized proof size.
 -/
 
 namespace ArkLibExamples.ReedSolomon.ProveKit
+
+open ArkLib.FiniteFieldBudget
 
 /-! ## Parameter rows -/
 
@@ -124,7 +128,30 @@ def bn254 : Profile where
   fieldBytes := 32
   extensionBytes := 32
 
-/-- The pinned cubic Goldilocks parameter row. -/
+/-- The revised cubic Goldilocks parameter row. -/
+def goldilocksCubic113 : Profile where
+  n := 1048576
+  k := 262144
+  vectorSize := 2097152
+  interleavingWidth := 8
+  batchSize := 1
+  fieldSize := 6277101731002175853884774869567645561244584131361410908161
+  agreementNumerator := 508263
+  multiplicity := 16
+  firstJetCap := 7
+  totalJetDegreeCap := 30
+  exceptionalCount := 14436064712520704240
+  listSize := 8279136487
+  queries := 113
+  initialOodSamples := 2
+  powThreshold := 18786624067678312
+  nominalQueries := 127
+  zeroSlackQueryReference := 119
+  fieldBytes := 8
+  extensionBytes := 24
+
+/-- Temporary historical row used by semantic clients until the shifted finite certificate and
+dimension-sensitive incidence bridge are connected. -/
 def goldilocksCubic : Profile where
   n := 1048576
   k := 262144
@@ -166,6 +193,25 @@ theorem bn254_changed_slots_meet_target :
       2 * (1 + bn254.queries) * 160 * 2 ^ 128 ≤ bn254.fieldSize := by
   norm_num [bn254]
 
+/-- The BN254 OOD collision term is an instance of the shared one-sample predicate. -/
+theorem bn254_ood_meets_target :
+    RepeatedOodMeetsTarget bn254.listSize bn254.vectorSize bn254.fieldSize
+      bn254.initialOodSamples 128 := by
+  norm_num [RepeatedOodMeetsTarget, bn254]
+
+/-- The BN254 first-switch term uses the unchanged target list of size 160. -/
+theorem bn254_first_switch_meets_target :
+    FirstSwitchMeetsTarget 160 bn254.queries bn254.fieldSize 128 := by
+  norm_num [FirstSwitchMeetsTarget, bn254]
+
+/-- The BN254 query selection through the shared inclusive-threshold predicate. -/
+theorem bn254_query_selection_shared :
+    QueryMeetsTarget (2 ^ 64) bn254.powThreshold bn254.agreementNumerator bn254.n
+        bn254.queries 128 ∧
+      QueryFailsTarget (2 ^ 64) bn254.powThreshold bn254.agreementNumerator bn254.n
+        (bn254.queries - 1) 128 := by
+  norm_num [QueryMeetsTarget, QueryFailsTarget, bn254]
+
 /-- The BN254 query contribution meets `2^-128` at 109 queries and exceeds it at 108. -/
 theorem bn254_query_selection :
     (bn254.powThreshold + 1) * bn254.agreementNumerator ^ bn254.queries * 2 ^ 128 ≤
@@ -186,20 +232,77 @@ theorem bn254_payload_lower_bounds :
         (bn254.initialOodSamples - 1) * bn254.extensionBytes = 2240 := by
   norm_num [bn254]
 
-/-! ## Cubic Goldilocks checks -/
+/-! ## Revised cubic Goldilocks checks -/
 
 /-- The cubic Goldilocks row has rate one quarter and the expected interleaved vector size. Its
 agreement is below the finite Johnson agreement threshold, so its decoding radius is beyond
 Johnson. -/
-theorem goldilocksCubic_code_arithmetic :
-    goldilocksCubic.k * 4 = goldilocksCubic.n ∧
-      goldilocksCubic.interleavingWidth * goldilocksCubic.k = goldilocksCubic.vectorSize ∧
-      goldilocksCubic.agreementNumerator ^ 2 <
-        goldilocksCubic.n * (goldilocksCubic.k - 1) := by
-  norm_num [goldilocksCubic]
+theorem goldilocksCubic113_code_arithmetic :
+    goldilocksCubic113.k * 4 = goldilocksCubic113.n ∧
+      goldilocksCubic113.interleavingWidth * goldilocksCubic113.k =
+        goldilocksCubic113.vectorSize ∧
+      goldilocksCubic113.agreementNumerator ^ 2 <
+        goldilocksCubic113.n * (goldilocksCubic113.k - 1) := by
+  norm_num [goldilocksCubic113]
 
 /-- Every changed cubic Goldilocks error slot is at most `2^-128`, expressed without rational
 division. The initial out-of-domain term includes both extension-field samples. -/
+theorem goldilocksCubic113_changed_slots_meet_target :
+    goldilocksCubic113.listSize * (goldilocksCubic113.listSize - 1) *
+          (goldilocksCubic113.vectorSize - 1) ^ 2 * 2 ^ 128 ≤
+        2 * goldilocksCubic113.fieldSize ^ 2 ∧
+      goldilocksCubic113.exceptionalCount * 2 ^ 128 ≤ goldilocksCubic113.fieldSize ∧
+      2 * goldilocksCubic113.listSize * 2 ^ 128 ≤ goldilocksCubic113.fieldSize ∧
+      (goldilocksCubic113.exceptionalCount + 2 * goldilocksCubic113.listSize) * 2 ^ 128 ≤
+        goldilocksCubic113.fieldSize ∧
+      2 * (1 + goldilocksCubic113.queries) * 160 * 2 ^ 128 ≤
+        goldilocksCubic113.fieldSize := by
+  norm_num [goldilocksCubic113]
+
+/-- The revised OOD pair-collision term meets its local target after two samples. -/
+theorem goldilocksCubic113_ood_meets_target :
+    RepeatedOodMeetsTarget goldilocksCubic113.listSize goldilocksCubic113.vectorSize
+      goldilocksCubic113.fieldSize goldilocksCubic113.initialOodSamples 128 := by
+  norm_num [RepeatedOodMeetsTarget, goldilocksCubic113]
+
+/-- The revised affine MCA and two identity tests meet their combined local target. -/
+theorem goldilocksCubic113_affine_mca_identity_meets_target :
+    AffineMcaIdentityMeetsTarget goldilocksCubic113.exceptionalCount
+      goldilocksCubic113.listSize goldilocksCubic113.fieldSize 128 := by
+  norm_num [AffineMcaIdentityMeetsTarget, goldilocksCubic113]
+
+/-- The unchanged target list of size 160 makes the first-switch term meet its local target. -/
+theorem goldilocksCubic113_first_switch_meets_target :
+    FirstSwitchMeetsTarget 160 goldilocksCubic113.queries goldilocksCubic113.fieldSize 128 := by
+  norm_num [FirstSwitchMeetsTarget, goldilocksCubic113]
+
+/-- The cubic Goldilocks query contribution meets `2^-128` at 113 queries and exceeds it at 112
+for this fixed profile and grinding threshold. -/
+theorem goldilocksCubic113_query_selection :
+    QueryMeetsTarget (2 ^ 64) goldilocksCubic113.powThreshold
+        goldilocksCubic113.agreementNumerator goldilocksCubic113.n
+          goldilocksCubic113.queries 128 ∧
+      QueryFailsTarget (2 ^ 64) goldilocksCubic113.powThreshold
+        goldilocksCubic113.agreementNumerator goldilocksCubic113.n
+          (goldilocksCubic113.queries - 1) 128 := by
+  norm_num [QueryMeetsTarget, QueryFailsTarget, goldilocksCubic113]
+
+/-- The conservative cubic Goldilocks raw-payload lower bounds are 424 bytes against the nominal
+profile and 168 bytes against its auxiliary zero-slack reference. Both charge the extra 24-byte
+extension-field OOD value. -/
+theorem goldilocksCubic113_payload_lower_bounds :
+    conservativePayloadSaving goldilocksCubic113.nominalQueries goldilocksCubic113.queries
+        (goldilocksCubic113.interleavingWidth * goldilocksCubic113.fieldBytes) 32
+        ((goldilocksCubic113.initialOodSamples - 1) * goldilocksCubic113.extensionBytes) = 424 ∧
+      conservativePayloadSaving goldilocksCubic113.zeroSlackQueryReference
+        goldilocksCubic113.queries
+        (goldilocksCubic113.interleavingWidth * goldilocksCubic113.fieldBytes) 32
+        ((goldilocksCubic113.initialOodSamples - 1) * goldilocksCubic113.extensionBytes) = 168 := by
+  norm_num [conservativePayloadSaving, fixedPayloadSaving, goldilocksCubic113]
+
+/-! ## Historical semantic-client arithmetic -/
+
+/-- Historical 115-query local inequalities, retained while semantic clients migrate. -/
 theorem goldilocksCubic_changed_slots_meet_target :
     goldilocksCubic.listSize * (goldilocksCubic.listSize - 1) *
           (goldilocksCubic.vectorSize - 1) ^ 2 * 2 ^ 128 ≤
@@ -211,7 +314,7 @@ theorem goldilocksCubic_changed_slots_meet_target :
       2 * (1 + goldilocksCubic.queries) * 160 * 2 ^ 128 ≤ goldilocksCubic.fieldSize := by
   norm_num [goldilocksCubic]
 
-/-- The cubic Goldilocks query contribution meets `2^-128` at 115 queries and exceeds it at 114. -/
+/-- Historical 115-query selection used by existing semantic bundles. -/
 theorem goldilocksCubic_query_selection :
     (goldilocksCubic.powThreshold + 1) *
           goldilocksCubic.agreementNumerator ^ goldilocksCubic.queries * 2 ^ 128 ≤
@@ -221,8 +324,7 @@ theorem goldilocksCubic_query_selection :
           goldilocksCubic.agreementNumerator ^ (goldilocksCubic.queries - 1) * 2 ^ 128 := by
   norm_num [goldilocksCubic]
 
-/-- The checker's conservative cubic Goldilocks raw-payload lower bounds are 360 bytes against the
-nominal profile and 104 bytes against its auxiliary zero-slack reference. -/
+/-- Historical conservative payload values used by existing semantic bundles. -/
 theorem goldilocksCubic_payload_lower_bounds :
     (goldilocksCubic.nominalQueries - goldilocksCubic.queries) *
           (goldilocksCubic.interleavingWidth * goldilocksCubic.fieldBytes - 32) -

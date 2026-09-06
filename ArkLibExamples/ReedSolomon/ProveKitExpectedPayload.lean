@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.Data.Probability.UniformQueryBoundary
+import ArkLib.Data.Probability.FiniteFieldBudget
 import ArkLibExamples.ReedSolomon.ProveKit
 import Mathlib.Data.Rat.Floor
 import Mathlib.Tactic.Linarith
@@ -36,42 +36,9 @@ analytical model; they do not describe outer framing, compression, or a deployed
 namespace ArkLibExamples.ReedSolomon.ProveKit
 
 open scoped BigOperators
-open ArkLib.UniformQueryBoundary
+open ArkLib.UniformQueryBoundary ArkLib.FiniteFieldBudget
 
 set_option maxRecDepth 16384
-
-/-- Expected number of authentication hashes in the binary sibling-boundary model. -/
-def expectedAuthenticationHashes (n height queries : ℕ) : ℚ :=
-  ∑ j ∈ Finset.range height,
-    (n / 2 ^ j : ℕ) *
-      ((((n - 2 ^ j : ℕ) : ℚ) / n) ^ queries -
-        (((n - 2 ^ (j + 1) : ℕ) : ℚ) / n) ^ queries)
-
-/-- Expected raw byte saving between two query counts in the pinned payload model. -/
-def expectedPayloadSaving (n height oldQueries newQueries rowBytes hashBytes
-    extraOodBytes : ℕ) : ℚ :=
-  ((oldQueries - newQueries) * rowBytes : ℕ) +
-    hashBytes *
-      (expectedAuthenticationHashes n height oldQueries -
-        expectedAuthenticationHashes n height newQueries) -
-    extraOodBytes
-
-/-- The generic finite-sample theorem justifies each level term from subtree cardinalities:
-`b` oriented disjoint sibling pairs of size `s` have the displayed expectation. -/
-theorem expected_level_authentication_hashes
-    {alpha node : Type*} [Fintype alpha] [Fintype node] [DecidableEq alpha]
-    {queries s b : ℕ} (subtree sibling : node → Finset alpha)
-    (hnonempty : 0 < Fintype.card alpha) (hnodes : Fintype.card node = b)
-    (hsubtree : ∀ v, (subtree v).card = s)
-    (hsibling : ∀ v, (sibling v).card = s)
-    (hdisjoint : ∀ v, Disjoint (subtree v) (sibling v)) :
-    uniformQueryExpectation queries (authenticationHashCount subtree sibling) =
-      (b : ℚ) * ((((Fintype.card alpha - s : ℕ) : ℚ) /
-          Fintype.card alpha) ^ queries -
-        (((Fintype.card alpha - 2 * s : ℕ) : ℚ) /
-          Fintype.card alpha) ^ queries) := by
-  exact uniformQueryExpectation_authenticationHashCount_of_uniformSize_probability
-    subtree sibling hnonempty hnodes hsubtree hsibling hdisjoint
 
 set_option maxHeartbeats 8000000 in
 -- Exact normalization expands twenty rational terms with exponents 109 and 127.
@@ -105,17 +72,17 @@ theorem bn254_expected_extra_payload_saving_108_ceil :
   constructor <;> norm_num at hlower hupper ⊢ <;> linarith
 
 set_option maxHeartbeats 8000000 in
--- Exact normalization expands twenty rational terms with exponents 115 and 127.
-/-- The original cubic-Goldilocks row saves between 4871.73 and 4871.74 expected raw bytes after
+-- Exact normalization expands twenty rational terms with exponents 113 and 127.
+/-- The revised cubic-Goldilocks row saves between 5693.15 and 5693.17 expected raw bytes after
 charging its additional 24-byte extension-field out-of-domain value. -/
 theorem goldilocksCubic_expected_payload_saving :
-    (487173 : ℚ) / 100 < expectedPayloadSaving (2 ^ 20) 20 127 115 64 32 24 ∧
-      expectedPayloadSaving (2 ^ 20) 20 127 115 64 32 24 < (487174 : ℚ) / 100 := by
+    (569315 : ℚ) / 100 < expectedPayloadSaving (2 ^ 20) 20 127 113 64 32 24 ∧
+      expectedPayloadSaving (2 ^ 20) 20 127 113 64 32 24 < (569317 : ℚ) / 100 := by
   norm_num [expectedPayloadSaving, expectedAuthenticationHashes, Finset.sum_range_succ]
 
-/-- The exact cubic-Goldilocks expected saving has byte ceiling 4872. -/
+/-- The exact cubic-Goldilocks expected saving has byte ceiling 5694. -/
 theorem goldilocksCubic_expected_payload_saving_ceil :
-    ⌈expectedPayloadSaving (2 ^ 20) 20 127 115 64 32 24⌉ = 4872 := by
+    ⌈expectedPayloadSaving (2 ^ 20) 20 127 113 64 32 24⌉ = 5694 := by
   apply Int.ceil_eq_iff.mpr
   obtain ⟨hlower, hupper⟩ := goldilocksCubic_expected_payload_saving
   constructor <;> norm_num at hlower hupper ⊢ <;> linarith

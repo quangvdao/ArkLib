@@ -4,9 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLibExamples.ReedSolomon.LambdaVMInterpolation
-import
-  ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.CurveFinite
+import ArkLibExamples.ReedSolomon.CurveProfile
 
 /-!
 # Exact polynomial-curve interpolation for ZisK and LambdaVM
@@ -38,38 +36,7 @@ open ReedSolomon.HiddenDerivative
 
 namespace ArkLibExamples.ReedSolomon.ConcreteCurves
 
-open LambdaVMInterpolation
-
-namespace LineProfile
-
-/-- The actual coefficient count when each `Y₀` exponent is multiplied by batching degree. -/
-def curveHeightSlots (p : LineProfile) : ℕ :=
-  firstOrderCurveHeightSlotCount p.D p.agreement p.multiplicity p.firstDerivativeCap
-    p.totalJetCap p.batchingDegree p.height
-
-/-- Exactly the finite hypotheses required by the full-support curve constructor. -/
-def CurveVerified (p : LineProfile) : Prop :=
-  1 < p.D ∧ 0 < p.multiplicity * p.agreement ∧ p.k ≤ p.D + 1 ∧
-    p.n * p.computedLocalRank * (p.height + 1) < curveHeightSlots p ∧
-    p.computedDimension = p.supportDimension ∧ p.computedLocalRank = p.localRank ∧
-    curveHeightSlots p = p.heightSlots ∧
-    p.heightSlots + p.batchingDegree * p.columnY₀Weight = p.supportDimension * (p.height + 1)
-
-/-- The finite curve test is decidable by its explicit natural-number sums. -/
-instance (p : LineProfile) : Decidable (CurveVerified p) := by
-  unfold CurveVerified
-  infer_instance
-
-/-- A verified row constructs its full polynomial-curve certificate. -/
-theorem CurveVerified.exists_certificate {F : Type*} [Field F] {p : LineProfile}
-    (hp : CurveVerified p) (domain : Fin p.n ↪ F) (w : Fin p.n → F[X])
-    (hw : ∀ i, (w i).natDegree ≤ p.batchingDegree) :
-    Nonempty (FirstOrderCurveCertificate p.D p.agreement p.multiplicity p.firstDerivativeCap
-      p.totalJetCap p.k p.height domain w p.columns) := by
-  exact exists_finite_firstOrder_curve_certificate_of_heightSlotCount
-    p.batchingDegree hp.1 hp.2.1 hp.2.2.1 domain w hw hp.2.2.2.1
-
-end LineProfile
+open CurveProfile
 
 /-- The six ZisK initial and folding profiles. -/
 def zisK : Fin 6 → LineProfile := ![
@@ -100,7 +67,7 @@ def zisK : Fin 6 → LineProfile := ![
 ]
 
 /-- Each zisK row passes the exact polynomial-curve height test. -/
-theorem zisK_verified (i : Fin 6) : LineProfile.CurveVerified (zisK i) := by
+theorem zisK_verified (i : Fin 6) : (zisK i).CurveVerification := by
   fin_cases i <;> decide +kernel
 
 /-- Every zisK row supplies an actual curve equation at its stated batching degree. -/
@@ -110,7 +77,7 @@ theorem zisK_exists_certificate {F : Type*} [Field F] (i : Fin 6)
     Nonempty (FirstOrderCurveCertificate (zisK i).D (zisK i).agreement
       (zisK i).multiplicity (zisK i).firstDerivativeCap (zisK i).totalJetCap
       (zisK i).k (zisK i).height domain w (zisK i).columns) :=
-  LineProfile.CurveVerified.exists_certificate (zisK_verified i) domain w hw
+  LineProfile.CurveVerification.exists_certificate (zisK_verified i) domain w hw
 
 /-- All 35 LambdaVM initial and binary-fold profiles. -/
 def lambdaVM : Fin 35 → LineProfile := ![
@@ -257,7 +224,7 @@ def lambdaVM : Fin 35 → LineProfile := ![
 ]
 
 /-- Each lambdaVM row passes the exact polynomial-curve height test. -/
-theorem lambdaVM_verified (i : Fin 35) : LineProfile.CurveVerified (lambdaVM i) := by
+theorem lambdaVM_verified (i : Fin 35) : (lambdaVM i).CurveVerification := by
   fin_cases i <;> decide +kernel
 
 /-- Every lambdaVM row supplies an actual curve equation at its stated batching degree. -/
@@ -267,6 +234,6 @@ theorem lambdaVM_exists_certificate {F : Type*} [Field F] (i : Fin 35)
     Nonempty (FirstOrderCurveCertificate (lambdaVM i).D (lambdaVM i).agreement
       (lambdaVM i).multiplicity (lambdaVM i).firstDerivativeCap (lambdaVM i).totalJetCap
       (lambdaVM i).k (lambdaVM i).height domain w (lambdaVM i).columns) :=
-  LineProfile.CurveVerified.exists_certificate (lambdaVM_verified i) domain w hw
+  LineProfile.CurveVerification.exists_certificate (lambdaVM_verified i) domain w hw
 
 end ArkLibExamples.ReedSolomon.ConcreteCurves

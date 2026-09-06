@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import
-  ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.FiniteCertificate
+import ArkLibExamples.ReedSolomon.CurveProfile
 
 /-!
 # LambdaVM first-order interpolation certificates
@@ -44,106 +43,13 @@ open PolynomialDifferential
 
 namespace ArkLibExamples.ReedSolomon.LambdaVMInterpolation
 
+open CurveProfile
 open ReedSolomon.HiddenDerivative
 open ReedSolomon.HiddenDerivative.SymbolicBandInterpolation
 
 noncomputable section
 
 universe u v
-
-/-- One first-order line-interpolation row copied from `lambda-beyond.json`. -/
-structure LineProfile where
-  n : ℕ
-  k : ℕ
-  agreement : ℕ
-  multiplicity : ℕ
-  firstDerivativeCap : ℕ
-  totalJetCap : ℕ
-  batchingDegree : ℕ
-  supportDimension : ℕ
-  localRank : ℕ
-  columnY₀Weight : ℕ
-  height : ℕ
-  heightSlots : ℕ
-  deriving DecidableEq, Repr
-
-namespace LineProfile
-
-/-- The weight assigned to `Y₀`; candidates have degree strictly below `k`. -/
-def D (p : LineProfile) : ℕ := p.k - 1
-
-/-- The support dimension recomputed from the exact finite first-order monomial set. -/
-def computedDimension (p : LineProfile) : ℕ :=
-  firstOrderDimensionCount p.D p.agreement p.multiplicity p.firstDerivativeCap p.totalJetCap
-
-/-- The local first-order constraint-rank bound used at each received position. -/
-def computedLocalRank (p : LineProfile) : ℕ :=
-  certifiedEnlargedRankBound 1 p.multiplicity p.firstDerivativeCap 0
-
-/-- The executable count of coefficient slots at the recorded equation height. -/
-def computedHeightSlots (p : LineProfile) : ℕ :=
-  firstOrderHeightSlotCount p.D p.agreement p.multiplicity p.firstDerivativeCap
-    p.totalJetCap p.height
-
-/-- Kernel-checked facts needed to turn a script row into a finite symbolic certificate.
-
-The two equalities expose the actual support dimension and actual rank expression.  The slot
-equality exposes the executable double sum, while `heightSurplus` is exactly the hypothesis of
-the full-support certificate constructor.  The rectangular equality independently checks the
-script's recorded sum of column `Y₀`-degrees.
--/
-structure Verification (p : LineProfile) : Prop where
-  D_gt_one : 1 < p.D
-  budget_pos : 0 < p.multiplicity * p.agreement
-  degree_le : p.k ≤ p.D + 1
-  cap_le_height : p.totalJetCap ≤ p.height
-  dimension_eq : p.computedDimension = p.supportDimension
-  localRank_eq : p.computedLocalRank = p.localRank
-  heightSlots_eq : p.computedHeightSlots = p.heightSlots
-  columnWeight_eq : p.heightSlots + p.columnY₀Weight = p.supportDimension * (p.height + 1)
-  heightSurplus : p.n * p.computedLocalRank * (p.height + 1) < p.computedHeightSlots
-
-/-- The recorded `N` is the cardinality of the actual constrained monomial support. -/
-theorem Verification.support_card_eq {p : LineProfile} (hp : p.Verification) :
-    (firstOrderExponents p.D p.agreement p.multiplicity p.firstDerivativeCap
-      p.totalJetCap).card = p.supportDimension := by
-  rw [card_firstOrderExponents_eq_dimensionCount (Nat.zero_lt_of_lt hp.D_gt_one)]
-  simpa [computedDimension] using hp.dimension_eq
-
-/-- The script's column-degree sum is the actual sum of `Y₀` exponents over the support. -/
-theorem Verification.columnY₀Weight_eq {p : LineProfile} (hp : p.Verification) :
-    p.columnY₀Weight = firstOrderY₀Weight p.D p.agreement p.multiplicity
-      p.firstDerivativeCap p.totalJetCap := by
-  have hrectangle := firstOrderColumnSlotCount_add_y₀Weight
-    (D := p.D) (A := p.agreement) (m := p.multiplicity)
-    (M := p.firstDerivativeCap) (μ := p.totalJetCap) (h := p.height) hp.cap_le_height
-  have hslots : firstOrderHeightSlotCount p.D p.agreement p.multiplicity
-      p.firstDerivativeCap p.totalJetCap p.height = p.heightSlots := by
-    simpa [computedHeightSlots] using hp.heightSlots_eq
-  rw [firstOrderColumnSlotCount_eq_heightSlotCount (Nat.zero_lt_of_lt hp.D_gt_one),
-    hslots, hp.support_card_eq] at hrectangle
-  exact Nat.add_left_cancel (hp.columnWeight_eq.trans hrectangle.symm)
-
-/-- The canonical full-support source columns for this profile. -/
-abbrev columns (p : LineProfile) :=
-  firstOrderColumns (D := p.D) (A := p.agreement) (m := p.multiplicity)
-    (M := p.firstDerivativeCap) (μ := p.totalJetCap)
-
-/-- The concrete certificate type produced from a verified profile. -/
-abbrev SymbolicCertificate {F : Type u} [Field F] (p : LineProfile)
-    (centers : Fin p.n ↪ F) (f g : Fin p.n → F) :=
-  FirstOrderSymbolicCertificate.{u, v} p.D p.agreement p.multiplicity p.firstDerivativeCap
-    p.totalJetCap p.k p.height centers f g p.columns
-
-/-- Every verified profile constructs an actual primitive and specialization-sound symbolic
-certificate on the complete finite support. -/
-theorem Verification.exists_symbolicCertificate {F : Type u} [Field F] {p : LineProfile}
-    (hp : p.Verification) (centers : Fin p.n ↪ F) (f g : Fin p.n → F) :
-    Nonempty (p.SymbolicCertificate.{u, v} centers f g) := by
-  exact exists_finite_firstOrder_symbolic_certificate_of_heightSlotCount
-    hp.D_gt_one hp.budget_pos hp.degree_le centers f g hp.heightSurplus
-
-end LineProfile
 
 /-! ## Initial powers row -/
 

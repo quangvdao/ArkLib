@@ -3,6 +3,7 @@ Copyright (c) 2026 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
+import ArkLib.Data.Probability.FiniteFieldBudget
 import Mathlib.Tactic.NormNum
 import Mathlib.Data.Rat.Defs
 
@@ -54,6 +55,8 @@ not constitute an end-to-end LambdaVM security theorem.
 
 namespace ArkLibExamples.ReedSolomon.LambdaVM
 
+open ArkLib.FiniteFieldBudget
+
 /-! ## Fixed code and query parameters -/
 
 /-- Number of evaluations in the rate-one-half equality-table code. -/
@@ -79,8 +82,8 @@ theorem agreement_beyond_johnson : agreement ^ 2 < length * (dimension - 1) := b
 /-- Cross-multiplied form of `2^-20 * (A / n)^212 ≤ 2^-128`. Only the query term is
 asserted here; the complete local error is evaluated below. -/
 theorem query_error_at_target :
-    2 ^ 108 * agreement ^ replacementQueries ≤ length ^ replacementQueries := by
-  norm_num [agreement, replacementQueries, length]
+    QueryMeetsTarget (2 ^ 20) 0 agreement length replacementQueries 128 := by
+  norm_num [QueryMeetsTarget, agreement, replacementQueries, length]
 
 /-- The proposed query count is strictly smaller than the implemented count. -/
 theorem queries_reduced : replacementQueries < originalQueries := by
@@ -157,5 +160,10 @@ theorem payload_reduction (unchanged : ℕ) :
       unchanged + replacementQueries * bytesPerQuery + 31528 := by
   change unchanged + 986376 = unchanged + 954848 + 31528
   omega
+
+/-- The same response calculation through the shared fixed-payload engine. -/
+theorem fixed_payload_saving :
+    fixedPayloadSaving originalQueries replacementQueries bytesPerQuery 0 = 31528 := by
+  norm_num [fixedPayloadSaving, originalQueries, replacementQueries, bytesPerQuery]
 
 end ArkLibExamples.ReedSolomon.LambdaVM

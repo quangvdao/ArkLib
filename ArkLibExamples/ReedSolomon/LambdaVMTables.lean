@@ -30,6 +30,8 @@ open Polynomial
 
 namespace ArkLibExamples.ReedSolomon.LambdaVMTables
 
+open ArkLib.FiniteFieldBudget
+
 /-- One of the five local table parameter choices. -/
 structure Table where
   traceRows : ℕ
@@ -77,6 +79,12 @@ theorem budget_at_target (i : Fin 5) :
     localError (tables i) (tables i).exceptionalBudget (tables i).listBudget <
       (1 / 2 ^ 128 : ℚ) := by
   fin_cases i <;> norm_num [tables, localError, LambdaVM.challengeCardinality]
+
+/-- Every table's query term meets the local target with the existing 20 grinding bits. -/
+theorem query_at_target (i : Fin 5) :
+    QueryMeetsTarget (2 ^ 20) 0 (tables i).agreement (2 * (tables i).traceRows)
+      (tables i).queries 128 := by
+  fin_cases i <;> norm_num [QueryMeetsTarget, tables]
 
 /-- Any proved counts below the row budgets give the same strict local target. -/
 theorem local_error_of_count_bounds (i : Fin 5) {exceptional list : ℕ}
@@ -129,5 +137,11 @@ theorem payload_reduction (i : Fin 5) (unchanged : ℕ) :
       (tables i).queries * (tables i).responseBytes + (tables i).savedBytes := by
     fin_cases i <;> decide
   omega
+
+/-- Each displayed response saving is the shared fixed-payload calculation. -/
+theorem fixed_payload_saving (i : Fin 5) :
+    fixedPayloadSaving 219 (tables i).queries (tables i).responseBytes 0 =
+      (tables i).savedBytes := by
+  fin_cases i <;> norm_num [fixedPayloadSaving, tables]
 
 end ArkLibExamples.ReedSolomon.LambdaVMTables

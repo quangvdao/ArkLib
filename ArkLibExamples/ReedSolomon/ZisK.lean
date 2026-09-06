@@ -3,6 +3,7 @@ Copyright (c) 2026 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
+import ArkLib.Data.Probability.FiniteFieldBudget
 import Mathlib.Tactic.NormNum
 
 /-!
@@ -12,7 +13,7 @@ This module checks a proposed powers-batching profile for the Poseidon2 fixture 
 FRI calculator at revision `0f3fef8cd1897df469532996e72e0c84ef69d6fb`. The Reed--Solomon
 instance has block length `n = 524288`, message dimension `k = 131072`, and agreement threshold
 `A = 260512`. It batches 182 words, uses 111 queries with the existing 16 query-grinding bits, and
-adds two batching-grinding bits.
+adds one batching-grinding bit.
 
 The initial powers certificate uses multiplicity `m = 9`, first-derivative cap `M = 3`, total
 jet-degree cap `mu = 17`, and powers degree 181. The five folding certificates use the same support
@@ -23,8 +24,8 @@ parameters and batching degrees 7, 7, 7, 7, and 3.
 The inequality `A^2 < n * (k - 1)` places the agreement below the finite Johnson agreement
 threshold, and hence the decoding radius beyond Johnson. Each algebraic inequality has been
 cross-multiplied against the per-phase target `2^-128`. For example, an exceptional-count bound
-`E` over a field of cardinality `q` meets the target after two batching-grinding bits exactly when
-`2^128 * E ≤ 4 * q`. The query theorem rewrites
+`E` over a field of cardinality `q` meets the target after one batching-grinding bit exactly when
+`2^128 * E ≤ 2 * q`. The query theorem rewrites
 `2^-16 * (A / n)^111 ≤ 2^-128` without rational division.
 
 The five folding counts belong, in order, to output domains of sizes 65536, 8192, 1024, 128, and
@@ -47,6 +48,8 @@ transcript hook that is absent from the pinned implementation.
 
 namespace ArkLibExamples.ReedSolomon.ZisK
 
+open ArkLib.FiniteFieldBudget
+
 /-! ## Fixed parameters -/
 
 /-- Reed--Solomon block length of the Poseidon2 fixture. -/
@@ -68,13 +71,13 @@ def replacementQueries : ℕ := 111
 def queryGrindingBits : ℕ := 16
 
 /-- Proposed batching-grinding budget, in bits. -/
-def batchingGrindingBits : ℕ := 2
+def batchingGrindingBits : ℕ := 1
 
 /-- Cardinality of the cubic Goldilocks challenge field. -/
 def challengeCardinality : ℕ := 6277101731002175853884774869567645561244584131361410908161
 
 /-- Supplied exceptional-count bound for powers batching of 182 words. -/
-def suppliedBatchingCount : ℕ := 60881724329658740667
+def suppliedBatchingCount : ℕ := 32400105256997946305
 
 /-! ## Agreement and error budgets -/
 
@@ -84,11 +87,12 @@ theorem agreement_beyond_johnson :
     agreement ^ 2 < blockLength * (messageDimension - 1) := by
   norm_num [agreement, blockLength, messageDimension]
 
-/-- Two batching-grinding bits suffice for the supplied algebraic count at 128 bits. -/
+/-- One batching-grinding bit suffices for the revised algebraic count at 128 bits. -/
 theorem supplied_batching_at_target :
-    2 ^ 128 * suppliedBatchingCount ≤
-      2 ^ batchingGrindingBits * challengeCardinality := by
-  norm_num [suppliedBatchingCount, batchingGrindingBits, challengeCardinality]
+    GroundCountMeetsTarget suppliedBatchingCount challengeCardinality
+      batchingGrindingBits 128 := by
+  norm_num [GroundCountMeetsTarget, suppliedBatchingCount, batchingGrindingBits,
+    challengeCardinality]
 
 /-- The supplied batching count does not fit the same target without additional grinding. -/
 theorem supplied_batching_without_grinding_fails :
@@ -97,15 +101,15 @@ theorem supplied_batching_without_grinding_fails :
 
 /-- The 111-query contribution meets `2^-128` with the existing 16 grinding bits. -/
 theorem query_at_target :
-    (2 : ℕ) ^ (128 - queryGrindingBits) * agreement ^ replacementQueries ≤
-      blockLength ^ replacementQueries := by
-  norm_num [queryGrindingBits, agreement, replacementQueries, blockLength]
+    QueryMeetsTarget (2 ^ queryGrindingBits) 0 agreement blockLength
+      replacementQueries 128 := by
+  norm_num [QueryMeetsTarget, queryGrindingBits, agreement, replacementQueries, blockLength]
 
 /-- One fewer query fails that same query-only budget. -/
 theorem fewer_queries_fail :
-    blockLength ^ (replacementQueries - 1) <
-      2 ^ (128 - queryGrindingBits) * agreement ^ (replacementQueries - 1) := by
-  norm_num [blockLength, replacementQueries, queryGrindingBits, agreement]
+    QueryFailsTarget (2 ^ queryGrindingBits) 0 agreement blockLength
+      (replacementQueries - 1) 128 := by
+  norm_num [QueryFailsTarget, blockLength, replacementQueries, queryGrindingBits, agreement]
 
 /-- The supplied folding count on the output domain of size 65536 meets 128 bits. -/
 theorem supplied_fold_1_at_target :

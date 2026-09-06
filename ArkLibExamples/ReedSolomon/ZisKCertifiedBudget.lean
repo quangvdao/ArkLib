@@ -11,9 +11,9 @@ import ArkLibExamples.ReedSolomon.LambdaVMFields
 # Derived ZisK curve counts and their local error budgets
 
 Each of the six curves now supplies its actual exceptional set over cubic Goldilocks.
-The cardinality theorem starts from interpolation and geometry; the final arithmetic
-normalizes that derived count by the challenge-field cardinality. The initial batching
-row uses the proposed two grinding bits, while the five folding rows use none.
+The current semantic cardinality theorem starts from the coarse interpolation and geometry
+route. The revised one-bit arithmetic is recorded separately until the shifted constructor
+supplies the smaller initial count. The five folding rows use no grinding.
 
 ## Reading the statements
 
@@ -35,9 +35,19 @@ open ConcreteFields ConcreteCurves ConcreteCurveBounds
 
 noncomputable section
 
-/-- The algebraic slot, including two initial batching-grinding bits and no folding grinding. -/
+/-- The temporary semantic slot, including two initial batching-grinding bits. -/
 def algebraicSlot (i : Fin 6) (count : ℕ) : ℚ :=
   (count : ℚ) / ((if i = 0 then 4 else 1) * ZisK.challengeCardinality)
+
+/-- Revised initial slot with one batching-grinding bit. -/
+def revisedInitialAlgebraicSlot (count : ℕ) : ℚ :=
+  (count : ℚ) / (2 * ZisK.challengeCardinality)
+
+/-- The revised derived count meets the one-bit local target. -/
+theorem revised_initial_slot_le :
+    revisedInitialAlgebraicSlot ZisK.suppliedBatchingCount ≤ (1 / 2 ^ 128 : ℚ) := by
+  norm_num [revisedInitialAlgebraicSlot, ZisK.suppliedBatchingCount,
+    ZisK.challengeCardinality]
 
 /-- The denominator is the cardinality of the actual challenge field, with its grinding factor. -/
 theorem algebraicSlot_eq_field_card (i : Fin 6) (count : ℕ) :

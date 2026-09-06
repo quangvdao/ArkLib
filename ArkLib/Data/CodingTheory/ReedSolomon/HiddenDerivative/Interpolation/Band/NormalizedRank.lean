@@ -47,25 +47,8 @@ theorem band_harmonic_sum_pos (n : ℕ) (hn : 0 < n) :
 theorem band_exp_le_rpow (g H E : ℝ) (d : ℕ) (hg : 0 ≤ g) (hd : 0 < d)
     (hH : H ≤ Real.log d + 3 / 5) (hE : E ≤ H / (1 + g / 2) + 1 / 100) :
     Real.exp E ≤ 19 / 10 * (d : ℝ) ^ (1 / (1 + g / 2)) := by
-  have ha : 0 < 1 + g / 2 := by linarith
-  have he : E ≤ Real.log d / (1 + g / 2) + 61 / 100 := by
-    have hdiv := (div_le_div_iff_of_pos_right ha).mpr hH
-    have hsmall : (3 / 5 : ℝ) / (1 + g / 2) ≤ 3 / 5 := by
-      apply (div_le_iff₀ ha).mpr
-      nlinarith
-    rw [add_div] at hdiv
-    linarith
-  have hexp := Real.exp_le_exp.mpr he
-  rw [Real.exp_add] at hexp
-  have hrpow : Real.exp (Real.log d / (1 + g / 2)) =
-      (d : ℝ) ^ (1 / (1 + g / 2)) := by
-    rw [Real.rpow_def_of_pos (by positivity)]
-    congr 1
-    ring
-  rw [hrpow] at hexp
-  have h := mul_le_mul_of_nonneg_left band_exp_error_lt.le
-    (Real.rpow_pos_of_pos (by positivity : (0 : ℝ) < d) (1 / (1 + g / 2))).le
-  exact hexp.trans (by simpa [mul_comm] using h)
+  exact InterpolationRounding.exp_le_rpow (1 + g / 2) H E (19 / 10) d
+    (by linarith) hd hH hE band_exp_error_lt.le
 
 /-- Dividing the positive power by the derivative order gives the gap-decay exponent. -/
 theorem band_rpow_div_order (g : ℝ) (d : ℕ) (hg : 0 ≤ g) (hd : 0 < d) :

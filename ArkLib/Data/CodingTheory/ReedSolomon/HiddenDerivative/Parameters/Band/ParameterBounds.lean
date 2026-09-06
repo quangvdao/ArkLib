@@ -30,15 +30,9 @@ namespace ReedSolomon.HiddenDerivative
 theorem band_errorWindow_lt (g : ℝ) (m : ℕ) (hg : 0 ≤ g) (hg' : g ≤ 1) :
     (Nat.ceil ((m : ℝ) * (1 + g) -
       Nat.floor ((1 - g / 10) * m)) : ℝ) < 11 / 10 * g * m + 2 := by
-  have hm : (0 : ℝ) ≤ m := Nat.cast_nonneg m
-  have hc : 0 ≤ (1 - g / 10) * (m : ℝ) := mul_nonneg (by linarith) hm
-  have hlo := Nat.floor_le hc
-  have hhi := Nat.lt_floor_add_one ((1 - g / 10) * (m : ℝ))
-  have hgm : 0 ≤ g * (m : ℝ) := mul_nonneg hg hm
-  have hnonneg : 0 ≤ (m : ℝ) * (1 + g) -
-      Nat.floor ((1 - g / 10) * m) := by nlinarith
-  have hceil := Nat.ceil_lt_add_one hnonneg
-  nlinarith
+  have h := InterpolationRounding.errorWindow_lt (1 / 10) g m hg
+    (by positivity) (by nlinarith)
+  convert h using 1 <;> ring_nf
 
 /-- The paper's `9/8` window constant requires only `80 ≤ g m`. -/
 theorem band_errorWindow_le (g : ℝ) (m : ℕ) (hg : 0 ≤ g) (hg' : g ≤ 1)
@@ -71,28 +65,7 @@ theorem band_prescribed_kappa_bounds (g H : ℝ) (d : ℕ)
       κ * (1 + (d.choose 2 : ℝ) / m) ≤ H / a + 1 / 100 ∧
       (d : ℝ) * κ / m ≤ 1 / 1000 ∧
       1 / κ ^ 2 + (d : ℝ) / (m * κ) ≤ 101 / 100 * (1 / (H / a) ^ 2) := by
-  dsimp only
-  let a := 1 + g / 2
-  let m := Nat.ceil (100 * (d : ℝ) ^ 2 * H)
-  let W := Nat.floor (a * d * m / H)
-  let κ := ((d - 1 : ℕ) : ℝ) * m / W
-  have ha : 1 ≤ a := by dsimp [a]; linarith
-  have hap : 0 < a := by linarith
-  have hsize : 100 * (d : ℝ) ^ 2 * H ≤ m := Nat.le_ceil _
-  have hmp : (0 : ℝ) < m := lt_of_lt_of_le (by positivity) hsize
-  have hm : 0 < m := by exact_mod_cast hmp
-  have hR := InterpolationRounding.radius_ge_twice_order a H d m ha hH (by omega) hsize
-  have hd' : (1000 : ℝ) ≤ d := by exact_mod_cast hd
-  have hW : 0 < W := InterpolationRounding.floor_pos _ (by linarith)
-  have hpred : 0 < d - 1 := by omega
-  have hκ : 0 < κ := by dsimp [κ]; positivity
-  have hint := InterpolationRounding.kappa_interval a H d m hap hH hd hm hR
-  have he := InterpolationRounding.kappa_exponent_le κ a H d m ha hH hm hκ.le hint.2 hsize
-  have hκH : κ ≤ H := hint.2.trans ((div_le_iff₀ hap).mpr (by nlinarith))
-  have herr := InterpolationRounding.kappa_multiplicity_error_le κ H d m hH hd hm hκH hsize
-  have hrec := InterpolationRounding.kappa_reciprocal_factor_le κ (H / a) d m hκ
-    (div_pos hH hap) hmp hint.1 herr
-  exact ⟨hm, hW, hκ, hint.1, hint.2, he, herr, hrec⟩
+  exact InterpolationRounding.prescribed_kappa_bounds (1 + g / 2) H d (by linarith) hH hd
 
 /-- A rational Taylor bound verifies the exponential constant without numerical evaluation. -/
 theorem band_exp_error_lt : Real.exp (61 / 100) < 19 / 10 := by

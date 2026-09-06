@@ -47,7 +47,16 @@ theorem bn254_interpolation_dimension :
 theorem bn254_interpolation_rank : certifiedEnlargedRankBound 1 384 168 0 = 8635900 := by
   decide
 
-/-- Exact number of allowed monomials in the cubic Goldilocks profile's support. -/
+/-- Exact support count for the revised cubic Goldilocks row. -/
+theorem goldilocksCubic113_interpolation_dimension :
+    firstOrderDimensionCount 262143 508263 16 7 30 = 828594536 := by decide
+
+/-- Coarse local rank expression recorded alongside the revised shifted-rank profile. -/
+theorem goldilocksCubic113_interpolation_rank :
+    certifiedEnlargedRankBound 1 16 7 0 = 780 := by decide
+
+/-- Historical 115-query support retained until its semantic clients migrate to the shifted
+finite constructor. -/
 theorem goldilocksCubic_interpolation_dimension :
     firstOrderDimensionCount 262143 512754 13 5 24 = 433269050 := by decide
 
@@ -76,7 +85,8 @@ theorem bn254_interpolation_height :
   rw [bn254_interpolation_rank]
   decide
 
-/-- Height 423 passes the same test for the cubic Goldilocks profile. -/
+/-- Height 423 passes the historical column test. The revised height 339 requires the shifted
+row-profile constructor, whose translated-kernel bridge is a separate prerequisite. -/
 theorem goldilocksCubic_interpolation_height :
     1048576 * certifiedEnlargedRankBound 1 13 5 0 * (423 + 1) <
       firstOrderHeightSlotCount 262143 512754 13 5 24 423 := by

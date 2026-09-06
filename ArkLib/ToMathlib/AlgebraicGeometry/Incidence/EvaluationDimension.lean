@@ -11,9 +11,10 @@ import Mathlib.LinearAlgebra.Vandermonde
 # Dimension from partial polynomial evaluations
 
 The first `c` coefficients of a polynomial are determined by its values at `c` distinct points
-once the remaining coefficients are retained.  Applied inside a localized affine coordinate
-algebra, this leaves one challenge generator and `k - c` coefficient generators.  The resulting
-surjection onto the localization gives the dimension bound `k + 1 - c`.
+once the remaining coefficients are retained.  This first bounds the ordinary coefficient
+quotient using one challenge generator and `k - c` remaining coefficient generators.  Only then
+does the application localize at a pulled-back separant; the explicit away presentation shows
+that adjoining its constrained inverse does not increase dimension.
 -/
 
 noncomputable section
@@ -176,6 +177,128 @@ theorem coefficientEvaluation_hilbertPolynomial_natDegree_le
   have hambient := hilbertPolynomial_natDegree_le
     (⊥ : Ideal (MvPolynomial (Option (Fin (k - c))) F))
   rw [Nat.card_eq_fintype_card, Fintype.card_option, Fintype.card_fin] at hambient
+  omega
+
+/-- The evaluation equation for an ordinary degree-`< k` coefficient vector.  At a coefficient
+point `coeff`, it reads `∑ l, coeff_l * α^l = y`. -/
+def fixedCoefficientEvaluation (k : ℕ) (α y : F) : MvPolynomial (Fin k) F :=
+  (∑ l : Fin k, C (α ^ l.val) * X l) - C y
+
+/-- Ordinary coefficient evaluations are affine-linear in the coefficient variables. -/
+theorem fixedCoefficientEvaluation_totalDegree_le_one (k : ℕ) (α y : F) :
+    (fixedCoefficientEvaluation k α y).totalDegree ≤ 1 := by
+  classical
+  have hsum : (∑ l : Fin k, C (α ^ l.val) * X l : MvPolynomial (Fin k) F).totalDegree ≤ 1 := by
+    refine Finset.sum_induction (s := Finset.univ)
+      (fun l : Fin k ↦ C (α ^ l.val) * X l)
+      (fun p : MvPolynomial (Fin k) F ↦ p.totalDegree ≤ 1) ?_ ?_ ?_
+    · intro p q hp hq
+      exact (MvPolynomial.totalDegree_add p q).trans (max_le hp hq)
+    · simp
+    · intro l _
+      calc
+        (C (α ^ l.val) * X l : MvPolynomial (Fin k) F).totalDegree ≤
+            (C (α ^ l.val) : MvPolynomial (Fin k) F).totalDegree +
+              (X l : MvPolynomial (Fin k) F).totalDegree :=
+          MvPolynomial.totalDegree_mul _ _
+        _ = 1 := by rw [MvPolynomial.totalDegree_C, MvPolynomial.totalDegree_X]
+  exact (MvPolynomial.totalDegree_sub _ _).trans (max_le hsum (by simp))
+
+/-- Any ordinary coefficient ideal containing `c` evaluations at distinct points has Hilbert
+dimension at most `k - c`.
+
+This is the fixed-challenge counterpart of
+`coefficientEvaluation_hilbertPolynomial_natDegree_le`.  Vandermonde elimination recovers the
+first `c` coefficients from the evaluation equations and the remaining `k - c` coefficients. -/
+theorem fixedCoefficientEvaluation_hilbertPolynomial_natDegree_le
+    {k c : ℕ} (hck : c ≤ k) (α : Fin c ↪ F) (y : Fin c → F)
+    {J : Ideal (MvPolynomial (Fin k) F)} (hJ : J ≠ ⊤)
+    (heval : ∀ i, fixedCoefficientEvaluation k (α i) (y i) ∈ J) :
+    (hilbertPolynomial J).natDegree ≤ k - c := by
+  classical
+  let A := MvPolynomial (Fin k) F ⧸ J
+  let coeff : Fin k → A := fun l ↦ Ideal.Quotient.mk J (X l)
+  let B : Subalgebra F A := Algebra.adjoin F
+    (Set.range fun l : Fin (k - c) ↦ coeff ⟨c + l.val, by omega⟩)
+  have hsplit (u : Fin k → A) :
+      (∑ l : Fin k, u l) =
+        (∑ l : Fin c, u ⟨l.val, l.isLt.trans_le hck⟩) +
+          ∑ l : Fin (k - c), u ⟨c + l.val, by omega⟩ := by
+    let e : Fin (c + (k - c)) ≃ Fin k := finCongr (Nat.add_sub_of_le hck)
+    rw [← Equiv.sum_comp e, Fin.sum_univ_add]
+    congr 1
+  have hfull (i : Fin c) :
+      (∑ l : Fin k, algebraMap F A ((α i) ^ l.val) * coeff l) =
+        algebraMap F A (y i) := by
+    have hz : Ideal.Quotient.mk J
+        (fixedCoefficientEvaluation k (α i) (y i)) = 0 :=
+      Ideal.Quotient.eq_zero_iff_mem.mpr (heval i)
+    have hC (a : F) : Ideal.Quotient.mk J (C a) = algebraMap F A a := by
+      rw [← Ideal.Quotient.mk_algebraMap]
+      rfl
+    simpa only [fixedCoefficientEvaluation, map_sub, map_sum, map_mul, hC,
+      sub_eq_zero, coeff] using hz
+  have hlow : ∀ i, ∑ l : Fin c, algebraMap F A ((α i) ^ l.val) *
+      coeff ⟨l.val, l.isLt.trans_le hck⟩ ∈ B := by
+    intro i
+    let u : Fin k → A := fun l ↦ algebraMap F A ((α i) ^ l.val) * coeff l
+    have htail : (∑ l : Fin (k - c), u ⟨c + l.val, by omega⟩) ∈ B := by
+      apply B.sum_mem
+      intro l _
+      apply B.mul_mem (B.algebraMap_mem _)
+      apply Algebra.subset_adjoin
+      exact ⟨l, rfl⟩
+    have hsum : (∑ l : Fin k, u l) ∈ B := by
+      rw [hfull i]
+      exact B.algebraMap_mem _
+    have hdecomp := hsplit u
+    rw [hdecomp] at hsum
+    simpa only [add_sub_cancel_right] using B.sub_mem hsum htail
+  have hlowcoeff : ∀ l : Fin c, coeff ⟨l.val, l.isLt.trans_le hck⟩ ∈ B :=
+    coeff_mem_subalgebra_of_vandermonde_evaluations B α
+      (fun l ↦ coeff ⟨l.val, l.isLt.trans_le hck⟩) hlow
+  have hcoeff : ∀ l, coeff l ∈ B := by
+    intro l
+    by_cases hl : l.val < c
+    · exact hlowcoeff ⟨l.val, hl⟩
+    · have hcl : c ≤ l.val := Nat.le_of_not_gt hl
+      let j : Fin (k - c) := ⟨l.val - c, by omega⟩
+      have hj : c + j.val = l.val := by simp only [j]; omega
+      apply Algebra.subset_adjoin
+      exact ⟨j, by simp only [hj]⟩
+  have hgenerate : B = ⊤ := by
+    apply top_unique
+    intro x hx
+    clear hx
+    obtain ⟨p, rfl⟩ := Ideal.Quotient.mk_surjective x
+    induction p using MvPolynomial.induction_on with
+    | C a =>
+        change algebraMap F A a ∈ B
+        exact B.algebraMap_mem a
+    | add p q hp hq =>
+        rw [map_add]
+        exact B.add_mem hp hq
+    | mul_X p l hp =>
+        rw [map_mul]
+        exact B.mul_mem hp (hcoeff l)
+  let generators : Fin (k - c) → A := fun l ↦ coeff ⟨c + l.val, by omega⟩
+  let evalHom : MvPolynomial (Fin (k - c)) F →ₐ[F] A :=
+    MvPolynomial.aeval generators
+  have hsurj : Function.Surjective evalHom := by
+    change Function.Surjective (MvPolynomial.aeval generators)
+    rw [← AlgHom.range_eq_top, ← Algebra.adjoin_range_eq_range_aeval]
+    exact hgenerate
+  let quotientEvalHom :
+      (MvPolynomial (Fin (k - c)) F ⧸ ⊥) →ₐ[F] A :=
+    evalHom.comp (AlgEquiv.quotientBot F _).toAlgHom
+  have hquotientSurj : Function.Surjective quotientEvalHom :=
+    hsurj.comp (AlgEquiv.quotientBot F _).surjective
+  have hdim := hilbertPolynomial_natDegree_le_of_surjective_algHom
+    (J := (⊥ : Ideal (MvPolynomial (Fin (k - c)) F)))
+    (I := J) quotientEvalHom hquotientSurj hJ
+  have hambient := hilbertPolynomial_natDegree_le
+    (⊥ : Ideal (MvPolynomial (Fin (k - c)) F))
+  rw [Nat.card_eq_fintype_card, Fintype.card_fin] at hambient
   omega
 
 /-- Localized coefficient-quotient form of the partial-evaluation dimension bridge.

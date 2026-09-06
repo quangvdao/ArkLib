@@ -5,6 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.RankBudget
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
 
 /-!
 # Rounding estimates for interpolation rank parameters
@@ -189,6 +190,80 @@ theorem kappa_reciprocal_factor_le (κ t d m : ℝ)
     have ht2 := sq_nonneg t
     nlinarith
   exact hfactor.trans hnum
+
+
+/-- Rounding the lower cutoff and error window costs less than two. -/
+theorem errorWindow_lt (β g : ℝ) (m : ℕ) (hg : 0 ≤ g)
+    (hβg : 0 ≤ β * g) (hβgmax : β * g ≤ 1) :
+    (Nat.ceil ((m : ℝ) * (1 + g) - Nat.floor ((1 - β * g) * m)) : ℝ) <
+      (1 + β) * g * m + 2 := by
+  have hm : (0 : ℝ) ≤ m := Nat.cast_nonneg m
+  have hc : 0 ≤ (1 - β * g) * (m : ℝ) := mul_nonneg (by linarith) hm
+  have hlo := Nat.floor_le hc
+  have hhi := Nat.lt_floor_add_one ((1 - β * g) * (m : ℝ))
+  have hgm := mul_nonneg hg hm
+  have hβgm := mul_nonneg hβg hm
+  have hn : 0 ≤ (m : ℝ) * (1 + g) - Nat.floor ((1 - β * g) * m) := by nlinarith
+  have hceil := Nat.ceil_lt_add_one hn
+  nlinarith
+
+
+/-- The rounded radius and multiplicity satisfy every scalar rank prerequisite. -/
+theorem prescribed_kappa_bounds (a H : ℝ) (d : ℕ)
+    (ha : 1 ≤ a) (hH : 0 < H) (hd : 1000 ≤ d) :
+    let m := Nat.ceil (100 * (d : ℝ) ^ 2 * H)
+    let W := Nat.floor (a * d * m / H)
+    let κ := ((d - 1 : ℕ) : ℝ) * m / W
+    0 < m ∧ 0 < W ∧ 0 < κ ∧
+      999 / 1000 * (H / a) ≤ κ ∧ κ ≤ H / a ∧
+      κ * (1 + (d.choose 2 : ℝ) / m) ≤ H / a + 1 / 100 ∧
+      (d : ℝ) * κ / m ≤ 1 / 1000 ∧
+      1 / κ ^ 2 + (d : ℝ) / (m * κ) ≤ 101 / 100 * (1 / (H / a) ^ 2) := by
+  dsimp only
+  let m := Nat.ceil (100 * (d : ℝ) ^ 2 * H)
+  let W := Nat.floor (a * d * m / H)
+  let κ := ((d - 1 : ℕ) : ℝ) * m / W
+  have hap : 0 < a := by linarith
+  have hsize : 100 * (d : ℝ) ^ 2 * H ≤ m := Nat.le_ceil _
+  have hmp : (0 : ℝ) < m := lt_of_lt_of_le (by positivity) hsize
+  have hm : 0 < m := by exact_mod_cast hmp
+  have hR := InterpolationRounding.radius_ge_twice_order a H d m ha hH (by omega) hsize
+  have hd' : (1000 : ℝ) ≤ d := by exact_mod_cast hd
+  have hW : 0 < W := InterpolationRounding.floor_pos _ (by linarith)
+  have hpred : 0 < d - 1 := by omega
+  have hκ : 0 < κ := by dsimp [κ]; positivity
+  have hint := InterpolationRounding.kappa_interval a H d m hap hH hd hm hR
+  have he := InterpolationRounding.kappa_exponent_le κ a H d m ha hH hm hκ.le hint.2 hsize
+  have hκH : κ ≤ H := hint.2.trans ((div_le_iff₀ hap).mpr (by nlinarith))
+  have herr := InterpolationRounding.kappa_multiplicity_error_le κ H d m hH hd hm hκH hsize
+  have hrec := InterpolationRounding.kappa_reciprocal_factor_le κ (H / a) d m hκ
+    (div_pos hH hap) hmp hint.1 herr
+  exact ⟨hm, hW, hκ, hint.1, hint.2, he, herr, hrec⟩
+
+
+/-- Convert the harmonic upper bound and rounding error to a real-power bound. -/
+theorem exp_le_rpow (a H E C : ℝ) (d : ℕ) (ha : 1 ≤ a) (hd : 0 < d)
+    (hH : H ≤ Real.log d + 3 / 5) (hE : E ≤ H / a + 1 / 100)
+    (hC : Real.exp (61 / 100) ≤ C) :
+    Real.exp E ≤ C * (d : ℝ) ^ (1 / a) := by
+  have hap : 0 < a := by linarith
+  have he : E ≤ Real.log d / a + 61 / 100 := by
+    have hdiv := (div_le_div_iff_of_pos_right hap).mpr hH
+    have hsmall : (3 / 5 : ℝ) / a ≤ 3 / 5 := by
+      apply (div_le_iff₀ hap).mpr
+      nlinarith
+    rw [add_div] at hdiv
+    linarith
+  have hexp := Real.exp_le_exp.mpr he
+  rw [Real.exp_add] at hexp
+  have hrpow : Real.exp (Real.log d / a) = (d : ℝ) ^ (1 / a) := by
+    rw [Real.rpow_def_of_pos (by positivity)]
+    congr 1
+    ring
+  rw [hrpow] at hexp
+  have h := mul_le_mul_of_nonneg_left hC
+    (Real.rpow_pos_of_pos (by positivity : (0 : ℝ) < d) (1 / a)).le
+  exact hexp.trans (by simpa [mul_comm] using h)
 
 
 end ReedSolomon.HiddenDerivative.InterpolationRounding

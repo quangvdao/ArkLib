@@ -35,6 +35,7 @@ open ReedSolomon ReedSolomon.ListDecoding ReedSolomon.HiddenDerivative
 namespace ArkLibExamples.ReedSolomon.ProveKit
 
 open ConcreteFields
+open ArkLib.FiniteFieldBudget
 
 noncomputable section
 
@@ -290,8 +291,7 @@ structure BN254Retuned108Arithmetic : Prop where
         (2 * 7155729507207006 : ℚ) / bn254.fieldSize ≤ (1 : ℚ) / 2 ^ 128
   openingSlot : (2 * (1 + 108) * 160 : ℕ) * 2 ^ 128 ≤ bn254.fieldSize
   querySelection :
-    (17350852076870155 + 1 : ℕ) * 491867 ^ 108 * 2 ^ 128 ≤
-      2 ^ 64 * 1048576 ^ 108
+    QueryMeetsTarget (2 ^ 64) 17350852076870155 491867 1048576 108 128
   grindingWork :
     (1082 : ℚ) / 1000 <
         (bn254.powThreshold + 1 : ℚ) / (17350852076870155 + 1) ∧

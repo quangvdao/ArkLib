@@ -6,6 +6,7 @@ Authors: Quang Dao
 
 import ArkLibExamples.ReedSolomon.Fields
 import ArkLibExamples.ReedSolomon.LambdaVMInterpolation
+import ArkLibExamples.ReedSolomon.CurveProfile
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.SharpListBound
 import ArkLib.Data.CodingTheory.ReedSolomon.Interleaved.AgreementBounds
 
@@ -35,7 +36,7 @@ open ReedSolomon ReedSolomon.ListDecoding ReedSolomon.HiddenDerivative
 
 namespace ArkLibExamples.ReedSolomon.LambdaVMAnchoredLists
 
-open ConcreteFields LambdaVMInterpolation
+open ConcreteFields CurveProfile LambdaVMInterpolation
 
 noncomputable section
 

@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import
-  ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.FiniteCertificate
+import ArkLibExamples.ReedSolomon.CurveProfile
 
 /-!
 # ZisK first-order interpolation certificates
@@ -36,101 +35,13 @@ open PolynomialDifferential
 
 namespace ArkLibExamples.ReedSolomon.ZisKInterpolation
 
+open CurveProfile
 open ReedSolomon.HiddenDerivative
 open ReedSolomon.HiddenDerivative.SymbolicBandInterpolation
 
 noncomputable section
 
 universe u v
-
-/-- One first-order line-interpolation row copied from `goldilocks-beyond-poseidon.json`. -/
-structure LineProfile where
-  n : ℕ
-  k : ℕ
-  agreement : ℕ
-  multiplicity : ℕ
-  firstDerivativeCap : ℕ
-  totalJetCap : ℕ
-  batchingDegree : ℕ
-  supportDimension : ℕ
-  localRank : ℕ
-  columnY₀Weight : ℕ
-  height : ℕ
-  heightSlots : ℕ
-  deriving DecidableEq, Repr
-
-namespace LineProfile
-
-/-- The exact candidate-degree weight used by the finite first-order support. -/
-def D (p : LineProfile) : ℕ := p.k - 1
-
-/-- The support dimension recomputed from the finite monomial constraints. -/
-def computedDimension (p : LineProfile) : ℕ :=
-  firstOrderDimensionCount p.D p.agreement p.multiplicity p.firstDerivativeCap p.totalJetCap
-
-/-- The certified rank contribution of one received position. -/
-def computedLocalRank (p : LineProfile) : ℕ :=
-  certifiedEnlargedRankBound 1 p.multiplicity p.firstDerivativeCap 0
-
-/-- The executable count of polynomial coefficient slots at the recorded height. -/
-def computedHeightSlots (p : LineProfile) : ℕ :=
-  firstOrderHeightSlotCount p.D p.agreement p.multiplicity p.firstDerivativeCap
-    p.totalJetCap p.height
-
-/-- Exact arithmetic connecting a pinned row to the actual finite first-order support and
-certificate constructor. -/
-structure Verification (p : LineProfile) : Prop where
-  D_gt_one : 1 < p.D
-  budget_pos : 0 < p.multiplicity * p.agreement
-  degree_le : p.k ≤ p.D + 1
-  cap_le_height : p.totalJetCap ≤ p.height
-  dimension_eq : p.computedDimension = p.supportDimension
-  localRank_eq : p.computedLocalRank = p.localRank
-  heightSlots_eq : p.computedHeightSlots = p.heightSlots
-  columnWeight_eq : p.heightSlots + p.columnY₀Weight = p.supportDimension * (p.height + 1)
-  heightSurplus : p.n * p.computedLocalRank * (p.height + 1) < p.computedHeightSlots
-
-/-- The recorded `N` is the cardinality of the actual constrained monomial support. -/
-theorem Verification.support_card_eq {p : LineProfile} (hp : p.Verification) :
-    (firstOrderExponents p.D p.agreement p.multiplicity p.firstDerivativeCap
-      p.totalJetCap).card = p.supportDimension := by
-  rw [card_firstOrderExponents_eq_dimensionCount (Nat.zero_lt_of_lt hp.D_gt_one)]
-  simpa [computedDimension] using hp.dimension_eq
-
-/-- The recorded column-degree sum is the actual sum of `Y₀` exponents over the support. -/
-theorem Verification.columnY₀Weight_eq {p : LineProfile} (hp : p.Verification) :
-    p.columnY₀Weight = firstOrderY₀Weight p.D p.agreement p.multiplicity
-      p.firstDerivativeCap p.totalJetCap := by
-  have hrectangle := firstOrderColumnSlotCount_add_y₀Weight
-    (D := p.D) (A := p.agreement) (m := p.multiplicity)
-    (M := p.firstDerivativeCap) (μ := p.totalJetCap) (h := p.height) hp.cap_le_height
-  have hslots : firstOrderHeightSlotCount p.D p.agreement p.multiplicity
-      p.firstDerivativeCap p.totalJetCap p.height = p.heightSlots := by
-    simpa [computedHeightSlots] using hp.heightSlots_eq
-  rw [firstOrderColumnSlotCount_eq_heightSlotCount (Nat.zero_lt_of_lt hp.D_gt_one),
-    hslots, hp.support_card_eq] at hrectangle
-  exact Nat.add_left_cancel (hp.columnWeight_eq.trans hrectangle.symm)
-
-/-- The canonical enumeration of the complete finite support. -/
-abbrev columns (p : LineProfile) :=
-  firstOrderColumns (D := p.D) (A := p.agreement) (m := p.multiplicity)
-    (M := p.firstDerivativeCap) (μ := p.totalJetCap)
-
-/-- The actual symbolic-certificate type belonging to a pinned row. -/
-abbrev SymbolicCertificate {F : Type u} [Field F] (p : LineProfile)
-    (centers : Fin p.n ↪ F) (f g : Fin p.n → F) :=
-  FirstOrderSymbolicCertificate.{u, v} p.D p.agreement p.multiplicity p.firstDerivativeCap
-    p.totalJetCap p.k p.height centers f g p.columns
-
-/-- A verified row produces a primitive certificate whose line specializations are uniformly
-nonzero and sound. -/
-theorem Verification.exists_symbolicCertificate {F : Type u} [Field F] {p : LineProfile}
-    (hp : p.Verification) (centers : Fin p.n ↪ F) (f g : Fin p.n → F) :
-    Nonempty (p.SymbolicCertificate.{u, v} centers f g) := by
-  exact exists_finite_firstOrder_symbolic_certificate_of_heightSlotCount
-    hp.D_gt_one hp.budget_pos hp.degree_le centers f g hp.heightSurplus
-
-end LineProfile
 
 /-! ## Initial powers row -/
 
