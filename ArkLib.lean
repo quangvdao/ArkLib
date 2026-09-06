@@ -269,6 +269,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.ConstraintMap
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.Contact
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.Coordinates
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.GradedRank
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.Identity
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.IntermediateSpace
 import
@@ -293,6 +294,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbo
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.SeparantStages
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.Soundness
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.WeightedSupport.Basic
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.WeightedSupport.Dimension
 import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.WeightedSupport.Interpolation
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.WeightedSupport.LocalRank
@@ -666,6 +668,7 @@ import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalOpen.Finite
 import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalOpen.Presentation
 import ArkLib.ToMathlib.AlgebraicGeometry.ZeroLocus.Finite
 import ArkLib.ToMathlib.AlgebraicGeometry.ZeroLocus.ZeroDimensional
+import ArkLib.ToMathlib.Analysis.Simplex.MonomialIntegral
 import ArkLib.ToMathlib.BigOperators.Fin
 import ArkLib.ToMathlib.Combinatorics.CubicStaircase
 import ArkLib.ToMathlib.Combinatorics.DiscreteSimplex.Basic
@@ -683,7 +686,10 @@ import ArkLib.ToMathlib.LinearAlgebra.FiniteDimensional
 import ArkLib.ToMathlib.LinearAlgebra.Matrix.Determinant
 import ArkLib.ToMathlib.LinearAlgebra.PolynomialKernelHeight
 import ArkLib.ToMathlib.LinearAlgebra.PrimitivePolynomialKernel
+import ArkLib.ToMathlib.LinearAlgebra.ShiftedDegreeKernel
 import ArkLib.ToMathlib.List.Basic
+import ArkLib.ToMathlib.MeasureTheory.Integral.FiniteCells
+import ArkLib.ToMathlib.MeasureTheory.Integral.NaturalFloorCells
 import ArkLib.ToMathlib.MvPolynomial.ClearedSubstitution
 import ArkLib.ToMathlib.MvPolynomial.FirstOrderTaylor
 import ArkLib.ToMathlib.MvPolynomial.PDeriv

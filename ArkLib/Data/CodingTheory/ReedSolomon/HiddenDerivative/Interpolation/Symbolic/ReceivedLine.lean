@@ -47,6 +47,162 @@ theorem receivedLine_natDegree_le (f g : F) : (receivedLine f g).natDegree ≤ 1
 def CoeffDegreeLE {σ : Type*} (P : MvPolynomial σ F[X]) (B : ℕ) : Prop :=
   ∀ e, (MvPolynomial.coeff e P).natDegree ≤ B
 
+/-- A joint coefficient/monomial weight bound.  A nonzero challenge coefficient of degree
+`q` attached to a local monomial of weight `u` consumes the combined budget `q + ℓ u`.
+Unlike a plain coefficient-degree bound, this predicate records the degree recovered when
+translation lowers the local jet grade. -/
+def GradedCoeffDegreeLE {σ : Type*} (weight : σ → ℕ)
+    (P : MvPolynomial σ F[X]) (ℓ B : ℕ) : Prop :=
+  ∀ e, MvPolynomial.coeff e P ≠ 0 →
+    (MvPolynomial.coeff e P).natDegree + ℓ * Finsupp.weight weight e ≤ B
+
+private theorem gradedCoeffDegreeLE_C {σ : Type*} (weight : σ → ℕ)
+    {p : F[X]} {ℓ B : ℕ} (hp : p.natDegree ≤ B) :
+    GradedCoeffDegreeLE weight (MvPolynomial.C p : MvPolynomial σ F[X]) ℓ B := by
+  classical
+  intro e he
+  have : e = 0 := by
+    by_contra hne
+    exact he (by simp [MvPolynomial.coeff_C, Ne.symm hne])
+  subst e
+  simpa using hp
+
+private theorem gradedCoeffDegreeLE_X {σ : Type*} (weight : σ → ℕ) (ℓ : ℕ) (i : σ) :
+    GradedCoeffDegreeLE weight (MvPolynomial.X i : MvPolynomial σ F[X]) ℓ
+      (ℓ * weight i) := by
+  classical
+  intro e he
+  have : e = Finsupp.single i 1 := by
+    by_contra hne
+    exact he (by simp [MvPolynomial.coeff_X, Ne.symm hne])
+  subst e
+  simp [Finsupp.weight_single]
+
+private theorem GradedCoeffDegreeLE.add {σ : Type*} {weight : σ → ℕ}
+    {P Q : MvPolynomial σ F[X]} {ℓ B : ℕ}
+    (hP : GradedCoeffDegreeLE weight P ℓ B)
+    (hQ : GradedCoeffDegreeLE weight Q ℓ B) :
+    GradedCoeffDegreeLE weight (P + Q) ℓ B := by
+  intro e he
+  rw [MvPolynomial.coeff_add] at he ⊢
+  have hdeg : (MvPolynomial.coeff e P + MvPolynomial.coeff e Q).natDegree ≤
+      B - ℓ * Finsupp.weight weight e := by
+    apply (Polynomial.natDegree_add_le _ _).trans
+    apply max_le
+    · by_cases hz : MvPolynomial.coeff e P = 0
+      · simp [hz]
+      · exact Nat.le_sub_of_add_le (hP e hz)
+    · by_cases hz : MvPolynomial.coeff e Q = 0
+      · simp [hz]
+      · exact Nat.le_sub_of_add_le (hQ e hz)
+  have hweight : ℓ * Finsupp.weight weight e ≤ B := by
+    by_cases hz : MvPolynomial.coeff e P = 0
+    · have hQne : MvPolynomial.coeff e Q ≠ 0 := by simpa [hz] using he
+      exact (Nat.le_add_left _ _).trans (hQ e hQne)
+    · exact (Nat.le_add_left _ _).trans (hP e hz)
+  exact Nat.add_le_of_le_sub hweight hdeg
+
+private theorem GradedCoeffDegreeLE.mono {σ : Type*} {weight : σ → ℕ}
+    {P : MvPolynomial σ F[X]} {ℓ A B : ℕ}
+    (hP : GradedCoeffDegreeLE weight P ℓ A) (hAB : A ≤ B) :
+    GradedCoeffDegreeLE weight P ℓ B :=
+  fun e he ↦ (hP e he).trans hAB
+
+private theorem GradedCoeffDegreeLE.mul {σ : Type*} {weight : σ → ℕ}
+    {P Q : MvPolynomial σ F[X]} {ℓ A B : ℕ}
+    (hP : GradedCoeffDegreeLE weight P ℓ A)
+    (hQ : GradedCoeffDegreeLE weight Q ℓ B) :
+    GradedCoeffDegreeLE weight (P * Q) ℓ (A + B) := by
+  classical
+  intro e he
+  rw [MvPolynomial.coeff_mul] at he ⊢
+  have hweight : ℓ * Finsupp.weight weight e ≤ A + B := by
+    by_contra hnle
+    have hallzero : ∀ pair ∈ Finset.antidiagonal e,
+        MvPolynomial.coeff pair.1 P * MvPolynomial.coeff pair.2 Q = 0 := by
+      intro pair hpair
+      by_cases hp : MvPolynomial.coeff pair.1 P = 0
+      · simp [hp]
+      by_cases hq : MvPolynomial.coeff pair.2 Q = 0
+      · simp [hq]
+      have heq : pair.1 + pair.2 = e := by
+        simpa [Multiset.mem_toFinset] using hpair
+      have hw : Finsupp.weight weight e =
+          Finsupp.weight weight pair.1 + Finsupp.weight weight pair.2 := by
+        rw [← heq, map_add]
+      have hpw : ℓ * Finsupp.weight weight pair.1 ≤ A :=
+        (Nat.le_add_left _ _).trans (hP pair.1 hp)
+      have hqw : ℓ * Finsupp.weight weight pair.2 ≤ B :=
+        (Nat.le_add_left _ _).trans (hQ pair.2 hq)
+      have := Nat.add_le_add hpw hqw
+      rw [← Nat.mul_add, ← hw] at this
+      omega
+    exact he (Finset.sum_eq_zero hallzero)
+  apply Nat.add_le_of_le_sub hweight
+  apply Polynomial.natDegree_sum_le_of_forall_le
+  intro pair hpair
+  by_cases hp : MvPolynomial.coeff pair.1 P = 0
+  · simp [hp]
+  by_cases hq : MvPolynomial.coeff pair.2 Q = 0
+  · simp [hq]
+  have heq : pair.1 + pair.2 = e := by
+    simpa [Multiset.mem_toFinset] using hpair
+  have hw : Finsupp.weight weight e =
+      Finsupp.weight weight pair.1 + Finsupp.weight weight pair.2 := by
+    rw [← heq, map_add]
+  apply Nat.le_sub_of_add_le
+  rw [hw, Nat.mul_add]
+  calc
+    (MvPolynomial.coeff pair.1 P * MvPolynomial.coeff pair.2 Q).natDegree +
+          (ℓ * Finsupp.weight weight pair.1 + ℓ * Finsupp.weight weight pair.2) ≤
+        ((MvPolynomial.coeff pair.1 P).natDegree +
+          (MvPolynomial.coeff pair.2 Q).natDegree) +
+          (ℓ * Finsupp.weight weight pair.1 + ℓ * Finsupp.weight weight pair.2) :=
+      Nat.add_le_add_right Polynomial.natDegree_mul_le _
+    _ = ((MvPolynomial.coeff pair.1 P).natDegree +
+          ℓ * Finsupp.weight weight pair.1) +
+        ((MvPolynomial.coeff pair.2 Q).natDegree +
+          ℓ * Finsupp.weight weight pair.2) := by omega
+    _ ≤ A + B := Nat.add_le_add (hP pair.1 hp) (hQ pair.2 hq)
+
+private theorem GradedCoeffDegreeLE.pow {σ : Type*} {weight : σ → ℕ}
+    {P : MvPolynomial σ F[X]} {ℓ B : ℕ}
+    (hP : GradedCoeffDegreeLE weight P ℓ B) (n : ℕ) :
+    GradedCoeffDegreeLE weight (P ^ n) ℓ (n * B) := by
+  induction n with
+  | zero =>
+      simpa using gradedCoeffDegreeLE_C weight (p := (1 : F[X])) (ℓ := ℓ) (B := 0) (by simp)
+  | succ n ih =>
+      rw [pow_succ, Nat.succ_mul]
+      exact ih.mul hP
+
+private theorem GradedCoeffDegreeLE.sum {σ ι : Type*} {weight : σ → ℕ}
+    (s : Finset ι) (P : ι → MvPolynomial σ F[X]) {ℓ B : ℕ}
+    (hP : ∀ i ∈ s, GradedCoeffDegreeLE weight (P i) ℓ B) :
+    GradedCoeffDegreeLE weight (∑ i ∈ s, P i) ℓ B := by
+  classical
+  induction s using Finset.induction_on with
+  | empty =>
+      intro e he
+      simp at he
+  | @insert i s hi ih =>
+      rw [Finset.sum_insert hi]
+      exact (hP i (Finset.mem_insert_self i s)).add
+        (ih fun j hj ↦ hP j (Finset.mem_insert_of_mem hj))
+
+private theorem GradedCoeffDegreeLE.prod {σ ι : Type*} {weight : σ → ℕ}
+    (s : Finset ι) (P : ι → MvPolynomial σ F[X]) (ℓ : ℕ) (B : ι → ℕ)
+    (hP : ∀ i ∈ s, GradedCoeffDegreeLE weight (P i) ℓ (B i)) :
+    GradedCoeffDegreeLE weight (∏ i ∈ s, P i) ℓ (∑ i ∈ s, B i) := by
+  classical
+  induction s using Finset.induction_on with
+  | empty =>
+      simpa using gradedCoeffDegreeLE_C weight (p := (1 : F[X])) (ℓ := ℓ) (B := 0) (by simp)
+  | @insert i s hi ih =>
+      rw [Finset.prod_insert hi, Finset.sum_insert hi]
+      exact (hP i (Finset.mem_insert_self i s)).mul
+        (ih fun j hj ↦ hP j (Finset.mem_insert_of_mem hj))
+
 private theorem coeffDegreeLE_C {σ : Type*} {p : F[X]} {B : ℕ}
     (hp : p.natDegree ≤ B) : CoeffDegreeLE (MvPolynomial.C p : MvPolynomial σ F[X]) B := by
   classical
@@ -130,6 +286,158 @@ private theorem localCorrection_coeffDegreeLE_zero (d : ℕ) :
   have hY : CoeffDegreeLE (MvPolynomial.X (localY j) : LocalPolynomial F[X] d) 0 :=
     coeffDegreeLE_X _
   simpa using (hC.mul (hT.pow (j.val + 1))).mul hY
+
+private theorem localCorrection_gradedCoeffDegreeLE
+    (weight : LocalVariable d → ℕ)
+    (hT : weight (localT d) = 0) (hY : ∀ j, weight (localY j) = 1)
+    (ℓ : ℕ) :
+    GradedCoeffDegreeLE weight (localCorrection (R := F[X]) d) ℓ ℓ := by
+  rw [localCorrection]
+  apply GradedCoeffDegreeLE.sum
+  intro j _
+  have hC : GradedCoeffDegreeLE weight
+      (MvPolynomial.C ((-1 : F[X]) ^ j.val) : LocalPolynomial F[X] d) ℓ 0 :=
+    gradedCoeffDegreeLE_C weight (by simp)
+  have hT' := gradedCoeffDegreeLE_X (F := F) weight ℓ (localT d)
+  have hY' := gradedCoeffDegreeLE_X (F := F) weight ℓ (localY j)
+  simpa [hT, hY] using (hC.mul (hT'.pow (j.val + 1))).mul hY'
+
+/-- Substitution by a received curve obeys the joint challenge-degree/local-grade budget.
+Every source jet contributes budget `ℓ`; a term of local grade `u` therefore leaves at most
+`ℓ (t-u)` challenge degree from a source monomial of total jet degree `t`. -/
+theorem sourceMonomial_curve_unscaled_gradedCoeffDegreeLE
+    (weight : LocalVariable d → ℕ)
+    (hT : weight (localT d) = 0) (hE : weight (localE d) = 1)
+    (hY : ∀ j, weight (localY j) = 1)
+    (a : F) (w : F[X]) (ℓ : ℕ) (hw : w.natDegree ≤ ℓ)
+    (x b : ℕ) (higher : Fin d → ℕ) :
+    GradedCoeffDegreeLE weight
+      (unscaledLocalSubstitution d (Polynomial.C a) w
+        (sourceMonomial x b higher)) ℓ (ℓ * (b + ∑ j, higher j)) := by
+  have hcenter : (Polynomial.C a).natDegree ≤ 0 := by rw [Polynomial.natDegree_C]
+  have hcenterC : GradedCoeffDegreeLE weight
+      (MvPolynomial.C (Polynomial.C a) : LocalPolynomial F[X] d) ℓ 0 :=
+    gradedCoeffDegreeLE_C weight hcenter
+  have hT' := gradedCoeffDegreeLE_X (F := F) weight ℓ (localT d)
+  have hE' := gradedCoeffDegreeLE_X (F := F) weight ℓ (localE d)
+  have hTzero : GradedCoeffDegreeLE weight
+      (MvPolynomial.X (localT d) : LocalPolynomial F[X] d) ℓ 0 := by
+    simpa [hT] using hT'
+  have hXimage : GradedCoeffDegreeLE weight
+      (MvPolynomial.C (Polynomial.C a) + MvPolynomial.X (localT d) :
+        LocalPolynomial F[X] d) ℓ 0 := by
+    exact hcenterC.add hTzero
+  have hreceivedC : GradedCoeffDegreeLE weight
+      (MvPolynomial.C w : LocalPolynomial F[X] d) ℓ ℓ :=
+    gradedCoeffDegreeLE_C weight hw
+  have hcorrection := localCorrection_gradedCoeffDegreeLE
+    (F := F) weight hT hY ℓ
+  have hTE : GradedCoeffDegreeLE weight
+      (MvPolynomial.X (localT d) * MvPolynomial.X (localE d) :
+        LocalPolynomial F[X] d) ℓ ℓ := by
+    simpa [hE] using hTzero.mul hE'
+  have hYimage : GradedCoeffDegreeLE weight
+      (MvPolynomial.C w + localCorrection d +
+        MvPolynomial.X (localT d) * MvPolynomial.X (localE d) :
+          LocalPolynomial F[X] d) ℓ ℓ :=
+    hreceivedC.add hcorrection |>.add hTE
+  have hhigher : GradedCoeffDegreeLE weight
+      (∏ j, MvPolynomial.X (localY j) ^ higher j : LocalPolynomial F[X] d) ℓ
+        (∑ j, ℓ * higher j) := by
+    apply GradedCoeffDegreeLE.prod
+    intro j _
+    simpa [hY, Nat.mul_comm] using
+      (gradedCoeffDegreeLE_X (F := F) weight ℓ (localY j)).pow (higher j)
+  simp only [sourceMonomial, map_mul, map_pow, map_prod,
+    unscaledLocalSubstitution_X, unscaledLocalSubstitution_Y_zero,
+    unscaledLocalSubstitution_Y_succ]
+  have h := ((hXimage.pow x).mul (hYimage.pow b)).mul hhigher
+  simpa [Finset.mul_sum, Nat.mul_add, Nat.mul_comm, Nat.mul_left_comm,
+    Nat.mul_assoc] using h
+
+/-- A translated source monomial cannot acquire local weight above its source jet degree.
+This remains valid for constant received curves (`ℓ = 0`). -/
+theorem sourceMonomial_curve_unscaled_coeff_eq_zero_of_weight_gt
+    (weight : LocalVariable d → ℕ)
+    (hT : weight (localT d) = 0) (hE : weight (localE d) = 1)
+    (hY : ∀ j, weight (localY j) = 1)
+    (a : F) (w : F[X]) (ℓ : ℕ) (hw : w.natDegree ≤ ℓ)
+    (x b : ℕ) (higher : Fin d → ℕ) (e : LocalVariable d →₀ ℕ)
+    (hweight : b + ∑ j, higher j < Finsupp.weight weight e) :
+    MvPolynomial.coeff e
+      (unscaledLocalSubstitution d (Polynomial.C a) w
+        (sourceMonomial x b higher)) = 0 := by
+  by_contra hne
+  let L := max ℓ 1
+  have hwL : w.natDegree ≤ L := hw.trans (le_max_left _ _)
+  have hjoint := sourceMonomial_curve_unscaled_gradedCoeffDegreeLE
+    (F := F) weight hT hE hY a w L hwL x b higher e hne
+  have hmul : L * Finsupp.weight weight e ≤ L * (b + ∑ j, higher j) :=
+    (Nat.le_add_left _ _).trans hjoint
+  have hL : 0 < L := lt_of_lt_of_le Nat.zero_lt_one (le_max_right _ _)
+  exact (Nat.not_le_of_lt hweight) (Nat.le_of_mul_le_mul_left hmul hL)
+
+/-- After projecting to a local monomial of weight `u`, a source monomial of jet degree `t`
+has challenge degree at most `ℓ (t-u)`. -/
+theorem sourceMonomial_curve_unscaled_coeff_natDegree_le_shift
+    (weight : LocalVariable d → ℕ)
+    (hT : weight (localT d) = 0) (hE : weight (localE d) = 1)
+    (hY : ∀ j, weight (localY j) = 1)
+    (a : F) (w : F[X]) (ℓ : ℕ) (hw : w.natDegree ≤ ℓ)
+    (x b : ℕ) (higher : Fin d → ℕ) (e : LocalVariable d →₀ ℕ) :
+    (MvPolynomial.coeff e
+      (unscaledLocalSubstitution d (Polynomial.C a) w
+        (sourceMonomial x b higher))).natDegree ≤
+      ℓ * ((b + ∑ j, higher j) - Finsupp.weight weight e) := by
+  by_cases hzero : MvPolynomial.coeff e
+      (unscaledLocalSubstitution d (Polynomial.C a) w
+        (sourceMonomial x b higher)) = 0
+  · simp [hzero]
+  have hle : Finsupp.weight weight e ≤ b + ∑ j, higher j := by
+    by_contra hnot
+    exact hzero (sourceMonomial_curve_unscaled_coeff_eq_zero_of_weight_gt
+      weight hT hE hY a w ℓ hw x b higher e (by omega))
+  have hjoint := sourceMonomial_curve_unscaled_gradedCoeffDegreeLE
+    (F := F) weight hT hE hY a w ℓ hw x b higher e hzero
+  rw [Nat.mul_sub_left_distrib]
+  apply Nat.le_sub_of_add_le
+  exact hjoint
+
+/-- The low-contact projection preserves the translated grade-shift degree bound. -/
+theorem sourceMonomial_curve_localConstraint_coeff_natDegree_le_shift
+    (weight : LocalVariable d → ℕ)
+    (hT : weight (localT d) = 0) (hE : weight (localE d) = 1)
+    (hY : ∀ j, weight (localY j) = 1)
+    (a : F) (w : F[X]) (ℓ : ℕ) (hw : w.natDegree ≤ ℓ)
+    (x b m : ℕ) (higher : Fin d → ℕ) (e : LocalVariable d →₀ ℕ) :
+    (MvPolynomial.coeff e
+      (localConstraintAt m (Polynomial.C a) w
+        (sourceMonomial x b higher))).natDegree ≤
+      ℓ * ((b + ∑ j, higher j) - Finsupp.weight weight e) := by
+  rw [localConstraintAt, LinearMap.comp_apply, AlgHom.toLinearMap_apply,
+    projectLowContact, coeff_filterLocalMonomials]
+  split
+  · exact sourceMonomial_curve_unscaled_coeff_natDegree_le_shift
+      weight hT hE hY a w ℓ hw x b higher e
+  · simp
+
+/-- A projected translated source monomial has no row above its source jet grade. -/
+theorem sourceMonomial_curve_localConstraint_coeff_eq_zero_of_weight_gt
+    (weight : LocalVariable d → ℕ)
+    (hT : weight (localT d) = 0) (hE : weight (localE d) = 1)
+    (hY : ∀ j, weight (localY j) = 1)
+    (a : F) (w : F[X]) (ℓ : ℕ) (hw : w.natDegree ≤ ℓ)
+    (x b m : ℕ) (higher : Fin d → ℕ) (e : LocalVariable d →₀ ℕ)
+    (hweight : b + ∑ j, higher j < Finsupp.weight weight e) :
+    MvPolynomial.coeff e
+      (localConstraintAt m (Polynomial.C a) w
+        (sourceMonomial x b higher)) = 0 := by
+  rw [localConstraintAt, LinearMap.comp_apply, AlgHom.toLinearMap_apply,
+    projectLowContact, coeff_filterLocalMonomials]
+  split
+  · exact sourceMonomial_curve_unscaled_coeff_eq_zero_of_weight_gt
+      weight hT hE hY a w ℓ hw x b higher e hweight
+  · rfl
 
 /-- Substitution of a received polynomial of degree at most `ℓ` gives column degree at most
 `ℓ * b`, where `b` is the source `Y₀` exponent. No positivity assumption on `ℓ` is needed. -/
@@ -224,6 +532,41 @@ structure SourceColumn (d : ℕ) where
 def SourceColumn.exponent (c : SourceColumn d) : JetVariable d →₀ ℕ :=
   Finsupp.single none c.x + Finsupp.single (some 0) c.y₀ +
     ∑ j, Finsupp.single (some j.succ) (c.higher j)
+
+@[simp] theorem SourceColumn.exponent_none (c : SourceColumn d) : c.exponent none = c.x := by
+  simp [SourceColumn.exponent]
+
+@[simp] theorem SourceColumn.exponent_zero (c : SourceColumn d) : c.exponent (some 0) = c.y₀ := by
+  simp [SourceColumn.exponent]
+
+@[simp] theorem SourceColumn.exponent_succ (c : SourceColumn d) (j : Fin d) :
+    c.exponent (some j.succ) = c.higher j := by
+  simp only [SourceColumn.exponent, Finsupp.add_apply, Finsupp.single_apply]
+  simp only [Option.some.injEq, reduceCtorEq, if_false,
+    show (0 : Fin (d + 1)) ≠ j.succ from Ne.symm (Fin.succ_ne_zero j)]
+  simp only [zero_add]
+  classical
+  change Finsupp.applyAddHom (some j.succ)
+      (∑ k, Finsupp.single (some k.succ) (c.higher k)) = c.higher j
+  rw [map_sum]
+  calc
+    ∑ k, Finsupp.applyAddHom (some j.succ)
+        (Finsupp.single (some k.succ) (c.higher k)) =
+        Finsupp.applyAddHom (some j.succ)
+          (Finsupp.single (some j.succ) (c.higher j)) := by
+      apply Fintype.sum_eq_single j
+      · intro k hkj
+        simp [hkj]
+    _ = c.higher j := by simp
+
+/-- The source grade of a symbolic column is its `Y₀` exponent plus all higher-jet
+exponents. -/
+@[simp] theorem SourceColumn.totalJetDegree_exponent (c : SourceColumn d) :
+    totalJetDegree c.exponent = c.y₀ + ∑ j, c.higher j := by
+  rw [totalJetDegree, Finsupp.degree_eq_sum]
+  have h := Fin.sum_univ_succ (fun j : Fin (d + 1) ↦ c.exponent (some j))
+  simpa only [Finsupp.some_apply, SourceColumn.exponent_zero,
+    SourceColumn.exponent_succ] using h
 
 /-- The actual source monomial represented by a `SourceColumn`. -/
 def SourceColumn.polynomial {R : Type*} [CommSemiring R] (c : SourceColumn d) :

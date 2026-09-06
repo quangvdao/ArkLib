@@ -5,6 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.ReceivedLine
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.GradedRank
 
 /-!
 # Primitive symbolic interpolation for received polynomial curves
@@ -111,6 +112,40 @@ theorem constraintMatrix_degree_le (m ℓ : ℕ) (centers : Fin n → F)
     (columns j).x (columns j).y₀ (columns j).higher
   simpa [constraintMatrix, localConstraintCoordinatesAt, lowContactCoefficients,
     SourceColumn.polynomial_eq_sourceMonomial] using h row.2.1
+
+/-- A translated matrix entry from source grade `t` to local row grade `u` has challenge
+degree at most `ℓ (t-u)`.  This is the degree premise used by shifted polynomial kernels. -/
+theorem constraintMatrix_degree_le_grade_shift (m ℓ : ℕ) (centers : Fin n → F)
+    (w : Fin n → F[X]) (hw : ∀ i, (w i).natDegree ≤ ℓ)
+    (columns : Fin N → SourceColumn d) (row : Fin n × LowContactIndex d m) (j : Fin N) :
+    (constraintMatrix m centers w columns row j).natDegree ≤
+      ℓ * ((columns j).y₀ + ∑ k, (columns j).higher k - localJetDegree row.2.1) := by
+  have h := sourceMonomial_curve_unscaled_coeff_natDegree_le_shift
+    (d := d) (localJetDegreeWeight (d := d))
+    (by simp [localJetDegreeWeight, localT])
+    (by simp [localJetDegreeWeight, localE, localAux])
+    (by intro k; simp [localJetDegreeWeight, localY])
+    (centers row.1) (w row.1) ℓ (hw row.1)
+    (columns j).x (columns j).y₀ (columns j).higher row.2.1
+  simpa [constraintMatrix, localConstraintCoordinatesAt, lowContactCoefficients,
+    SourceColumn.polynomial_eq_sourceMonomial, localJetDegree] using h
+
+/-- Entries above their source jet grade are identically zero, including when the batching
+degree is zero. -/
+theorem constraintMatrix_eq_zero_of_source_grade_lt_row_grade (m ℓ : ℕ)
+    (centers : Fin n → F) (w : Fin n → F[X]) (hw : ∀ i, (w i).natDegree ≤ ℓ)
+    (columns : Fin N → SourceColumn d) (row : Fin n × LowContactIndex d m) (j : Fin N)
+    (hgrade : (columns j).y₀ + ∑ k, (columns j).higher k < localJetDegree row.2.1) :
+    constraintMatrix m centers w columns row j = 0 := by
+  have h := sourceMonomial_curve_unscaled_coeff_eq_zero_of_weight_gt
+    (d := d) (localJetDegreeWeight (d := d))
+    (by simp [localJetDegreeWeight, localT])
+    (by simp [localJetDegreeWeight, localE, localAux])
+    (by intro k; simp [localJetDegreeWeight, localY])
+    (centers row.1) (w row.1) ℓ (hw row.1)
+    (columns j).x (columns j).y₀ (columns j).higher row.2.1 hgrade
+  simpa [constraintMatrix, localConstraintCoordinatesAt, lowContactCoefficients,
+    SourceColumn.polynomial_eq_sourceMonomial, localJetDegree] using h
 
 /-- The matrix kernel is exactly the local-constraint condition on the assembled interpolant. -/
 theorem constraintMatrix_kernel_iff (m : ℕ) (centers : Fin n → F)

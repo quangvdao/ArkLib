@@ -23,14 +23,15 @@ namespace Matrix
 
 variable {F : Type*} [Field F]
 
-/-- Dividing a nonzero polynomial kernel vector by the gcd of its coordinates produces a
-primitive kernel vector. The last conclusion states that the coordinates have no simultaneous
-zero after any field extension. -/
-theorem exists_primitive_kernel_vector {m N : ℕ} (M : Matrix (Fin m) (Fin N) F[X])
+/-- Primitive normalization also preserves every coordinate that was already zero.  This
+stronger form is the common normalization core for uniform and shifted degree bounds. -/
+theorem exists_primitive_kernel_vector_preserving_zero {m N : ℕ}
+    (M : Matrix (Fin m) (Fin N) F[X])
     (v : Fin N → F[X]) (hv : v ≠ 0) (hMv : M *ᵥ v = 0) :
     ∃ u : Fin N → F[X],
       u ≠ 0 ∧ M *ᵥ u = 0 ∧
         (∀ j, (u j).natDegree ≤ (v j).natDegree) ∧
+          (∀ j, v j = 0 → u j = 0) ∧
           Ideal.span (Set.range u) = ⊤ ∧
             ∀ {E : Type*} [Field E] (ι : F →+* E) (z : E),
               (fun j ↦ (u j).eval₂ ι z) ≠ 0 := by
@@ -57,6 +58,9 @@ theorem exists_primitive_kernel_vector {m N : ℕ} (M : Matrix (Fin m) (Fin N) F
     · simp [huj]
     · rw [← hgrecon j, Polynomial.natDegree_mul hg huj]
       omega
+  have hu_zero (j : Fin N) (hvj : v j = 0) : u j = 0 := by
+    apply (mul_eq_zero.mp ?_).resolve_left hg
+    rw [hgrecon j, hvj]
   have hMu : M *ᵥ u = 0 := by
     funext i
     apply (mul_eq_zero.mp ?_).resolve_left hg
@@ -85,7 +89,7 @@ theorem exists_primitive_kernel_vector {m N : ℕ} (M : Matrix (Fin m) (Fin N) F
         exact mul_comm _ _
       _ = Finset.univ.gcd u := hc.symm
       _ = 1 := hu_gcd
-  refine ⟨u, hu, hMu, hu_degree, hu_span, ?_⟩
+  refine ⟨u, hu, hMu, hu_degree, hu_zero, hu_span, ?_⟩
   intro E _ ι z hzero
   have hbezout : ∑ j, c j * u j = 1 := by
     calc
@@ -98,6 +102,20 @@ theorem exists_primitive_kernel_vector {m N : ℕ} (M : Matrix (Fin m) (Fin N) F
   have heval := congrArg (Polynomial.eval₂RingHom ι z) hbezout
   have hj (j : Fin N) : (u j).eval₂ ι z = 0 := congrFun hzero j
   simp [hj] at heval
+
+/-- Dividing a nonzero polynomial kernel vector by the gcd of its coordinates produces a
+primitive kernel vector. The coordinate degrees do not increase. -/
+theorem exists_primitive_kernel_vector {m N : ℕ} (M : Matrix (Fin m) (Fin N) F[X])
+    (v : Fin N → F[X]) (hv : v ≠ 0) (hMv : M *ᵥ v = 0) :
+    ∃ u : Fin N → F[X],
+      u ≠ 0 ∧ M *ᵥ u = 0 ∧
+        (∀ j, (u j).natDegree ≤ (v j).natDegree) ∧
+          Ideal.span (Set.range u) = ⊤ ∧
+            ∀ {E : Type*} [Field E] (ι : F →+* E) (z : E),
+              (fun j ↦ (u j).eval₂ ι z) ≠ 0 := by
+  obtain ⟨u, hu, hMu, hu_degree, _, hu_span, hu_no_common_zero⟩ :=
+    exists_primitive_kernel_vector_preserving_zero M v hv hMv
+  exact ⟨u, hu, hMu, hu_degree, hu_span, hu_no_common_zero⟩
 
 /-- Row-count polynomial kernel height with primitive coordinates. -/
 theorem exists_primitive_ne_zero_mulVec_eq_zero_natDegree_le {n N b : ℕ}

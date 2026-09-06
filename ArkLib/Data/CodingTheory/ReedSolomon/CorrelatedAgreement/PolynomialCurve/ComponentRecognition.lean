@@ -29,7 +29,16 @@ open Polynomial MvPolynomial PolynomialDifferential HiddenDerivative AffineHilbe
 
 variable {F E : Type*} [Field F] [Field E] {n k K r ℓ : ℕ}
 
-/-- A received-curve agreement cut in the joint challenge and initial-jet coordinates. -/
+/-- A received-curve agreement cut in the joint challenge and initial-jet coordinates at a
+specified common Taylor exponent. -/
+def symbolicSourceCurveAgreement_of_exponent (center : E)
+    (Q : DifferentialPolynomial E[X] r) (K τ : ℕ) (alpha : E) (w : Fin (ℓ + 1) → E) :
+    MvPolynomial (Option (Fin (r + 1))) E :=
+  (optionEquivRight E _).symm
+    (taylorAgreementEquationOver (F := E) (Polynomial.C center) Q K
+      (Polynomial.C alpha) (powerBatchedCoordinate w) (τ := τ))
+
+/-- Compatibility form at the former coarse common exponent. -/
 def symbolicSourceCurveAgreement (center : E) (Q : DifferentialPolynomial E[X] r)
     (K : ℕ) (alpha : E) (w : Fin (ℓ + 1) → E) :
     MvPolynomial (Option (Fin (r + 1))) E :=
@@ -76,7 +85,8 @@ theorem exists_polynomialGraph_of_symbolic_prime_sample [IsAlgClosed E]
         simpa only [symbolicSourceNumerator, aeval_optionEquivRight_symm] using hz)
       (fun i hi ↦ by
         have hz := hx.1 _ (hcuts i hi)
-        simpa only [symbolicSourceCurveAgreement, aeval_optionEquivRight_symm] using hz)
+        simpa only [symbolicSourceCurveAgreement, symbolicSourceCurveAgreement_of_exponent,
+          aeval_optionEquivRight_symm] using hz)
     funext j
     cases j with
     | none => rfl
@@ -92,6 +102,7 @@ theorem exists_polynomialGraph_of_symbolic_prime_sample [IsAlgClosed E]
       simpa only [symbolicSourceNumerator, aeval_optionEquivRight_symm] using hz)
     (fun i hi ↦ by
       have hz := hx.1 _ (hcuts i hi)
-      simpa only [symbolicSourceCurveAgreement, aeval_optionEquivRight_symm] using hz)).1
+      simpa only [symbolicSourceCurveAgreement, symbolicSourceCurveAgreement_of_exponent,
+        aeval_optionEquivRight_symm] using hz)).1
 
 end ReedSolomon

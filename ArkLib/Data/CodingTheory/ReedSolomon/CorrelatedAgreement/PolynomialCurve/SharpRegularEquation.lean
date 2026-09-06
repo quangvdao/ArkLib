@@ -15,17 +15,21 @@ import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.BidegreeExcluded
 For a source equation of order zero or one, put
 
 ```text
-a = ell + 2*K*h,
-b = 1 + 2*K*(v-1),
+a = ell + tau*h,
+b = 1 + tau*(v-1),
 ```
 
-Write `lambda1 = (n-L+1)/(A-L+1)` and
-`lambda2 = (n-k+1)/(L-k+1)`.  The two bounds proved here are
+Write `lambda1 = (n-L+1)/(A-L+1)`, `lambda2 = (n-k+1)/(L-k+1)`, and let
+`eta` be the order-one joint factor. The two formulas exposed here are
 
 ```text
 order zero: (h*b + v*a) * lambda1 + ell*(n-L)*v,
-order one:  (h*b^2 + 2*v*a*b) * lambda1^2 + ell*(n-L)*v*(b*lambda2).
+order one:  (h*b^2 + 2*v*a*b) * lambda1*eta + ell*(n-L)*v*(b*lambda2).
 ```
+
+The temporary default `eta = lambda1` recovers the existing source-incidence theorem. The
+dimension-sensitive theorem instantiates the independent direct ratio
+`eta = (n-k+1)/(A-k+1)`.
 
 The initial equation, separant, high Taylor cuts, and received-word cuts have the stated
 bidegrees at every derivative order. The sharp degree specialization and exceptional-set
@@ -86,15 +90,27 @@ private theorem sharp_source_numerator_eval {r : ℕ} (center z : E)
   rw [symbolicSourceNumerator, aeval_optionEquivRight_symm, eval_commonTaylorNumeratorOver]
   rfl
 
-private theorem sharp_source_curveAgreement_eval {r : ℕ} (center z alpha : E)
-    (values : Fin (ℓ + 1) → E) (Q : DifferentialPolynomial E[X] r)
-    (K : ℕ) (jet : Fin (r + 1) → E) :
+private theorem sharp_source_numerator_eval_of_exponent {r : ℕ} (center z : E)
+    (Q : DifferentialPolynomial E[X] r) (K τ : ℕ) (l : Fin K)
+    (jet : Fin (r + 1) → E) :
     aeval (fun i ↦ i.elim z jet)
-        (symbolicSourceCurveAgreement center Q K alpha values) =
+        ((optionEquivRight E _).symm
+          (commonTaylorNumeratorOver (F := E) (Polynomial.C center) Q K l (τ := τ))) =
+      aeval jet (commonTaylorNumerator center
+        (MvPolynomial.map (Polynomial.evalRingHom z) Q) K l (τ := τ)) := by
+  rw [aeval_optionEquivRight_symm]
+  simp only [Option.elim_none, Option.elim_some]
+  rw [eval_commonTaylorNumeratorOver center z Q K l τ]
+
+private theorem sharp_source_curveAgreement_eval_of_exponent {r : ℕ} (center z alpha : E)
+    (values : Fin (ℓ + 1) → E) (Q : DifferentialPolynomial E[X] r)
+    (K τ : ℕ) (jet : Fin (r + 1) → E) :
+    aeval (fun i ↦ i.elim z jet)
+        (symbolicSourceCurveAgreement_of_exponent center Q K τ alpha values) =
       aeval jet (taylorAgreementEquation center
         (MvPolynomial.map (Polynomial.evalRingHom z) Q) K alpha
-        (∑ t, z ^ t.val * values t)) := by
-  rw [symbolicSourceCurveAgreement, aeval_optionEquivRight_symm]
+        (∑ t, z ^ t.val * values t) (τ := τ)) := by
+  rw [symbolicSourceCurveAgreement_of_exponent, aeval_optionEquivRight_symm]
   simp only [Option.elim_none, Option.elim_some]
   let φ : E[X] →ₐ[E] E := Polynomial.aeval z
   have hφ : φ.toRingHom = Polynomial.evalRingHom z := by
@@ -105,11 +121,24 @@ private theorem sharp_source_curveAgreement_eval {r : ℕ} (center z alpha : E)
     change (powerBatchedCoordinate values).eval z = _
     exact powerBatchedCoordinate_eval values z
   have he := map_taylorAgreementEquationOver_eq φ
-    (Polynomial.C center) Q K (Polynomial.C alpha) (powerBatchedCoordinate values)
+    (Polynomial.C center) Q K (Polynomial.C alpha) (powerBatchedCoordinate values) τ
   rw [hφ, hc, hx] at he
   exact congrArg (MvPolynomial.aeval jet) (he.trans (congrArg
-    (taylorAgreementEquation center (MvPolynomial.map (Polynomial.evalRingHom z) Q) K alpha)
+    (fun received ↦ taylorAgreementEquation center
+      (MvPolynomial.map (Polynomial.evalRingHom z) Q) K alpha received (τ := τ))
     hy))
+
+private theorem sharp_source_curveAgreement_eval {r : ℕ} (center z alpha : E)
+    (values : Fin (ℓ + 1) → E) (Q : DifferentialPolynomial E[X] r)
+    (K : ℕ) (jet : Fin (r + 1) → E) :
+    aeval (fun i ↦ i.elim z jet)
+        (symbolicSourceCurveAgreement center Q K alpha values) =
+      aeval jet (taylorAgreementEquation center
+        (MvPolynomial.map (Polynomial.evalRingHom z) Q) K alpha
+        (∑ t, z ^ t.val * values t)) := by
+  change aeval (fun i ↦ i.elim z jet)
+      (symbolicSourceCurveAgreement_of_exponent center Q K (2 * K) alpha values) = _
+  exact sharp_source_curveAgreement_eval_of_exponent center z alpha values Q K (2 * K) jet
 
 private theorem span_singleton_ne_top_of_aeval_eq_zero {σ : Type*}
     (g : MvPolynomial σ E) (x : σ → E) (hx : aeval x g = 0) :
@@ -139,36 +168,38 @@ private theorem sharp_source_initial_ne_zero_of_regular {r : ℕ} (center z : E)
     show (Polynomial.evalRingHom z) (Polynomial.C center) = center from Polynomial.eval_C] at hm
   exact hi hm
 
-/-- Challenge side of the sharp source-cut rectangle. -/
-def sourceCurveCutChallengeDegree (ℓ K h : ℕ) : ℕ := ℓ + 2 * K * h
+/-- Challenge side of the sharp source-cut rectangle at common denominator exponent `τ`. -/
+def sourceCurveCutChallengeDegree (ℓ K h : ℕ) (τ : ℕ := 2 * K) : ℕ := ℓ + τ * h
 
-/-- Total-jet side of the sharp source-cut rectangle. -/
-def sourceCurveCutJetDegree (K v : ℕ) : ℕ := 1 + 2 * K * (v - 1)
+/-- Total-jet side of the sharp source-cut rectangle at common denominator exponent `τ`. -/
+def sourceCurveCutJetDegree (K v : ℕ) (τ : ℕ := 2 * K) : ℕ := 1 + τ * (v - 1)
 
 /-- Mixed affine degree of the pulled-back first-order initial hypersurface. -/
-def sourceCurveInitialMixedDegreeTwo (ℓ K v h : ℕ) : ℕ :=
-  h * sourceCurveCutJetDegree K v ^ 2 +
-    2 * v * sourceCurveCutChallengeDegree ℓ K h * sourceCurveCutJetDegree K v
+def sourceCurveInitialMixedDegreeTwo (ℓ K v h : ℕ) (τ : ℕ := 2 * K) : ℕ :=
+  h * sourceCurveCutJetDegree K v (τ := τ) ^ 2 +
+    2 * v * sourceCurveCutChallengeDegree ℓ K h (τ := τ) *
+      sourceCurveCutJetDegree K v (τ := τ)
 
 /-- Mixed affine degree of the pulled-back order-zero initial hypersurface. -/
-def sourceCurveInitialMixedDegreeOne (ℓ K v h : ℕ) : ℕ :=
-  h * sourceCurveCutJetDegree K v +
-    v * sourceCurveCutChallengeDegree ℓ K h
+def sourceCurveInitialMixedDegreeOne (ℓ K v h : ℕ) (τ : ℕ := 2 * K) : ℕ :=
+  h * sourceCurveCutJetDegree K v (τ := τ) +
+    v * sourceCurveCutChallengeDegree ℓ K h (τ := τ)
 
 /-- Sharp regular order-zero MCA budget: mixed source incidence plus exact tuple roots. -/
 def regularSymbolicCurveMCASharpBoundOne
-    (n ℓ K _k L A v h : ℕ) : ℚ :=
-  (sourceCurveInitialMixedDegreeOne ℓ K v h : ℚ) *
+    (n ℓ K _k L A v h : ℕ) (τ : ℕ := 2 * K) : ℚ :=
+  (sourceCurveInitialMixedDegreeOne ℓ K v h (τ := τ) : ℚ) *
       (((n - L + 1 : ℕ) : ℚ) / ((A - L + 1 : ℕ) : ℚ)) +
     ((ℓ * (n - L) : ℕ) : ℚ) * (v : ℚ)
 
 /-- Sharp regular first-order MCA budget: mixed source incidence plus exact tuple roots. -/
 def regularSymbolicCurveMCASharpBoundTwo
-    (n ℓ K k L A v h : ℕ) : ℚ :=
-  (sourceCurveInitialMixedDegreeTwo ℓ K v h : ℚ) *
-      (((n - L + 1 : ℕ) : ℚ) / ((A - L + 1 : ℕ) : ℚ)) ^ 2 +
+    (n ℓ K k L A v h : ℕ) (τ : ℕ := 2 * K)
+    (η : ℚ := ((n - L + 1 : ℕ) : ℚ) / ((A - L + 1 : ℕ) : ℚ)) : ℚ :=
+  (sourceCurveInitialMixedDegreeTwo ℓ K v h (τ := τ) : ℚ) *
+      (((n - L + 1 : ℕ) : ℚ) / ((A - L + 1 : ℕ) : ℚ)) * η +
     ((ℓ * (n - L) : ℕ) : ℚ) * (v : ℚ) *
-      ((((n - k + 1) * sourceCurveCutJetDegree K v : ℕ) : ℚ) /
+      ((((n - k + 1) * sourceCurveCutJetDegree K v (τ := τ) : ℕ) : ℚ) /
         ((L - k + 1 : ℕ) : ℚ))
 
 /-- The symbolic initial equation has its native `(h,v)` bidegree. -/
@@ -197,6 +228,23 @@ theorem symbolicSourceInitialEquation_mem_sourceCurveCutBidegree
       Nat.le_mul_of_pos_left _ (by omega)
     omega
 
+/-- The initial equation fits the source-cut rectangle for every positive common exponent. -/
+theorem symbolicSourceInitialEquation_mem_sourceCurveCutBidegree_of_exponent
+    {r : ℕ} (center : E) (Q : DifferentialPolynomial E[X] r) (ℓ K h v τ : ℕ)
+    (hτpos : 0 < τ) (hv : 0 < v) (hheight : ChallengeHeightLE Q h)
+    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v) :
+    symbolicSourceInitialEquation center Q ∈ restrictBidegree (F := E) (σ := Fin (r + 1))
+      (sourceCurveCutChallengeDegree ℓ K h (τ := τ))
+      (sourceCurveCutJetDegree K v (τ := τ)) := by
+  apply source_mem_restrictBidegree_mono
+    (symbolicSourceInitialEquation_mem_restrictBidegree center Q h v hheight hjet)
+  · simp only [sourceCurveCutChallengeDegree]
+    have hh : h ≤ τ * h := Nat.le_mul_of_pos_left h hτpos
+    omega
+  · simp only [sourceCurveCutJetDegree]
+    have hm : v - 1 ≤ τ * (v - 1) := Nat.le_mul_of_pos_left _ hτpos
+    omega
+
 /-- The symbolic separant fits the common source-cut rectangle. -/
 theorem symbolicSourceSeparant_mem_sourceCurveCutBidegree
     {r : ℕ} (center : E) (Q : DifferentialPolynomial E[X] r) (ℓ K h v : ℕ)
@@ -213,6 +261,23 @@ theorem symbolicSourceSeparant_mem_sourceCurveCutBidegree
       Nat.le_mul_of_pos_left _ (by omega)
     omega
 
+/-- The symbolic separant fits the source-cut rectangle for every positive common exponent. -/
+theorem symbolicSourceSeparant_mem_sourceCurveCutBidegree_of_exponent
+    {r : ℕ} (center : E) (Q : DifferentialPolynomial E[X] r) (ℓ K h v τ : ℕ)
+    (hτpos : 0 < τ) (hheight : ChallengeHeightLE Q h)
+    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v) :
+    symbolicSourceSeparant center Q ∈ restrictBidegree (F := E) (σ := Fin (r + 1))
+      (sourceCurveCutChallengeDegree ℓ K h (τ := τ))
+      (sourceCurveCutJetDegree K v (τ := τ)) := by
+  have hs := initialJetSeparantOver_mem_restrictBidegree center Q h v hheight hjet
+  apply source_mem_restrictBidegree_mono hs
+  · simp only [sourceCurveCutChallengeDegree]
+    have hh : h ≤ τ * h := Nat.le_mul_of_pos_left h hτpos
+    omega
+  · simp only [sourceCurveCutJetDegree]
+    have hm : v - 1 ≤ τ * (v - 1) := Nat.le_mul_of_pos_left _ hτpos
+    omega
+
 /-- Every high Taylor equation fits the common source-cut rectangle. -/
 theorem symbolicSourceNumerator_mem_sourceCurveCutBidegree
     {r : ℕ} (center : E) (Q : DifferentialPolynomial E[X] r) (ℓ K h v : ℕ)
@@ -227,6 +292,40 @@ theorem symbolicSourceNumerator_mem_sourceCurveCutBidegree
     sourceCurveCutChallengeDegree, sourceCurveCutJetDegree] using
       source_mem_restrictBidegree_mono hl (Nat.le_add_left _ _) (le_refl _)
 
+/-- A high numerator at a sufficient common exponent fits its exact source-cut rectangle. -/
+theorem commonTaylorNumeratorOver_mem_sourceCurveCutBidegree_of_exponent
+    {r : ℕ} (center : E) (Q : DifferentialPolynomial E[X] r) (ℓ K h v τ : ℕ)
+    (hτ : TaylorExponentSufficient r K τ) (hv : 0 < v)
+    (hheight : ChallengeHeightLE Q h)
+    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
+    (l : Fin K) :
+    (optionEquivRight E _).symm
+        (commonTaylorNumeratorOver (F := E) (Polynomial.C center) Q K l (τ := τ)) ∈
+      restrictBidegree (F := E) (σ := Fin (r + 1))
+        (sourceCurveCutChallengeDegree ℓ K h (τ := τ))
+        (sourceCurveCutJetDegree K v (τ := τ)) := by
+  have hl := commonTaylorNumeratorOver_mem_restrictBidegree_of_exponent
+    center Q h v K τ hτ hv hheight hjet l
+  simpa only [flattenChallenge, sourceCurveCutChallengeDegree,
+    sourceCurveCutJetDegree] using
+      source_mem_restrictBidegree_mono hl (Nat.le_add_left _ _) (le_refl _)
+
+/-- Every explicit high cut at exponent `τ` fits the same exact source rectangle. -/
+theorem sourceCurveHighCuts_mem_sourceCurveCutBidegree_of_exponent
+    {r : ℕ} (center : E) (Q : DifferentialPolynomial E[X] r) (ℓ K k h v τ : ℕ)
+    (hτ : TaylorExponentSufficient r K τ) (hv : 0 < v)
+    (hheight : ChallengeHeightLE Q h)
+    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v) :
+    ∀ f ∈ sourceCurveHighCuts_of_exponent center Q K k τ,
+      f ∈ restrictBidegree (F := E) (σ := Fin (r + 1))
+        (sourceCurveCutChallengeDegree ℓ K h (τ := τ))
+        (sourceCurveCutJetDegree K v (τ := τ)) := by
+  intro f hf
+  simp only [sourceCurveHighCuts_of_exponent, List.mem_map, Finset.mem_toList] at hf
+  obtain ⟨l, _, rfl⟩ := hf
+  exact commonTaylorNumeratorOver_mem_sourceCurveCutBidegree_of_exponent
+    center Q ℓ K h v τ hτ hv hheight hjet l.val
+
 /-- Every polynomial-curve agreement equation fits the common source-cut rectangle. -/
 theorem symbolicSourceCurveAgreement_mem_sourceCurveCutBidegree
     {r : ℕ} (center alpha : E) (values : Fin (ℓ + 1) → E)
@@ -236,10 +335,29 @@ theorem symbolicSourceCurveAgreement_mem_sourceCurveCutBidegree
     symbolicSourceCurveAgreement center Q K alpha values ∈
       restrictBidegree (F := E) (σ := Fin (r + 1))
         (sourceCurveCutChallengeDegree ℓ K h) (sourceCurveCutJetDegree K v) := by
-  simpa only [symbolicSourceCurveAgreement, flattenChallenge,
+  simpa only [symbolicSourceCurveAgreement, symbolicSourceCurveAgreement_of_exponent,
+    flattenChallenge,
     sourceCurveCutChallengeDegree, sourceCurveCutJetDegree] using
       taylorAgreementEquationOver_mem_restrictBidegree center alpha
         (powerBatchedCoordinate values) Q ℓ h v K
+        (powerBatchedCoordinate_natDegree_le values) hv hheight hjet
+
+/-- Every polynomial-curve agreement equation at a sufficient common exponent fits its exact
+source-cut rectangle. -/
+theorem symbolicSourceCurveAgreement_mem_sourceCurveCutBidegree_of_exponent
+    {r : ℕ} (center alpha : E) (values : Fin (ℓ + 1) → E)
+    (Q : DifferentialPolynomial E[X] r) (K h v τ : ℕ)
+    (hτ : TaylorExponentSufficient r K τ) (hv : 0 < v)
+    (hheight : ChallengeHeightLE Q h)
+    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v) :
+    symbolicSourceCurveAgreement_of_exponent center Q K τ alpha values ∈
+      restrictBidegree (F := E) (σ := Fin (r + 1))
+        (sourceCurveCutChallengeDegree ℓ K h (τ := τ))
+        (sourceCurveCutJetDegree K v (τ := τ)) := by
+  simpa only [symbolicSourceCurveAgreement_of_exponent, flattenChallenge,
+    sourceCurveCutChallengeDegree, sourceCurveCutJetDegree] using
+      taylorAgreementEquationOver_mem_restrictBidegree_of_exponent center alpha
+        (powerBatchedCoordinate values) Q ℓ h v K τ hτ
         (powerBatchedCoordinate_natDegree_le values) hv hheight hjet
 
 /-- Sharp off-tuple incidence for an order-zero source equation. -/
@@ -589,15 +707,16 @@ theorem finite_sourceCurve_bad_challenges_card_le_sharp_two
   obtain ⟨z₀, hz₀⟩ := Finset.nonempty_iff_ne_empty.mpr hempty
   have hinit := sharp_source_initial_ne_zero_of_regular center z₀ Q (jet z₀)
     (hchart z₀ hz₀).2.2.1
-  simpa only [regularSymbolicCurveMCASharpBoundTwo, pow_one] using
-    (finite_sourceCurve_bad_challenges_card_le_of_source_bound
+  unfold regularSymbolicCurveMCASharpBoundTwo
+  convert (finite_sourceCurve_bad_challenges_card_le_of_source_bound
       domain w iota center Q K k L A v hK hkK hk hkL hLA hAn hjet
       ((sourceCurveInitialMixedDegreeTwo ℓ K v h : ℚ) *
         (((n - L + 1 : ℕ) : ℚ) / ((A - L + 1 : ℕ) : ℚ)) ^ 2)
       (fun S hS hA ↦ finite_sourceCurve_points_off_tuples_card_le_sharp_two
         domain w iota center Q K k L A v h hK hkL hLA hAn hD hv hinit
           hjet hheight S hS hA)
-      challenges witness jet hchart hagree hbad)
+      challenges witness jet hchart hagree hbad) using 1
+  ring
 
 /-- Lift a fixed-center bad-challenge estimate to all regular symbolic solutions in a finite
 challenge set.  The common Taylor center and selected witness polynomial may depend on that

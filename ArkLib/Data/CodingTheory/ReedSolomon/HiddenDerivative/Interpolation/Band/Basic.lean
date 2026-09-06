@@ -138,21 +138,6 @@ theorem finrank_asymmetricBandSpace_eq_card [Field F] (hD : 0 < D) :
       (Cmin := Cmin) (Cmax := Cmax) (L := L) hD)]
   exact Fintype.card_coe _
 
-/-- Total jet degree in the four coordinate groups. -/
-theorem totalJetDegree_eq_coordinates (hd : 0 < d) (u : JetVariable d →₀ ℕ) :
-    totalJetDegree u = (exactExponentCoordinatesEquiv hd u).2.1.1 +
-      (exactExponentCoordinatesEquiv hd u).2.1.2 +
-        higherJetTupleDegree (exactExponentCoordinatesEquiv hd u).2.2 := by
-  rw [totalJetDegree, Finsupp.degree_eq_sum, sum_jet_eq_y₀_add_y₁_add_higher hd]
-  simp [higherJetTupleDegree]
-
-/-- Higher-jet degree in the existing coordinate split. -/
-theorem fullHigherJetDegree_eq_coordinates (hd : 0 < d) (u : JetVariable d →₀ ℕ) :
-    fullHigherJetDegree u =
-      higherJetTupleDegree (exactExponentCoordinatesEquiv hd u).2.2 := by
-  rw [fullHigherJetDegree, Finsupp.weight_eq_sum, sum_jet_eq_y₀_add_y₁_add_higher hd]
-  simp [higherJetTupleDegree]
-
 /-- Integer residual budget for `(X,Y₀)` after fixing `Y₁` and the higher jets. -/
 def asymmetricBandResidual (D b₁ : ℕ) (L : ℝ) (c : HigherJetTuple d) : ℕ :=
   ⌈L⌉₊ - D * (b₁ + higherJetTupleDegree c)

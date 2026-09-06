@@ -247,6 +247,21 @@ theorem finrank_exactInterpolationSpace_eq_exactInterpolationDimensionCount [Fie
   rw [finrank_exactInterpolationSpace_eq_card hdD,
     card_exactInterpolationExponents_eq_exactInterpolationDimensionCount hd hdD]
 
+/-- Total jet degree in the four coordinate groups. -/
+theorem totalJetDegree_eq_coordinates (hd : 0 < d) (u : JetVariable d →₀ ℕ) :
+    totalJetDegree u = (exactExponentCoordinatesEquiv hd u).2.1.1 +
+      (exactExponentCoordinatesEquiv hd u).2.1.2 +
+        higherJetTupleDegree (exactExponentCoordinatesEquiv hd u).2.2 := by
+  rw [totalJetDegree, Finsupp.degree_eq_sum, sum_jet_eq_y₀_add_y₁_add_higher hd]
+  simp [higherJetTupleDegree]
+
+/-- Higher-jet degree in the existing coordinate split. -/
+theorem fullHigherJetDegree_eq_coordinates (hd : 0 < d) (u : JetVariable d →₀ ℕ) :
+    fullHigherJetDegree u =
+      higherJetTupleDegree (exactExponentCoordinatesEquiv hd u).2.2 := by
+  rw [fullHigherJetDegree, Finsupp.weight_eq_sum, sum_jet_eq_y₀_add_y₁_add_higher hd]
+  simp [higherJetTupleDegree]
+
 end
 end HiddenDerivative
 end ReedSolomon

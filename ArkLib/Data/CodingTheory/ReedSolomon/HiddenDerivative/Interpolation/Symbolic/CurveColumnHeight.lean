@@ -5,6 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.ToMathlib.LinearAlgebra.ColumnDegreeKernel
+import ArkLib.ToMathlib.LinearAlgebra.ShiftedDegreeKernel
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.CurveBand
 
 /-!
@@ -19,6 +20,10 @@ columns are inactive. No rounding from a line-height certificate is needed.
 The rank premise concerns the actual matrix over the rational function field. Finite
 first-order support supplies this premise separately. Primitive normalization ensures
 that the equation remains nonzero after every extension-field specialization.
+
+The second constructor accepts the projected graded matrix. Its row and column weights are
+separate, and its kernel-equivalence premise states that the selected base-field coordinates
+detect the complete local constraint system.
 -/
 
 open PolynomialDifferential Polynomial
@@ -64,6 +69,37 @@ theorem exists_primitive_interpolant_of_column_height {n N : ℕ}
     exact map_interpolant_ne_zero columns hcolumns v ι z (hnozero ι z)
   · exact (constraintMatrix_kernel_iff m centers w columns v).mp
       ((finiteConstraintMatrix_kernel_iff m centers w columns v).mp hMv)
+
+/-- A shifted row/column surplus on an injective graded projection constructs a primitive
+interpolant. Source columns are weighted by total jet degree; the supplied row weights describe
+the homogeneous local image coordinates. -/
+theorem exists_primitive_interpolant_of_shifted_height {n N rows : ℕ}
+    (m ℓ h : ℕ) (centers : Fin n → F) (w : Fin n → F[X])
+    (columns : Fin N → SourceColumn d) (hcolumns : Function.Injective columns)
+    (M : Matrix (Fin rows) (Fin N) F[X]) (rowWeight : Fin rows → ℕ)
+    (hkernel : ∀ v, M *ᵥ v = 0 ↔
+      ∀ i, SatisfiesLocalConstraints m (Polynomial.C (centers i))
+        (w i) (interpolant columns v))
+    (hdegree : ∀ i j, rowWeight i ≤ ℓ * totalJetDegree (columns j).exponent →
+      (M i j).natDegree ≤ ℓ * totalJetDegree (columns j).exponent - rowWeight i)
+    (hzero : ∀ i j, ℓ * totalJetDegree (columns j).exponent < rowWeight i → M i j = 0)
+    (hsurplus : Finset.univ.sum (fun i : Fin rows ↦ h + 1 - rowWeight i) <
+      Finset.univ.sum (fun j : Fin N ↦
+        h + 1 - ℓ * totalJetDegree (columns j).exponent)) :
+    ∃ v : Fin N → F[X], v ≠ 0 ∧
+      (∀ j, v j ∈ Polynomial.degreeLT F
+        (h + 1 - ℓ * totalJetDegree (columns j).exponent)) ∧
+      Ideal.span (Set.range v) = ⊤ ∧
+      (∀ {E : Type*} [Field E] (ι : F →+* E) (z : E),
+        MvPolynomial.map (Polynomial.eval₂RingHom ι z) (interpolant columns v) ≠ 0) ∧
+      ∀ i, SatisfiesLocalConstraints m (Polynomial.C (centers i))
+        (w i) (interpolant columns v) := by
+  obtain ⟨v, hv, hMv, hvdegree, hprimitive, hspecialize⟩ :=
+    Matrix.exists_primitive_mulVec_eq_zero_of_shifted_surplus M rowWeight
+      (fun j ↦ ℓ * totalJetDegree (columns j).exponent) h hdegree hzero hsurplus
+  refine ⟨v, hv, hvdegree, hprimitive, ?_, (hkernel v).mp hMv⟩
+  intro E _ ι z
+  exact map_interpolant_ne_zero columns hcolumns v ι z (hspecialize ι z)
 
 end
 

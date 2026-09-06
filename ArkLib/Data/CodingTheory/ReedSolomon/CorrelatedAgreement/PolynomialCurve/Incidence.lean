@@ -712,6 +712,24 @@ def sourceCurveHighCuts (center : E) (Q : DifferentialPolynomial E[X] r) (K k : 
   ((Finset.univ : Finset {l : Fin K // k ≤ l.val}).toList.map
     fun l ↦ symbolicSourceNumerator center Q K l.val)
 
+/-- The finite list of high-coefficient equations at an explicit common Taylor exponent. -/
+def sourceCurveHighCuts_of_exponent (center : E) (Q : DifferentialPolynomial E[X] r)
+    (K k τ : ℕ) : List (MvPolynomial (Option (Fin (r + 1))) E) :=
+  ((Finset.univ : Finset {l : Fin K // k ≤ l.val}).toList.map fun l ↦
+    (optionEquivRight E _).symm
+      (commonTaylorNumeratorOver (F := E) (Polynomial.C center) Q K l.val (τ := τ)))
+
+/-- Every high source numerator at exponent `τ` occurs in its finite high-cut list. -/
+theorem commonTaylorNumeratorOver_mem_sourceCurveHighCuts_of_exponent
+    (center : E) (Q : DifferentialPolynomial E[X] r) (K k τ : ℕ)
+    (l : Fin K) (hl : k ≤ l.val) :
+    (optionEquivRight E _).symm
+        (commonTaylorNumeratorOver (F := E) (Polynomial.C center) Q K l (τ := τ)) ∈
+      sourceCurveHighCuts_of_exponent center Q K k τ := by
+  classical
+  simp only [sourceCurveHighCuts_of_exponent, List.mem_map, Finset.mem_toList]
+  exact ⟨⟨l, hl⟩, Finset.mem_univ _, rfl⟩
+
 /-- Every high source numerator occurs in the finite curve high-cut list. -/
 theorem symbolicSourceNumerator_mem_sourceCurveHighCuts
     (center : E) (Q : DifferentialPolynomial E[X] r) (K k : ℕ)
@@ -728,6 +746,16 @@ def sourceCurveTupleLocus [DecidableEq F]
     (K k L : ℕ) : Set (Option (Fin (r + 1)) → E) :=
   {x | ∃ P : Fin (ℓ + 1) → F[X],
     IsAdmissibleChartTuple domain w iota center Q K k L P ∧
+      x = polynomialGraphPoint
+        (powerBatchedJetGraph (r := r) center (fun t ↦ (P t).map iota)) (x none)}
+
+/-- Source points on admissible tuple graphs whose Taylor numerators all use exponent `τ`. -/
+def sourceCurveTupleLocus_of_exponent [DecidableEq F]
+    (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F)
+    (iota : F →+* E) (center : E) (Q : DifferentialPolynomial E[X] r)
+    (K k L τ : ℕ) : Set (Option (Fin (r + 1)) → E) :=
+  {x | ∃ P : Fin (ℓ + 1) → F[X],
+    IsAdmissibleChartTupleAtExponent domain w iota center Q K k L τ P ∧
       x = polynomialGraphPoint
         (powerBatchedJetGraph (r := r) center (fun t ↦ (P t).map iota)) (x none)}
 

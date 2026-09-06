@@ -221,7 +221,9 @@ private theorem globalPointTranslation_generator_weight_le
     | succ i =>
       simpa only [Fin.cases_succ] using (support_weight_X_eq w (some i.succ) he).le
 
-private theorem globalPointTranslation_support_weight_le
+/-- Translation in `X` and `Y₀` preserves every support bound defined by nonnegative generator
+weights. This generic form is shared by the graded local-image construction. -/
+theorem globalPointTranslation_support_weight_le
     {M : Type*} [AddCommMonoid M] [PartialOrder M] [IsOrderedAddMonoid M]
     (w : JetVariable d → M) (hX : 0 ≤ w none) (hY₀ : 0 ≤ w (some 0))
     (center received : R) {Q : DifferentialPolynomial R d} {a : M}
