@@ -82,6 +82,14 @@ def firstJetExponent {d : ℕ} (u : JetVariable d →₀ ℕ) : ℕ :=
 def totalJetDegree {d : ℕ} (u : JetVariable d →₀ ℕ) : ℕ :=
   Finsupp.degree u.some
 
+/-- The first-derivative exponent cannot exceed total jet degree. -/
+theorem firstJetExponent_le_totalJetDegree {d : ℕ} (u : JetVariable d →₀ ℕ) :
+    firstJetExponent u ≤ totalJetDegree u := by
+  rw [firstJetExponent, totalJetDegree, Finsupp.degree_eq_sum, Finsupp.weight_eq_sum]
+  apply Finset.sum_le_sum
+  intro j hj
+  split_ifs <;> simp_all
+
 /-- High-jet weight on a full exponent: `Y_j` has weight `j - 1`. -/
 def fullHigherJetWeight {d : ℕ} (u : JetVariable d →₀ ℕ) : ℕ :=
   Finsupp.weight (fun j : Fin (d + 1) ↦ j.val - 1) u.some

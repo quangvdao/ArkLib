@@ -291,6 +291,8 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbo
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.ReceivedLine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.SeparantStages
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.Soundness
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.WeightedSupport.Basic
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.WeightedSupport.Quartic
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Band.Ambient
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Band.EndpointComparison
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Band.MassBound
@@ -635,6 +637,7 @@ import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.RadicalDegree
 import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.StandardMonomials
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.Agreement
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.BidegreeExcluded
+import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.DimensionSensitive
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.Excluded
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.GraphPullback
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.SharpCutFamily

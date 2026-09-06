@@ -34,27 +34,6 @@ open Polynomial MvPolynomial HiddenDerivative AffineHilbert
 
 variable {F E : Type*} [Field F] [Field E] {n r ℓ : ℕ}
 
-/-- An injective map of affine coordinate algebras cannot decrease Hilbert dimension. -/
-theorem hilbertPolynomial_natDegree_le_of_injective_algHom
-    {σ τ : Type*} [Finite σ] [Finite τ]
-    {I : Ideal (MvPolynomial σ E)} {J : Ideal (MvPolynomial τ E)}
-    (g : (MvPolynomial τ E ⧸ J) →ₐ[E] (MvPolynomial σ E ⧸ I))
-    (hg : Function.Injective g) (hJ : J ≠ ⊤) :
-    (hilbertPolynomial J).natDegree ≤ (hilbertPolynomial I).natDegree := by
-  obtain ⟨c, hc, hfun⟩ := hilbertFunction_le_rescaled_of_injective_algHom g hg
-  apply natDegree_le_of_eventually_eval_nat_le_rescaled
-    (hilbertPolynomial_ne_zero hJ) hc
-  · filter_upwards [hilbertPolynomial_eventually_eval J] with N hN
-    rw [hN]
-    positivity
-  · obtain ⟨NI, hI⟩ := hilbertPolynomial_eventually I
-    obtain ⟨NJ, hJ⟩ := hilbertPolynomial_eventually J
-    filter_upwards [Filter.eventually_ge_atTop (max NI NJ)] with N hN
-    rw [hJ N ((le_max_right NI NJ).trans hN),
-      hI (c * N) ((le_max_left NI NJ).trans hN |>.trans
-        (Nat.le_mul_of_pos_left N hc))]
-    exact_mod_cast hfun N
-
 /-- The concrete positive-degree power-moment base has exactly one challenge dimension in
 addition to the jet dimensions. -/
 theorem powerMomentIdeal_hilbertPolynomial_natDegree

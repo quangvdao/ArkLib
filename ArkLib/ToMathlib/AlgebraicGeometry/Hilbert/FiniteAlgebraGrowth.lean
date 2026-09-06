@@ -5,6 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.Polynomial
+import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.PolynomialGrowthRescaling
 
 /-!
 # Filtration growth under finite injective affine algebra maps
@@ -88,6 +89,30 @@ theorem hilbertFunction_le_rescaled_of_injective_algHom
     exact congrArg Subtype.val hxy
   rw [hilbertFunction, hilbertFunction]
   exact LinearMap.finrank_le_finrank_of_injective hL
+
+/-- An injective map of affine coordinate algebras cannot decrease Hilbert dimension.
+
+The direction is deliberate: if the coordinate algebra of one affine locus injects into
+another, the source Hilbert polynomial has degree at most that of the target. -/
+theorem hilbertPolynomial_natDegree_le_of_injective_algHom
+    {F σ τ : Type*} [Field F] [Finite σ] [Finite τ]
+    {I : Ideal (MvPolynomial σ F)} {J : Ideal (MvPolynomial τ F)}
+    (g : (MvPolynomial τ F ⧸ J) →ₐ[F] (MvPolynomial σ F ⧸ I))
+    (hg : Function.Injective g) (hJ : J ≠ ⊤) :
+    (hilbertPolynomial J).natDegree ≤ (hilbertPolynomial I).natDegree := by
+  obtain ⟨c, hc, hfun⟩ := hilbertFunction_le_rescaled_of_injective_algHom g hg
+  apply natDegree_le_of_eventually_eval_nat_le_rescaled
+    (hilbertPolynomial_ne_zero hJ) hc
+  · filter_upwards [hilbertPolynomial_eventually_eval J] with N hN
+    rw [hN]
+    positivity
+  · obtain ⟨NI, hI⟩ := hilbertPolynomial_eventually I
+    obtain ⟨NJ, hJ⟩ := hilbertPolynomial_eventually J
+    filter_upwards [Filter.eventually_ge_atTop (max NI NJ)] with N hN
+    rw [hJ N ((le_max_right NI NJ).trans hN),
+      hI (c * N) ((le_max_left NI NJ).trans hN |>.trans
+        (Nat.le_mul_of_pos_left N hc))]
+    exact_mod_cast hfun N
 
 private theorem exists_one_finset_module_generators
     {B A : Type*} [CommRing B] [CommRing A] [Module B A] [Module.Finite B A] :
