@@ -51,7 +51,8 @@ alone does not bound a decoding list or an exceptional challenge set.
 ## References
 
 * [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated
-  Agreement up to Capacity*][DKTZ26], finite first-order interpolation certificate.
+  Agreement up to Capacity*][DKTZ26], Section 6.1.3, Proposition 6.3 (finite first-order
+  certificate).
 -/
 
 open PolynomialDifferential

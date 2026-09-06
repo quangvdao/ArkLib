@@ -11,14 +11,14 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorC
 /-!
 # The prescribed field-independent all-rate polynomial list bound
 
-This is the explicit small-gap bound of [DKTZ26, Corollary 7.5], supplying the
+This is the explicit small-gap bound of [DKTZ26, Corollary A.7], supplying the
 field-independent list-size clause of Theorem 1.1. The underlying differential-root
-estimate is Theorem 7.4. No decoding-time claim is made here.
+estimate is Theorem A.6. No decoding-time claim is made here.
 
 ## References
 
 * [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
-  up to Capacity*][DKTZ26], Theorem 7.4 and Corollary 7.5.
+  up to Capacity*][DKTZ26], Theorem A.6 and Corollary A.7.
 -/
 
 open PolynomialDifferential

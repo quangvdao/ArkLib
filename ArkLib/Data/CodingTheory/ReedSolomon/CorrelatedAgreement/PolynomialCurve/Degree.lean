@@ -12,7 +12,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symboli
 
 Power batching contributes its univariate challenge degree additively to the literal joint
 total degree of a Taylor agreement cut.  The separate challenge/jet bidegree estimates below
-also support the coefficient-linearized power lift used for the paper-sharp incidence theorem:
+also support the coefficient-linearized power lift used for polynomial-curve incidence:
 the batching degree is charged in the degree of the moment base, not at every geometric cut.
 -/
 

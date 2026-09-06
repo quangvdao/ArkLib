@@ -25,7 +25,7 @@ is made.
 ## References
 
 * [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
-  up to Capacity*][DKTZ26], Section 5,
+  up to Capacity*][DKTZ26], Appendix A.2, Theorem A.2,
   recursive differential root bound and extension-field descent.
 -/
 

@@ -51,7 +51,7 @@ distinct positions.
 ## References
 
 * [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated
-  Agreement up to Capacity*][DKTZ26], Theorem 7.4.
+  Agreement up to Capacity*][DKTZ26], Theorem A.6.
 -/
 
 open PolynomialDifferential Polynomial

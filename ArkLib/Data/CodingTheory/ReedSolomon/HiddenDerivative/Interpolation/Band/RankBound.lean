@@ -14,7 +14,7 @@ import Mathlib.Analysis.SpecialFunctions.Trigonometric.DerivHyp
 /-!
 # Finite weighted upper bounds for the asymmetric-band rank budget
 
-This follows equations `band-lattice-ratio` and `band-geometric-rank` of [DKTZ26].
+This follows equations (39)–(40) (`eq:band-lattice-ratio` and `eq:band-geometric-rank`) of [DKTZ26].
 The lattice estimate reuses the proved integer sandwich. The `T`-degree dependence is
 retained through the finite sum; no concentration or asymptotic premise is assumed.
 

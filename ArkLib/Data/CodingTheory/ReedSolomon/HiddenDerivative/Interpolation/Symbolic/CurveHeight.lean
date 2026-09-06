@@ -18,7 +18,8 @@ This is the arithmetic height transfer, not construction of a symbolic interpola
 ## References
 
 * [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
-  up to Capacity*][DKTZ26], Section 11, the finite-height comparison for polynomial curves.
+  up to Capacity*][DKTZ26], Section 5.6 (Theorem 5.14), the finite-height comparison for
+  polynomial curves.
 -/
 
 namespace ReedSolomon.HiddenDerivative

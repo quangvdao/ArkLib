@@ -17,7 +17,8 @@ restriction on the characteristic relative to the batching degree.
 ## References
 
 * [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
-  up to Capacity*][DKTZ26], Section 11, common and accidental agreements on polynomial graphs.
+  up to Capacity*][DKTZ26], Section 5.6 (Theorem 5.14), common and accidental agreements
+  on polynomial graphs.
 -/
 
 noncomputable section

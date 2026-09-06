@@ -13,7 +13,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.GeometricB
 
 This module assembles all mathematical list bounds accompanying [DKTZ26, Theorem 1.1].
 `HasCapacityLists` spells out the common exact-list property. `CapacityListBounds` collects
-the quantitative conclusions, led by the field-independent bound of Corollary 7.5.
+the quantitative conclusions, led by the field-independent bound of Corollary A.7.
 The capacity gap is fixed before the block length, dimension,
 prime field, evaluation points, and received word. The statement includes both
 field-size regimes and uses ordinary polynomial degree, including the zero polynomial.
@@ -160,7 +160,7 @@ on that gap. `HasCapacityLists` gives the exact agreement list for every admissi
 and received word; `CapacityListBounds` gives the field-independent bound and both
 finite-field refinements, together with the quarter-gap and half-gap conclusions.
 
-This is the mathematical list portion of [DKTZ26, Theorem 1.1], including Corollary 7.5.
+This is the mathematical list portion of [DKTZ26, Theorem 1.1], including Corollary A.7.
 It does not certify the separate decoder or running-time assertion. -/
 theorem exists_capacity_list (δ : ℝ) (hδ : 0 < δ) (hδ_one : δ < 1) :
     HasCapacityLists δ (capacityLengthThreshold δ) (CapacityListBounds δ) := by

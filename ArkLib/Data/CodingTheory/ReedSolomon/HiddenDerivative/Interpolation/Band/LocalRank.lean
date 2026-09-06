@@ -13,7 +13,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local
 
 This file implements the reachable-coordinate argument of [Dao, Kominers, Thaler, and Zheng,
 *Reed--Solomon List Decoding and Mutual Correlated Agreement up to Capacity*][DKTZ26], equation
-`band-reachable-coordinates`.
+(36) (`eq:band-reachable-coordinates`).
 The map is the existing `localConstraintAt`, with the error occurring as `TE` and retained
 contact order `i+d*h<m`. The support argument works directly at arbitrary received points.
 

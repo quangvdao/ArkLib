@@ -21,7 +21,7 @@ has at least `L` common agreements. No characteristic bound involving `ℓ` is r
 ## References
 
 * [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
-  up to Capacity*][DKTZ26], Section 11, polynomial graphs and accidental agreements.
+  up to Capacity*][DKTZ26], Section 5.6 (Theorem 5.14), polynomial graphs and accidental agreements.
 -/
 
 namespace ReedSolomon

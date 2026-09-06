@@ -13,7 +13,8 @@ import Mathlib.Algebra.Order.Archimedean.Real.Basic
 
 This is the separate support of [Dao, Kominers, Thaler, and Zheng,
 *Reed--Solomon List Decoding and Mutual Correlated Agreement up to Capacity*][DKTZ26],
-Theorem `thm:asymmetric-band`, equations `band-support` and `band-space`, at.
+Theorem 3.4 (`thm:asymmetric-band`), equations (22)–(23)
+(`eq:band-support` and `eq:band-space`).
 
 The strict real threshold `L` is intended to be `m * D * (1 + g)`. All jets are charged by
 `D`, and the higher-jet degree has both lower and upper edges. This support is separate from

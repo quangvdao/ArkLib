@@ -22,7 +22,7 @@ Reed--Solomon polynomial. No matrix-rank or coefficient-height assumption remain
 ## References
 
 * [Dao, Q., Kominers, S. D., Thaler, J., Zheng, K. Z., *Reed--Solomon List Decoding and Mutual
-  Correlated Agreement up to Capacity*][DKTZ26]
+  Correlated Agreement up to Capacity*][DKTZ26], Section 5.1, Corollary 5.3.
 -/
 
 open PolynomialDifferential

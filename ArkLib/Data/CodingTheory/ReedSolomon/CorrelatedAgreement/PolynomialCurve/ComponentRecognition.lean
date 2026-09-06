@@ -18,7 +18,7 @@ The statement works over any algebraically closed extension of the received-word
 ## References
 
 * [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
-  up to Capacity*][DKTZ26], Section 11, recognition of polynomial graphs.
+  up to Capacity*][DKTZ26], Section 5.6 (Theorem 5.14), recognition of polynomial graphs.
 -/
 
 noncomputable section

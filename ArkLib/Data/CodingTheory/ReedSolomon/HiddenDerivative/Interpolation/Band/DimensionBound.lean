@@ -13,7 +13,7 @@ import Mathlib.Algebra.BigOperators.Intervals
 
 This proves the dimension estimate of [Dao, Kominers, Thaler, and Zheng,
 *Reed--Solomon List Decoding and Mutual Correlated Agreement up to Capacity*][DKTZ26], equation
-`band-dimension-final`.
+(35) (`eq:band-dimension-final`).
 The proof counts an explicit integer simplex inside the exact staircase index. It keeps the
 band cardinality symbolic and uses no volume or concentration premise.
 It uses `gm ≥ 120`, discharged from the manuscript's stronger `gm ≥ 100(d+1)`,

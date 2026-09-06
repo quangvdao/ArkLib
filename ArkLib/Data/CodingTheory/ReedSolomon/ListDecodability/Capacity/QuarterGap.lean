@@ -12,8 +12,8 @@ import Mathlib.Algebra.Field.ZMod
 /-!
 # Reed-Solomon list bounds at gaps of at least one quarter
 
-This module proves list bounds for capacity gaps at least one quarter. The proof is the
-elementary agreement-counting argument from [DKTZ26]: distinct degree-`< k` Reed--Solomon words
+This module proves the large-gap list bounds of [DKTZ26] by elementary agreement counting:
+distinct degree-`< k` Reed--Solomon words
 agree in at most `k - 1` positions, and the exact Cauchy--Schwarz estimate from
 `Code.card_mul_sq_minAgreement_sub_pairAgreement_le` bounds every finite high-agreement family.
 
@@ -30,7 +30,9 @@ interpolation algorithm or running-time claim.
 ## References
 
 * [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
-  up to Capacity*][DKTZ26], Theorem 4.2, its list-cardinality conclusion.
+  up to Capacity*][DKTZ26], Theorem 1.1 and Section 4.1 (large-gap list bounds).
+  The elementary counting proof here differs from the order-zero interpolation route of
+  Theorem 3.5.
 -/
 
 namespace ReedSolomon

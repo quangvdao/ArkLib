@@ -21,7 +21,7 @@ The polynomials here are literal universal Hasse jets, with binomial coefficient
 ## References
 
 * [Dao, Q., Kominers, S. D., Thaler, J., Zheng, K. Z., *Reed--Solomon List Decoding and Mutual
-  Correlated Agreement up to Capacity*][DKTZ26]
+  Correlated Agreement up to Capacity*][DKTZ26], Appendix A.3, Lemma A.5.
 -/
 
 namespace ReedSolomon.HiddenDerivative

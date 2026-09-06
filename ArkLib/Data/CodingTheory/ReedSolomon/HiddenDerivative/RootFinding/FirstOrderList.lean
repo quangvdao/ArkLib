@@ -47,7 +47,7 @@ polynomials is finite, and it does not perform an interleaving or polynomial-cur
 ## References
 
 * [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated
-  Agreement up to Capacity*][DKTZ26], cap-sensitive first-order list bound.
+  Agreement up to Capacity*][DKTZ26], Section 6.1.2, Lemma 6.2 (cap-sensitive first-order transfer).
 -/
 
 open PolynomialDifferential

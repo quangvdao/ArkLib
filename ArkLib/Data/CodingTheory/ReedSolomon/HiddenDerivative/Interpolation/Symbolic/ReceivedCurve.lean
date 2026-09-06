@@ -20,7 +20,8 @@ The rank bound is an explicit hypothesis here; this module does not assert a cap
 ## References
 
 * [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
-  up to Capacity*][DKTZ26], Section 11, symbolic interpolation for polynomial curves.
+  up to Capacity*][DKTZ26], Section 5.6 (Theorem 5.14), symbolic interpolation for polynomial
+  curves.
 -/
 
 noncomputable section

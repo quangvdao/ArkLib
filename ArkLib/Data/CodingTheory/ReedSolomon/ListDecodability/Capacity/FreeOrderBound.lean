@@ -25,7 +25,8 @@ consequence of a uniform family of interpolation witnesses without prescribing i
 ## References
 
 * [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
-  up to Capacity*][DKTZ26], uniform list-decoding capacity.
+  up to Capacity*][DKTZ26], Section 7.1, Proposition 7.1
+  (all-rate transfer from the low-rate certificate).
 -/
 
 open PolynomialDifferential

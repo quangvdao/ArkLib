@@ -51,7 +51,8 @@ Prescribed small-gap parameters remain available in `exists_prescribedLineMCA` a
 ## References
 
 * [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
-  up to Capacity*][DKTZ26], Theorem 1.2 and Sections 8–11.
+  up to Capacity*][DKTZ26], Theorem 1.2; Section 5.2 (Taylor-coordinate proof); Corollary 5.13
+  (affine families); and Section 5.6, Theorem 5.14 (power batching).
 -/
 
 open PolynomialDifferential
