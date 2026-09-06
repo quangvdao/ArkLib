@@ -99,7 +99,8 @@ structure FirstOrderSymbolicCertificate {n N : ℕ} (D A m M μ k h : ℕ)
           differentialSpecialization
             (MvPolynomial.map (Polynomial.eval₂RingHom ι z) Q) P = 0
 
-private theorem coeff_interpolant_natDegree_le {N h : ℕ}
+/-- Distinct source columns preserve the coefficient height of the kernel vector. -/
+theorem coeff_interpolant_natDegree_le {N h : ℕ}
     (columns : Fin N → SourceColumn 1) (hcolumns : Function.Injective columns)
     (v : Fin N → F[X]) (hv : ∀ j, (v j).natDegree ≤ h) :
     ∀ u, (MvPolynomial.coeff u (interpolant columns v)).natDegree ≤ h := by
@@ -120,7 +121,8 @@ private theorem coeff_interpolant_natDegree_le {N h : ℕ}
       · rfl
     simp [hcoeff]
 
-private theorem interpolant_mem_firstOrderSpace {D A m M μ N : ℕ}
+/-- Assembling eligible source columns preserves the finite first-order support. -/
+theorem interpolant_mem_firstOrderSpace {D A m M μ N : ℕ}
     (columns : Fin N → SourceColumn 1)
     (heligible : ∀ j, (columns j).exponent ∈ firstOrderExponents D A m M μ)
     (v : Fin N → F[X]) :
