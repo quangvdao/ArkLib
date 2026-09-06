@@ -7,17 +7,87 @@ Authors: Quang Dao
 import ArkLib.Data.CodingTheory.ReedSolomon.Counterexamples.Binary.RationalLine.Errors
 
 /-!
-# Binary rational-line counterexample
+# Binary rational-line counterexample: definitions and complete statements
 
-This file is the reader-facing statement of the binary-field rational-line counterexample.
-It writes out the field parameters, the two source words, the affine mixtures, the explicit
-explaining polynomial, and the relevant agreement sets in one place. The first theorem gives
-the complete deterministic construction; the second records its consequences for ArkLib's
-correlated-agreement and multi-correlated-agreement errors.
+This file writes out the construction and the conclusions. The imported files supply
+proofs; no problem-specific definition needs to be looked up to read the statements here.
 
-The supporting modules contain the reusable definitions and proofs. Here, comments are placed
-beside the corresponding Lean expressions so that the mathematical statement can be read from
-top to bottom without unfolding problem-specific abbreviations or moving between files.
+## Field, code, and agreement
+
+Let `F` be a field of characteristic two with `q = |F| = 2^m` elements, where `m ≥ 3`.
+Set `k = q/4` and `A = q/2`. All coordinates are indexed by the whole field, including zero.
+
+The Reed–Solomon code is
+
+  C = { (P(x))_{x ∈ F} : P ∈ F[X], degree(P) < k }.
+
+It has block length `q`, dimension `k`, and rate `1/4`. The degree of the zero polynomial
+is minus infinity, so it is included in the condition `P.degree < k`.
+
+For words `u,v : F → F`, their agreement is `|{x ∈ F : u(x) = v(x)}|`.
+Their relative Hamming distance is `|{x ∈ F : u(x) ≠ v(x)}| / q`.
+Distance to the code is the minimum of this distance over its codewords. Thus distance
+at most `1/2` means agreement with a degree-`< k` polynomial on at least `A` coordinates.
+
+## Explicit words and explaining polynomial
+
+The binary trace is `Tr(x) = ∑_{i=0}^{m-1} x^(2^i)`, with values zero and one.
+Choose `τ` with `Tr(τ) = 1`. The two source words are
+
+  f(0) = 1,    f(x) = x^(A-1) for x ≠ 0;
+  g(0) = τ,    g(x) = x⁻¹     for x ≠ 0.
+
+For each challenge `z ∈ F`, put `s_z = 1` if `z = 0`, and `s_z = z⁻¹` otherwise.
+The explicit explaining polynomial is
+
+  P_z(X) = ∑_{i=0}^{m-2} s_z^(2^(i+1)-1) X^(2^i-1).
+
+`Polynomial.C a` below denotes the constant polynomial `a`; `Polynomial.X` is the
+indeterminate. `Finset.range r` is `{0,...,r-1}`. `Finset.univ.filter` selects exactly
+those field elements satisfying its predicate, and `.card` counts them.
+
+## Meaning of the conclusions
+
+The theorem defines the whole agreement sets in its statement:
+
+  S(z,P) = {x : P(x) = f(x) + z g(x)},
+  T(P,Q) = {x : P(x) = f(x) and Q(x) = g(x)}.
+
+It proves, for this same choice of τ and these same explicit words and polynomials:
+
+1. `degree(P) < k` and `|S(z,P)| ≥ A` hold if and only if `P = P_z`.
+   In particular P_z has degree below k and is the unique qualifying polynomial.
+2. `|S(z,P_z)| = A` exactly, including the origin coordinate.
+3. Every degree-`< k` polynomial has at most A agreements with the mixture.
+4. Every pair of degree-`< k` polynomials has at most k+1 common source agreements.
+5. Some pair has at least k common source agreements.
+
+The common-agreement conclusion is the interval from k to k+1; equality with k+1 is
+not asserted. Uniqueness concerns this affine line, not arbitrary received words.
+
+## Correlated-agreement errors: definitions at radius 1/2
+
+Here are the meanings of the two error quantities in the second theorem. A challenge
+is uniformly distributed over F, so the probability of an event B is `|B|/q`.
+
+For a source pair `(u,v)`, call it jointly close if there exist degree-`< k` polynomials
+P,Q and a set H of at least A coordinates such that P(x)=u(x) and Q(x)=v(x) on H.
+The CA bad event at z is:
+
+  u+zv is within distance 1/2 of C, but (u,v) is not jointly close.
+
+The CA error is the supremum, over all source pairs `(u,v)`, of this event's probability.
+This is `ProximityGap.epsCa C (1/2) (1/2)` below.
+
+The MCA bad event at z is that there exists a set H of at least A coordinates such that
+some degree-`< k` polynomial agrees with u+zv on H, but at least one source word has no
+degree-`< k` polynomial explanation on that same H. The MCA error is the supremum of
+this event's probability over all source pairs. The affine-line generator uses weights
+`(1,z)`; this is `mcaError (AffineLineGenerator F) C (1/2)` below.
+
+For our constructed pair every challenge is bad: its mixture has A agreements, whereas
+joint source agreement is at most k+1 < A. Hence both errors equal one. The numeric
+theorem uses ArkLib's canonical code and error objects with precisely these meanings.
 -/
 
 namespace ReedSolomon.Binary
