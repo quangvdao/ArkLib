@@ -125,13 +125,6 @@ noncomputable def polynomialCurveUniformMCAConstant (δ : ℝ) (v d : ℕ) : ℝ
   (338 * v : ℕ) + v * (((1 + 338 * v : ℕ) : ℝ) * (v + 1) + v) *
     (max 1 (polynomialCurveChartScale δ v)) ^ (d + 1)
 
-/-- The gap-only specialization of the polynomial-curve MCA coefficient. -/
-noncomputable def prescribedCurveMCAConstant (δ : ℝ) : ℝ :=
-  let d := Nat.ceil (Real.exp ((169 / 25) / δ))
-  let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
-  let v := 2 * m - 1
-  polynomialCurveUniformMCAConstant δ v d
-
 /-- The actual-order stage bound after midpoint normalization. Its lifted prefactor is
 independent of the Taylor cutoff `K`. -/
 noncomputable def polynomialCurveStageBound

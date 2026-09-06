@@ -6,7 +6,7 @@ Authors: Quang Dao
 
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.Certificate
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.Parameters
-import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.CurveCountingBound
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.SharpCountingBound
 
 /-!
 # Prescribed mutual correlated agreement on extension-field polynomial curves
@@ -14,8 +14,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.CurveCo
 The prescribed interpolation parameters give one symbolic curve certificate whose derivative
 order and jet cap depend only on the capacity gap.  Its actual separant stages feed the
 polynomial-curve incidence theorem before any stage-order uniformization.  The chunked power lift
-then gives a batching-linear scalar envelope with the same qualitative `n^(d+1)` exponent as the
-paper, with deliberately looser numerical constants than its mixed-bidegree estimate.
+then gives the sharp batching-linear scalar envelope with the paper's `n^(d+1)` exponent.
 -/
 
 open PolynomialDifferential
@@ -30,9 +29,9 @@ open scoped BigOperators
 
 universe u
 
-/-- The structural prescribed-curve endpoint, retaining the current regular-chart budget of every
-actual separant stage.  No scalar uniformization, and in particular no extra power of `n`, is
-hidden in this statement. -/
+/-- The structural prescribed-curve endpoint, retaining the sharp regular-chart budget, active
+derivative order, and total jet weight of every actual separant stage. No scalar uniformization,
+and in particular no extra power of `n`, is hidden in this statement. -/
 theorem exists_prescribedCurveMCA_exact {F E : Type u} [Field F] [Field E]
     [DecidableEq F] [DecidableEq E] [IsAlgClosed E]
     (δ : ℝ) (n k ℓ : ℕ) (domain : Fin n ↪ F)
@@ -53,9 +52,11 @@ theorem exists_prescribedCurveMCA_exact {F E : Type u} [Field F] [Field E]
     ∃ stages : List (Stage F[X] d), ∃ exceptional : Finset E,
       (exceptional.card : ℚ) ≤ (H : ℚ) +
         ∑ stage ∈ stages.toFinset,
-          regularSymbolicCurveMCABound n stage.2.val ℓ K k L A ν H ∧
+          regularSymbolicCurveMCASharpBound stage.2.val n ℓ K k L A
+            (jetWeight stage.1) H ∧
       stages.toFinset.card ≤ ν ∧
       (∀ stage ∈ stages, stage.2.val ≤ d) ∧
+      (∀ stage ∈ stages, 0 < jetWeight stage.1 ∧ jetWeight stage.1 ≤ ν) ∧
       ∀ z ∉ exceptional, ∀ P : E[X], P.degree < k →
         A ≤ (polynomialAgreementSet (mappedDomain domain iota)
           (powerBatchedWord (fun t i ↦ iota (values t i)) z) P).card →
@@ -77,14 +78,19 @@ theorem exists_prescribedCurveMCA_exact {F E : Type u} [Field F] [Field E]
       (fun i ↦ powerBatchedCoordinate_natDegree_le fun t ↦ values t i)
       hℓ hδ hδ' hk hblock hA
   obtain ⟨stages, terminal, hc, exceptional, hcard, hexact⟩ :=
-    cert.exists_exceptional_symbolicCurveMCA iota K L hdK hkK hk
+    cert.exists_exceptional_symbolicCurveMCA_sharp iota K L hdK hkK hk
       (correlatedMidpoint_bounds δ n k A hδ.le hgap hA).1
-      (correlatedMidpoint_bounds δ n k A hδ.le hgap hA).2.1 hA hℓ hν
+      (correlatedMidpoint_bounds δ n k A hδ.le hgap hA).2.1 hA hℓ
       (hchar.imp_right (fun hnchar ↦ hνn.trans_le hnchar)) (by
         intro r hr i hri hiK
         exact binomial_pivots_of_characteristic hchar r i hri (hiK.trans_le hKn))
-  refine ⟨stages, exceptional, hcard, ?_, (fun stage _ ↦ Fin.is_le stage.2), hexact⟩
-  exact (List.toFinset_card_le stages).trans (hc.length_le.trans cert.jetWeight_le)
+  refine ⟨stages, exceptional, hcard, ?_, (fun stage _ ↦ Fin.is_le stage.2), ?_, hexact⟩
+  · exact (List.toFinset_card_le stages).trans (hc.length_le.trans cert.jetWeight_le)
+  · intro stage hs
+    refine ⟨?_, (hc.stage_contract stage hs).2.2.1.trans cert.jetWeight_le⟩
+    have hactive := (isHighestActiveJet_of_highestActiveJet_eq_some
+      (hc.stage_contract stage hs).2.1).1
+    exact hactive.trans_le (jetDegree_le_jetWeight stage.1 stage.2)
 
 /-- In the prescribed small-gap regime, one finite exceptional set works for every close
 extension-field polynomial on a degree-`ℓ` powers-batched curve.  The exceptional count is
@@ -100,7 +106,7 @@ theorem exists_prescribedCurveMCA {F E : Type u} [Field F] [Field E]
     (hA : agreementThreshold δ n k ≤ n)
     (hchar : ringChar F = 0 ∨ n ≤ ringChar F) :
     ∃ exceptional : Finset E,
-      (exceptional.card : ℝ) ≤ (ℓ : ℝ) * prescribedCurveMCAConstant δ *
+      (exceptional.card : ℝ) ≤ (ℓ : ℝ) * prescribedMCAConstant δ *
         (n : ℝ) ^ (Nat.ceil (Real.exp ((169 / 25) / δ)) + 1) ∧
       ∀ z ∉ exceptional, ∀ P : E[X], P.degree < k →
         agreementThreshold δ n k ≤
@@ -115,23 +121,48 @@ theorem exists_prescribedCurveMCA {F E : Type u} [Field F] [Field E]
   let K := max k (d + 1)
   let L := correlatedMidpoint δ n k
   let H := 338 * (ℓ * ν) - 1
-  obtain ⟨hn, _hm, _hν, _hνm, _hνn, _hdK, _hkK, hKn, _hkA, hgap⟩ :=
+  obtain ⟨hn, _hm, hν, _hνm, _hνn, _hdK, _hkK, hKn, _hkA, hgap⟩ :=
     prescribed_geometric_parameters δ n k hδ hδ' hk hblock hA
-  obtain ⟨stages, exceptional, hcard, hstages, horders, hexact⟩ :=
+  obtain ⟨stages, exceptional, hcard, hstages, horders, hweights, hexact⟩ :=
     exists_prescribedCurveMCA_exact δ n k ℓ domain values iota hδ hδ' hk hℓ
       hblock hA hchar
   refine ⟨exceptional, ?_, hexact⟩
   have hcardR : (exceptional.card : ℝ) ≤ (H : ℝ) +
       ∑ stage ∈ stages.toFinset,
-        (regularSymbolicCurveMCABound n stage.2.val ℓ K k L A ν H : ℝ) := by
+        (regularSymbolicCurveMCASharpBound stage.2.val n ℓ K k L A
+          (jetWeight stage.1) H : ℝ) := by
     change (exceptional.card : ℚ) ≤ (H : ℚ) +
       ∑ stage ∈ stages.toFinset,
-        regularSymbolicCurveMCABound n stage.2.val ℓ K k L A ν H at hcard
+        regularSymbolicCurveMCASharpBound stage.2.val n ℓ K k L A
+          (jetWeight stage.1) H at hcard
     exact_mod_cast hcard
   apply hcardR.trans
-  simpa only [prescribedCurveMCAConstant] using
-    (regularSymbolicCurveMCA_finiteStage_uniform_le stages.toFinset
-      (fun stage ↦ stage.2.val) δ n K k A ℓ ν d hδ hn hKn hgap hA hstages
-      (fun stage hs ↦ horders stage (List.mem_toFinset.mp hs)))
+  have hδone : δ ≤ 1 := by linarith
+  have hh : 0 < 338 * ν := Nat.mul_pos (by omega) hν
+  have hH : H ≤ ℓ * (338 * ν) := by
+    dsimp only [H]
+    calc
+      338 * (ℓ * ν) - 1 ≤ 338 * (ℓ * ν) := Nat.sub_le _ _
+      _ = ℓ * (338 * ν) := by ring
+  have hterminal : (H : ℝ) ≤ ((ℓ * (338 * ν) : ℕ) : ℝ) := by exact_mod_cast hH
+  calc
+    (H : ℝ) + ∑ stage ∈ stages.toFinset,
+        (regularSymbolicCurveMCASharpBound stage.2.val n ℓ K k L A
+          (jetWeight stage.1) H : ℝ) ≤
+      ((ℓ * (338 * ν) : ℕ) : ℝ) + ∑ stage ∈ stages.toFinset,
+        (regularSymbolicCurveMCASharpBound stage.2.val n ℓ K k L A
+          (jetWeight stage.1) H : ℝ) := add_le_add hterminal le_rfl
+    _ ≤ (ℓ : ℝ) * polynomialCurveSharpMCAConstant δ ν (338 * ν) d *
+        (n : ℝ) ^ (d + 1) := by
+      simpa only using
+        (regularSymbolicCurveMCASharp_finiteStage_uniform_le stages.toFinset
+          (fun stage ↦ stage.2.val) (fun stage ↦ jetWeight stage.1) (fun _ ↦ H)
+          δ n K k A ℓ ν (338 * ν) d hδ hδone hn hk hν hh hKn hgap hA hstages
+          (fun stage hs ↦ horders stage (List.mem_toFinset.mp hs))
+          (fun stage hs ↦ (hweights stage (List.mem_toFinset.mp hs)).1)
+          (fun stage hs ↦ (hweights stage (List.mem_toFinset.mp hs)).2)
+          (fun _ _ ↦ hH))
+    _ = (ℓ : ℝ) * prescribedMCAConstant δ * (n : ℝ) ^ (d + 1) := by
+      simp only [prescribedMCAConstant, d, m, ν]
 
 end ReedSolomon
