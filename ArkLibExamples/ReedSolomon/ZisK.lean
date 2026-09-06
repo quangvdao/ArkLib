@@ -38,9 +38,10 @@ quantifies a value, representing the part of the encoded payload unchanged by th
 ## Proof route and scope
 
 Every theorem reduces a closed integer equality or inequality with `norm_num` or `omega`. The
-exceptional counts are supplied by `goldilocks-beyond-poseidon.json`; this module does not derive
-them from the interpolation and polynomial-curve theorems. Consequently it certifies the displayed
-parameter arithmetic, not ZisK soundness. The batching nonce also requires a prover/verifier
+exceptional counts are numerical inputs at this layer. `ConcreteCurveMCA` derives them from
+interpolation and polynomial-curve geometry, and `ZisKCertifiedBudget` connects the constructed
+exceptional sets to these slots over cubic Goldilocks. This module checks the parameter arithmetic.
+The batching nonce also requires a prover/verifier
 transcript hook that is absent from the pinned implementation.
 -/
 

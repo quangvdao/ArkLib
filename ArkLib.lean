@@ -204,6 +204,7 @@ import
 ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.ExceptionalChallenges
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.ExceptionalSet
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.ExtensionDescent
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.FailureProbability
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.FullAgreement
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.GraphAdmissibility
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.GraphCounting
@@ -479,6 +480,7 @@ import ArkLib.Data.Probability.Combinatorial
 import ArkLib.Data.Probability.Instances
 import ArkLib.Data.Probability.KoalaBear
 import ArkLib.Data.Probability.Notation
+import ArkLib.Data.Probability.UniformQueryBoundary
 import ArkLib.Interaction.Oracle.Protocol
 import ArkLib.Interaction.Oracle.TypeTree
 import ArkLib.Interaction.Oracle.TypeTree.Decoration

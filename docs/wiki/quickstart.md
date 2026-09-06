@@ -57,13 +57,21 @@ correlated agreement (MCA), and query/payload arithmetic. Start with the applica
   over any positive-dimensional affine space. Its canonical BN254 corollaries discharge the
   field size and characteristic conditions. `ProveKitQueryTuning` checks the 108-query grinding
   threshold and conservative additional payload saving; `ProveKitSharpLists` derives the
-  sharper original list bounds.
+  sharper original list bounds. `ProveKitSharpMCA` derives the sharp original BN254 and
+  cubic-Goldilocks width-eight affine bounds. `ProveKitExpectedPayload` proves exact intervals for the
+  expected authentication-payload savings, using the finite uniform-query counting theorem
+  in `Data/Probability/UniformQueryBoundary`.
 - `LambdaVMFields` gives the five equality-table list bounds over cubic Goldilocks, including
-  the width-18 tuples. `LambdaVMTables` combines each derived list bound with a supplied
-  exceptional-count bound in the local error expression and checks the payload arithmetic.
+  the width-18 tuples. `LambdaVMCertifiedBudget` constructs the 35 exceptional sets and combines
+  their five window sums with those list bounds to prove the local error targets.
+  `LambdaVMTables` contains the underlying arithmetic and payload identities.
 - `ConcreteCurves` constructs actual polynomial-curve interpolation certificates for all six
   ZisK profiles and all 35 LambdaVM initial/folding profiles. `ConcreteCurveBounds` checks their
-  sharp rational envelopes and matches the five LambdaVM sums to the local error budgets.
+  sharp rational envelopes. `ConcreteCurveMCA` derives the actual exceptional-cardinality
+  bounds and exact power agreement, also covering the original BN254 and cubic-Goldilocks
+  ProveKit rows. `ZisKCertifiedBudget` discharges the field conditions and six local slots.
+  `AppendixCurveMCA` covers the two published 512-word BN254 bounds; one uses a smaller
+  interpolation witness to establish the same published conclusion.
 - `Fields` supplies canonical mathematical models and proved cardinalities/characteristics
   for BN254 and cubic Goldilocks.
 
@@ -76,14 +84,19 @@ Read the generic development in this order:
 4. `FirstOrder/FiniteCertificate` and `CurveFinite`: executable height tests constructing one
    primitive equation before all extension fields, challenges, and close candidates.
 5. `FirstOrder/SharpListBound`: list counting that retains the first-derivative cap.
-6. `Interleaved/AgreementBounds` and `AffineAgreementBounds`: width-preserving list and MCA
+6. `PolynomialCurve/SharpRegularEquation` and `SharpTupleCounting`, together with
+   `ToMathlib/AlgebraicGeometry/Incidence/SharpExcluded`: mixed-degree geometric counting
+   and the sharp incidence bounds.
+7. `CorrelatedAgreement/FirstOrderCurve`: the complete finite curve theorem, from the height
+   inequality through the actual separant chain to a uniform base-field exceptional set.
+8. `Interleaved/AgreementBounds` and `AffineAgreementBounds`: width-preserving list and MCA
    transfer, followed by the affine-space consequence.
 
-The sharp curve envelopes are not yet exceptional-set cardinality theorems. Completing that
-connection requires the sharp geometric incidence argument. The original `ZisK` and `LambdaVM`
-modules therefore still label their exceptional counts as supplied. These examples prove
-mathematical specializations and explicit payload-model identities; they do not formalize a
-complete deployed transcript or its serializer.
+The application endpoints construct exceptional sets and derive their cardinality bounds; they
+do not assume the final MCA counts. The original `ZisK` and `LambdaVM` arithmetic modules are
+reusable numerical layers, with the derived bounds supplied by the certified-budget modules.
+These examples prove mathematical specializations and explicit payload-model identities; they
+do not formalize a complete deployed transcript or its serializer.
 
 ### Lean source-policy checks
 
