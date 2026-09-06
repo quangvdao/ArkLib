@@ -4,6 +4,9 @@ import ArkLibExamples.ReedSolomon.ConcreteCurveMCA
 import ArkLibExamples.ReedSolomon.ConcreteCurves
 import ArkLibExamples.ReedSolomon.Fields
 import ArkLibExamples.ReedSolomon.LambdaVM
+import ArkLibExamples.ReedSolomon.LambdaVMAnchoredBudget
+import ArkLibExamples.ReedSolomon.LambdaVMAnchoredCandidates
+import ArkLibExamples.ReedSolomon.LambdaVMAnchoredLists
 import ArkLibExamples.ReedSolomon.LambdaVMCertifiedBudget
 import ArkLibExamples.ReedSolomon.LambdaVMFields
 import ArkLibExamples.ReedSolomon.LambdaVMInterleaving
@@ -12,6 +15,7 @@ import ArkLibExamples.ReedSolomon.LambdaVMLists
 import ArkLibExamples.ReedSolomon.LambdaVMTables
 import ArkLibExamples.ReedSolomon.ProveKit
 import ArkLibExamples.ReedSolomon.ProveKitAffine
+import ArkLibExamples.ReedSolomon.ProveKitCertifiedBudget
 import ArkLibExamples.ReedSolomon.ProveKitExpectedPayload
 import ArkLibExamples.ReedSolomon.ProveKitInterleaving
 import ArkLibExamples.ReedSolomon.ProveKitInterpolation
