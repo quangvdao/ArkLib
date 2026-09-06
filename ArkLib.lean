@@ -181,6 +181,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.Agreement.Interpolation
 import ArkLib.Data.CodingTheory.ReedSolomon.Constrained
 import ArkLib.Data.CodingTheory.ReedSolomon.Counterexamples.Binary.RationalLine
 import ArkLib.Data.CodingTheory.ReedSolomon.Counterexamples.Binary.RationalLine.Bounds
+import ArkLib.Data.CodingTheory.ReedSolomon.Counterexamples.Binary.RationalLine.Construction
 import ArkLib.Data.CodingTheory.ReedSolomon.Counterexamples.Binary.RationalLine.Errors
 import ArkLib.Data.CodingTheory.ReedSolomon.Counterexamples.Binary.RationalLine.Lacunary
 import ArkLib.Data.CodingTheory.ReedSolomon.Counterexamples.Binary.RationalLine.Rigidity

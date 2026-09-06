@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.Data.CodingTheory.ReedSolomon.Counterexamples.Binary.RationalLine
+import ArkLib.Data.CodingTheory.ReedSolomon.Counterexamples.Binary.RationalLine.Construction
 import ArkLib.Data.CodingTheory.ProximityGap.Errors
 
 /-!
