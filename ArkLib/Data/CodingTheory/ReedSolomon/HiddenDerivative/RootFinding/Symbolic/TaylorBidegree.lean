@@ -381,6 +381,16 @@ theorem flattenChallenge_mem_restrictBidegree {P : MvPolynomial σ F[X]} {a b : 
   exact ⟨(le_weightedTotalDegree _ hm).trans (flattenChallenge_challengeDegree_le ha),
     (le_weightedTotalDegree _ hm).trans ((flattenChallenge_jetDegree_le P).trans hb)⟩
 
+/-- Componentwise enlargement preserves membership in a bidegree rectangle. -/
+theorem source_mem_restrictBidegree_mono {P : MvPolynomial (Option σ) F}
+    {a b c d : ℕ}
+    (hP : P ∈ AffineHilbert.restrictBidegree (F := F) (σ := σ) a b)
+    (hac : a ≤ c) (hbd : b ≤ d) :
+    P ∈ AffineHilbert.restrictBidegree (F := F) (σ := σ) c d := by
+  rw [AffineHilbert.mem_restrictBidegree] at hP ⊢
+  intro m hm
+  exact ⟨(hP m hm).1.trans hac, (hP m hm).2.trans hbd⟩
+
 /-- The flattened initial source equation lies in the exact `(h,v)` rectangle. -/
 theorem initialJetEquationOver_mem_restrictBidegree
     (center : F) (Q : DifferentialPolynomial F[X] r) (h v : ℕ)
@@ -391,6 +401,18 @@ theorem initialJetEquationOver_mem_restrictBidegree
   apply flattenChallenge_mem_restrictBidegree
   · exact challengeHeightLE_initialJetEquationOver center Q hheight
   · exact (totalDegree_initialJetEquationOver_le _ Q).trans hjet
+
+/-- The flattened initial separant lies in the exact `(h,v-1)` rectangle. -/
+theorem initialJetSeparantOver_mem_restrictBidegree
+    (center : F) (Q : DifferentialPolynomial F[X] r) (h v : ℕ)
+    (hheight : ChallengeHeightLE Q h)
+    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v) :
+    flattenChallenge (initialJetSeparantOver (Polynomial.C center) Q) ∈
+      AffineHilbert.restrictBidegree (F := F) (σ := Fin (r + 1)) h (v - 1) := by
+  apply flattenChallenge_mem_restrictBidegree
+  · exact challengeHeightLE_initialJetSeparantOver Q center hheight
+  · exact (totalDegree_initialJetSeparantOver_le _ Q).trans
+      (Nat.sub_le_sub_right hjet 1)
 
 /-- Every flattened common Taylor numerator lies in the sharp source-cut rectangle. -/
 theorem commonTaylorNumeratorOver_mem_restrictBidegree
