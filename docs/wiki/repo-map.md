@@ -60,8 +60,9 @@ home_page/            site assets and assembled website root
 
 ### Reed–Solomon capacity and its mathematical foundations
 
-The public results remain in `ReedSolomon/ListDecodability/Capacity.lean` and
-`ReedSolomon/CorrelatedAgreement/{Capacity,AffineCapacity}.lean`. Their supporting modules
+The public entry points are `ReedSolomon/ListDecodability/Capacity.lean` and
+`ReedSolomon/CorrelatedAgreement/Capacity.lean`. The latter imports line, affine-family,
+and power-batching MCA together. Their supporting modules
 are grouped by mathematical role:
 
 - `HiddenDerivative/Interpolation/Local` contains contact identities, constraint maps and kernels,
@@ -365,7 +366,8 @@ there are no forwarding modules at the retired paths.
   [coding-theory-conventions.md](coding-theory-conventions.md)).
 - Mathematical capacity list bounds live in `ReedSolomon/ListDecodability/Capacity.lean`;
   field-independent bounds are in its `GeometricBound` and `CodewordBound` modules.
-  Capacity MCA lives in `ReedSolomon/CorrelatedAgreement/Capacity.lean` and `AffineCapacity.lean`.
+  Capacity MCA is collected in `ReedSolomon/CorrelatedAgreement/Capacity.lean`, with line,
+  affine-family, and power-batching results available through that single import.
   `ReedSolomon/Agreement.lean` contains the basic agreement sets, without a decoding theorem.
   The cost-free decoder specification is in `ReedSolomon/Decoding/Specification.lean`;
   the capacity module describes the algorithm but does not claim an executable implementation

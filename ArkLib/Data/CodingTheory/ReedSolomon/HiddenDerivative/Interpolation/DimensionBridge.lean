@@ -25,7 +25,8 @@ the second makes all derivative weights positive, so the cap-free exact support 
 
 ## References
 
-* Dao and Thaler, *Reed--Solomon List Decoding at All Rates via Hidden Derivatives*, Section 5.
+* [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
+  up to Capacity*][DKTZ26].
 -/
 
 open PolynomialDifferential

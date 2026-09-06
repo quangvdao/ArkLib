@@ -21,8 +21,7 @@ Component recognition supplies a tuple for every positive-dimensional prime cont
 
 The power-moment lift charges the batching degree once in the affine degree of its prime base.
 Its source-level incidence theorem retains stage order `r`, has overall linear batching-degree
-dependence, and raises only the batching-independent lifted cut degree to `r + 1`.  A separately
-named `coarse` corollary records the direct ordinary-total-degree route for comparison.
+dependence, and raises only the batching-independent lifted cut degree to `r + 1`.
 -/
 
 open PolynomialDifferential
@@ -416,15 +415,6 @@ theorem aeval_eq_aeval_powerMomentMap_of_mem_zeroLocus
         simpa [lhs, rhs, powerMomentSourcePoint, powerMomentMap] using hz
   exact DFunLike.congr_fun he P
 
-/-- Retained components obtained by first cutting a prime base variety by `g`, then imposing
-the fixed high equations.  This is the cut family used after a lifted-power embedding: the
-batching degree belongs to the affine degree of the base prime, not to the degree of every
-agreement equation. -/
-def primeBaseHypersurfaceCutFamily {σ : Type*} [Finite σ]
-    (P : Ideal (MvPolynomial σ E)) (g s : MvPolynomial σ E)
-    (highCuts : List (MvPolynomial σ E)) : Finset (Ideal (MvPolynomial σ E)) :=
-  iteratedRetainedCutFamily (retainedCutChildren P s g) s highCuts
-
 /-- Incidence after a proper hypersurface cut of an arbitrary prime base variety.
 
 This is the geometric consumer needed by the lifted-power argument.  If the base has dimension
@@ -793,7 +783,7 @@ theorem principalOpen_subset_sourceCurveTupleLocus
 appears only in the moment-base factor `ℓ + h`; the degree raised to the geometric exponent
 `r + 1` is independent of `ℓ`.  This is a numerically looser substitute for the paper's exact
 mixed-bidegree formula, but it has the same qualitative `n` exponent and linear `ℓ` dependence. -/
-theorem finite_sourceCurve_points_off_tuples_card_le_strong_of_source
+theorem finite_sourceCurve_points_off_tuples_card_le
     [IsAlgClosed E] [DecidableEq F] {K k L A v h : ℕ}
     (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F) (iota : F →+* E)
     (center : E) (Q : DifferentialPolynomial E[X] r)
@@ -912,86 +902,5 @@ theorem finite_sourceCurve_points_off_tuples_card_le_strong_of_source
         (hS x hx).2.2.1 i.val i.property
   · intro x hx
     simpa only [cuts, symbolicSourceCurveAgreement, flattenChallenge] using hA x hx
-
-/-- Finite regular source points outside admissible polynomial graphs satisfy ordinary
-hypersurface incidence.  The exponent is the actual stage order `r` plus the retained challenge
-coordinate; `sourceDegree` and `B` remain explicit for sharper future degree inputs. -/
-theorem finite_sourceCurve_points_off_tuples_card_le
-    [IsAlgClosed E] [DecidableEq F] {K k L A sourceDegree B : ℕ}
-    (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F) (iota : F →+* E)
-    (center : E) (Q : DifferentialPolynomial E[X] r)
-    (hK : r < K) (hkL : k ≤ L) (hL : 0 < L) (hLA : L ≤ A) (hAn : A ≤ n)
-    (hinit : symbolicSourceInitialEquation center Q ≠ 0)
-    (hsourceDegree : (symbolicSourceInitialEquation center Q).totalDegree ≤ sourceDegree)
-    (hB : 0 < B)
-    (hhighDegree : ∀ l : Fin K, k ≤ l.val →
-      (symbolicSourceNumerator center Q K l).totalDegree ≤ B)
-    (hagreementDegree : ∀ i,
-      (symbolicSourceCurveAgreement center Q K (iota (domain i))
-        (fun t ↦ iota (w t i))).totalDegree ≤ B)
-    (S : Finset (Option (Fin (r + 1)) → E))
-    (hS : ∀ x ∈ S, aeval x (symbolicSourceInitialEquation center Q) = 0 ∧
-      aeval x (symbolicSourceSeparant center Q) ≠ 0 ∧
-      (∀ l : Fin K, k ≤ l.val → aeval x (symbolicSourceNumerator center Q K l) = 0) ∧
-      x ∉ sourceCurveTupleLocus domain w iota center Q K k L)
-    (hA : ∀ x ∈ S, A ≤ (agreementIndices (fun i ↦
-      symbolicSourceCurveAgreement center Q K (iota (domain i))
-        (fun t ↦ iota (w t i))) x).card) :
-    (S.card : ℚ) ≤ (sourceDegree : ℚ) *
-      (((n * B : ℕ) : ℚ) / ((A - L + 1 : ℕ) : ℚ)) ^ (r + 1) := by
-  have hbound := hypersurfaceCutFamily_incidence_off_excluded
-    (symbolicSourceInitialEquation center Q) (symbolicSourceSeparant center Q)
-    hinit hsourceDegree hB (sourceCurveHighCuts center Q K k)
-    (by
-      intro q hq
-      simp only [sourceCurveHighCuts, List.mem_map, Finset.mem_toList] at hq
-      obtain ⟨l, _, rfl⟩ := hq
-      exact hhighDegree l.val l.property)
-    (fun i ↦ symbolicSourceCurveAgreement center Q K
-      (iota (domain i)) (fun t ↦ iota (w t i))) hagreementDegree hL hLA hAn
-    (sourceCurveTupleLocus domain w iota center Q K k L)
-    (fun I hI hs hi hh hd hc ↦ principalOpen_subset_sourceCurveTupleLocus
-      domain w iota center Q hK hkL I hI hs hi hh hd hc) S
-    (by
-      intro x hx
-      refine ⟨(hS x hx).1, (hS x hx).2.1, ?_, (hS x hx).2.2.2⟩
-      intro q hq
-      simp only [sourceCurveHighCuts, List.mem_map, Finset.mem_toList] at hq
-      obtain ⟨l, _, rfl⟩ := hq
-      exact (hS x hx).2.2.1 l.val l.property) hA
-  simpa using hbound
-
-/-- Coarse source-derived incidence bound.  Its cut degree is additive in `ℓ`, but ordinary
-total-degree Bezout raises that cut degree to `r + 1`; this is not an overall linear-`ℓ` bound. -/
-theorem finite_sourceCurve_points_off_tuples_card_le_coarse_of_source
-    [IsAlgClosed E] [DecidableEq F] {K k L A v h : ℕ}
-    (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F) (iota : F →+* E)
-    (center : E) (Q : DifferentialPolynomial E[X] r)
-    (hK : r < K) (hkL : k ≤ L) (hL : 0 < L) (hLA : L ≤ A) (hAn : A ≤ n)
-    (hinit : symbolicSourceInitialEquation center Q ≠ 0) (hv : 0 < v)
-    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
-    (hheight : ChallengeHeightLE Q h)
-    (S : Finset (Option (Fin (r + 1)) → E))
-    (hS : ∀ x ∈ S, aeval x (symbolicSourceInitialEquation center Q) = 0 ∧
-      aeval x (symbolicSourceSeparant center Q) ≠ 0 ∧
-      (∀ l : Fin K, k ≤ l.val → aeval x (symbolicSourceNumerator center Q K l) = 0) ∧
-      x ∉ sourceCurveTupleLocus domain w iota center Q K k L)
-    (hA : ∀ x ∈ S, A ≤ (agreementIndices (fun i ↦
-      symbolicSourceCurveAgreement center Q K (iota (domain i))
-        (fun t ↦ iota (w t i))) x).card) :
-    (S.card : ℚ) ≤ ((v + h : ℕ) : ℚ) *
-      (((n * (1 + ℓ + 2 * K * (v - 1 + h)) : ℕ) : ℚ) /
-        ((A - L + 1 : ℕ) : ℚ)) ^ (r + 1) := by
-  apply finite_sourceCurve_points_off_tuples_card_le domain w iota center Q hK hkL hL hLA
-    hAn hinit (jointTotalDegree_initialJetEquationOver_le_of_source center Q v h hjet hheight)
-    (by omega)
-  · intro l _
-    exact (jointTotalDegree_commonTaylorNumeratorOver_le_of_source center Q v h K hv hjet
-      hheight l).trans (by omega)
-  · intro i
-    exact totalDegree_symbolicSourceCurveAgreement_le_of_source center Q v h K hv hjet hheight
-      (iota (domain i)) (fun t ↦ iota (w t i))
-  · exact hS
-  · exact hA
 
 end ReedSolomon

@@ -23,16 +23,16 @@ multiple of `T^r (E♯)^h` lies in the kernel of the enlarged low-contact map as
 that multiplication by the displayed factor is injective over a field.
 
 At the canonical threshold `h = contactThreshold d m r`, these maps are the algebraic core of the
-paper's exhibited `K_r` spaces.  The present slice deliberately does not yet assert that their
-bounded ranges lie inside the finite intermediate space, that different `r`-ranges form a direct
-sum, or that the resulting residual count is the rank of the enlarged map.  Those are the
-remaining `I3`/`I4` support and finite-dimensional linear-algebra obligations.
+paper's exhibited `K_r` spaces. Their bounded ranges and direct-sum independence are established
+in `KernelSliceIndependence`; the resulting kernel dimension gives an upper bound on the local
+constraint rank, not an assertion that the exhibited kernel is the entire kernel.
 
 ## References
 
 * Brakensiek, Chen, Putterman, Zhang, and Zheng, *Algorithmic List Decoding of Reed--Solomon
   Codes up to Capacity in the Low-Rate Regime*, ECCC TR26-164, Section 3.
-* Dao and Thaler, *Reed--Solomon List Decoding at All Rates via Hidden Derivatives*, Section 5.
+* [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
+  up to Capacity*][DKTZ26].
 -/
 
 open PolynomialDifferential

@@ -131,8 +131,7 @@ theorem exists_nonzero_global_interpolation_coefficients_of_rank_lt
 
 /-- If the exact global constraint rank is strictly smaller than the exact interpolation
 dimension, there is a nonzero polynomial in the exact interpolation space satisfying every local
-constraint.  This is the conditional `I5` global interpolation theorem; proving the rank premise
-is deliberately left to `I4` and the uniform interpolation certificate. -/
+constraint. The rank premise separates linear-algebraic existence from the local rank estimates. -/
 theorem exists_nonzero_global_interpolant_of_rank_lt
     (hdD : d < D) (centers received : ι → F)
     (hrank : Module.finrank F
@@ -195,8 +194,8 @@ theorem exists_nonzero_global_interpolant_of_local_rank_sum_lt
     hdim
 
 /-- Per-index upper bounds on the exact local ranks produce a global interpolant when their sum
-is strictly below the exact interpolation dimension.  This is the composition interface between
-the pointwise `I4` rank theorem and conditional `I5` interpolation. -/
+is strictly below the exact interpolation dimension. This combines pointwise rank estimates
+with the global rank-nullity argument. -/
 theorem exists_nonzero_global_interpolant_of_local_rank_bounds
     (hdD : d < D) (centers received : ι → F) (rankBound : ι → ℕ)
     (hrank : ∀ i, Module.finrank F

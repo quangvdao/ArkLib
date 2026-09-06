@@ -252,9 +252,8 @@ theorem exactInterpolationExponentSet_finite (hdD : d < D) :
 /-- Finite set of exact cap-free interpolation exponents.  The proof argument records the
 load-bearing boundary `d < D` in every downstream index type.
 
-This `Set.Finite.toFinset` construction is the proof-facing index for `I2` and `I5`; it is not an
-executable enumeration claim.  Work package `D0` must provide a computable bounded enumeration
-and prove that it has this same membership predicate. -/
+This `Set.Finite.toFinset` construction specifies the finite index set noncomputably;
+it does not assert an executable enumeration. -/
 def exactInterpolationExponents (D A d m M W : ℕ) (hdD : d < D) :
     Finset (JetVariable d →₀ ℕ) :=
   (exactInterpolationExponentSet_finite (D := D) (A := A) (m := m) (M := M) (W := W)

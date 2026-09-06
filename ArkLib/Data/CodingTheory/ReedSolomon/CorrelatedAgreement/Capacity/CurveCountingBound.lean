@@ -13,8 +13,8 @@ import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.
 
 The two polynomial-curve cut ratios are linear in the block length.  The main estimate below
 retains the actual separant-stage order and displays the lifted source-degree prefactor
-explicitly.  In particular, it does not conceal the extra factor contributed by a Taylor cutoff
-which may grow with the block length.
+explicitly. The moment-base degree is independent of the Taylor cutoff, so the final budget
+is linear in the batching degree with block-length exponent one above the derivative order.
 -/
 
 namespace ReedSolomon
@@ -69,7 +69,7 @@ theorem polynomialCurveCutRatio_le (δ : ℝ) (n K v D c : ℕ)
 
 /-- The chunked-lift source cut degree is at most a gap-dependent constant times the block
 length. -/
-theorem polynomialCurve_correctedCutDegree_le (n K v : ℕ) (hn : 0 < n) (hKn : K ≤ n) :
+theorem polynomialCurve_chunkedCutDegree_le (n K v : ℕ) (hn : 0 < n) (hKn : K ≤ n) :
     2 + 2 * K * v ≤ n * (2 + 2 * v) := by
   have hconst : 2 ≤ n * 2 := Nat.le_mul_of_pos_left 2 hn
   have htail : 2 * K * v ≤ n * (2 * v) := by
@@ -80,16 +80,16 @@ theorem polynomialCurve_correctedCutDegree_le (n K v : ℕ) (hn : 0 < n) (hKn : 
     2 + 2 * K * v ≤ n * 2 + n * (2 * v) := Nat.add_le_add hconst htail
     _ = n * (2 + 2 * v) := by simp [Nat.mul_add]
 
-/-- Dividing the corrected chunked-lift source cut by the upper midpoint gap leaves one
+/-- Dividing the chunked-lift source cut by the upper midpoint gap leaves one
 block-length factor. -/
-theorem polynomialCurve_correctedCutRatio_le (δ : ℝ) (n K v D : ℕ)
+theorem polynomialCurve_chunkedCutRatio_le (δ : ℝ) (n K v D : ℕ)
     (hδ : 0 < δ) (hn : 0 < n) (hKn : K ≤ n)
     (hD : δ * n / 2 ≤ (D : ℝ)) :
     ((n * (2 + 2 * K * v) : ℕ) : ℝ) / D ≤ polynomialCurveChartScale δ v * n := by
   have hn' : (0 : ℝ) < n := by exact_mod_cast hn
   have hDpos : (0 : ℝ) < D := lt_of_lt_of_le (by positivity) hD
   have hb : ((2 + 2 * K * v : ℕ) : ℝ) ≤ n * (2 + 2 * (v : ℝ)) := by
-    exact_mod_cast polynomialCurve_correctedCutDegree_le n K v hn hKn
+    exact_mod_cast polynomialCurve_chunkedCutDegree_le n K v hn hKn
   have hscale : 0 ≤ polynomialCurveChartScale δ v := by
     unfold polynomialCurveChartScale
     positivity
@@ -103,9 +103,9 @@ theorem polynomialCurve_correctedCutRatio_le (δ : ℝ) (n K v D : ℕ)
   apply le_trans ?_ hm
   simpa only [Nat.cast_mul] using mul_le_mul_of_nonneg_left hb hn'.le
 
-/-- With challenge height `338ℓv-1`, the corrected source degree `ℓ+H` is linear in `ℓ`
+/-- With challenge height `338ℓv-1`, the source degree `ℓ+H` is linear in `ℓ`
 with no block-length loss. -/
-theorem polynomialCurve_correctedSourceDegree_le (ℓ v : ℕ) :
+theorem polynomialCurve_momentDegree_le (ℓ v : ℕ) :
     ((ℓ + (338 * (ℓ * v) - 1) : ℕ) : ℝ) ≤ (ℓ : ℝ) * (1 + 338 * v) := by
   have hheightNat : 338 * (ℓ * v) - 1 ≤ 338 * (ℓ * v) := Nat.sub_le _ _
   have hheight : ((338 * (ℓ * v) - 1 : ℕ) : ℝ) ≤ 338 * (ℓ : ℝ) * v := by
@@ -120,29 +120,29 @@ theorem polynomialCurve_correctedSourceDegree_le (ℓ v : ℕ) :
       add_le_add le_rfl hheight
     _ = (ℓ : ℝ) * (1 + 338 * v) := by ring
 
-/-- A convenient coefficient for the corrected finite-stage polynomial-curve budget. -/
+/-- A convenient coefficient for the finite-stage polynomial-curve budget. -/
 noncomputable def polynomialCurveUniformMCAConstant (δ : ℝ) (v d : ℕ) : ℝ :=
   (338 * v : ℕ) + v * (((1 + 338 * v : ℕ) : ℝ) * (v + 1) + v) *
     (max 1 (polynomialCurveChartScale δ v)) ^ (d + 1)
 
-/-- The gap-only specialization of the corrected polynomial-curve MCA coefficient. -/
+/-- The gap-only specialization of the polynomial-curve MCA coefficient. -/
 noncomputable def prescribedCurveMCAConstant (δ : ℝ) : ℝ :=
   let d := Nat.ceil (Real.exp ((169 / 25) / δ))
   let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
   let v := 2 * m - 1
   polynomialCurveUniformMCAConstant δ v d
 
-/-- The corrected actual-order stage expression.  Unlike the earlier coarse source-degree
-estimate, its lifted prefactor does not contain `K`. -/
-noncomputable def correctedPolynomialCurveStageBound
+/-- The actual-order stage bound after midpoint normalization. Its lifted prefactor is
+independent of the Taylor cutoff `K`. -/
+noncomputable def polynomialCurveStageBound
     (δ : ℝ) (n ℓ v H r : ℕ) : ℝ :=
   ((((ℓ + H : ℕ) : ℝ) * (v + 1) *
       polynomialCurveChartScale δ v ^ (r + 1) +
     (ℓ : ℝ) * v * polynomialCurveChartScale δ v ^ r) *
       (n : ℝ) ^ (r + 1))
 
-/-- The corrected midpoint estimate before uniformizing the actual stage order. -/
-theorem polynomialCurve_correctedActualOrder_budget (δ : ℝ)
+/-- The midpoint estimate before uniformizing the actual stage order. -/
+theorem polynomialCurve_actualOrder_budget (δ : ℝ)
     (n K k A ℓ v r : ℕ) (hδ : 0 < δ) (hn : 0 < n) (hKn : K ≤ n)
     (hgap : (k : ℝ) + δ * n ≤ A) (hAn : A ≤ n) :
     let L := correlatedMidpoint δ n k
@@ -153,11 +153,11 @@ theorem polynomialCurve_correctedActualOrder_budget (δ : ℝ)
       ((ℓ * (n - L) : ℕ) : ℝ) * (v : ℝ) *
         (((n * (1 + 2 * K * (v - 1)) : ℕ) : ℝ) /
           ((L - k + 1 : ℕ) : ℝ)) ^ r) ≤
-      correctedPolynomialCurveStageBound δ n ℓ v H r := by
+      polynomialCurveStageBound δ n ℓ v H r := by
   dsimp only
   let L := correlatedMidpoint δ n k
   have hL := correlatedMidpoint_bounds δ n k A hδ.le hgap hAn
-  have hmain := polynomialCurve_correctedCutRatio_le δ n K v (A - L + 1)
+  have hmain := polynomialCurve_chunkedCutRatio_le δ n K v (A - L + 1)
     hδ hn hKn hL.2.2.2.1
   have hretained := polynomialCurveCutRatio_le δ n K v (L - k + 1) 1
     hδ hn hKn (by omega) hL.2.2.2.2
@@ -178,13 +178,13 @@ theorem polynomialCurve_correctedActualOrder_budget (δ : ℝ)
           (polynomialCurveChartScale δ v * n) ^ (r + 1) +
         ((ℓ : ℝ) * n * v) * (polynomialCurveChartScale δ v * n) ^ r :=
       add_le_add hfirst hsecond
-    _ = correctedPolynomialCurveStageBound δ n ℓ v (338 * (ℓ * v) - 1) r := by
-      unfold correctedPolynomialCurveStageBound
+    _ = polynomialCurveStageBound δ n ℓ v (338 * (ℓ * v) - 1) r := by
+      unfold polynomialCurveStageBound
       simp only [mul_pow, pow_succ]
       push_cast
       ring
 
-/-- The corrected regular-chart budget at the midpoint threshold, retaining the actual stage
+/-- The regular-chart budget at the midpoint threshold, retaining the actual stage
 order. -/
 theorem regularSymbolicCurveMCABound_midpoint_le (δ : ℝ)
     (n K k A ℓ v r : ℕ) (hδ : 0 < δ) (hn : 0 < n) (hKn : K ≤ n)
@@ -192,8 +192,8 @@ theorem regularSymbolicCurveMCABound_midpoint_le (δ : ℝ)
     let L := correlatedMidpoint δ n k
     let H := 338 * (ℓ * v) - 1
     (regularSymbolicCurveMCABound n r ℓ K k L A v H : ℝ) ≤
-      correctedPolynomialCurveStageBound δ n ℓ v H r := by
-  have hb := polynomialCurve_correctedActualOrder_budget
+      polynomialCurveStageBound δ n ℓ v H r := by
+  have hb := polynomialCurve_actualOrder_budget
     δ n K k A ℓ v r hδ hn hKn hgap hAn
   unfold regularSymbolicCurveMCABound
   push_cast at hb ⊢
@@ -202,11 +202,11 @@ theorem regularSymbolicCurveMCABound_midpoint_le (δ : ℝ)
 /-- Corrected finite-stage uniformization.  The coefficient is independent of `n`, `K`, and
 `ℓ`; the batching degree stays linear and the certificate derivative cap `d` gives exactly
 `n^(d+1)`. -/
-theorem polynomialCurve_correctedFiniteStage_budget {ι : Type*} (S : Finset ι)
+theorem polynomialCurve_finiteStage_budget {ι : Type*} (S : Finset ι)
     (order : ι → ℕ) (cost : ι → ℝ) (δ : ℝ) (n ℓ v d : ℕ)
     (hδ : 0 < δ) (hn : 0 < n) (hcard : S.card ≤ v)
     (horder : ∀ i ∈ S, order i ≤ d)
-    (hcost : ∀ i ∈ S, cost i ≤ correctedPolynomialCurveStageBound δ n ℓ v
+    (hcost : ∀ i ∈ S, cost i ≤ polynomialCurveStageBound δ n ℓ v
       (338 * (ℓ * v) - 1) (order i)) :
     ((338 * (ℓ * v) - 1 : ℕ) : ℝ) + ∑ i ∈ S, cost i ≤
       (ℓ : ℝ) * polynomialCurveUniformMCAConstant δ v d * (n : ℝ) ^ (d + 1) := by
@@ -215,7 +215,7 @@ theorem polynomialCurve_correctedFiniteStage_budget {ι : Type*} (S : Finset ι)
   let T : ℝ := (((1 + 338 * v : ℕ) : ℝ) * (v + 1) + v) * C ^ (d + 1)
   have hc : 0 ≤ c := by dsimp [c, polynomialCurveChartScale]; positivity
   have hC : 1 ≤ C := le_max_left _ _
-  have hsource := polynomialCurve_correctedSourceDegree_le ℓ v
+  have hsource := polynomialCurve_momentDegree_le ℓ v
   have hstage (i : ι) (hi : i ∈ S) : cost i ≤
       (ℓ : ℝ) * T * (n : ℝ) ^ (d + 1) := by
     let r := order i
@@ -238,12 +238,12 @@ theorem polynomialCurve_correctedFiniteStage_budget {ι : Type*} (S : Finset ι)
     have hsecond := mul_le_mul_of_nonneg_left hgeomRetained
       (show (0 : ℝ) ≤ (ℓ : ℝ) * v by positivity)
     calc
-      cost i ≤ correctedPolynomialCurveStageBound δ n ℓ v
+      cost i ≤ polynomialCurveStageBound δ n ℓ v
           (338 * (ℓ * v) - 1) r := hcost i hi
       _ = (((ℓ + (338 * (ℓ * v) - 1) : ℕ) : ℝ) * (v + 1)) *
             (c ^ (r + 1) * (n : ℝ) ^ (r + 1)) +
           ((ℓ : ℝ) * v) * (c ^ r * (n : ℝ) ^ (r + 1)) := by
-        unfold correctedPolynomialCurveStageBound
+        unfold polynomialCurveStageBound
         dsimp only [c]
         ring
       _ ≤ ((ℓ : ℝ) * (1 + 338 * v) * (v + 1)) *
@@ -290,7 +290,7 @@ theorem polynomialCurve_correctedFiniteStage_budget {ι : Type*} (S : Finset ι)
       push_cast
       ring
 
-/-- The corrected certificate-shaped stage sum has a coefficient independent of `n`, `K`, and
+/-- The certificate-shaped stage sum has a coefficient independent of `n`, `K`, and
 `ℓ`, is linear in `ℓ`, and has exponent exactly `d+1`. -/
 theorem regularSymbolicCurveMCA_finiteStage_uniform_le {ι : Type*} (S : Finset ι)
     (order : ι → ℕ) (δ : ℝ) (n K k A ℓ v d : ℕ)
@@ -303,35 +303,12 @@ theorem regularSymbolicCurveMCA_finiteStage_uniform_le {ι : Type*} (S : Finset 
         (regularSymbolicCurveMCABound n (order i) ℓ K k L A v H : ℝ) ≤
       (ℓ : ℝ) * polynomialCurveUniformMCAConstant δ v d * (n : ℝ) ^ (d + 1) := by
   dsimp only
-  apply polynomialCurve_correctedFiniteStage_budget S order
+  apply polynomialCurve_finiteStage_budget S order
     (fun i ↦ (regularSymbolicCurveMCABound n (order i) ℓ K k
       (correlatedMidpoint δ n k) A v (338 * (ℓ * v) - 1) : ℝ))
     δ n ℓ v d hδ hn hcard horder
   intro i _hi
   exact regularSymbolicCurveMCABound_midpoint_le δ n K k A ℓ v (order i)
     hδ hn hKn hgap hAn
-
-/-- Gap-only specialization of the corrected certificate-stage budget. -/
-theorem prescribedCurveMCA_finiteStage_uniform_le {ι : Type*} (S : Finset ι)
-    (order : ι → ℕ) (δ : ℝ) (n K k A ℓ : ℕ)
-    (hδ : 0 < δ) (hn : 0 < n) (hKn : K ≤ n)
-    (hgap : (k : ℝ) + δ * n ≤ A) (hAn : A ≤ n) :
-    let d := Nat.ceil (Real.exp ((169 / 25) / δ))
-    let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
-    let v := 2 * m - 1
-    let L := correlatedMidpoint δ n k
-    let H := 338 * (ℓ * v) - 1
-    S.card ≤ v →
-    (∀ i ∈ S, order i ≤ d) →
-    (H : ℝ) + ∑ i ∈ S,
-        (regularSymbolicCurveMCABound n (order i) ℓ K k L A v H : ℝ) ≤
-      (ℓ : ℝ) * prescribedCurveMCAConstant δ * (n : ℝ) ^ (d + 1) := by
-  dsimp only
-  intro hcard horder
-  exact regularSymbolicCurveMCA_finiteStage_uniform_le S order δ n K k A ℓ
-    (2 * Nat.ceil
-      (100 * (Nat.ceil (Real.exp ((169 / 25) / δ)) : ℝ) ^ 2 *
-        harmonicNumber (Nat.ceil (Real.exp ((169 / 25) / δ)) - 1)) - 1)
-    (Nat.ceil (Real.exp ((169 / 25) / δ))) hδ hn hKn hgap hAn hcard horder
 
 end ReedSolomon

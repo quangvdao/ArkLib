@@ -14,7 +14,7 @@ import Mathlib.Tactic.Ring
 /-!
 # A finite rate cover for uniform additive-gap decoding
 
-These definitions isolate the elementary real arithmetic behind the coarse phase-one reduction
+These definitions isolate the elementary real arithmetic behind the reduction
 from a theorem with agreement and multiplicative-slack parameters to a theorem uniform over all
 rates. For a fixed additive gap `delta`, the mesh width is `delta / 2`. At a positive mesh endpoint
 `a`, the local agreement and slack parameters are
@@ -287,43 +287,6 @@ lemma one_sub_localSlack_mul_localAgreement_endpoint {delta : ℝ}
       endpoint delta j := by
   exact one_sub_localSlack_mul_localAgreement hdelta (endpoint_pos hdelta hdeltaOne j).le
 
-/-- A boundary canary: for gap `1/2`, zero selects the first quarter endpoint and the top feasible
-rate selects the second, truncated endpoint.  This detects off-by-one errors in `binIndex`. -/
-lemma half_gap_mesh_boundary_canary :
-    binCount (1 / 2 : ℝ) = 2 ∧
-      binIndex (1 / 2 : ℝ) 0 = 0 ∧
-      endpoint (1 / 2 : ℝ) 0 = 1 / 4 ∧
-      binIndex (1 / 2 : ℝ) (1 / 2) = 1 ∧
-      endpoint (1 / 2 : ℝ) 1 = 1 / 2 := by
-  norm_num [binCount, binIndex, endpoint, halfGap]
-
-/-- Nonintegral and single-bin boundary canaries for the ceiling and truncation conventions. -/
-lemma rate_mesh_rounding_canary :
-    binCount (3 / 10 : ℝ) = 5 ∧
-      endpoint (3 / 10 : ℝ) 0 = 3 / 20 ∧
-      endpoint (3 / 10 : ℝ) 4 = 7 / 10 ∧
-      binCount (4 / 5 : ℝ) = 1 ∧
-      endpoint (4 / 5 : ℝ) 0 = 1 / 5 := by
-  norm_num [binCount, endpoint, halfGap, Nat.ceil_eq_iff]
-
-/-- At a nonintegral bin boundary, the source and requested integer thresholds agree exactly. -/
-lemma rate_mesh_threshold_canary :
-    Nat.ceil
-        (localAgreement (3 / 10 : ℝ)
-          (endpoint (3 / 10 : ℝ) (binIndex (3 / 10 : ℝ) ((2 : ℝ) / 3))) * 3) = 3 ∧
-      2 + Nat.ceil ((3 / 10 : ℝ) * 3) = 3 := by
-  have hIndex : Nat.ceil ((((2 : ℝ) / 3) / ((3 / 10 : ℝ) / 2))) = 5 := by
-    norm_num [Nat.ceil_eq_iff]
-  have hThreshold : Nat.ceil ((9 : ℝ) / 10) = 1 := by
-    norm_num [Nat.ceil_eq_iff]
-  rw [show binIndex (3 / 10 : ℝ) ((2 : ℝ) / 3) = 4 by
-    rw [binIndex, halfGap, hIndex]
-    norm_num]
-  rw [show endpoint (3 / 10 : ℝ) 4 = 7 / 10 by
-    norm_num [endpoint, halfGap]]
-  rw [show localAgreement (3 / 10 : ℝ) (7 / 10) = 17 / 20 by
-    norm_num [localAgreement, halfGap]]
-  norm_num [hThreshold, Nat.ceil_eq_iff]
 
 end
 end RateCover

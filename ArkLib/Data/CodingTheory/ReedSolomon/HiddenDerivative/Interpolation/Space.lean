@@ -12,11 +12,11 @@ import Mathlib.RingTheory.MvPolynomial.Basic
 /-!
 # The finite hidden-derivative interpolation space
 
-This file encodes the corrected support-first interpolation space. The variables are `X` and the
+This file encodes the support-first interpolation space. The variables are `X` and the
 formal jets `Y₀, ..., Y_d`. The high-jet weight gives weight zero to `X`, `Y₀`, and `Y₁`, so
 finiteness is proved from the complete support predicate, including separate bounds on the
-`X` exponent and total jet degree. It does not misuse a positive-weight finrank theorem at zero
-weights.
+`X` exponent and total jet degree. These separate bounds ensure finiteness even when some
+variable weights vanish.
 
 The definitions and proofs are adapted, with permission, from Kai Zhe Zheng's `rs-ld-mca`
 formalization at commit `9699ee7a6143f6efe1d8cfed84998a4f8c79c40f`. The coefficient ring is made

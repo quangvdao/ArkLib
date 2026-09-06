@@ -78,7 +78,7 @@ private lemma exactAgreementDecoder_isExact {F : Type*} [Field F] [Fintype F] [D
   simp [exactAgreementDecoder]
 
 /-- The exact finite decoder inherits the sharp product estimate from pairwise Reed--Solomon
-agreement. This is the composable checkpoint used by both low-order branches. -/
+agreement. This bound is shared by both low-order cases. -/
 private theorem exactAgreementDecoder_card_mul_gap_le
     {F : Type*} [Field F] [Fintype F] [DecidableEq F]
     {blockLength messageDim minAgreement : ℕ} (domain : Fin blockLength ↪ F)

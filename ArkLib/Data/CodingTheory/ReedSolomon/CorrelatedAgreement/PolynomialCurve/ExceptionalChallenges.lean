@@ -185,7 +185,7 @@ theorem finite_sourceCurve_bad_challenges_card_le
         (MvPolynomial.map (Polynomial.evalRingHom z₀) Q)) at he
       exact (hchart z₀ hzc).2.2.1 he.symm
     rw [← hcard]
-    apply finite_sourceCurve_points_off_tuples_card_le_strong_of_source
+    apply finite_sourceCurve_points_off_tuples_card_le
       domain w iota center Q hK hkL (hk.trans_le hkL) hLA hAn hD hi hs hv hjet hheight S
     · intro x hx
       obtain ⟨z, hz, rfl⟩ := Finset.mem_image.mp hx

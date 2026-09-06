@@ -23,8 +23,8 @@ The factorization first translates `X = center + T` and `Y₀ = received + T U`,
 the rewrite cannot turn a term of `T`-degree at least `m` into one of contact order below `m`.
 
 The maps on `ExactInterpolationCoefficients` are proof-facing: their domain uses the canonical
-finite support from `InterpolationIndex.lean`.  An executable enumeration and checked linear
-solver remain the separate `D0` work package.
+finite support from `Interpolation/Index.lean`. These maps specify the linear constraints
+mathematically; they do not assert an executable enumeration or linear solver.
 
 The support arguments are adapted, with permission, from Kai Zhe Zheng's `rs-ld-mca`
 formalization at commit `9699ee7a6143f6efe1d8cfed84998a4f8c79c40f`, files
@@ -35,7 +35,8 @@ formalization at commit `9699ee7a6143f6efe1d8cfed84998a4f8c79c40f`, files
 
 * Brakensiek, Chen, Putterman, Zhang, and Zheng, *Algorithmic List Decoding of Reed--Solomon
   Codes up to Capacity in the Low-Rate Regime*, ECCC TR26-164, Section 3.
-* Dao and Thaler, *Reed--Solomon List Decoding at All Rates via Hidden Derivatives*, Section 5.
+* [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
+  up to Capacity*][DKTZ26].
 -/
 
 open PolynomialDifferential

@@ -377,7 +377,7 @@ theorem card_otherJetCoordinateAssignments [Fintype F] (s : Fin (d + 1)) :
   rw [Fintype.card_fun, card_otherJetCoordinates]
 
 /-- At one fixed base point, regular jets are bounded by the selected individual degree times
-`q ^ d`, where `q` is the field cardinality. This is the point-fibre bound used in `R4`. -/
+`q ^ d`, where `q` is the field cardinality. -/
 theorem natCard_regularJetAt_le [Field F] [Finite F]
     (Q : DifferentialPolynomial F d) (s : Fin (d + 1)) (point : F) :
     Nat.card (RegularJetAt Q s point) ≤ jetDegree Q s * Nat.card F ^ d := by
