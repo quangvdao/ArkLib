@@ -88,7 +88,27 @@ theorem goldilocksCubic_sharp_lineAgreement
   exact ⟨exceptional, by simpa only [goldilocksCubic] using hcard, hgood⟩
 
 open Classical in
-/-- The sharp original BN254 certificate bounds affine MCA for every positive dimension. -/
+/-- The sharp original BN254 certificate gives the count-level affine MCA bound. -/
+theorem bn254_original109_widthEight_affine_mcaError_le_count
+    {F : Type} [Field F] [Fintype F] {s : ℕ}
+    (domain : Fin 1048576 ↪ F)
+    (hchar : ringChar F = 0 ∨ 262143 < ringChar F)
+    (hs : 1 ≤ s) :
+    mcaError (AffineSpaceGenerator F s)
+        ((ReedSolomon.code domain 262144) ^⋈ (Fin 8))
+          (sharpBN254OriginalRadius : ℝ) ≤
+      ENNReal.ofReal ((bn254.exceptionalCount : ℝ) /
+        ((Fintype.card F : ℝ) - 1)) := by
+  exact ReedSolomon.mcaError_affineSpace_interleaved_le_of_exactAgreement domain
+    (t := 8) (s := s) (A := 492831) (bn254.exceptionalCount : ℝ)
+      (bn254_sharp_lineAgreement domain hchar)
+      sharpBN254OriginalRadius (by norm_num [bn254]) hs
+      (by rw [← NNReal.coe_lt_coe]; norm_num [sharpBN254OriginalRadius])
+      (by rw [← NNReal.coe_lt_coe]; norm_num [sharpBN254OriginalRadius])
+      (by rw [sharpBN254OriginalRadius_coe]; norm_num [bn254])
+
+open Classical in
+/-- The sharp original BN254 count-level bound is below the local 128-bit target. -/
 theorem bn254_original109_widthEight_affine_mcaError_le_sharp
     {F : Type} [Field F] [Fintype F] {s : ℕ}
     (domain : Fin 1048576 ↪ F)
@@ -98,18 +118,32 @@ theorem bn254_original109_widthEight_affine_mcaError_le_sharp
         ((ReedSolomon.code domain 262144) ^⋈ (Fin 8))
           (sharpBN254OriginalRadius : ℝ) ≤
       ENNReal.ofReal ((1 : ℝ) / 2 ^ 128) := by
-  have hmca := ReedSolomon.mcaError_affineSpace_interleaved_le_of_exactAgreement domain
-    (t := 8) (s := s) (A := 492831) (bn254.exceptionalCount : ℝ)
-      (bn254_sharp_lineAgreement domain hchar)
-      sharpBN254OriginalRadius (by norm_num [bn254]) hs
-      (by rw [← NNReal.coe_lt_coe]; norm_num [sharpBN254OriginalRadius])
-      (by rw [← NNReal.coe_lt_coe]; norm_num [sharpBN254OriginalRadius])
-      (by rw [sharpBN254OriginalRadius_coe]; norm_num [bn254])
+  have hmca := bn254_original109_widthEight_affine_mcaError_le_count domain hchar hs
   rw [hcard] at hmca
   exact hmca.trans (ENNReal.ofReal_le_ofReal (by norm_num [bn254]))
 
 open Classical in
-/-- The sharp cubic-Goldilocks certificate bounds affine MCA for every positive dimension. -/
+/-- The sharp cubic-Goldilocks certificate gives the count-level affine MCA bound. -/
+theorem goldilocksCubic_widthEight_affine_mcaError_le_count
+    {F : Type} [Field F] [Fintype F] {s : ℕ}
+    (domain : Fin 1048576 ↪ F)
+    (hchar : ringChar F = 0 ∨ 262143 < ringChar F)
+    (hs : 1 ≤ s) :
+    mcaError (AffineSpaceGenerator F s)
+        ((ReedSolomon.code domain 262144) ^⋈ (Fin 8))
+          (sharpGoldilocksCubicRadius : ℝ) ≤
+      ENNReal.ofReal ((goldilocksCubic.exceptionalCount : ℝ) /
+        ((Fintype.card F : ℝ) - 1)) := by
+  exact ReedSolomon.mcaError_affineSpace_interleaved_le_of_exactAgreement domain
+    (t := 8) (s := s) (A := 512754) (goldilocksCubic.exceptionalCount : ℝ)
+      (goldilocksCubic_sharp_lineAgreement domain hchar)
+      sharpGoldilocksCubicRadius (by norm_num [goldilocksCubic]) hs
+      (by rw [← NNReal.coe_lt_coe]; norm_num [sharpGoldilocksCubicRadius])
+      (by rw [← NNReal.coe_lt_coe]; norm_num [sharpGoldilocksCubicRadius])
+      (by rw [sharpGoldilocksCubicRadius_coe]; norm_num [goldilocksCubic])
+
+open Classical in
+/-- The cubic-Goldilocks count-level bound is below the local 128-bit target. -/
 theorem goldilocksCubic_widthEight_affine_mcaError_le_sharp
     {F : Type} [Field F] [Fintype F] {s : ℕ}
     (domain : Fin 1048576 ↪ F)
@@ -119,15 +153,24 @@ theorem goldilocksCubic_widthEight_affine_mcaError_le_sharp
         ((ReedSolomon.code domain 262144) ^⋈ (Fin 8))
           (sharpGoldilocksCubicRadius : ℝ) ≤
       ENNReal.ofReal ((1 : ℝ) / 2 ^ 128) := by
-  have hmca := ReedSolomon.mcaError_affineSpace_interleaved_le_of_exactAgreement domain
-    (t := 8) (s := s) (A := 512754) (goldilocksCubic.exceptionalCount : ℝ)
-      (goldilocksCubic_sharp_lineAgreement domain hchar)
-      sharpGoldilocksCubicRadius (by norm_num [goldilocksCubic]) hs
-      (by rw [← NNReal.coe_lt_coe]; norm_num [sharpGoldilocksCubicRadius])
-      (by rw [← NNReal.coe_lt_coe]; norm_num [sharpGoldilocksCubicRadius])
-      (by rw [sharpGoldilocksCubicRadius_coe]; norm_num [goldilocksCubic])
+  have hmca := goldilocksCubic_widthEight_affine_mcaError_le_count domain hchar hs
   rw [hcard] at hmca
   exact hmca.trans (ENNReal.ofReal_le_ofReal (by norm_num [goldilocksCubic]))
+
+open Classical in
+/-- The canonical BN254 scalar field retains the exact count-level affine MCA bound. -/
+theorem bn254Scalar_original109_widthEight_affine_mcaError_le_count
+    {s : ℕ} (domain : Fin 1048576 ↪ BN254Scalar) (hs : 1 ≤ s) :
+    mcaError (AffineSpaceGenerator BN254Scalar s)
+        ((ReedSolomon.code domain 262144) ^⋈ (Fin 8))
+          (sharpBN254OriginalRadius : ℝ) ≤
+      ENNReal.ofReal ((bn254.exceptionalCount : ℝ) / (bn254.fieldSize - 1)) := by
+  have hmca := bn254_original109_widthEight_affine_mcaError_le_count domain (by
+    right
+    rw [bn254Scalar_ringChar]
+    norm_num [BN254.scalarFieldSize]) hs
+  rw [bn254Scalar_card] at hmca
+  simpa [BN254.scalarFieldSize, bn254] using hmca
 
 open Classical in
 /-- The accepted original BN254 theorem on the canonical scalar field. -/
@@ -144,6 +187,22 @@ theorem bn254Scalar_original109_widthEight_affine_mcaError_le_sharp
   · rw [bn254Scalar_card]
     norm_num [BN254.scalarFieldSize, bn254]
   · exact hs
+
+open Classical in
+/-- The canonical cubic Goldilocks field retains the exact count-level affine MCA bound. -/
+theorem goldilocksCubic_concrete_widthEight_affine_mcaError_le_count
+    {s : ℕ} (domain : Fin 1048576 ↪ GoldilocksCubic) (hs : 1 ≤ s) :
+    mcaError (AffineSpaceGenerator GoldilocksCubic s)
+        ((ReedSolomon.code domain 262144) ^⋈ (Fin 8))
+          (sharpGoldilocksCubicRadius : ℝ) ≤
+      ENNReal.ofReal ((goldilocksCubic.exceptionalCount : ℝ) /
+        (goldilocksCubic.fieldSize - 1)) := by
+  have hmca := goldilocksCubic_widthEight_affine_mcaError_le_count domain (by
+    right
+    rw [goldilocksCubic_ringChar]
+    norm_num [Goldilocks.fieldSize]) hs
+  rw [goldilocksCubic_card] at hmca
+  simpa [Goldilocks.fieldSize, goldilocksCubic] using hmca
 
 open Classical in
 /-- The published cubic-Goldilocks theorem on the canonical degree-three field. -/

@@ -58,10 +58,19 @@ correlated agreement (MCA), and query/payload arithmetic. Start with the applica
   field size and characteristic conditions. `ProveKitQueryTuning` checks the 108-query grinding
   threshold and conservative additional payload saving; `ProveKitSharpLists` derives the
   sharper original list bounds. `ProveKitSharpMCA` derives the sharp original BN254 and
-  cubic-Goldilocks width-eight affine bounds. `ProveKitExpectedPayload` proves exact intervals for the
+  cubic-Goldilocks width-eight affine bounds. `ProveKitCertifiedBudget` packages those
+  semantic bounds with the sharp width-eight lists and local arithmetic, retaining the
+  affine denominator `q - 1`. `ProveKitExpectedPayload` proves exact intervals for the
   expected authentication-payload savings, using the finite uniform-query counting theorem
   in `Data/Probability/UniformQueryBoundary`.
-- `LambdaVMFields` gives the five equality-table list bounds over cubic Goldilocks, including
+- `LambdaVMAnchoredLists` supplies the current two-anchor list profiles at dimension `T + 3`,
+  with bounds for every interleaving width. `Interleaved/AnchoredReconstruction` proves the
+  cubic quotient degree shift, anchor values, and trace-zerofier remainder properties.
+  `LambdaVMAnchoredBudget` is the current local error and net-payload endpoint; it includes
+  two-point collisions and charges 576 bytes for the early evaluations.
+  `LambdaVMAnchoredCandidates` derives the collision theorem's finite candidate-count premise
+  from joint agreement and the proved list bound.
+- `LambdaVMFields` gives the earlier equality-table list bounds over cubic Goldilocks, including
   the width-18 tuples. `LambdaVMCertifiedBudget` constructs the 35 exceptional sets and combines
   their five window sums with those list bounds to prove the local error targets.
   `LambdaVMTables` contains the underlying arithmetic and payload identities.

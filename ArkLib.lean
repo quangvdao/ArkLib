@@ -360,6 +360,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Variables
 import ArkLib.Data.CodingTheory.ReedSolomon.Interleaved
 import ArkLib.Data.CodingTheory.ReedSolomon.Interleaved.AffineAgreementBounds
 import ArkLib.Data.CodingTheory.ReedSolomon.Interleaved.AgreementBounds
+import ArkLib.Data.CodingTheory.ReedSolomon.Interleaved.AnchoredReconstruction
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.AgreementList
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity
@@ -480,6 +481,7 @@ import ArkLib.Data.Probability.Combinatorial
 import ArkLib.Data.Probability.Instances
 import ArkLib.Data.Probability.KoalaBear
 import ArkLib.Data.Probability.Notation
+import ArkLib.Data.Probability.TwoPointPolynomialCollision
 import ArkLib.Data.Probability.UniformQueryBoundary
 import ArkLib.Interaction.Oracle.Protocol
 import ArkLib.Interaction.Oracle.TypeTree
