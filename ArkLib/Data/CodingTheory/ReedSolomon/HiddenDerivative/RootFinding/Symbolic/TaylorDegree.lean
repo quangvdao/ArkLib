@@ -298,7 +298,28 @@ theorem jointTotalDegree_rationalTaylorNumeratorOver_le_of_coeff_height
     ((totalDegree_universalTaylorResidual_coeff_le j center Q (j - r)).trans hjet)
   omega
 
-/-- A uniform common-numerator bound follows from the corresponding individual bounds. -/
+/-- Padding to a sufficient exponent converts the exact recurrence bounds into a uniform
+common-numerator bound. -/
+theorem jointTotalDegree_commonTaylorNumeratorOver_le_of_exponent
+    (center : Polynomial F) (Q : DifferentialPolynomial (Polynomial F) r) (b K τ : ℕ)
+    (hτ : TaylorExponentSufficient r K τ)
+    (hS : jointTotalDegree (initialJetSeparantOver center Q) ≤ b)
+    (hN : ∀ l < K,
+      jointTotalDegree (rationalTaylorNumeratorOver (F := F) center Q l) ≤
+        (2 * (l - r) - 1) * b + 1) (l : Fin K) :
+    jointTotalDegree (commonTaylorNumeratorOver (F := F) center Q K l (τ := τ)) ≤
+      1 + τ * b := by
+  have hd := hN l.val l.isLt
+  have hp := (jointTotalDegree_pow_le (initialJetSeparantOver center Q)
+    (τ - (2 * (l.val - r) - 1))).trans (Nat.mul_le_mul_left _ hS)
+  have hm := jointTotalDegree_mul_le
+    (rationalTaylorNumeratorOver (F := F) center Q l.val)
+    (initialJetSeparantOver center Q ^ (τ - (2 * (l.val - r) - 1)))
+  have he := Nat.sub_add_cancel (hτ l)
+  unfold commonTaylorNumeratorOver
+  nlinarith
+
+/-- The default exponent `2K` gives the arbitrary-order common-numerator bound. -/
 theorem jointTotalDegree_commonTaylorNumeratorOver_le
     (center : Polynomial F) (Q : DifferentialPolynomial (Polynomial F) r) (b K : ℕ)
     (hS : jointTotalDegree (initialJetSeparantOver center Q) ≤ b)
@@ -307,16 +328,8 @@ theorem jointTotalDegree_commonTaylorNumeratorOver_le
         (2 * (l - r) - 1) * b + 1) (l : Fin K) :
     jointTotalDegree (commonTaylorNumeratorOver (F := F) center Q K l) ≤
       1 + 2 * K * b := by
-  have hd := hN l.val l.isLt
-  have hp := (jointTotalDegree_pow_le (initialJetSeparantOver center Q)
-    (2 * K - (2 * (l.val - r) - 1))).trans (Nat.mul_le_mul_left _ hS)
-  have hm := jointTotalDegree_mul_le
-    (rationalTaylorNumeratorOver (F := F) center Q l.val)
-    (initialJetSeparantOver center Q ^ (2 * K - (2 * (l.val - r) - 1)))
-  have hbudget : 2 * (l.val - r) - 1 ≤ 2 * K := by omega
-  have he := Nat.sub_add_cancel hbudget
-  unfold commonTaylorNumeratorOver
-  nlinarith
+  exact jointTotalDegree_commonTaylorNumeratorOver_le_of_exponent center Q b K (2 * K)
+    (taylorExponentSufficient_two_mul r K) hS hN l
 
 /-- The source jet degree and challenge height give the actual symbolic numerator bound. -/
 theorem jointTotalDegree_rationalTaylorNumeratorOver_le_of_source
@@ -332,7 +345,26 @@ theorem jointTotalDegree_rationalTaylorNumeratorOver_le_of_source
     exact challengeHeightLE_initialJetSeparantOver Q center hheight m
   · exact universalTaylorResidual_coeff_natDegree_le Q center hheight
 
-/-- All common symbolic numerators have the uniform source-derived joint-degree bound. -/
+/-- Source degree and challenge height bound every numerator padded to a sufficient exponent. -/
+theorem jointTotalDegree_commonTaylorNumeratorOver_le_of_source_and_exponent
+    (center : F) (Q : DifferentialPolynomial (Polynomial F) r) (v h K τ : ℕ)
+    (hτ : TaylorExponentSufficient r K τ)
+    (hv : 0 < v)
+    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
+    (hheight : ChallengeHeightLE Q h) (l : Fin K) :
+    jointTotalDegree
+        (commonTaylorNumeratorOver (F := F) (Polynomial.C center) Q K l (τ := τ)) ≤
+      1 + τ * (v - 1 + h) := by
+  apply jointTotalDegree_commonTaylorNumeratorOver_le_of_exponent
+    (Polynomial.C center) Q (v - 1 + h) K τ hτ
+  · apply jointTotalDegree_initialJetSeparantOver_le _ Q v h hjet
+    intro m _
+    exact challengeHeightLE_initialJetSeparantOver Q center hheight m
+  · intro j _
+    exact jointTotalDegree_rationalTaylorNumeratorOver_le_of_source center Q v h hv hjet
+      hheight j
+
+/-- All default common symbolic numerators have the coarse source-derived joint-degree bound. -/
 theorem jointTotalDegree_commonTaylorNumeratorOver_le_of_source
     (center : F) (Q : DifferentialPolynomial (Polynomial F) r) (v h K : ℕ)
     (hv : 0 < v)
@@ -340,13 +372,8 @@ theorem jointTotalDegree_commonTaylorNumeratorOver_le_of_source
     (hheight : ChallengeHeightLE Q h) (l : Fin K) :
     jointTotalDegree (commonTaylorNumeratorOver (F := F) (Polynomial.C center) Q K l) ≤
       1 + 2 * K * (v - 1 + h) := by
-  apply jointTotalDegree_commonTaylorNumeratorOver_le (Polynomial.C center) Q (v - 1 + h) K
-  · apply jointTotalDegree_initialJetSeparantOver_le _ Q v h hjet
-    intro m _
-    exact challengeHeightLE_initialJetSeparantOver Q center hheight m
-  · intro j _
-    exact jointTotalDegree_rationalTaylorNumeratorOver_le_of_source center Q v h hv hjet
-      hheight j
+  exact jointTotalDegree_commonTaylorNumeratorOver_le_of_source_and_exponent
+    center Q v h K (2 * K) (taylorExponentSufficient_two_mul r K) hv hjet hheight l
 
 end
 

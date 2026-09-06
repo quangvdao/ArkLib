@@ -6,6 +6,7 @@ Authors: Quang Dao
 
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.DimensionBridge
 import Mathlib.Algebra.Order.Archimedean.Real.Basic
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.Coordinates
 
 
 /-!
@@ -287,27 +288,6 @@ theorem jetDegree_le_of_mem_asymmetricBandSpace [CommSemiring F]
     (by simpa only [mul_comm] using hL)
   exact_mod_cast (hcoord'.trans htotal.le).trans hquot
 
-/-- Finite coordinates in the proposed local image bound, with `r = i-h`.
-This type counts possible coordinates; membership of the actual local image is a separate
-proof obligation. In particular, its cardinality is not asserted to be an actual rank. -/
-abbrev AsymmetricBandLocalBudgetIndex (d m W Be : ℕ) :=
-  Fin Be × (Σ r : Fin m,
-    Fin ((m - r.val) ⌈/⌉ (d + 1)) × ↥(weightedHigherJetTuples d (W + r.val)))
-
-/-- The manuscript's `T`-degree-sensitive numerical rank budget. -/
-def asymmetricBandLocalBudget (d m W Be : ℕ) : ℕ :=
-  Be * ∑ r ∈ Finset.range m,
-    ((m - r) ⌈/⌉ (d + 1)) * weightedHigherJetCount d (W + r)
-
-/-- Cardinality of the potential local-coordinate index, before proving image containment. -/
-theorem card_asymmetricBandLocalBudgetIndex (d m W Be : ℕ) :
-    Fintype.card (AsymmetricBandLocalBudgetIndex d m W Be) =
-      asymmetricBandLocalBudget d m W Be := by
-  rw [Fintype.card_prod, Fintype.card_fin, Fintype.card_sigma]
-  simp only [Fintype.card_prod, Fintype.card_fin, Fintype.card_coe]
-  congr 1
-  exact Fin.sum_univ_eq_sum_range
-    (fun r ↦ ((m - r) ⌈/⌉ (d + 1)) * weightedHigherJetCount d (W + r)) m
 
 end
 end ReedSolomon.HiddenDerivative

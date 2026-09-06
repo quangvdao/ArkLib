@@ -144,18 +144,22 @@ theorem rationalTaylorNumeratorOver_eq {E : Type*} [Field E] [Algebra F E]
       funext i
       exact ih i.val i.isLt
 
-/-- A common separant-power numerator with its coefficient algebra retained. -/
+/-- A common separant-power numerator with its coefficient algebra retained. The optional
+exponent defaults to the coarse arbitrary-order value `2K`; reconstruction theorems require
+it to satisfy `TaylorExponentSufficient`. -/
 def commonTaylorNumeratorOver (center : A) (Q : DifferentialPolynomial A r) (K : ℕ)
-    (l : Fin K) : MvPolynomial (Fin (r + 1)) A :=
+    (l : Fin K) (τ : ℕ := 2 * K) : MvPolynomial (Fin (r + 1)) A :=
   rationalTaylorNumeratorOver (F := F) center Q l.val *
-    initialJetSeparantOver center Q ^ (2 * K - (2 * (l.val - r) - 1))
+    initialJetSeparantOver center Q ^ (τ - (2 * (l.val - r) - 1))
 
 /-- Common numerators commute with coefficient-algebra specialization. -/
 theorem map_commonTaylorNumeratorOver [Algebra F B] (φ : A →ₐ[F] B)
-    (center : A) (Q : DifferentialPolynomial A r) (K : ℕ) (l : Fin K) :
-    MvPolynomial.map φ.toRingHom (commonTaylorNumeratorOver (F := F) center Q K l) =
+    (center : A) (Q : DifferentialPolynomial A r) (K : ℕ) (l : Fin K)
+    (τ : ℕ := 2 * K) :
+    MvPolynomial.map φ.toRingHom
+        (commonTaylorNumeratorOver (F := F) center Q K l (τ := τ)) =
       commonTaylorNumeratorOver (F := F) (φ center)
-        (MvPolynomial.map φ.toRingHom Q) K l := by
+        (MvPolynomial.map φ.toRingHom Q) K l (τ := τ) := by
   simp only [commonTaylorNumeratorOver, map_mul, map_pow,
     map_rationalTaylorNumeratorOver, map_initialJetSeparantOver]
   rfl

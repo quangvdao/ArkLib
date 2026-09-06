@@ -49,17 +49,19 @@ variable [Algebra F A]
 
 /-- A cleared agreement equation retaining all coefficient parameters. -/
 def taylorAgreementEquationOver (center : A) (Q : DifferentialPolynomial A r) (K : ℕ)
-    (x y : A) : MvPolynomial (Fin (r + 1)) A :=
+    (x y : A) (τ : ℕ := 2 * K) : MvPolynomial (Fin (r + 1)) A :=
   (∑ l : Fin K, C ((x - center) ^ l.val) *
-    commonTaylorNumeratorOver (F := F) center Q K l) -
-      C y * initialJetSeparantOver center Q ^ (2 * K)
+    commonTaylorNumeratorOver (F := F) center Q K l (τ := τ)) -
+      C y * initialJetSeparantOver center Q ^ τ
 
 /-- Cleared agreement equations commute with coefficient-algebra specialization. -/
 theorem map_taylorAgreementEquationOver [Algebra F B] (φ : A →ₐ[F] B)
-    (center : A) (Q : DifferentialPolynomial A r) (K : ℕ) (x y : A) :
-    MvPolynomial.map φ.toRingHom (taylorAgreementEquationOver (F := F) center Q K x y) =
+    (center : A) (Q : DifferentialPolynomial A r) (K : ℕ) (x y : A)
+    (τ : ℕ := 2 * K) :
+    MvPolynomial.map φ.toRingHom
+        (taylorAgreementEquationOver (F := F) center Q K x y (τ := τ)) =
       taylorAgreementEquationOver (F := F) (φ center) (MvPolynomial.map φ.toRingHom Q)
-        K (φ x) (φ y) := by
+        K (φ x) (φ y) (τ := τ) := by
   simp only [taylorAgreementEquationOver, map_sub, map_sum, map_mul, map_C, map_pow,
     map_commonTaylorNumeratorOver, map_initialJetSeparantOver]
   rfl
@@ -82,10 +84,12 @@ theorem map_initialJetSeparantOver_eq (φ : A →ₐ[F] E) (center : A)
 
 /-- Field specialization recovers the original agreement cut, even at singular points. -/
 theorem map_taylorAgreementEquationOver_eq (φ : A →ₐ[F] E) (center : A)
-    (Q : DifferentialPolynomial A r) (K : ℕ) (x y : A) :
-    MvPolynomial.map φ.toRingHom (taylorAgreementEquationOver (F := F) center Q K x y) =
+    (Q : DifferentialPolynomial A r) (K : ℕ) (x y : A)
+    (τ : ℕ := 2 * K) :
+    MvPolynomial.map φ.toRingHom
+        (taylorAgreementEquationOver (F := F) center Q K x y (τ := τ)) =
       taylorAgreementEquation (φ center) (MvPolynomial.map φ.toRingHom Q)
-        K (φ x) (φ y) := by
+        K (φ x) (φ y) (τ := τ) := by
   simp only [taylorAgreementEquationOver, map_sub, map_sum, map_mul, map_C, map_pow,
     map_commonTaylorNumeratorOver_eq, map_initialJetSeparantOver_eq,
     taylorAgreementEquation]
@@ -98,7 +102,26 @@ theorem aeval_map_initialJetEquationOver (φ : A →ₐ[F] E) (center : A)
       jetEvaluation (MvPolynomial.map φ.toRingHom Q) (φ center) jet := by
   rw [map_initialJetEquationOver_eq, aeval_initialJetEquation]
 
-/-- At a regular specialized point, agreement cuts measure the reconstructed discrepancy. -/
+/-- At a regular specialized point, a sufficiently padded agreement cut measures the
+reconstructed discrepancy. -/
+theorem aeval_map_taylorAgreementEquationOver_of_exponent
+    (φ : A →ₐ[F] E) (center : A)
+    (Q : DifferentialPolynomial A r) (K τ : ℕ) (hτ : TaylorExponentSufficient r K τ)
+    (jet : Fin (r + 1) → E)
+    (hS : aeval jet (MvPolynomial.map φ.toRingHom (initialJetSeparantOver center Q)) ≠ 0)
+    (x y : A) :
+    aeval jet (MvPolynomial.map φ.toRingHom
+      (taylorAgreementEquationOver (F := F) center Q K x y (τ := τ))) =
+        aeval jet (MvPolynomial.map φ.toRingHom (initialJetSeparantOver center Q)) ^
+          τ *
+            (Polynomial.eval (φ x)
+              (rationalTaylorPolynomial (φ center) (MvPolynomial.map φ.toRingHom Q) K jet) -
+                φ y) := by
+  rw [map_initialJetSeparantOver_eq] at hS ⊢
+  rw [map_taylorAgreementEquationOver_eq (τ := τ)]
+  exact aeval_taylorAgreementEquation_of_exponent _ _ _ τ hτ _ hS _ _
+
+/-- At a regular specialized point, default agreement cuts measure the reconstructed discrepancy. -/
 theorem aeval_map_taylorAgreementEquationOver (φ : A →ₐ[F] E) (center : A)
     (Q : DifferentialPolynomial A r) (K : ℕ) (jet : Fin (r + 1) → E)
     (hS : aeval jet (MvPolynomial.map φ.toRingHom (initialJetSeparantOver center Q)) ≠ 0)
@@ -110,11 +133,24 @@ theorem aeval_map_taylorAgreementEquationOver (φ : A →ₐ[F] E) (center : A)
             (Polynomial.eval (φ x)
               (rationalTaylorPolynomial (φ center) (MvPolynomial.map φ.toRingHom Q) K jet) -
                 φ y) := by
-  rw [map_initialJetSeparantOver_eq] at hS ⊢
-  rw [map_taylorAgreementEquationOver_eq]
-  exact aeval_taylorAgreementEquation _ _ _ _ hS _ _
+  exact aeval_map_taylorAgreementEquationOver_of_exponent φ center Q K (2 * K)
+    (taylorExponentSufficient_two_mul r K) jet hS x y
 
 /-- A regular symbolic agreement cut vanishes exactly at the received value. -/
+theorem aeval_map_taylorAgreementEquationOver_eq_zero_iff_of_exponent
+    (φ : A →ₐ[F] E) (center : A) (Q : DifferentialPolynomial A r) (K τ : ℕ)
+    (hτ : TaylorExponentSufficient r K τ) (jet : Fin (r + 1) → E)
+    (hS : aeval jet (MvPolynomial.map φ.toRingHom (initialJetSeparantOver center Q)) ≠ 0)
+    (x y : A) :
+    aeval jet (MvPolynomial.map φ.toRingHom
+      (taylorAgreementEquationOver (F := F) center Q K x y (τ := τ))) = 0 ↔
+      Polynomial.eval (φ x)
+        (rationalTaylorPolynomial (φ center) (MvPolynomial.map φ.toRingHom Q) K jet) =
+          φ y := by
+  rw [aeval_map_taylorAgreementEquationOver_of_exponent φ center Q K τ hτ jet hS]
+  simp only [mul_eq_zero, pow_ne_zero _ hS, false_or, sub_eq_zero]
+
+/-- A regular default symbolic agreement cut vanishes exactly at the received value. -/
 theorem aeval_map_taylorAgreementEquationOver_eq_zero_iff
     (φ : A →ₐ[F] E) (center : A) (Q : DifferentialPolynomial A r) (K : ℕ)
     (jet : Fin (r + 1) → E)
@@ -128,7 +164,24 @@ theorem aeval_map_taylorAgreementEquationOver_eq_zero_iff
   rw [aeval_map_taylorAgreementEquationOver φ center Q K jet hS]
   simp only [mul_eq_zero, pow_ne_zero _ hS, false_or, sub_eq_zero]
 
-/-- Vanishing high symbolic numerators imposes the actual message-degree restriction. -/
+/-- Vanishing sufficiently padded high symbolic numerators imposes the actual message-degree
+restriction. -/
+theorem degree_rationalTaylorPolynomial_lt_of_symbolic_high_cuts_and_exponent
+    (φ : A →ₐ[F] E) (center : A) (Q : DifferentialPolynomial A r) (K k τ : ℕ)
+    (hτ : TaylorExponentSufficient r K τ)
+    (jet : Fin (r + 1) → E)
+    (hS : aeval jet (MvPolynomial.map φ.toRingHom (initialJetSeparantOver center Q)) ≠ 0)
+    (hhigh : ∀ l : Fin K, k ≤ l.val → aeval jet (MvPolynomial.map φ.toRingHom
+      (commonTaylorNumeratorOver (F := F) center Q K l (τ := τ))) = 0) :
+    (rationalTaylorPolynomial (φ center) (MvPolynomial.map φ.toRingHom Q) K jet).degree <
+      k := by
+  rw [map_initialJetSeparantOver_eq] at hS
+  apply degree_rationalTaylorPolynomial_lt_of_high_cuts_and_exponent
+    _ _ K k τ hτ jet hS
+  intro l hl
+  simpa only [map_commonTaylorNumeratorOver_eq (τ := τ)] using hhigh l hl
+
+/-- Vanishing default high symbolic numerators imposes the actual message-degree restriction. -/
 theorem degree_rationalTaylorPolynomial_lt_of_symbolic_high_cuts
     (φ : A →ₐ[F] E) (center : A) (Q : DifferentialPolynomial A r) (K k : ℕ)
     (jet : Fin (r + 1) → E)
@@ -137,13 +190,28 @@ theorem degree_rationalTaylorPolynomial_lt_of_symbolic_high_cuts
       (commonTaylorNumeratorOver (F := F) center Q K l)) = 0) :
     (rationalTaylorPolynomial (φ center) (MvPolynomial.map φ.toRingHom Q) K jet).degree <
       k := by
-  rw [map_initialJetSeparantOver_eq] at hS
-  apply degree_rationalTaylorPolynomial_lt_of_high_cuts _ _ K k jet hS
-  intro l hl
-  simpa only [map_commonTaylorNumeratorOver_eq] using hhigh l hl
+  exact degree_rationalTaylorPolynomial_lt_of_symbolic_high_cuts_and_exponent
+    φ center Q K k (2 * K) (taylorExponentSufficient_two_mul r K) jet hS hhigh
 
 /-- Every common numerator gives the corresponding actual coefficient of the reconstructed
 polynomial after clearing the denominator. No differential-solution premise is used. -/
+theorem aeval_map_commonTaylorNumeratorOver_reconstruction_of_exponent
+    (φ : A →ₐ[F] E) (center : A) (Q : DifferentialPolynomial A r) (K τ : ℕ)
+    (hτ : TaylorExponentSufficient r K τ) (jet : Fin (r + 1) → E)
+    (hS : aeval jet (MvPolynomial.map φ.toRingHom (initialJetSeparantOver center Q)) ≠ 0)
+    (l : Fin K) :
+    aeval jet (MvPolynomial.map φ.toRingHom
+      (commonTaylorNumeratorOver (F := F) center Q K l (τ := τ))) =
+      aeval jet (MvPolynomial.map φ.toRingHom (initialJetSeparantOver center Q)) ^ τ *
+          Polynomial.coeff (Polynomial.taylor (φ center)
+            (rationalTaylorPolynomial (φ center) (MvPolynomial.map φ.toRingHom Q) K jet))
+              l.val := by
+  rw [map_initialJetSeparantOver_eq] at hS ⊢
+  rw [map_commonTaylorNumeratorOver_eq (τ := τ),
+    aeval_commonTaylorNumerator_of_exponent _ _ _ _ τ hτ _ hS]
+  rw [rationalTaylorPolynomial, coeff_taylor_centeredCoefficientPrefix, if_pos l.isLt]
+
+/-- Every default common numerator gives the corresponding reconstructed coefficient. -/
 theorem aeval_map_commonTaylorNumeratorOver_reconstruction
     (φ : A →ₐ[F] E) (center : A) (Q : DifferentialPolynomial A r) (K : ℕ)
     (jet : Fin (r + 1) → E)

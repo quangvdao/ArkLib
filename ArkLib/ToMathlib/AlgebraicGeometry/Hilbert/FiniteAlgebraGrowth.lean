@@ -114,6 +114,34 @@ theorem hilbertPolynomial_natDegree_le_of_injective_algHom
         (Nat.le_mul_of_pos_left N hc))]
     exact_mod_cast hfun N
 
+/-- A surjective map of affine coordinate algebras cannot increase Hilbert dimension.
+
+The map is first presented as a further quotient of its source polynomial algebra.  Ideal
+antitonicity handles that quotient, while the induced algebra equivalence identifies the target
+with the quotient by the composite kernel. -/
+theorem hilbertPolynomial_natDegree_le_of_surjective_algHom
+    {F σ τ : Type*} [Field F] [Finite σ] [Finite τ]
+    {I : Ideal (MvPolynomial σ F)} {J : Ideal (MvPolynomial τ F)}
+    (g : (MvPolynomial τ F ⧸ J) →ₐ[F] (MvPolynomial σ F ⧸ I))
+    (hg : Function.Surjective g) (hI : I ≠ ⊤) :
+    (hilbertPolynomial I).natDegree ≤ (hilbertPolynomial J).natDegree := by
+  let f : MvPolynomial τ F →ₐ[F] (MvPolynomial σ F ⧸ I) :=
+    g.comp (Ideal.Quotient.mkₐ F J)
+  have hf : Function.Surjective f := hg.comp (Ideal.Quotient.mkₐ_surjective F J)
+  let e : (MvPolynomial τ F ⧸ RingHom.ker f) ≃ₐ[F]
+      (MvPolynomial σ F ⧸ I) := Ideal.quotientKerAlgEquivOfSurjective hf
+  have hker : RingHom.ker f ≠ ⊤ := by
+    let _ : Nontrivial (MvPolynomial σ F ⧸ I) := Ideal.Quotient.nontrivial_iff.mpr hI
+    exact RingHom.ker_ne_top f.toRingHom
+  have hJker : J ≤ RingHom.ker f := by
+    intro p hp
+    change g (Ideal.Quotient.mk J p) = 0
+    rw [Ideal.Quotient.eq_zero_iff_mem.mpr hp, map_zero]
+  have hequiv : (hilbertPolynomial I).natDegree ≤
+      (hilbertPolynomial (RingHom.ker f)).natDegree :=
+    hilbertPolynomial_natDegree_le_of_injective_algHom e.symm.toAlgHom e.symm.injective hI
+  exact hequiv.trans (hilbertPolynomial_degree_and_leadingCoeff_antitone hJker hker).1
+
 private theorem exists_one_finset_module_generators
     {B A : Type*} [CommRing B] [CommRing A] [Module B A] [Module.Finite B A] :
     ∃ s : Finset A, 1 ∈ s ∧ Submodule.span B (s : Set A) = ⊤ := by

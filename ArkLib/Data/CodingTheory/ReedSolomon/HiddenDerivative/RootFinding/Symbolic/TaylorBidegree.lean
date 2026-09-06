@@ -12,9 +12,9 @@ import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.Bidegree
 
 This file keeps the challenge degree and the total jet degree separate.  For a source
 differential polynomial of challenge height `h` and jet degree `v`, the initial equation lies
-in the `(h,v)` rectangle.  Every common Taylor numerator lies in
-`(2*K*h, 1 + 2*K*(v-1))`; an agreement cut against a received polynomial of degree at most
-`ell` lies in `(ell + 2*K*h, 1 + 2*K*(v-1))`.
+in the `(h,v)` rectangle. With a sufficient common exponent `τ`, every common Taylor
+numerator lies in `(τ*h, 1 + τ*(v-1))`; an agreement cut against a received polynomial of
+degree at most `ell` lies in `(ell + τ*h, 1 + τ*(v-1))`.
 
 The conclusions are stated as membership in `AffineHilbert.restrictBidegree`, so the cuts can
 be passed directly to `AffineHilbert.bidegreeLift`.
@@ -173,22 +173,32 @@ theorem challengeHeightLE_rationalTaylorNumeratorOver
         rw [he]
         simpa only [Polynomial.algebraMap_eq, zero_add, add_mul, one_mul] using hm
 
-/-- Every common symbolic numerator has challenge degree at most `2*K*h`. -/
+/-- A numerator padded to a sufficient exponent has challenge degree at most `τ*h`. -/
+theorem challengeHeightLE_commonTaylorNumeratorOver_of_exponent
+    (center : F) (Q : DifferentialPolynomial F[X] r) (h K τ : ℕ)
+    (hτ : TaylorExponentSufficient r K τ)
+    (hQ : ChallengeHeightLE Q h) (l : Fin K) :
+    ChallengeHeightLE
+      (commonTaylorNumeratorOver (F := F) (Polynomial.C center) Q K l (τ := τ))
+      (τ * h) := by
+  unfold commonTaylorNumeratorOver
+  have hn := challengeHeightLE_rationalTaylorNumeratorOver center Q h hQ l.val
+  have hs := (challengeHeightLE_initialJetSeparantOver Q center hQ).pow
+    (τ - (2 * (l.val - r) - 1))
+  have hm := hn.mul hs
+  apply hm.mono
+  have he := Nat.sub_add_cancel (hτ l)
+  nlinarith
+
+/-- Every default common symbolic numerator has challenge degree at most `2*K*h`. -/
 theorem challengeHeightLE_commonTaylorNumeratorOver
     (center : F) (Q : DifferentialPolynomial F[X] r) (h K : ℕ)
     (hQ : ChallengeHeightLE Q h) (l : Fin K) :
     ChallengeHeightLE
       (commonTaylorNumeratorOver (F := F) (Polynomial.C center) Q K l)
       (2 * K * h) := by
-  unfold commonTaylorNumeratorOver
-  have hn := challengeHeightLE_rationalTaylorNumeratorOver center Q h hQ l.val
-  have hs := (challengeHeightLE_initialJetSeparantOver Q center hQ).pow
-    (2 * K - (2 * (l.val - r) - 1))
-  have hm := hn.mul hs
-  apply hm.mono
-  have hbudget : 2 * (l.val - r) - 1 ≤ 2 * K := by omega
-  have he := Nat.sub_add_cancel hbudget
-  nlinarith
+  exact challengeHeightLE_commonTaylorNumeratorOver_of_exponent center Q h K (2 * K)
+    (taylorExponentSufficient_two_mul r K) hQ l
 
 /-- The exact jet-degree recurrence for a symbolic Taylor numerator. -/
 theorem totalDegree_rationalTaylorNumeratorOver_le_of_jet
@@ -233,7 +243,29 @@ theorem totalDegree_rationalTaylorNumeratorOver_le_of_jet
         have hvsub := Nat.sub_add_cancel (Nat.succ_le_of_lt hv)
         nlinarith [hm.trans hd]
 
-/-- Every common symbolic numerator has total jet degree at most `1 + 2*K*(v-1)`. -/
+/-- Every numerator padded to a sufficient exponent has total jet degree at most
+`1 + τ*(v-1)`. -/
+theorem totalDegree_commonTaylorNumeratorOver_le_of_jet_and_exponent
+    (center : Polynomial F) (Q : DifferentialPolynomial F[X] r) (v K τ : ℕ)
+    (hτ : TaylorExponentSufficient r K τ)
+    (hv : 0 < v)
+    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
+    (l : Fin K) :
+    (commonTaylorNumeratorOver (F := F) center Q K l (τ := τ)).totalDegree ≤
+      1 + τ * (v - 1) := by
+  have hd := totalDegree_rationalTaylorNumeratorOver_le_of_jet center Q v hv hjet l.val
+  have hs := (totalDegree_initialJetSeparantOver_le center Q).trans
+    (Nat.sub_le_sub_right hjet 1)
+  have hp := (totalDegree_pow (initialJetSeparantOver center Q)
+    (τ - (2 * (l.val - r) - 1))).trans (Nat.mul_le_mul_left _ hs)
+  have hm := totalDegree_mul (rationalTaylorNumeratorOver (F := F) center Q l.val)
+    (initialJetSeparantOver center Q ^ (τ - (2 * (l.val - r) - 1)))
+  have he := Nat.sub_add_cancel (hτ l)
+  unfold commonTaylorNumeratorOver
+  nlinarith
+
+/-- Every default common symbolic numerator has total jet degree at most
+`1 + 2*K*(v-1)`. -/
 theorem totalDegree_commonTaylorNumeratorOver_le_of_jet
     (center : Polynomial F) (Q : DifferentialPolynomial F[X] r) (v K : ℕ)
     (hv : 0 < v)
@@ -241,17 +273,8 @@ theorem totalDegree_commonTaylorNumeratorOver_le_of_jet
     (l : Fin K) :
     (commonTaylorNumeratorOver (F := F) center Q K l).totalDegree ≤
       1 + 2 * K * (v - 1) := by
-  have hd := totalDegree_rationalTaylorNumeratorOver_le_of_jet center Q v hv hjet l.val
-  have hs := (totalDegree_initialJetSeparantOver_le center Q).trans
-    (Nat.sub_le_sub_right hjet 1)
-  have hp := (totalDegree_pow (initialJetSeparantOver center Q)
-    (2 * K - (2 * (l.val - r) - 1))).trans (Nat.mul_le_mul_left _ hs)
-  have hm := totalDegree_mul (rationalTaylorNumeratorOver (F := F) center Q l.val)
-    (initialJetSeparantOver center Q ^ (2 * K - (2 * (l.val - r) - 1)))
-  have hbudget : 2 * (l.val - r) - 1 ≤ 2 * K := by omega
-  have he := Nat.sub_add_cancel hbudget
-  unfold commonTaylorNumeratorOver
-  nlinarith
+  exact totalDegree_commonTaylorNumeratorOver_le_of_jet_and_exponent
+    center Q v K (2 * K) (taylorExponentSufficient_two_mul r K) hv hjet l
 
 private theorem weightedTotalDegree_finsetSum_le {R ι : Type*} [CommSemiring R]
     (w : σ → ℕ) (s : Finset ι) (P : ι → MvPolynomial σ R) (d : ℕ)
@@ -414,7 +437,25 @@ theorem initialJetSeparantOver_mem_restrictBidegree
   · exact (totalDegree_initialJetSeparantOver_le _ Q).trans
       (Nat.sub_le_sub_right hjet 1)
 
-/-- Every flattened common Taylor numerator lies in the sharp source-cut rectangle. -/
+/-- Every flattened numerator padded to a sufficient exponent lies in its source-cut
+rectangle. -/
+theorem commonTaylorNumeratorOver_mem_restrictBidegree_of_exponent
+    (center : F) (Q : DifferentialPolynomial F[X] r) (h v K τ : ℕ)
+    (hτ : TaylorExponentSufficient r K τ)
+    (hv : 0 < v) (hheight : ChallengeHeightLE Q h)
+    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
+    (l : Fin K) :
+    flattenChallenge
+        (commonTaylorNumeratorOver (F := F) (Polynomial.C center) Q K l (τ := τ)) ∈
+      AffineHilbert.restrictBidegree (F := F) (σ := Fin (r + 1))
+        (τ * h) (1 + τ * (v - 1)) := by
+  apply flattenChallenge_mem_restrictBidegree
+  · exact challengeHeightLE_commonTaylorNumeratorOver_of_exponent
+      center Q h K τ hτ hheight l
+  · exact totalDegree_commonTaylorNumeratorOver_le_of_jet_and_exponent
+      (Polynomial.C center) Q v K τ hτ hv hjet l
+
+/-- Every flattened default common Taylor numerator lies in the coarse source-cut rectangle. -/
 theorem commonTaylorNumeratorOver_mem_restrictBidegree
     (center : F) (Q : DifferentialPolynomial F[X] r) (h v K : ℕ)
     (hv : 0 < v) (hheight : ChallengeHeightLE Q h)
@@ -424,12 +465,55 @@ theorem commonTaylorNumeratorOver_mem_restrictBidegree
         (commonTaylorNumeratorOver (F := F) (Polynomial.C center) Q K l) ∈
       AffineHilbert.restrictBidegree (F := F) (σ := Fin (r + 1))
         (2 * K * h) (1 + 2 * K * (v - 1)) := by
-  apply flattenChallenge_mem_restrictBidegree
-  · exact challengeHeightLE_commonTaylorNumeratorOver center Q h K hheight l
-  · exact totalDegree_commonTaylorNumeratorOver_le_of_jet
-      (Polynomial.C center) Q v K hv hjet l
+  exact commonTaylorNumeratorOver_mem_restrictBidegree_of_exponent
+    center Q h v K (2 * K) (taylorExponentSufficient_two_mul r K) hv hheight hjet l
 
-/-- Agreement with a degree-`ell` received curve lies in the sharp source-cut rectangle. -/
+/-- Agreement with a degree-`ell` received curve, padded to a sufficient exponent, lies in
+the corresponding source-cut rectangle. -/
+theorem taylorAgreementEquationOver_mem_restrictBidegree_of_exponent
+    (center x : F) (y : F[X]) (Q : DifferentialPolynomial F[X] r)
+    (ell h v K τ : ℕ) (hτ : TaylorExponentSufficient r K τ)
+    (hy : y.natDegree ≤ ell) (hv : 0 < v)
+    (hheight : ChallengeHeightLE Q h)
+    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v) :
+    flattenChallenge
+        (taylorAgreementEquationOver (F := F) (Polynomial.C center) Q K
+          (Polynomial.C x) y (τ := τ)) ∈
+      AffineHilbert.restrictBidegree (F := F) (σ := Fin (r + 1))
+        (ell + τ * h) (1 + τ * (v - 1)) := by
+  apply flattenChallenge_mem_restrictBidegree
+  · unfold taylorAgreementEquationOver
+    apply ChallengeHeightLE.sub
+    · apply (height_sum (Finset.univ) _)
+      intro l _
+      have hc : ChallengeHeightLE
+          (C ((Polynomial.C x - Polynomial.C center) ^ l.val) :
+            MvPolynomial (Fin (r + 1)) F[X]) 0 := height_C (by simp)
+      exact (hc.mul (challengeHeightLE_commonTaylorNumeratorOver_of_exponent
+        center Q h K τ hτ hheight l)).mono
+        (by omega)
+    · exact ((height_C hy).mul
+        ((challengeHeightLE_initialJetSeparantOver Q center hheight).pow τ)).mono
+          (by omega)
+  · unfold taylorAgreementEquationOver
+    apply (totalDegree_sub _ _).trans
+    apply max_le
+    · apply totalDegree_finsetSum_le
+      intro l _
+      apply (totalDegree_mul _ _).trans
+      simpa only [totalDegree_C, zero_add] using
+        totalDegree_commonTaylorNumeratorOver_le_of_jet_and_exponent
+          (Polynomial.C center) Q v K τ hτ hv hjet l
+    · apply (totalDegree_mul _ _).trans
+      simp only [totalDegree_C, zero_add]
+      have hs := (totalDegree_pow
+          (initialJetSeparantOver (Polynomial.C center) Q) τ).trans
+        (Nat.mul_le_mul_left τ
+          ((totalDegree_initialJetSeparantOver_le (Polynomial.C center) Q).trans
+          (Nat.sub_le_sub_right hjet 1)))
+      omega
+
+/-- Agreement with a degree-`ell` received curve lies in the default coarse rectangle. -/
 theorem taylorAgreementEquationOver_mem_restrictBidegree
     (center x : F) (y : F[X]) (Q : DifferentialPolynomial F[X] r)
     (ell h v K : ℕ) (hy : y.natDegree ≤ ell) (hv : 0 < v)
@@ -440,36 +524,9 @@ theorem taylorAgreementEquationOver_mem_restrictBidegree
           (Polynomial.C x) y) ∈
       AffineHilbert.restrictBidegree (F := F) (σ := Fin (r + 1))
         (ell + 2 * K * h) (1 + 2 * K * (v - 1)) := by
-  apply flattenChallenge_mem_restrictBidegree
-  · unfold taylorAgreementEquationOver
-    apply ChallengeHeightLE.sub
-    · apply (height_sum (Finset.univ) _)
-      intro l _
-      have hc : ChallengeHeightLE
-          (C ((Polynomial.C x - Polynomial.C center) ^ l.val) :
-            MvPolynomial (Fin (r + 1)) F[X]) 0 := height_C (by simp)
-      exact (hc.mul (challengeHeightLE_commonTaylorNumeratorOver center Q h K hheight l)).mono
-        (by omega)
-    · exact ((height_C hy).mul
-        ((challengeHeightLE_initialJetSeparantOver Q center hheight).pow (2 * K))).mono
-          (by omega)
-  · unfold taylorAgreementEquationOver
-    apply (totalDegree_sub _ _).trans
-    apply max_le
-    · apply totalDegree_finsetSum_le
-      intro l _
-      apply (totalDegree_mul _ _).trans
-      simpa only [totalDegree_C, zero_add] using
-        totalDegree_commonTaylorNumeratorOver_le_of_jet
-          (Polynomial.C center) Q v K hv hjet l
-    · apply (totalDegree_mul _ _).trans
-      simp only [totalDegree_C, zero_add]
-      have hs := (totalDegree_pow
-          (initialJetSeparantOver (Polynomial.C center) Q) (2 * K)).trans
-        (Nat.mul_le_mul_left (2 * K)
-          ((totalDegree_initialJetSeparantOver_le (Polynomial.C center) Q).trans
-          (Nat.sub_le_sub_right hjet 1)))
-      omega
+  exact taylorAgreementEquationOver_mem_restrictBidegree_of_exponent
+    center x y Q ell h v K (2 * K) (taylorExponentSufficient_two_mul r K)
+      hy hv hheight hjet
 
 end
 

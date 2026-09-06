@@ -160,7 +160,7 @@ theorem band_prescribed_budget_lt_finrank {F : Type*} [Field F]
     let Cmax := Nat.ceil ((1 + 13 * g / 20) * m)
     let Be := Nat.ceil ((m : ℝ) * (1 + g) - Cmin)
     ∃ hD : 0 < D,
-      n * asymmetricBandLocalBudget d m W Be <
+      n * localCoordinateBudget d m W Be <
         Module.finrank F (asymmetricBandSpace F D d m W Cmin Cmax
           ((D : ℝ) * m * (1 + g)) hD) := by
   let d := Nat.ceil (Real.exp ((169 / 25) / δ))
@@ -187,7 +187,7 @@ theorem band_prescribed_budget_lt_finrank {F : Type*} [Field F]
   have hn : 0 < n := by
     have hblock' : 8 * m ≤ n := hblock
     omega
-  have hbudget : (asymmetricBandLocalBudget d m W Be : ℝ) ≤
+  have hbudget : (localCoordinateBudget d m W Be : ℝ) ≤
       15 / 2 * g * (1 + g / 2) ^ 2 / H ^ 2 * B * (m : ℝ) ^ 3 *
         (d : ℝ) ^ (-g / (2 + g)) := by
     have hmass' : 29 / 100 * ((W : ℝ) ^ (d - 1) /
@@ -195,7 +195,7 @@ theorem band_prescribed_budget_lt_finrank {F : Type*} [Field F]
     have hgm' : 80 ≤ g * m := by
       have : (0 : ℝ) ≤ d := Nat.cast_nonneg d
       linarith
-    exact asymmetricBandLocalBudget_le_normalized_of_band_card_lower g d hg.le hg1 hd hgm' hmass'
+    exact localCoordinateBudget_le_normalized_of_band_card_lower g d hg.le hg1 hd hgm' hmass'
   have hdim := finrank_asymmetricBandSpace_ge_paper_cubic
     (F := F) (d := d) (m := m) (W := W) (Cmin := Cmin)
     (by omega) hD hg.le hg1 hgm
@@ -214,7 +214,7 @@ theorem band_prescribed_budget_lt_finrank {F : Type*} [Field F]
   have htotal := mul_le_mul_of_nonneg_left hbudget (Nat.cast_nonneg n : (0 : ℝ) ≤ _)
   refine ⟨hD, ?_⟩
   have hfinal := (htotal.trans_lt hstrict).trans_le hdim
-  change n * asymmetricBandLocalBudget d m W Be <
+  change n * localCoordinateBudget d m W Be <
     Module.finrank F (asymmetricBandSpace F D d m W Cmin Cmax
       ((D : ℝ) * m * (1 + g)) hD)
   exact_mod_cast hfinal
@@ -234,7 +234,7 @@ theorem band_prescribed_budget_lt_dimensionCount
     let Cmin := Nat.floor ((1 - g / 10) * m)
     let Cmax := Nat.ceil ((1 + 13 * g / 20) * m)
     let Be := Nat.ceil ((m : ℝ) * (1 + g) - Cmin)
-    n * asymmetricBandLocalBudget d m W Be <
+    n * localCoordinateBudget d m W Be <
       asymmetricBandDimensionCount D d m W Cmin Cmax ((D : ℝ) * m * (1 + g)) := by
   obtain ⟨hD, h⟩ := band_prescribed_budget_lt_finrank (F := ℚ) δ n k hδ hδ' hk hblock hA
   have hd := (band_prescribed_order_lower δ hδ hδ'.le).1

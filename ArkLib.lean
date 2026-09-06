@@ -240,7 +240,6 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Band.
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Band.Interpolation
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Band.LocalRank
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Band.NormalizedRank
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Band.RankBound
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Certificates
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Counting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.DimensionBridge
@@ -269,11 +268,13 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Index
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.ConstraintKernel
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.ConstraintMap
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.Contact
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.Coordinates
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.Identity
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.IntermediateSpace
 import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.KernelSliceIndependence
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.Rank
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.RankBudget
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.SourceMonomial
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Space
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.SpecializationDegree
@@ -292,7 +293,13 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbo
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.SeparantStages
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.Soundness
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.WeightedSupport.Basic
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.WeightedSupport.Interpolation
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.WeightedSupport.LocalRank
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.WeightedSupport.MomentBounds
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.WeightedSupport.Quartic
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.WeightedSupport.RankBound
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Band.Ambient
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Band.EndpointComparison
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Band.MassBound
@@ -638,6 +645,7 @@ import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.StandardMonomials
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.Agreement
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.BidegreeExcluded
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.DimensionSensitive
+import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.EvaluationDimension
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.Excluded
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.GraphPullback
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.SharpCutFamily
@@ -652,12 +660,14 @@ import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalCut.NoetherNormalizationHeigh
 import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalCut.Polynomial
 import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalCut.Purity
 import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalOpen.Cuts
+import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalOpen.Dimension
 import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalOpen.Filtration
 import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalOpen.Finite
 import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalOpen.Presentation
 import ArkLib.ToMathlib.AlgebraicGeometry.ZeroLocus.Finite
 import ArkLib.ToMathlib.AlgebraicGeometry.ZeroLocus.ZeroDimensional
 import ArkLib.ToMathlib.BigOperators.Fin
+import ArkLib.ToMathlib.Combinatorics.CubicStaircase
 import ArkLib.ToMathlib.Combinatorics.DiscreteSimplex.Basic
 import ArkLib.ToMathlib.Combinatorics.DiscreteSimplex.Moments
 import ArkLib.ToMathlib.Combinatorics.DiscreteSimplex.Variance

@@ -79,7 +79,7 @@ theorem band_rpow_div_order (g : ℝ) (d : ℕ) (hg : 0 ≤ g) (hd : 0 < d) :
   rw [← he, Real.rpow_sub hdp, Real.rpow_one]
 
 /-- Scalar assembly of the normalized estimate, with every external numerical premise exposed. -/
-theorem asymmetricBandLocalBudget_le_normalized_of_scalar_bounds
+theorem localCoordinateBudget_le_normalized_of_scalar_bounds
     (g H B : ℝ) (d m W Be : ℕ) (hg : 0 ≤ g) (hH : 0 < H) (hB : 0 ≤ B)
     (hd : 2 ≤ d) (hm : 0 < m) (hW : 0 < W)
     (hBe : (Be : ℝ) ≤ 9 / 8 * g * m)
@@ -89,7 +89,7 @@ theorem asymmetricBandLocalBudget_le_normalized_of_scalar_bounds
     (hrec : 1 / (((d - 1 : ℕ) : ℝ) * m / W) ^ 2 +
       (d : ℝ) / (m * (((d - 1 : ℕ) : ℝ) * m / W)) ≤
         101 / 100 * (1 / (H / (1 + g / 2)) ^ 2)) :
-    (asymmetricBandLocalBudget d m W Be : ℝ) ≤
+    (localCoordinateBudget d m W Be : ℝ) ≤
       15 / 2 * g * (1 + g / 2) ^ 2 / H ^ 2 * B * (m : ℝ) ^ 3 *
         (d : ℝ) ^ (-g / (2 + g)) := by
   let κ : ℝ := ((d - 1 : ℕ) : ℝ) * m / W
@@ -100,8 +100,8 @@ theorem asymmetricBandLocalBudget_le_normalized_of_scalar_bounds
   have hm' : (m : ℝ) ≠ 0 := by positivity
   have hd' : (d : ℝ) ≠ 0 := by positivity
   have ha : 1 + g / 2 ≠ 0 := by linarith
-  have hbase := asymmetricBandLocalBudget_le_kappa d m W Be hd hm hW
-  change (asymmetricBandLocalBudget d m W Be : ℝ) ≤ _ at hbase
+  have hbase := localCoordinateBudget_le_kappa d m W Be hd hm hW
+  change (localCoordinateBudget d m W Be : ℝ) ≤ _ at hbase
   have hid : (m : ℝ) ^ 2 / ((d : ℝ) * κ ^ 2) + m / κ =
       (m : ℝ) ^ 2 / d * (1 / κ ^ 2 + (d : ℝ) / (m * κ)) := by
     field_simp
@@ -131,7 +131,7 @@ theorem asymmetricBandLocalBudget_le_normalized_of_scalar_bounds
 
 /-- The prescribed parameter budget satisfies the normalized bound conditional on band counting.
 The support lower bound is the sole counting premise; the window threshold is explicit. -/
-theorem asymmetricBandLocalBudget_le_normalized_of_band_card_lower
+theorem localCoordinateBudget_le_normalized_of_band_card_lower
     (g : ℝ) (d : ℕ) (hg : 0 ≤ g) (hg' : g ≤ 1) (hd : 1000 ≤ d) :
     let H := ∑ i ∈ Finset.range (d - 1), (1 : ℝ) / (i + 1)
     let a := 1 + g / 2
@@ -143,7 +143,7 @@ theorem asymmetricBandLocalBudget_le_normalized_of_band_card_lower
     let B := (asymmetricBandTuples d W Cmin Cmax).card
     80 ≤ g * m →
     29 / 100 * ((W : ℝ) ^ (d - 1) / ((d - 1).factorial : ℝ) ^ 2) ≤ B →
-    (asymmetricBandLocalBudget d m W Be : ℝ) ≤
+    (localCoordinateBudget d m W Be : ℝ) ≤
       15 / 2 * g * a ^ 2 / H ^ 2 * B * (m : ℝ) ^ 3 *
         (d : ℝ) ^ (-g / (2 + g)) := by
   dsimp only
@@ -172,7 +172,7 @@ theorem asymmetricBandLocalBudget_le_normalized_of_band_card_lower
   have hexp := band_exp_le_rpow g H
     ((((d - 1 : ℕ) : ℝ) * m / W) * (1 + (d.choose 2 : ℝ) / m)) d
     hg (by omega) hHlog he
-  exact asymmetricBandLocalBudget_le_normalized_of_scalar_bounds g H B d m W Be
+  exact localCoordinateBudget_le_normalized_of_scalar_bounds g H B d m W Be
     hg hH (Nat.cast_nonneg B) (by omega) hm hW hBe hvolume hexp hrec
 
 /-- The actual local constraint rank has the normalized bound, conditional on band counting.
@@ -202,7 +202,7 @@ theorem finrank_asymmetricBandLocalConstraint_le_normalized_of_band_card_lower
   let Cmin := Nat.floor ((1 - g / 10) * m)
   let Cmax := Nat.ceil ((1 + 13 * g / 20) * m)
   intro hgm hcount
-  have hbudget := asymmetricBandLocalBudget_le_normalized_of_band_card_lower
+  have hbudget := localCoordinateBudget_le_normalized_of_band_card_lower
     g d hg hg' hd hgm hcount
   have hrank := finrank_asymmetricBandLocalConstraint_le
     (d := d) (m := m) (W := W) (Cmin := Cmin) (Cmax := Cmax)

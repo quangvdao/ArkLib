@@ -55,7 +55,7 @@ theorem exists_band_construction {n q k A d m K W Cmin Cmax : ℕ} {L : ℝ}
     (hkK : k ≤ K) (hKn : K ≤ n) (hnq : n ≤ q) (hd : 0 < d) (hdK : d < K - 1)
     (hmA : 0 < m * A) (hmq : 2 * m < q) (hcontact : m * A ≤ q ^ 2)
     (hL : L ≤ (m * A : ℕ)) (hLt : L ≤ ((K - 1 : ℕ) : ℝ) * (2 * m : ℕ))
-    (hdim : n * asymmetricBandLocalBudget d m W ⌈L / (K - 1 : ℕ) - Cmin⌉₊ <
+    (hdim : n * localCoordinateBudget d m W ⌈L / (K - 1 : ℕ) - Cmin⌉₊ <
       asymmetricBandDimensionCount (K - 1) d m W Cmin Cmax L) :
     ∃ construction : HiddenDerivativeInterpolationCertificate (k := k) (A := A) d m domain received,
       construction.ambientDim = K ∧ ∀ j, jetDegree construction.interpolant j ≤ 2 * m := by
@@ -95,7 +95,7 @@ theorem agreeingPolynomials_encard_le_of_band_certificate
     (hmA : 0 < m * A) (hKchar : K - 1 < ringChar F) (hmchar : 2 * m < ringChar F)
     (he : 0 < e) (hlarge : 2 * (m * A + d - K) ≤ Nat.card F ^ e)
     (hL : L ≤ (m * A : ℕ)) (hLt : L ≤ ((K - 1 : ℕ) : ℝ) * (2 * m : ℕ))
-    (hdim : n * asymmetricBandLocalBudget d m W ⌈L / (K - 1 : ℕ) - Cmin⌉₊ <
+    (hdim : n * localCoordinateBudget d m W ⌈L / (K - 1 : ℕ) - Cmin⌉₊ <
       asymmetricBandDimensionCount (K - 1) d m W Cmin Cmax L) :
     (agreeingPolynomials domain k A received).encard ≤
       (4 * m * Nat.card F ^ (e * d) : ℕ) := by

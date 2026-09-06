@@ -151,20 +151,29 @@ theorem challengeHeightLE_rationalTaylorNumeratorOver
       simp only [he, Nat.add_mul, Nat.one_mul, zero_add]
       omega
 
-/-- Common clearing at exponent `2K` gives challenge degree at most `2K * h`. -/
+/-- Clearing at a sufficient exponent `τ` gives challenge degree at most `τ * h`. -/
+theorem challengeHeightLE_commonTaylorNumeratorOver_of_exponent
+    (Q : DifferentialPolynomial F[X] r) (center : F) (hQ : ChallengeHeightLE Q ℓ)
+    (K τ : ℕ) (hτ : TaylorExponentSufficient r K τ) (l : Fin K) :
+    ChallengeHeightLE
+      (commonTaylorNumeratorOver (F := F) (Polynomial.C center) Q K l (τ := τ))
+      (τ * ℓ) := by
+  unfold commonTaylorNumeratorOver
+  have ht := (challengeHeightLE_rationalTaylorNumeratorOver Q center hQ l.val).mul_bound
+    ((challengeHeightLE_initialJetSeparantOver Q center hQ).pow_bound
+      (τ - (2 * (l.val - r) - 1)))
+  have he := Nat.add_sub_of_le (hτ l)
+  convert ht using 1
+  nlinarith
+
+/-- Common clearing at the default exponent `2K` gives challenge degree at most `2K * h`. -/
 theorem challengeHeightLE_commonTaylorNumeratorOver
     (Q : DifferentialPolynomial F[X] r) (center : F) (hQ : ChallengeHeightLE Q ℓ)
     (K : ℕ) (l : Fin K) :
     ChallengeHeightLE (commonTaylorNumeratorOver (F := F) (Polynomial.C center) Q K l)
       (2 * K * ℓ) := by
-  unfold commonTaylorNumeratorOver
-  have ht := (challengeHeightLE_rationalTaylorNumeratorOver Q center hQ l.val).mul_bound
-    ((challengeHeightLE_initialJetSeparantOver Q center hQ).pow_bound
-      (2 * K - (2 * (l.val - r) - 1)))
-  have he : (2 * (l.val - r) - 1) + (2 * K - (2 * (l.val - r) - 1)) = 2 * K := by
-    omega
-  convert ht using 1
-  nlinarith
+  exact challengeHeightLE_commonTaylorNumeratorOver_of_exponent Q center hQ K (2 * K)
+    (taylorExponentSufficient_two_mul r K) l
 
 /-- Jet total degree of the recursive Taylor numerator is independent of challenge height. -/
 theorem totalDegree_rationalTaylorNumeratorOver_le
@@ -203,7 +212,32 @@ theorem totalDegree_rationalTaylorNumeratorOver_le
       rw [he]
       nlinarith [hp.trans hd]
 
-/-- Common Taylor numerators have separate challenge and jet degree bounds. -/
+/-- Taylor numerators padded to a sufficient exponent have separate challenge and jet bounds. -/
+theorem commonTaylorNumeratorOver_bidegree_of_exponent
+    (center : F) (Q : DifferentialPolynomial F[X] r) (v h : ℕ) (hv : 0 < v)
+    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
+    (hQ : ChallengeHeightLE Q h) (K τ : ℕ) (hτ : TaylorExponentSufficient r K τ)
+    (l : Fin K) :
+    ChallengeHeightLE
+        (commonTaylorNumeratorOver (F := F) (Polynomial.C center) Q K l (τ := τ))
+        (τ * h) ∧
+      (commonTaylorNumeratorOver (F := F) (Polynomial.C center) Q K l
+        (τ := τ)).totalDegree ≤ 1 + τ * (v - 1) := by
+  refine ⟨challengeHeightLE_commonTaylorNumeratorOver_of_exponent
+    Q center hQ K τ hτ l, ?_⟩
+  unfold commonTaylorNumeratorOver
+  have hS := (totalDegree_initialJetSeparantOver_le (Polynomial.C center) Q).trans
+    (Nat.sub_le_sub_right hjet 1)
+  have hN := totalDegree_rationalTaylorNumeratorOver_le (Polynomial.C center) Q v hv hjet l.val
+  have hp := (totalDegree_pow (initialJetSeparantOver (Polynomial.C center) Q)
+    (τ - (2 * (l.val - r) - 1))).trans (Nat.mul_le_mul_left _ hS)
+  have hm := totalDegree_mul
+    (rationalTaylorNumeratorOver (F := F) (Polynomial.C center) Q l.val)
+    (initialJetSeparantOver (Polynomial.C center) Q ^ (τ - (2 * (l.val - r) - 1)))
+  have he := Nat.add_sub_of_le (hτ l)
+  nlinarith
+
+/-- Default common Taylor numerators have the original separate degree bounds. -/
 theorem commonTaylorNumeratorOver_bidegree
     (center : F) (Q : DifferentialPolynomial F[X] r) (v h : ℕ) (hv : 0 < v)
     (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
@@ -212,22 +246,24 @@ theorem commonTaylorNumeratorOver_bidegree
         (2 * K * h) ∧
       (commonTaylorNumeratorOver (F := F) (Polynomial.C center) Q K l).totalDegree ≤
         1 + 2 * K * (v - 1) := by
-  refine ⟨challengeHeightLE_commonTaylorNumeratorOver Q center hQ K l, ?_⟩
-  unfold commonTaylorNumeratorOver
-  have hS := (totalDegree_initialJetSeparantOver_le (Polynomial.C center) Q).trans
-    (Nat.sub_le_sub_right hjet 1)
-  have hN := totalDegree_rationalTaylorNumeratorOver_le (Polynomial.C center) Q v hv hjet l.val
-  have hp := (totalDegree_pow (initialJetSeparantOver (Polynomial.C center) Q)
-    (2 * K - (2 * (l.val - r) - 1))).trans (Nat.mul_le_mul_left _ hS)
-  have hm := totalDegree_mul
-    (rationalTaylorNumeratorOver (F := F) (Polynomial.C center) Q l.val)
-    (initialJetSeparantOver (Polynomial.C center) Q ^ (2 * K - (2 * (l.val - r) - 1)))
-  have he : (2 * (l.val - r) - 1) + (2 * K - (2 * (l.val - r) - 1)) = 2 * K := by
-    omega
-  nlinarith
+  exact commonTaylorNumeratorOver_bidegree_of_exponent center Q v h hv hjet hQ
+    K (2 * K) (taylorExponentSufficient_two_mul r K) l
 
-/-- The common denominator retains both degree bounds without counting challenge degree as jet
-degree. -/
+/-- An explicit common denominator retains both degree bounds without mixing coordinates. -/
+theorem commonTaylorDenominatorOver_bidegree_of_exponent
+    (center : F) (Q : DifferentialPolynomial F[X] r) (v h : ℕ)
+    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
+    (hQ : ChallengeHeightLE Q h) (τ : ℕ) :
+    ChallengeHeightLE (initialJetSeparantOver (Polynomial.C center) Q ^ τ) (τ * h) ∧
+      (initialJetSeparantOver (Polynomial.C center) Q ^ τ).totalDegree ≤
+        τ * (v - 1) := by
+  refine ⟨(challengeHeightLE_initialJetSeparantOver Q center hQ).pow_bound _, ?_⟩
+  exact (totalDegree_pow _ _).trans (Nat.mul_le_mul_left _
+    ((totalDegree_initialJetSeparantOver_le (Polynomial.C center) Q).trans
+      (Nat.sub_le_sub_right hjet 1)))
+
+/-- The default common denominator retains both degree bounds without counting challenge
+degree as jet degree. -/
 theorem commonTaylorDenominatorOver_bidegree
     (center : F) (Q : DifferentialPolynomial F[X] r) (v h : ℕ)
     (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
@@ -236,25 +272,23 @@ theorem commonTaylorDenominatorOver_bidegree
         (2 * K * h) ∧
       (initialJetSeparantOver (Polynomial.C center) Q ^ (2 * K)).totalDegree ≤
         2 * K * (v - 1) := by
-  refine ⟨(challengeHeightLE_initialJetSeparantOver Q center hQ).pow_bound _, ?_⟩
-  exact (totalDegree_pow _ _).trans (Nat.mul_le_mul_left _
-    ((totalDegree_initialJetSeparantOver_le (Polynomial.C center) Q).trans
-      (Nat.sub_le_sub_right hjet 1)))
+  exact commonTaylorDenominatorOver_bidegree_of_exponent center Q v h hjet hQ (2 * K)
 
-/-- A polynomial-curve agreement cut has challenge degree linear in the batching degree, while
-its jet total degree is completely independent of the batching degree. -/
-theorem taylorCurveAgreementEquationOver_bidegree
+/-- A sufficiently padded polynomial-curve agreement cut has challenge degree linear in the
+batching degree, while its jet total degree is independent of the batching degree. -/
+theorem taylorCurveAgreementEquationOver_bidegree_of_exponent
     (center : F) (Q : DifferentialPolynomial F[X] r) (v h : ℕ) (hv : 0 < v)
     (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
-    (hQ : ChallengeHeightLE Q h) (K : ℕ) (x : F) (y : F[X])
+    (hQ : ChallengeHeightLE Q h) (K τ : ℕ) (hτ : TaylorExponentSufficient r K τ)
+    (x : F) (y : F[X])
     (hy : y.natDegree ≤ ℓ) :
     let cut := taylorAgreementEquationOver (F := F) (Polynomial.C center) Q K
-      (Polynomial.C x) y
-    ChallengeHeightLE cut (ℓ + 2 * K * h) ∧
-      cut.totalDegree ≤ 1 + 2 * K * (v - 1) := by
+      (Polynomial.C x) y (τ := τ)
+    ChallengeHeightLE cut (ℓ + τ * h) ∧
+      cut.totalDegree ≤ 1 + τ * (v - 1) := by
   dsimp only
   unfold taylorAgreementEquationOver
-  have hd := commonTaylorDenominatorOver_bidegree center Q v h hjet hQ K
+  have hd := commonTaylorDenominatorOver_bidegree_of_exponent center Q v h hjet hQ τ
   have hcoeff (l : Fin K) : ChallengeHeightLE
       (MvPolynomial.C ((Polynomial.C x - Polynomial.C center) ^ l.val) :
         MvPolynomial (Fin (r + 1)) F[X]) 0 := by
@@ -262,9 +296,11 @@ theorem taylorCurveAgreementEquationOver_bidegree
     rw [← map_sub, ← map_pow, Polynomial.natDegree_C]
   have hsum := ChallengeHeightLE.sum_bound Finset.univ
     (fun l : Fin K ↦ MvPolynomial.C ((Polynomial.C x - Polynomial.C center) ^ l.val) *
-      commonTaylorNumeratorOver (F := F) (Polynomial.C center) Q K l) (h := ℓ + 2 * K * h)
+      commonTaylorNumeratorOver (F := F) (Polynomial.C center) Q K l (τ := τ))
+        (h := ℓ + τ * h)
     (fun l _ ↦ ((hcoeff l).mul_bound
-      (challengeHeightLE_commonTaylorNumeratorOver Q center hQ K l)).mono (by omega))
+      (challengeHeightLE_commonTaylorNumeratorOver_of_exponent Q center hQ K τ hτ l)).mono
+        (by omega))
   have hy' : ChallengeHeightLE
       (MvPolynomial.C y : MvPolynomial (Fin (r + 1)) F[X]) ℓ :=
     ChallengeHeightLE.const hy
@@ -279,10 +315,24 @@ theorem taylorCurveAgreementEquationOver_bidegree
       intro l _
       exact (totalDegree_mul _ _).trans (by
         simpa only [totalDegree_C, zero_add] using
-          (commonTaylorNumeratorOver_bidegree center Q v h hv hjet hQ K l).2)
+          (commonTaylorNumeratorOver_bidegree_of_exponent
+            center Q v h hv hjet hQ K τ hτ l).2)
     · exact (totalDegree_mul _ _).trans (by
         simp only [totalDegree_C, zero_add]
         exact hd.2.trans (Nat.le_add_left _ _))
+
+/-- The default polynomial-curve agreement cut has the original separate degree bounds. -/
+theorem taylorCurveAgreementEquationOver_bidegree
+    (center : F) (Q : DifferentialPolynomial F[X] r) (v h : ℕ) (hv : 0 < v)
+    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
+    (hQ : ChallengeHeightLE Q h) (K : ℕ) (x : F) (y : F[X])
+    (hy : y.natDegree ≤ ℓ) :
+    let cut := taylorAgreementEquationOver (F := F) (Polynomial.C center) Q K
+      (Polynomial.C x) y
+    ChallengeHeightLE cut (ℓ + 2 * K * h) ∧
+      cut.totalDegree ≤ 1 + 2 * K * (v - 1) := by
+  exact taylorCurveAgreementEquationOver_bidegree_of_exponent center Q v h hv hjet hQ
+    K (2 * K) (taylorExponentSufficient_two_mul r K) x y hy
 
 /-! ## Coefficient-linearized lifted-power cuts -/
 

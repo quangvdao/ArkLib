@@ -52,15 +52,16 @@ theorem jointTotalDegree_initialJetEquationOver_le (center : Polynomial F)
   omega
 
 /-- An affine challenge-dependent agreement cut has the uniform common-numerator degree. -/
-theorem jointTotalDegree_taylorAgreementEquationOver_le
-    (center x a b : F) (Q : DifferentialPolynomial (Polynomial F) r) (K B : ℕ)
+theorem jointTotalDegree_taylorAgreementEquationOver_le_of_exponent
+    (center x a b : F) (Q : DifferentialPolynomial (Polynomial F) r) (K τ B : ℕ)
     (hS : jointTotalDegree (initialJetSeparantOver (Polynomial.C center) Q) ≤ B)
     (hN : ∀ l : Fin K,
-      jointTotalDegree (commonTaylorNumeratorOver (F := F) (Polynomial.C center) Q K l) ≤
-        1 + 2 * K * B) :
+      jointTotalDegree
+          (commonTaylorNumeratorOver (F := F) (Polynomial.C center) Q K l (τ := τ)) ≤
+        1 + τ * B) :
     jointTotalDegree (taylorAgreementEquationOver (F := F) (Polynomial.C center) Q K
-      (Polynomial.C x) (Polynomial.C a + Polynomial.X * Polynomial.C b)) ≤
-        1 + 2 * K * B := by
+      (Polynomial.C x) (Polynomial.C a + Polynomial.X * Polynomial.C b) (τ := τ)) ≤
+        1 + τ * B := by
   unfold taylorAgreementEquationOver
   apply (jointTotalDegree_sub_le _ _).trans
   apply max_le
@@ -72,6 +73,19 @@ theorem jointTotalDegree_taylorAgreementEquationOver_le
   · apply (jointTotalDegree_mul_le _ _).trans
     exact Nat.add_le_add (jointTotalDegree_affine_le a b)
       ((jointTotalDegree_pow_le _ _).trans (Nat.mul_le_mul_left _ hS))
+
+/-- The default affine challenge-dependent agreement cut has the coarse degree bound. -/
+theorem jointTotalDegree_taylorAgreementEquationOver_le
+    (center x a b : F) (Q : DifferentialPolynomial (Polynomial F) r) (K B : ℕ)
+    (hS : jointTotalDegree (initialJetSeparantOver (Polynomial.C center) Q) ≤ B)
+    (hN : ∀ l : Fin K,
+      jointTotalDegree (commonTaylorNumeratorOver (F := F) (Polynomial.C center) Q K l) ≤
+        1 + 2 * K * B) :
+    jointTotalDegree (taylorAgreementEquationOver (F := F) (Polynomial.C center) Q K
+      (Polynomial.C x) (Polynomial.C a + Polynomial.X * Polynomial.C b)) ≤
+        1 + 2 * K * B := by
+  exact jointTotalDegree_taylorAgreementEquationOver_le_of_exponent
+    center x a b Q K (2 * K) B hS hN
 
 /-- Initial specialization at a constant center does not increase challenge height. -/
 theorem challengeHeightLE_initialJetEquationOver (center : F)
@@ -101,7 +115,26 @@ theorem jointTotalDegree_initialJetEquationOver_le_of_source (center : F)
   intro m _
   exact challengeHeightLE_initialJetEquationOver center Q hheight m
 
-/-- The actual affine received-word cut satisfies the source-derived uniform degree bound. -/
+/-- The affine received-word cut padded to a sufficient exponent satisfies the source-derived
+degree bound. -/
+theorem jointTotalDegree_taylorAgreementEquationOver_le_of_source_and_exponent
+    (center x a b : F) (Q : DifferentialPolynomial (Polynomial F) r) (v h K τ : ℕ)
+    (hτ : TaylorExponentSufficient r K τ)
+    (hv : 0 < v)
+    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
+    (hheight : ChallengeHeightLE Q h) :
+    jointTotalDegree (taylorAgreementEquationOver (F := F) (Polynomial.C center) Q K
+      (Polynomial.C x) (Polynomial.C a + Polynomial.X * Polynomial.C b) (τ := τ)) ≤
+        1 + τ * (v - 1 + h) := by
+  apply jointTotalDegree_taylorAgreementEquationOver_le_of_exponent
+    center x a b Q K τ (v - 1 + h)
+  · apply jointTotalDegree_initialJetSeparantOver_le _ Q v h hjet
+    intro m _
+    exact challengeHeightLE_initialJetSeparantOver Q center hheight m
+  · exact jointTotalDegree_commonTaylorNumeratorOver_le_of_source_and_exponent
+      center Q v h K τ hτ hv hjet hheight
+
+/-- The default affine received-word cut satisfies the coarse source-derived bound. -/
 theorem jointTotalDegree_taylorAgreementEquationOver_le_of_source
     (center x a b : F) (Q : DifferentialPolynomial (Polynomial F) r) (v h K : ℕ)
     (hv : 0 < v)
@@ -110,12 +143,9 @@ theorem jointTotalDegree_taylorAgreementEquationOver_le_of_source
     jointTotalDegree (taylorAgreementEquationOver (F := F) (Polynomial.C center) Q K
       (Polynomial.C x) (Polynomial.C a + Polynomial.X * Polynomial.C b)) ≤
         1 + 2 * K * (v - 1 + h) := by
-  apply jointTotalDegree_taylorAgreementEquationOver_le center x a b Q K (v - 1 + h)
-  · apply jointTotalDegree_initialJetSeparantOver_le _ Q v h hjet
-    intro m _
-    exact challengeHeightLE_initialJetSeparantOver Q center hheight m
-  · exact jointTotalDegree_commonTaylorNumeratorOver_le_of_source center Q v h K hv hjet
-      hheight
+  exact jointTotalDegree_taylorAgreementEquationOver_le_of_source_and_exponent
+    center x a b Q v h K (2 * K) (taylorExponentSufficient_two_mul r K)
+      hv hjet hheight
 
 end
 

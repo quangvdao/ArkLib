@@ -5,6 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.SharpRatio
+import ArkLib.ToMathlib.Set.Finite
 
 /-!
 # Dimension-sensitive agreement incidence
@@ -75,7 +76,7 @@ private theorem affineAgreementIncidence_bound_dimensionSensitive_aux
     {n A k b d : ℕ} {P : Ideal (MvPolynomial σ F)} (hP : P.IsPrime)
     {s : MvPolynomial σ F} (hs : s ∉ P)
     (cuts : Fin n → MvPolynomial σ F) (hdeg : ∀ i, (cuts i).totalDegree ≤ b)
-    (hb : 0 < b) (_hk : 0 < k) (hkA : k ≤ A) (hAn : A ≤ n)
+    (hkA : k ≤ A) (hAn : A ≤ n)
     (hcomponent : ∀ Q : Ideal (MvPolynomial σ F),
       P ≤ Q → Q.IsPrime → s ∉ Q →
       0 < (hilbertPolynomial Q).natDegree →
@@ -222,7 +223,7 @@ theorem affineAgreementIncidence_bound_dimensionSensitive
     {n A k b : ℕ} {P : Ideal (MvPolynomial σ F)} (hP : P.IsPrime)
     {s : MvPolynomial σ F} (hs : s ∉ P)
     (cuts : Fin n → MvPolynomial σ F) (hdeg : ∀ i, (cuts i).totalDegree ≤ b)
-    (hb : 0 < b) (hk : 0 < k) (hkA : k ≤ A) (hAn : A ≤ n)
+    (hkA : k ≤ A) (hAn : A ≤ n)
     (hcomponent : ∀ Q : Ideal (MvPolynomial σ F),
       P ≤ Q → Q.IsPrime → s ∉ Q →
       0 < (hilbertPolynomial Q).natDegree →
@@ -233,7 +234,42 @@ theorem affineAgreementIncidence_bound_dimensionSensitive
     (hA : ∀ x ∈ S, A ≤ (agreementIndices cuts x).card) :
     (S.card : ℚ) ≤ affineDegree P *
       dimensionSensitiveIncidenceProduct n A k b (hilbertPolynomial P).natDegree := by
-  exact affineAgreementIncidence_bound_dimensionSensitive_aux hP hs cuts hdeg hb hk hkA hAn
+  exact affineAgreementIncidence_bound_dimensionSensitive_aux hP hs cuts hdeg hkA hAn
     hcomponent S hS hA rfl
+
+/-- The full agreement locus on a principal-open prime component is finite and satisfies the
+same dimension-sensitive bound as each of its finite subsets.  This is the form needed before
+projecting a retained source family to its challenge coordinates. -/
+theorem finite_agreementLocus_and_ncard_le_dimensionSensitive
+    {n A k b : ℕ} {P : Ideal (MvPolynomial σ F)} (hP : P.IsPrime)
+    {s : MvPolynomial σ F} (hs : s ∉ P)
+    (cuts : Fin n → MvPolynomial σ F) (hdeg : ∀ i, (cuts i).totalDegree ≤ b)
+    (hkA : k ≤ A) (hAn : A ≤ n)
+    (hcomponent : ∀ Q : Ideal (MvPolynomial σ F),
+      P ≤ Q → Q.IsPrime → s ∉ Q →
+      0 < (hilbertPolynomial Q).natDegree →
+      (hilbertPolynomial Q).natDegree ≤ k ∧
+        (cutsInIdeal Q cuts).card ≤ k - (hilbertPolynomial Q).natDegree) :
+    let T := {x : σ → F | x ∈ principalOpenZeroLocus P s ∧
+      A ≤ (agreementIndices cuts x).card}
+    T.Finite ∧ (T.ncard : ℚ) ≤ affineDegree P *
+      dimensionSensitiveIncidenceProduct n A k b (hilbertPolynomial P).natDegree := by
+  classical
+  dsimp only
+  let T := {x : σ → F | x ∈ principalOpenZeroLocus P s ∧
+    A ≤ (agreementIndices cuts x).card}
+  have hbound (S : Finset (σ → F)) (hST : (S : Set (σ → F)) ⊆ T) :
+      (S.card : ℚ) ≤ affineDegree P *
+        dimensionSensitiveIncidenceProduct n A k b (hilbertPolynomial P).natDegree := by
+    apply affineAgreementIncidence_bound_dimensionSensitive hP hs cuts hdeg hkA hAn
+      hcomponent S
+    · intro x hx
+      exact (hST hx).1
+    · intro x hx
+      exact (hST hx).2
+  have hfinite : T.Finite := Set.finite_of_forall_finset_card_le hbound
+  refine ⟨hfinite, ?_⟩
+  rw [Set.ncard_eq_toFinset_card T hfinite]
+  exact hbound hfinite.toFinset (fun _ hx ↦ hfinite.mem_toFinset.mp hx)
 
 end AffineHilbert

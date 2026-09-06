@@ -44,13 +44,58 @@ def firstOrderCurveJointRatio (n L A : ℕ) : ℚ :=
 def firstOrderCurveFiberRatio (n k L : ℕ) : ℚ :=
   ((n - k + 1 : ℕ) : ℚ) / (L - k + 1 : ℕ)
 
+/-- The direct joint incidence ratio for an order-one stage. -/
+def firstOrderCurveDirectRatio (n k A : ℕ) : ℚ :=
+  ((n - k + 1 : ℕ) : ℚ) / (A - k + 1 : ℕ)
+
+/-- The split joint ratio is at least one throughout its geometric range. -/
+theorem firstOrderCurveJointRatio_one_le {n L A : ℕ} (hLA : L ≤ A) (hAn : A ≤ n) :
+    1 ≤ firstOrderCurveJointRatio n L A := by
+  unfold firstOrderCurveJointRatio
+  apply (le_div_iff₀ (by positivity)).2
+  simpa only [one_mul] using
+    (show ((A - L + 1 : ℕ) : ℚ) ≤ (n - L + 1 : ℕ) by exact_mod_cast (by omega))
+
+/-- The fiber ratio is at least one throughout its geometric range. -/
+theorem firstOrderCurveFiberRatio_one_le {n k L : ℕ} (hkL : k ≤ L) (hLn : L ≤ n) :
+    1 ≤ firstOrderCurveFiberRatio n k L := by
+  unfold firstOrderCurveFiberRatio
+  apply (le_div_iff₀ (by positivity)).2
+  simpa only [one_mul] using
+    (show ((L - k + 1 : ℕ) : ℚ) ≤ (n - k + 1 : ℕ) by exact_mod_cast (by omega))
+
+/-- The direct order-one joint ratio is at least one throughout its geometric range. -/
+theorem firstOrderCurveDirectRatio_one_le {n k A : ℕ} (hkA : k ≤ A) (hAn : A ≤ n) :
+    1 ≤ firstOrderCurveDirectRatio n k A := by
+  unfold firstOrderCurveDirectRatio
+  apply (le_div_iff₀ (by positivity)).2
+  simpa only [one_mul] using
+    (show ((A - k + 1 : ℕ) : ℚ) ≤ (n - k + 1 : ℕ) by exact_mod_cast (by omega))
+
+/-- Splitting at `L` can only increase the joint ratio relative to going directly from `k`
+to `A`. -/
+theorem firstOrderCurveDirectRatio_le_jointRatio {n k L A : ℕ}
+    (hkL : k ≤ L) (hLA : L ≤ A) (hAn : A ≤ n) :
+    firstOrderCurveDirectRatio n k A ≤ firstOrderCurveJointRatio n L A := by
+  unfold firstOrderCurveDirectRatio firstOrderCurveJointRatio
+  apply (div_le_div_iff₀ (by positivity) (by positivity)).2
+  have hkL' : (k : ℚ) ≤ L := by exact_mod_cast hkL
+  have hAn' : (A : ℚ) ≤ n := by exact_mod_cast hAn
+  push_cast [Nat.cast_sub ((hkL.trans hLA).trans hAn),
+    Nat.cast_sub (hkL.trans hLA), Nat.cast_sub (hLA.trans hAn), Nat.cast_sub hLA]
+  nlinarith [mul_nonneg
+    (show (0 : ℚ) ≤ (L : ℚ) - k by linarith)
+    (show (0 : ℚ) ≤ (n : ℚ) - A by linarith)]
+
 /-- The actual regular-stage charge whose sum appears in the curve envelope. -/
-def firstOrderCurveStageCharge (n K k L A ell h : ℕ) : Stage F[X] 1 → ℚ :=
+def firstOrderCurveStageCharge (n K k L A ell h : ℕ) (stage : Stage F[X] 1)
+    (τ : ℕ := 2 * K) (η : ℚ := firstOrderCurveJointRatio n L A) : ℚ :=
   firstOrderStageCharge
-    (curveStageZero K ell h (firstOrderCurveJointRatio n L A)
-      ((ell * (n - L) : ℕ) : ℚ))
-    (curveStageOne K ell h (firstOrderCurveJointRatio n L A)
-      (firstOrderCurveFiberRatio n k L) ((ell * (n - L) : ℕ) : ℚ))
+    (fun v ↦ curveStageZero K ell h (firstOrderCurveJointRatio n L A)
+      ((ell * (n - L) : ℕ) : ℚ) v (τ := τ))
+    (fun v ↦ curveStageOne K ell h (firstOrderCurveJointRatio n L A)
+      (firstOrderCurveFiberRatio n k L) ((ell * (n - L) : ℕ) : ℚ) v (τ := τ)
+      (η := η)) stage
 
 private theorem sum_Ico_eq_sum_range_ite {α : Type*} [AddCommMonoid α]
     (f : ℕ → α) {a μ : ℕ} (_ha : a ≤ μ) :
@@ -63,19 +108,20 @@ private theorem sum_Ico_eq_sum_range_ite {α : Type*} [AddCommMonoid α]
   · intro t _
     rfl
 
-private theorem sum_curveStageZero_eq (K μ M ell h : ℕ) (s c : ℚ) :
-    (∑ t ∈ Finset.range (μ - min M μ), curveStageZero K ell h s c (t + 1)) =
-      s * firstOrderCurveJointZero K μ M ell h +
+private theorem sum_curveStageZero_eq (K μ M ell h τ : ℕ) (s c : ℚ) :
+    (∑ t ∈ Finset.range (μ - min M μ), curveStageZero K ell h s c (t + 1) (τ := τ)) =
+      s * firstOrderCurveJointZero K μ M ell h (τ := τ) +
         c * firstOrderCurveFiberZero μ M := by
   unfold curveStageZero firstOrderCurveJointZero firstOrderCurveFiberZero
   rw [Finset.sum_add_distrib, ← Finset.mul_sum, ← Finset.mul_sum]
   push_cast
   rfl
 
-private theorem sum_curveStageOne_eq (K μ M ell h : ℕ) (s t c : ℚ) :
-    (∑ j ∈ Finset.Ico (μ - min M μ) μ, curveStageOne K ell h s t c (j + 1)) =
-      s ^ 2 * firstOrderCurveJointOne K μ M ell h +
-        c * t * firstOrderCurveFiberOne K μ M := by
+private theorem sum_curveStageOne_eq (K μ M ell h τ : ℕ) (s η t c : ℚ) :
+    (∑ j ∈ Finset.Ico (μ - min M μ) μ,
+        curveStageOne K ell h s t c (j + 1) (τ := τ) (η := η)) =
+      s * η * firstOrderCurveJointOne K μ M ell h (τ := τ) +
+        c * t * firstOrderCurveFiberOne K μ M (τ := τ) := by
   rw [sum_Ico_eq_sum_range_ite _ (Nat.sub_le μ (min M μ))]
   unfold curveStageOne firstOrderCurveJointOne firstOrderCurveFiberOne
   push_cast
@@ -90,57 +136,115 @@ private theorem sum_curveStageOne_eq (K μ M ell h : ℕ) (s t c : ℚ) :
 cap-sensitive schedule of order-zero and order-one stage charges. -/
 theorem firstOrderCurveStageCap_add_height_eq (n K k L A μ M ell h : ℕ) :
     (h : ℚ) + firstOrderStageCap
-        (curveStageZero K ell h (firstOrderCurveJointRatio n L A)
-          ((ell * (n - L) : ℕ) : ℚ))
-        (curveStageOne K ell h (firstOrderCurveJointRatio n L A)
-          (firstOrderCurveFiberRatio n k L) ((ell * (n - L) : ℕ) : ℚ)) μ M =
+        (fun v ↦ curveStageZero K ell h (firstOrderCurveJointRatio n L A)
+          ((ell * (n - L) : ℕ) : ℚ) v (τ := 2 * K))
+        (fun v ↦ curveStageOne K ell h (firstOrderCurveJointRatio n L A)
+          (firstOrderCurveFiberRatio n k L) ((ell * (n - L) : ℕ) : ℚ) v (τ := 2 * K)
+          (η := firstOrderCurveJointRatio n L A)) μ M =
       firstOrderCurveBound n K k L A μ M ell h := by
   rw [firstOrderStageCap, sum_curveStageZero_eq, sum_curveStageOne_eq]
   unfold firstOrderCurveBound firstOrderCurveJointRatio firstOrderCurveFiberRatio
   ring
 
-/-- Terminal height plus all actual regular-stage charges is at most the sharp first-order
-polynomial-curve envelope. -/
+/-- Parameterized form of the exact cap identity, keeping the common exponent and order-one
+joint factor independent. -/
+theorem firstOrderCurveStageCap_add_height_eq_of_factors
+    (n K k L A μ M ell h τ : ℕ) (η : ℚ) :
+    (h : ℚ) + firstOrderStageCap
+        (fun v ↦ curveStageZero K ell h (firstOrderCurveJointRatio n L A)
+          ((ell * (n - L) : ℕ) : ℚ) v (τ := τ))
+        (fun v ↦ curveStageOne K ell h (firstOrderCurveJointRatio n L A)
+          (firstOrderCurveFiberRatio n k L) ((ell * (n - L) : ℕ) : ℚ) v (τ := τ)
+          (η := η)) μ M =
+      firstOrderCurveBound n K k L A μ M ell h (τ := τ) (η := η) := by
+  rw [firstOrderStageCap, sum_curveStageZero_eq, sum_curveStageOne_eq]
+  unfold firstOrderCurveBound firstOrderCurveJointRatio firstOrderCurveFiberRatio
+  ring
+
+/-- The dimension-sensitive specialization uses the direct `k`-to-`A` ratio at order one. -/
+theorem firstOrderCurveStageCap_add_height_eq_of_exponent
+    (n K k L A μ M ell h τ : ℕ) :
+    (h : ℚ) + firstOrderStageCap
+        (fun v ↦ curveStageZero K ell h (firstOrderCurveJointRatio n L A)
+          ((ell * (n - L) : ℕ) : ℚ) v (τ := τ))
+        (fun v ↦ curveStageOne K ell h (firstOrderCurveJointRatio n L A)
+          (firstOrderCurveFiberRatio n k L) ((ell * (n - L) : ℕ) : ℚ) v (τ := τ)
+          (η := firstOrderCurveDirectRatio n k A)) μ M =
+      firstOrderCurveBound n K k L A μ M ell h (τ := τ)
+        (η := firstOrderCurveDirectRatio n k A) :=
+  firstOrderCurveStageCap_add_height_eq_of_factors n K k L A μ M ell h τ
+    (firstOrderCurveDirectRatio n k A)
+
+/-- Terminal height plus all actual regular-stage charges is at most the first-order curve
+envelope for any order-one joint factor at least one. -/
+theorem SymbolicSeparantChain.Chain.sum_firstOrderCurveStageCharge_add_height_le_of_factors
+    {Q terminal : DifferentialPolynomial F[X] 1} {stages : List (Stage F[X] 1)}
+    (hc : Chain Q stages terminal) {n K k L A μ M ell h : ℕ}
+    (τ : ℕ) (η : ℚ) (hη : 1 ≤ η)
+    (hμ : jetWeight Q ≤ μ) (hM : jetDegree Q 1 ≤ M)
+    (_hk : 0 < k) (hkL : k ≤ L) (hLA : L ≤ A) (hAn : A ≤ n) :
+    (h : ℚ) +
+        (stages.map (fun stage ↦
+          firstOrderCurveStageCharge n K k L A ell h stage (τ := τ) (η := η))).sum ≤
+      firstOrderCurveBound n K k L A μ M ell h (τ := τ) (η := η) := by
+  let s := firstOrderCurveJointRatio n L A
+  let t := firstOrderCurveFiberRatio n k L
+  let c : ℚ := ((ell * (n - L) : ℕ) : ℚ)
+  have hs : 1 ≤ s := firstOrderCurveJointRatio_one_le hLA hAn
+  have ht : 1 ≤ t := firstOrderCurveFiberRatio_one_le hkL (hLA.trans hAn)
+  have hs0 : 0 ≤ s := (by positivity)
+  have ht0 : 0 ≤ t := (by positivity)
+  have hη0 : 0 ≤ η := (by positivity)
+  have hc0 : 0 ≤ c := by positivity
+  have hsum := hc.sum_firstOrderStageCharge_le
+    (fun v ↦ curveStageZero K ell h s c v (τ := τ))
+    (fun v ↦ curveStageOne K ell h s t c v (τ := τ) (η := η))
+    hμ hM (fun v ↦ curveStageZero_nonneg K ell h hs0 hc0 v (τ := τ))
+    (fun v ↦ curveStageOne_nonneg_of_factors K ell h hs0 hη0 ht0 hc0 v τ)
+    (curveStageZero_mono_of_exponent K ell h hs0 hc0 τ)
+    (curveStageOne_mono_of_factors K ell h hs0 hη0 ht0 hc0 τ)
+    (fun v ↦ curveStageZero_le_one_of_factors K ell h hs hη ht hc0 v τ)
+  change (h : ℚ) + (stages.map (firstOrderStageCharge
+    (fun v ↦ curveStageZero K ell h s c v (τ := τ))
+    (fun v ↦ curveStageOne K ell h s t c v (τ := τ) (η := η)))).sum ≤ _
+  calc
+    (h : ℚ) + (stages.map (firstOrderStageCharge
+        (fun v ↦ curveStageZero K ell h s c v (τ := τ))
+        (fun v ↦ curveStageOne K ell h s t c v (τ := τ) (η := η)))).sum ≤
+        (h : ℚ) + firstOrderStageCap (fun v ↦ curveStageZero K ell h s c v (τ := τ))
+          (fun v ↦ curveStageOne K ell h s t c v (τ := τ) (η := η)) μ M := by
+            simpa [add_comm] using add_le_add_left hsum (h : ℚ)
+    _ = firstOrderCurveBound n K k L A μ M ell h (τ := τ) (η := η) := by
+      exact firstOrderCurveStageCap_add_height_eq_of_factors n K k L A μ M ell h τ η
+
+/-- Dimension-sensitive specialization using the direct `k`-to-`A` order-one factor. -/
+theorem SymbolicSeparantChain.Chain.sum_firstOrderCurveStageCharge_add_height_le_of_exponent
+    {Q terminal : DifferentialPolynomial F[X] 1} {stages : List (Stage F[X] 1)}
+    (hc : Chain Q stages terminal) {n K k L A μ M ell h : ℕ}
+    (τ : ℕ)
+    (hμ : jetWeight Q ≤ μ) (hM : jetDegree Q 1 ≤ M)
+    (hk : 0 < k) (hkL : k ≤ L) (hLA : L ≤ A) (hAn : A ≤ n) :
+    (h : ℚ) +
+        (stages.map (fun stage ↦ firstOrderCurveStageCharge n K k L A ell h stage
+          (τ := τ) (η := firstOrderCurveDirectRatio n k A))).sum ≤
+      firstOrderCurveBound n K k L A μ M ell h (τ := τ)
+        (η := firstOrderCurveDirectRatio n k A) :=
+  hc.sum_firstOrderCurveStageCharge_add_height_le_of_factors τ
+    (firstOrderCurveDirectRatio n k A)
+    (firstOrderCurveDirectRatio_one_le (hkL.trans hLA) hAn)
+    hμ hM hk hkL hLA hAn
+
+/-- Compatibility form at the former coarse common exponent. -/
 theorem SymbolicSeparantChain.Chain.sum_firstOrderCurveStageCharge_add_height_le
     {Q terminal : DifferentialPolynomial F[X] 1} {stages : List (Stage F[X] 1)}
     (hc : Chain Q stages terminal) {n K k L A μ M ell h : ℕ}
     (hμ : jetWeight Q ≤ μ) (hM : jetDegree Q 1 ≤ M)
-    (_hk : 0 < k) (hkL : k ≤ L) (hLA : L ≤ A) (hAn : A ≤ n) :
+    (hk : 0 < k) (hkL : k ≤ L) (hLA : L ≤ A) (hAn : A ≤ n) :
     (h : ℚ) + (stages.map (firstOrderCurveStageCharge n K k L A ell h)).sum ≤
-      firstOrderCurveBound n K k L A μ M ell h := by
-  let s := firstOrderCurveJointRatio n L A
-  let t := firstOrderCurveFiberRatio n k L
-  let c : ℚ := ((ell * (n - L) : ℕ) : ℚ)
-  have hs : 1 ≤ s := by
-    unfold s firstOrderCurveJointRatio
-    apply (le_div_iff₀ (by positivity)).2
-    simpa only [one_mul] using
-      (show ((A - L + 1 : ℕ) : ℚ) ≤ (n - L + 1 : ℕ) by exact_mod_cast (by omega))
-  have ht : 1 ≤ t := by
-    unfold t firstOrderCurveFiberRatio
-    apply (le_div_iff₀ (by positivity)).2
-    simpa only [one_mul] using
-      (show ((L - k + 1 : ℕ) : ℚ) ≤ (n - k + 1 : ℕ) by exact_mod_cast (by omega))
-  have hs0 : 0 ≤ s := (by positivity)
-  have ht0 : 0 ≤ t := (by positivity)
-  have hc0 : 0 ≤ c := by positivity
-  have hsum := hc.sum_firstOrderStageCharge_le
-    (curveStageZero K ell h s c) (curveStageOne K ell h s t c)
-    hμ hM (curveStageZero_nonneg K ell h hs0 hc0)
-    (curveStageOne_nonneg K ell h ht0 hc0)
-    (curveStageZero_mono K ell h hs0 hc0)
-    (curveStageOne_mono K ell h ht0 hc0)
-    (curveStageZero_le_one K ell h hs ht hc0)
-  change (h : ℚ) + (stages.map (firstOrderStageCharge
-    (curveStageZero K ell h s c) (curveStageOne K ell h s t c))).sum ≤ _
-  calc
-    (h : ℚ) + (stages.map (firstOrderStageCharge
-        (curveStageZero K ell h s c) (curveStageOne K ell h s t c))).sum ≤
-        (h : ℚ) + firstOrderStageCap (curveStageZero K ell h s c)
-          (curveStageOne K ell h s t c) μ M := by
-            simpa [add_comm] using add_le_add_left hsum (h : ℚ)
-    _ = firstOrderCurveBound n K k L A μ M ell h := by
-      exact firstOrderCurveStageCap_add_height_eq n K k L A μ M ell h
+      firstOrderCurveBound n K k L A μ M ell h :=
+  hc.sum_firstOrderCurveStageCharge_add_height_le_of_factors (2 * K)
+    (firstOrderCurveJointRatio n L A) (firstOrderCurveJointRatio_one_le hLA hAn)
+    hμ hM hk hkL hLA hAn
 
 end
 

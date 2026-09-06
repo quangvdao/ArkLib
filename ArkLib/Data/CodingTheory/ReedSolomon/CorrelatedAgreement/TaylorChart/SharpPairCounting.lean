@@ -127,7 +127,7 @@ theorem finite_regularHighCutJets_card_le_sharp
       intro P hPT
       apply mul_le_mul_of_nonneg_left
       · exact pow_le_pow_right₀ ht
-          (highTaylorPrimeFamily_hilbertPolynomial_natDegree_le center Q K k hinit hPT)
+          (highTaylorPrimeFamily_hilbertPolynomial_natDegree_le center Q K k (τ := 2 * K) hinit hPT)
       · exact mul_nonneg (affineDegree_nonneg P) (by positivity)
     _ = (∑ P ∈ T, affineDegree P * (B : ℚ) ^
           (hilbertPolynomial P).natDegree) * t ^ r := by rw [Finset.sum_mul]

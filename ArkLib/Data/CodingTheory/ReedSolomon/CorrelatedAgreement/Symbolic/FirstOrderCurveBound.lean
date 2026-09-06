@@ -15,8 +15,9 @@ into two groups. The last `min M μ` stages have order one; the remaining stages
 zero. Keeping those groups separate preserves the linear and quadratic geometric costs.
 
 The joint degrees count components while retaining the challenge coordinate. The fiber
-degrees count candidates after fixing that coordinate. Their two incidence ratios use a
-split threshold `L`, between the candidate degree bound `k` and agreement threshold `A`.
+degrees count candidates after fixing that coordinate. Their incidence ratios use a split
+threshold `L`, between the candidate degree bound `k` and agreement threshold `A`. The
+order-one joint count also uses the independent ratio from `k` directly to `A`.
 
 These definitions record the rational expression to be evaluated in concrete examples.
 This module alone makes no assertion about the cardinality of an exceptional set.
@@ -24,16 +25,18 @@ This module alone makes no assertion about the cardinality of an exceptional set
 
 namespace ReedSolomon.HiddenDerivative
 
-/-- Joint degree summed over the order-zero separant stages. -/
-def firstOrderCurveJointZero (K μ M ell h : ℕ) : ℕ :=
+/-- Joint degree summed over the order-zero separant stages, at common denominator exponent
+`τ`. The default retains the former coarse exponent for callers outside the first-order path. -/
+def firstOrderCurveJointZero (K μ M ell h : ℕ) (τ : ℕ := 2 * K) : ℕ :=
   ∑ t ∈ Finset.range (μ - min M μ),
-    (h * (1 + 2 * K * t) + (t + 1) * (ell + 2 * K * h))
+    (h * (1 + τ * t) + (t + 1) * (ell + τ * h))
 
-/-- Joint degree summed over the order-one separant stages. -/
-def firstOrderCurveJointOne (K μ M ell h : ℕ) : ℕ :=
+/-- Joint degree summed over the order-one separant stages, using the same denominator exponent
+as the order-zero stages. -/
+def firstOrderCurveJointOne (K μ M ell h : ℕ) (τ : ℕ := 2 * K) : ℕ :=
   ∑ t ∈ Finset.range μ,
     if μ - min M μ ≤ t then
-      h * (1 + 2 * K * t) ^ 2 + 2 * (t + 1) * (ell + 2 * K * h) * (1 + 2 * K * t)
+      h * (1 + τ * t) ^ 2 + 2 * (t + 1) * (ell + τ * h) * (1 + τ * t)
     else 0
 
 /-- Fiber degree summed over the order-zero stages. -/
@@ -41,18 +44,20 @@ def firstOrderCurveFiberZero (μ M : ℕ) : ℕ :=
   ∑ t ∈ Finset.range (μ - min M μ), (t + 1)
 
 /-- Fiber degree summed over the order-one stages. -/
-def firstOrderCurveFiberOne (K μ M : ℕ) : ℕ :=
+def firstOrderCurveFiberOne (K μ M : ℕ) (τ : ℕ := 2 * K) : ℕ :=
   ∑ t ∈ Finset.range μ,
-    if μ - min M μ ≤ t then (t + 1) * (1 + 2 * K * t) else 0
+    if μ - min M μ ≤ t then (t + 1) * (1 + τ * t) else 0
 
-/-- The sharp rational expression for polynomial-curve exceptional challenges.
-Its intended geometric range is `k ≤ L ≤ A ≤ n`, with positive interpolation parameters. -/
-def firstOrderCurveBound (n K k L A μ M ell h : ℕ) : ℚ :=
+/-- The rational expression for polynomial-curve exceptional challenges. The exponent and
+order-one joint factor are explicit parameters. Their defaults retain the former coarse route
+while finite geometry migrates to the direct `k`-to-`A` incidence ratio. -/
+def firstOrderCurveBound (n K k L A μ M ell h : ℕ) (τ : ℕ := 2 * K)
+    (η : ℚ := ((n - L + 1 : ℕ) : ℚ) / (A - L + 1 : ℕ)) : ℚ :=
   let l₁ : ℚ := ((n - L + 1 : ℕ) : ℚ) / (A - L + 1 : ℕ)
   let l₂ : ℚ := ((n - k + 1 : ℕ) : ℚ) / (L - k + 1 : ℕ)
-  h + l₁ * firstOrderCurveJointZero K μ M ell h +
-    l₁ ^ 2 * firstOrderCurveJointOne K μ M ell h +
+  h + l₁ * firstOrderCurveJointZero K μ M ell h τ +
+    l₁ * η * firstOrderCurveJointOne K μ M ell h τ +
     ((ell * (n - L) : ℕ) : ℚ) *
-      (firstOrderCurveFiberZero μ M + l₂ * firstOrderCurveFiberOne K μ M)
+      (firstOrderCurveFiberZero μ M + l₂ * firstOrderCurveFiberOne K μ M τ)
 
 end ReedSolomon.HiddenDerivative

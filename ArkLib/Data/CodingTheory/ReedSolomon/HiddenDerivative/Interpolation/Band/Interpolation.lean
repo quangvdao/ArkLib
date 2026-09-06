@@ -42,7 +42,7 @@ theorem finrank_asymmetricBandGlobalConstraint_le (hd : 0 < d) (hD : 0 < D)
     (centers received : ι → F) :
     Module.finrank F (asymmetricBandGlobalConstraint (d := d) (m := m) (W := W)
       (Cmin := Cmin) (Cmax := Cmax) (L := L) hD centers received).range ≤
-        Fintype.card ι * asymmetricBandLocalBudget d m W ⌈L / D - Cmin⌉₊ := by
+        Fintype.card ι * localCoordinateBudget d m W ⌈L / D - Cmin⌉₊ := by
   let V := asymmetricBandSpace F D d m W Cmin Cmax L hD
   let : Module.Finite F V := Module.Finite.of_basis (asymmetricBandBasis hD)
   let φ := fun i ↦ asymmetricBandLocalConstraint (d := d) (m := m) (W := W)
@@ -65,7 +65,7 @@ theorem finrank_asymmetricBandGlobalConstraint_le (hd : 0 < d) (hD : 0 < D)
     Module.finrank F Φ.range ≤ Module.finrank F (∀ i, (φ i).range) :=
       LinearMap.finrank_le_finrank_of_injective hinj
     _ = ∑ i, Module.finrank F (φ i).range := Module.finrank_pi_fintype F
-    _ ≤ ∑ _i : ι, asymmetricBandLocalBudget d m W ⌈L / D - Cmin⌉₊ :=
+    _ ≤ ∑ _i : ι, localCoordinateBudget d m W ⌈L / D - Cmin⌉₊ :=
       Finset.sum_le_sum fun i _ ↦
         finrank_asymmetricBandLocalConstraint_le hd hD (centers i) (received i)
     _ = _ := by simp
@@ -74,7 +74,7 @@ theorem finrank_asymmetricBandGlobalConstraint_le (hd : 0 < d) (hD : 0 < D)
 constraint, over any field and any indexed collection of received positions. -/
 theorem exists_nonzero_band_interpolant (hd : 0 < d) (hD : 0 < D)
     (centers received : ι → F)
-    (hdim : Fintype.card ι * asymmetricBandLocalBudget d m W ⌈L / D - Cmin⌉₊ <
+    (hdim : Fintype.card ι * localCoordinateBudget d m W ⌈L / D - Cmin⌉₊ <
       asymmetricBandDimensionCount D d m W Cmin Cmax L) :
     ∃ Q : DifferentialPolynomial F d, Q ≠ 0 ∧
       Q ∈ asymmetricBandSpace F D d m W Cmin Cmax L hD ∧
@@ -106,7 +106,7 @@ value and all local constraints. This is the bridge to the specialization and ro
 theorem exists_nonzero_exact_interpolant_of_band_certificate {A : ℕ}
     (hd : 0 < d) (hdD : d < D) (centers received : ι → F)
     (hL : L ≤ (m * A : ℕ))
-    (hdim : Fintype.card ι * asymmetricBandLocalBudget d m W ⌈L / D - Cmin⌉₊ <
+    (hdim : Fintype.card ι * localCoordinateBudget d m W ⌈L / D - Cmin⌉₊ <
       asymmetricBandDimensionCount D d m W Cmin Cmax L) :
     ∃ Q : DifferentialPolynomial F d, Q ≠ 0 ∧
       Q ∈ exactInterpolationSpace F D A d m m W hdD ∧

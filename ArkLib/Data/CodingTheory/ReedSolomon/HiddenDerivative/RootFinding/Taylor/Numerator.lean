@@ -39,6 +39,32 @@ open MvPolynomial
 
 variable {F : Type*} [Field F] {r : ℕ}
 
+/-- An exponent is sufficient for a length-`K` Taylor chart when it dominates the exact
+denominator exponent of every reconstructed coefficient. Natural subtraction makes the
+exponent zero on initial coordinates. -/
+def TaylorExponentSufficient (r K τ : ℕ) : Prop :=
+  ∀ l : Fin K, 2 * (l.val - r) - 1 ≤ τ
+
+/-- Increasing a sufficient common-denominator exponent preserves sufficiency. -/
+theorem TaylorExponentSufficient.mono {K τ τ' : ℕ}
+    (hτ : TaylorExponentSufficient r K τ) (h : τ ≤ τ') :
+    TaylorExponentSufficient r K τ' :=
+  fun l ↦ (hτ l).trans h
+
+/-- The coarse exponent `2K` is sufficient at every differential order. -/
+theorem taylorExponentSufficient_two_mul (r K : ℕ) :
+    TaylorExponentSufficient r K (2 * K) := by
+  intro l
+  omega
+
+/-- Once the chart contains at least two coefficients, all exact recurrence exponents fit
+under `2K - 3`. This includes `K = 2`, where the common exponent is one. First-order
+clients use this bound uniformly for their order-zero and order-one stages. -/
+theorem taylorExponentSufficient_two_mul_sub_three (r : ℕ) {K : ℕ} (hK : 2 ≤ K) :
+    TaylorExponentSufficient r K (2 * K - 3) := by
+  intro l
+  omega
+
 /-- The separant as a polynomial in the initial jet coordinates at a fixed center. -/
 def initialJetSeparant (center : F) (Q : DifferentialPolynomial F r) :
     MvPolynomial (Fin (r + 1)) F :=

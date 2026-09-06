@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Band.Basic
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.Coordinates
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Lattice.ScaledLattice
 import Mathlib.Algebra.BigOperators.Field
 import Mathlib.Analysis.SpecificLimits.Normed
@@ -12,7 +12,7 @@ import Mathlib.Analysis.SpecialFunctions.Trigonometric.DerivHyp
 
 
 /-!
-# Finite weighted upper bounds for the asymmetric-band rank budget
+# Geometric bounds for the local coordinate budget
 
 This follows equations (39)–(40) (`eq:band-lattice-ratio` and `eq:band-geometric-rank`) of [DKTZ26].
 The lattice estimate reuses the proved integer sandwich. The `T`-degree dependence is
@@ -34,7 +34,7 @@ open scoped BigOperators
 namespace ReedSolomon.HiddenDerivative
 
 /-- The ceiling in the local contact count is bounded with its full additive error. -/
-theorem band_ceilDiv_le (d j : ℕ) (hd : 0 < d) :
+theorem localRank_ceilDiv_le (d j : ℕ) (hd : 0 < d) :
     ((j ⌈/⌉ (d + 1) : ℕ) : ℝ) ≤ (j : ℝ) / d + 1 := by
   rw [Nat.ceilDiv_eq_add_pred_div]
   have heq : j + (d + 1) - 1 = j + d := by omega
@@ -51,7 +51,7 @@ theorem band_ceilDiv_le (d j : ℕ) (hd : 0 < d) :
   nlinarith
 
 /-- The exact shifted geometric sum bounds every finite initial segment. -/
-theorem band_geometric_sum_le (m : ℕ) {q : ℝ} (hq0 : 0 ≤ q) (hq1 : q < 1) :
+theorem localRank_geometric_sum_le (m : ℕ) {q : ℝ} (hq0 : 0 ≤ q) (hq1 : q < 1) :
     (∑ j ∈ Finset.range m, q ^ (j + 1)) ≤ q / (1 - q) := by
   have hnorm : ‖q‖ < 1 := by simpa [Real.norm_eq_abs, abs_of_nonneg hq0] using hq1
   have hs := (hasSum_geometric_of_norm_lt_one hnorm).mul_left q
@@ -61,7 +61,7 @@ theorem band_geometric_sum_le (m : ℕ) {q : ℝ} (hq0 : 0 ≤ q) (hq1 : q < 1) 
   exact hs'.summable.sum_le_tsum _ (fun j hj ↦ pow_nonneg hq0 _)
 
 /-- The weighted geometric identity retains the saving from the distance to `m`. -/
-theorem band_weighted_geometric_sum_le (m : ℕ) {q : ℝ} (hq0 : 0 ≤ q) (hq1 : q < 1) :
+theorem localRank_weighted_geometric_sum_le (m : ℕ) {q : ℝ} (hq0 : 0 ≤ q) (hq1 : q < 1) :
     (∑ j ∈ Finset.range m, ((j + 1 : ℕ) : ℝ) * q ^ (j + 1)) ≤ q / (1 - q) ^ 2 := by
   have hnorm : ‖q‖ < 1 := by simpa [Real.norm_eq_abs, abs_of_nonneg hq0] using hq1
   have hs := hasSum_coe_mul_geometric_of_norm_lt_one hnorm
@@ -72,20 +72,20 @@ theorem band_weighted_geometric_sum_le (m : ℕ) {q : ℝ} (hq0 : 0 ≤ q) (hq1 
   simpa using h
 
 /-- Combining the two geometric sums, with the ceiling's additive error still visible. -/
-theorem band_linear_geometric_sum_le (d m : ℕ) (hd : 0 < d)
+theorem localRank_linear_geometric_sum_le (d m : ℕ) (hd : 0 < d)
     {q : ℝ} (hq0 : 0 ≤ q) (hq1 : q < 1) :
     (∑ j ∈ Finset.range m, (((j + 1 : ℕ) : ℝ) / d + 1) * q ^ (j + 1)) ≤
       q / ((d : ℝ) * (1 - q) ^ 2) + q / (1 - q) := by
   have hD : (0 : ℝ) ≤ d := (Nat.cast_pos.mpr hd).le
   have h := add_le_add
-    (div_le_div_of_nonneg_right (band_weighted_geometric_sum_le m hq0 hq1) hD)
-    (band_geometric_sum_le m hq0 hq1)
+    (div_le_div_of_nonneg_right (localRank_weighted_geometric_sum_le m hq0 hq1) hD)
+    (localRank_geometric_sum_le m hq0 hq1)
   simp_rw [add_mul, one_mul, div_mul_eq_mul_div, Finset.sum_add_distrib,
     ← Finset.sum_div]
   simpa only [div_div, mul_comm] using h
 
 /-- The unweighted exponential tail is at most `1/x`. -/
-theorem band_exp_geometric_ratio_le {x : ℝ} (hx : 0 < x) :
+theorem localRank_exp_geometric_ratio_le {x : ℝ} (hx : 0 < x) :
     Real.exp (-x) / (1 - Real.exp (-x)) ≤ 1 / x := by
   have hq : Real.exp (-x) < 1 := by rw [Real.exp_lt_one_iff]; linarith
   have he := Real.add_one_le_exp x
@@ -95,7 +95,7 @@ theorem band_exp_geometric_ratio_le {x : ℝ} (hx : 0 < x) :
   nlinarith
 
 /-- The weighted exponential tail is at most `1/x²`, using the elementary sinh inequality. -/
-theorem band_exp_weighted_geometric_ratio_le {x : ℝ} (hx : 0 < x) :
+theorem localRank_exp_weighted_geometric_ratio_le {x : ℝ} (hx : 0 < x) :
     Real.exp (-x) / (1 - Real.exp (-x)) ^ 2 ≤ 1 / x ^ 2 := by
   have hq : Real.exp (-x) < 1 := by rw [Real.exp_lt_one_iff]; linarith
   have hs := Real.self_le_sinh_iff.mpr (by linarith : 0 ≤ x / 2)
@@ -115,19 +115,19 @@ theorem band_exp_weighted_geometric_ratio_le {x : ℝ} (hx : 0 < x) :
   nlinarith
 
 /-- Smooth version of the finite linear-geometric estimate used by the manuscript. -/
-theorem band_linear_exp_sum_le (d m : ℕ) (hd : 0 < d) {x : ℝ} (hx : 0 < x) :
+theorem localRank_linear_exp_sum_le (d m : ℕ) (hd : 0 < d) {x : ℝ} (hx : 0 < x) :
     (∑ j ∈ Finset.range m,
       (((j + 1 : ℕ) : ℝ) / d + 1) * Real.exp (-x) ^ (j + 1)) ≤
         1 / ((d : ℝ) * x ^ 2) + 1 / x := by
   have hq : Real.exp (-x) < 1 := by rw [Real.exp_lt_one_iff]; linarith
-  apply (band_linear_geometric_sum_le d m hd (Real.exp_pos _).le hq).trans
+  apply (localRank_linear_geometric_sum_le d m hd (Real.exp_pos _).le hq).trans
   have h := add_le_add
-    (div_le_div_of_nonneg_right (band_exp_weighted_geometric_ratio_le hx)
-      (Nat.cast_nonneg d)) (band_exp_geometric_ratio_le hx)
+    (div_le_div_of_nonneg_right (localRank_exp_weighted_geometric_ratio_le hx)
+      (Nat.cast_nonneg d)) (localRank_exp_geometric_ratio_le hx)
   simpa only [div_div, mul_comm] using h
 
 /-- Exponential upper envelope of the proved lattice sandwich, keeping the offset `choose d 2`. -/
-theorem band_weightedHigherJetCount_le_exp (d W r : ℕ) (hW : 0 < W) :
+theorem localRank_weightedHigherJetCount_le_exp (d W r : ℕ) (hW : 0 < W) :
     (weightedHigherJetCount d (W + r) : ℝ) ≤
       (W : ℝ) ^ (d - 1) / ((d - 1).factorial : ℝ) ^ 2 *
         Real.exp (((d - 1 : ℕ) : ℝ) / W * (r + d.choose 2)) := by
@@ -163,7 +163,7 @@ theorem band_weightedHigherJetCount_le_exp (d W r : ℕ) (hW : 0 < W) :
     _ = _ := by ring
 
 /-- Finite contact sum with its `T`-degree dependence and offset retained until reindexing. -/
-theorem band_contact_exp_sum_le (d m : ℕ) (hd : 0 < d) {x B : ℝ} (hx : 0 < x) :
+theorem localRank_contact_exp_sum_le (d m : ℕ) (hd : 0 < d) {x B : ℝ} (hx : 0 < x) :
     (∑ r ∈ Finset.range m,
       ((m - r) ⌈/⌉ (d + 1) : ℕ) * Real.exp (x * (r + B))) ≤
         Real.exp (x * (m + B)) * (1 / ((d : ℝ) * x ^ 2) + 1 / x) := by
@@ -186,19 +186,19 @@ theorem band_contact_exp_sum_le (d m : ℕ) (hd : 0 < d) {x B : ℝ} (hx : 0 < x
       push_cast at hcast ⊢
       nlinarith
     rw [heq, hexp]
-    have h := mul_le_mul_of_nonneg_right (band_ceilDiv_le d (j + 1) hd)
+    have h := mul_le_mul_of_nonneg_right (localRank_ceilDiv_le d (j + 1) hd)
       (by positivity : 0 ≤ Real.exp (x * (m + B)) * Real.exp (-x) ^ (j + 1))
     simpa only [mul_assoc, mul_left_comm, mul_comm] using h
   have hsum := Finset.sum_le_sum hterm
   rw [← Finset.mul_sum] at hsum
-  exact hsum.trans (mul_le_mul_of_nonneg_left (band_linear_exp_sum_le d m hd hx)
+  exact hsum.trans (mul_le_mul_of_nonneg_left (localRank_linear_exp_sum_le d m hd hx)
     (Real.exp_pos _).le)
 
-/-- Absolute upper bound for the actual band's numerical rank budget.
-For `x=(d-1)/W`, this is the manuscript's geometric estimate before dividing by band size. -/
-theorem asymmetricBandLocalBudget_le_geometric (d m W Be : ℕ)
+/-- Absolute upper bound for the local coordinate budget.
+For `x=(d-1)/W`, this is the geometric estimate normalized by weighted simplex volume. -/
+theorem localCoordinateBudget_le_geometric (d m W Be : ℕ)
     (hd : 2 ≤ d) (hW : 0 < W) :
-    (asymmetricBandLocalBudget d m W Be : ℝ) ≤
+    (localCoordinateBudget d m W Be : ℝ) ≤
       Be * ((W : ℝ) ^ (d - 1) / ((d - 1).factorial : ℝ) ^ 2) *
         Real.exp ((((d - 1 : ℕ) : ℝ) / W) * (m + d.choose 2)) *
           (1 / ((d : ℝ) * (((d - 1 : ℕ) : ℝ) / W) ^ 2) +
@@ -215,25 +215,25 @@ theorem asymmetricBandLocalBudget_le_geometric (d m W Be : ℕ)
     rw [Finset.mul_sum]
     apply Finset.sum_le_sum
     intro r hr
-    have h := mul_le_mul_of_nonneg_left (band_weightedHigherJetCount_le_exp d W r hW)
+    have h := mul_le_mul_of_nonneg_left (localRank_weightedHigherJetCount_le_exp d W r hW)
       (Nat.cast_nonneg ((m - r) ⌈/⌉ (d + 1)))
     simpa [V, x, mul_assoc, mul_left_comm, mul_comm] using h
   have hsum' := hsum.trans (mul_le_mul_of_nonneg_left
-    (band_contact_exp_sum_le d m (by omega) (B := (d.choose 2 : ℝ)) hx) hV)
+    (localRank_contact_exp_sum_le d m (by omega) (B := (d.choose 2 : ℝ)) hx) hV)
   have h := mul_le_mul_of_nonneg_left hsum' (Nat.cast_nonneg Be)
-  simpa [asymmetricBandLocalBudget, Nat.cast_sum, Nat.cast_mul, V, x, mul_assoc] using h
+  simpa [localCoordinateBudget, Nat.cast_sum, Nat.cast_mul, V, x, mul_assoc] using h
 
 /-- The geometric budget bound in the manuscript's `κ=(d-1)m/W` notation.
 The `choose d 2 / m` offset and both reciprocal error terms remain explicit. -/
-theorem asymmetricBandLocalBudget_le_kappa (d m W Be : ℕ)
+theorem localCoordinateBudget_le_kappa (d m W Be : ℕ)
     (hd : 2 ≤ d) (hm : 0 < m) (hW : 0 < W) :
     let κ : ℝ := ((d - 1 : ℕ) : ℝ) * m / W
-    (asymmetricBandLocalBudget d m W Be : ℝ) ≤
+    (localCoordinateBudget d m W Be : ℝ) ≤
       Be * ((W : ℝ) ^ (d - 1) / ((d - 1).factorial : ℝ) ^ 2) *
         Real.exp (κ * (1 + (d.choose 2 : ℝ) / m)) *
           ((m : ℝ) ^ 2 / ((d : ℝ) * κ ^ 2) + m / κ) := by
   dsimp only
-  have h := asymmetricBandLocalBudget_le_geometric d m W Be hd hW
+  have h := localCoordinateBudget_le_geometric d m W Be hd hW
   have hm' : (m : ℝ) ≠ 0 := by exact_mod_cast hm.ne'
   have hW' : (W : ℝ) ≠ 0 := by exact_mod_cast hW.ne'
   have hd' : (d : ℝ) ≠ 0 := by exact_mod_cast (show d ≠ 0 by omega)
@@ -249,5 +249,36 @@ theorem asymmetricBandLocalBudget_le_kappa (d m W Be : ℕ)
     field_simp
   rw [hexp, hrecip] at h
   exact h
+
+/-- Normalize the geometric local-coordinate bound by weighted simplex volume and multiplicity.
+The ceiling error remains in the second reciprocal term. -/
+theorem localCoordinateBudget_div_volume_mul_cube_le (d m W Be : ℕ)
+    (hd : 2 ≤ d) (hm : 0 < m) (hW : 0 < W) :
+    let V : ℝ := (W : ℝ) ^ (d - 1) / ((d - 1).factorial : ℝ) ^ 2
+    let κ : ℝ := ((d - 1 : ℕ) : ℝ) * m / W
+    (localCoordinateBudget d m W Be : ℝ) / (V * m ^ 3) ≤
+      ((Be : ℝ) / m) * Real.exp (κ * (1 + (d.choose 2 : ℝ) / m)) *
+        (1 / ((d : ℝ) * κ ^ 2) + 1 / ((m : ℝ) * κ)) := by
+  dsimp only
+  let V : ℝ := (W : ℝ) ^ (d - 1) / ((d - 1).factorial : ℝ) ^ 2
+  let κ : ℝ := ((d - 1 : ℕ) : ℝ) * m / W
+  have hm' : (0 : ℝ) < m := by exact_mod_cast hm
+  have hd' : (0 : ℝ) < d := by exact_mod_cast (by omega : 0 < d)
+  have hW' : (0 : ℝ) < W := by exact_mod_cast hW
+  have hκ : 0 < κ := by
+    dsimp [κ]
+    have : (0 : ℝ) < (d - 1 : ℕ) := by exact_mod_cast (by omega : 0 < d - 1)
+    positivity
+  have hV : 0 < V := by dsimp [V]; positivity
+  have h := localCoordinateBudget_le_kappa d m W Be hd hm hW
+  change (localCoordinateBudget d m W Be : ℝ) ≤ Be * V *
+    Real.exp (κ * (1 + (d.choose 2 : ℝ) / m)) *
+      ((m : ℝ) ^ 2 / ((d : ℝ) * κ ^ 2) + m / κ) at h
+  change (localCoordinateBudget d m W Be : ℝ) / (V * m ^ 3) ≤
+    ((Be : ℝ) / m) * Real.exp (κ * (1 + (d.choose 2 : ℝ) / m)) *
+      (1 / ((d : ℝ) * κ ^ 2) + 1 / ((m : ℝ) * κ))
+  apply (div_le_iff₀ (by positivity : 0 < V * (m : ℝ) ^ 3)).mpr
+  refine h.trans_eq ?_
+  field_simp [ne_of_gt hm', ne_of_gt hd', ne_of_gt hκ]
 
 end ReedSolomon.HiddenDerivative

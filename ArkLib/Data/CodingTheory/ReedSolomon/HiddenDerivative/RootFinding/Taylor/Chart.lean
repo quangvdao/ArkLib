@@ -10,10 +10,13 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Taylor.
 /-!
 # A common-denominator rational Taylor chart
 
-The first `K` Taylor coefficients admit a common denominator `S^(2K)` and literal
-numerators of total degree at most `1 + 2K(v-1)`, where `S` is the initial separant and
-`v` is the total jet degree. The chart retains the initial coordinates and contains all
-regular solutions with invertible binomial pivots.
+The first `K` Taylor coefficients admit any common denominator `S^τ` whose exponent
+dominates their exact recurrence exponents. Literal numerators then have total degree at
+most `1 + τ(v-1)`, where `S` is the initial separant and `v` is the total jet degree.
+The default `τ = 2K` keeps the arbitrary-order and `K < 2` interface. For `K ≥ 2`, the
+sharper `τ = 2K - 3` is sufficient at every order; finite first-order clients use it
+uniformly for their order-zero and order-one stages. The chart retains the initial coordinates
+and contains all regular solutions with invertible binomial pivots.
 -/
 
 open PolynomialDifferential
@@ -29,9 +32,28 @@ variable {F : Type*} [Field F] {r : ℕ}
 
 /-- A single common-denominator numerator for the `l`-th Taylor coefficient. -/
 def commonTaylorNumerator (center : F) (Q : DifferentialPolynomial F r) (K : ℕ)
-    (l : Fin K) : MvPolynomial (Fin (r + 1)) F :=
+    (l : Fin K) (τ : ℕ := 2 * K) : MvPolynomial (Fin (r + 1)) F :=
   rationalTaylorNumerator center Q l.val *
-    initialJetSeparant center Q ^ (2 * K - (2 * (l.val - r) - 1))
+    initialJetSeparant center Q ^ (τ - (2 * (l.val - r) - 1))
+
+/-- Every numerator padded to a sufficient exponent has the corresponding exact chart
+degree bound. -/
+theorem totalDegree_commonTaylorNumerator_le_of_exponent
+    (center : F) (Q : DifferentialPolynomial F r)
+    (hv : 0 < Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)))
+    (K τ : ℕ) (hτ : TaylorExponentSufficient r K τ) (l : Fin K) :
+    (commonTaylorNumerator center Q K l (τ := τ)).totalDegree ≤
+      1 + τ * (Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) - 1) := by
+  have hd := totalDegree_rationalTaylorNumerator_le center Q hv l.val
+  have hs := totalDegree_initialJetSeparant_le center Q
+  have hp := (totalDegree_pow (initialJetSeparant center Q)
+    (τ - (2 * (l.val - r) - 1))).trans (Nat.mul_le_mul_left _ hs)
+  have hm := totalDegree_mul (rationalTaylorNumerator center Q l.val)
+    (initialJetSeparant center Q ^ (τ - (2 * (l.val - r) - 1)))
+  have he := Nat.sub_add_cancel (hτ l)
+  change _ ≤ _ at hm
+  unfold commonTaylorNumerator
+  nlinarith
 
 /-- Every common numerator has the uniform chart degree bound. -/
 theorem totalDegree_commonTaylorNumerator_le (center : F) (Q : DifferentialPolynomial F r)
@@ -39,17 +61,25 @@ theorem totalDegree_commonTaylorNumerator_le (center : F) (Q : DifferentialPolyn
     (K : ℕ) (l : Fin K) :
     (commonTaylorNumerator center Q K l).totalDegree ≤
       1 + 2 * K * (Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) - 1) := by
-  have hd := totalDegree_rationalTaylorNumerator_le center Q hv l.val
-  have hs := totalDegree_initialJetSeparant_le center Q
-  have hp := (totalDegree_pow (initialJetSeparant center Q)
-    (2 * K - (2 * (l.val - r) - 1))).trans (Nat.mul_le_mul_left _ hs)
-  have hm := totalDegree_mul (rationalTaylorNumerator center Q l.val)
-    (initialJetSeparant center Q ^ (2 * K - (2 * (l.val - r) - 1)))
-  have hbudget : 2 * (l.val - r) - 1 ≤ 2 * K := by omega
-  have he := Nat.sub_add_cancel hbudget
-  change _ ≤ _ at hm
-  unfold commonTaylorNumerator
-  nlinarith
+  exact totalDegree_commonTaylorNumerator_le_of_exponent center Q hv K (2 * K)
+    (taylorExponentSufficient_two_mul r K) l
+
+/-- Evaluating a numerator padded to a sufficient exponent recovers the rational
+coefficient after clearing exactly that exponent of the separant. -/
+theorem aeval_commonTaylorNumerator_of_exponent
+    (center : F) (Q : DifferentialPolynomial F r)
+    (jet : Fin (r + 1) → F) (K τ : ℕ) (hτ : TaylorExponentSufficient r K τ)
+    (l : Fin K) (hS : aeval jet (initialJetSeparant center Q) ≠ 0) :
+    aeval jet (commonTaylorNumerator center Q K l (τ := τ)) =
+      aeval jet (initialJetSeparant center Q) ^ τ *
+        rationalTaylorCoefficient center Q jet l.val := by
+  rw [commonTaylorNumerator, map_mul, map_pow, rationalTaylorCoefficient]
+  have he : aeval jet (initialJetSeparant center Q) ^ τ =
+      aeval jet (initialJetSeparant center Q) ^ (τ - (2 * (l.val - r) - 1)) *
+        aeval jet (initialJetSeparant center Q) ^ (2 * (l.val - r) - 1) := by
+    rw [← pow_add, Nat.sub_add_cancel (hτ l)]
+  rw [he]
+  field_simp
 
 /-- Evaluating the common numerator recovers the rational coefficient after clearing
 exactly the power `2K` of the separant. -/
@@ -59,14 +89,8 @@ theorem aeval_commonTaylorNumerator (center : F) (Q : DifferentialPolynomial F r
     aeval jet (commonTaylorNumerator center Q K l) =
       aeval jet (initialJetSeparant center Q) ^ (2 * K) *
         rationalTaylorCoefficient center Q jet l.val := by
-  rw [commonTaylorNumerator, map_mul, map_pow, rationalTaylorCoefficient]
-  have hbudget : 2 * (l.val - r) - 1 ≤ 2 * K := by omega
-  have he : aeval jet (initialJetSeparant center Q) ^ (2 * K) =
-      aeval jet (initialJetSeparant center Q) ^ (2 * K - (2 * (l.val - r) - 1)) *
-        aeval jet (initialJetSeparant center Q) ^ (2 * (l.val - r) - 1) := by
-    rw [← pow_add, Nat.sub_add_cancel hbudget]
-  rw [he]
-  field_simp
+  exact aeval_commonTaylorNumerator_of_exponent center Q jet K (2 * K)
+    (taylorExponentSufficient_two_mul r K) l hS
 
 /-- The actual rational map to the first `K` coefficient coordinates. -/
 def rationalTaylorMap (center : F) (Q : DifferentialPolynomial F r) (K : ℕ)
@@ -96,6 +120,22 @@ theorem rationalTaylorMap_eq_solution (center : F) (Q : DifferentialPolynomial F
     (fun i hi hil ↦ hbin i hi (hil.trans_lt l.isLt))
 
 /-- Common numerator equations hold for every actual regular solution. -/
+theorem commonTaylorNumerator_solution_of_exponent
+    (center : F) (Q : DifferentialPolynomial F r)
+    (P : Polynomial F) (hsolution : differentialSpecialization Q P = 0)
+    (hseparant : jetEvaluation (separant Q (Fin.last r)) center (polynomialJet center P) ≠ 0)
+    (K τ : ℕ) (hτ : TaylorExponentSufficient r K τ)
+    (hbin : ∀ i, r < i → i < K → (i.choose r : F) ≠ 0) (l : Fin K) :
+    aeval (polynomialJet center P) (commonTaylorNumerator center Q K l (τ := τ)) =
+      aeval (polynomialJet center P) (initialJetSeparant center Q) ^ τ *
+        (Polynomial.taylor center P).coeff l.val := by
+  have hs : aeval (polynomialJet center P) (initialJetSeparant center Q) ≠ 0 := by
+    rwa [aeval_initialJetSeparant]
+  rw [aeval_commonTaylorNumerator_of_exponent center Q _ K τ hτ l hs]
+  rw [rationalTaylorCoefficient_eq_solution center Q P hsolution hseparant l.val
+    (fun i hi hil ↦ hbin i hi (hil.trans_lt l.isLt))]
+
+/-- Common numerator equations hold for every actual regular solution. -/
 theorem commonTaylorNumerator_solution (center : F) (Q : DifferentialPolynomial F r)
     (P : Polynomial F) (hsolution : differentialSpecialization Q P = 0)
     (hseparant : jetEvaluation (separant Q (Fin.last r)) center (polynomialJet center P) ≠ 0)
@@ -103,11 +143,8 @@ theorem commonTaylorNumerator_solution (center : F) (Q : DifferentialPolynomial 
     aeval (polynomialJet center P) (commonTaylorNumerator center Q K l) =
       aeval (polynomialJet center P) (initialJetSeparant center Q) ^ (2 * K) *
         (Polynomial.taylor center P).coeff l.val := by
-  have hs : aeval (polynomialJet center P) (initialJetSeparant center Q) ≠ 0 := by
-    rwa [aeval_initialJetSeparant]
-  rw [aeval_commonTaylorNumerator center Q _ K l hs]
-  rw [rationalTaylorCoefficient_eq_solution center Q P hsolution hseparant l.val
-    (fun i hi hil ↦ hbin i hi (hil.trans_lt l.isLt))]
+  exact commonTaylorNumerator_solution_of_exponent center Q P hsolution hseparant
+    K (2 * K) (taylorExponentSufficient_two_mul r K) hbin l
 
 /-- The initial differential equation specialized at the chosen center. -/
 def initialJetEquation (center : F) (Q : DifferentialPolynomial F r) :
@@ -172,9 +209,29 @@ open scoped BigOperators
 /-- The literal polynomial equation for agreement at `x` with received symbol `y`,
 after clearing the chart's common denominator. -/
 def taylorAgreementEquation (center : F) (Q : DifferentialPolynomial F r) (K : ℕ)
-    (x y : F) : MvPolynomial (Fin (r + 1)) F :=
-  (∑ l : Fin K, C ((x - center) ^ l.val) * commonTaylorNumerator center Q K l) -
-    C y * initialJetSeparant center Q ^ (2 * K)
+    (x y : F) (τ : ℕ := 2 * K) : MvPolynomial (Fin (r + 1)) F :=
+  (∑ l : Fin K, C ((x - center) ^ l.val) *
+    commonTaylorNumerator center Q K l (τ := τ)) -
+      C y * initialJetSeparant center Q ^ τ
+
+/-- Agreement equations padded to a sufficient exponent obey the corresponding chart bound. -/
+theorem totalDegree_taylorAgreementEquation_le_of_exponent
+    (center : F) (Q : DifferentialPolynomial F r)
+    (hv : 0 < Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)))
+    (K τ : ℕ) (hτ : TaylorExponentSufficient r K τ) (x y : F) :
+    (taylorAgreementEquation center Q K x y (τ := τ)).totalDegree ≤
+      1 + τ * (Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) - 1) := by
+  apply (totalDegree_sub _ _).trans
+  apply max_le
+  · apply totalDegree_finsetSum_le
+    intro l _
+    exact (totalDegree_mul _ _).trans (by
+      simpa only [totalDegree_C, zero_add] using
+        totalDegree_commonTaylorNumerator_le_of_exponent center Q hv K τ hτ l)
+  · apply (totalDegree_mul _ _).trans
+    rw [totalDegree_C, zero_add]
+    exact ((totalDegree_pow _ _).trans (Nat.mul_le_mul_left _
+      (totalDegree_initialJetSeparant_le center Q))).trans (Nat.le_add_left _ _)
 
 /-- Every agreement equation has degree bounded by the same chart bound. -/
 theorem totalDegree_taylorAgreementEquation_le (center : F) (Q : DifferentialPolynomial F r)
@@ -182,17 +239,43 @@ theorem totalDegree_taylorAgreementEquation_le (center : F) (Q : DifferentialPol
     (K : ℕ) (x y : F) :
     (taylorAgreementEquation center Q K x y).totalDegree ≤
       1 + 2 * K * (Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) - 1) := by
-  apply (totalDegree_sub _ _).trans
-  apply max_le
-  · apply totalDegree_finsetSum_le
+  exact totalDegree_taylorAgreementEquation_le_of_exponent center Q hv K (2 * K)
+    (taylorExponentSufficient_two_mul r K) x y
+
+/-- A sufficiently padded agreement equation evaluates to the actual discrepancy times
+the selected common denominator. -/
+theorem taylorAgreementEquation_solution_of_exponent
+    (center : F) (Q : DifferentialPolynomial F r)
+    (P : Polynomial F) (hsolution : differentialSpecialization Q P = 0)
+    (hseparant : jetEvaluation (separant Q (Fin.last r)) center (polynomialJet center P) ≠ 0)
+    (K τ : ℕ) (hτ : TaylorExponentSufficient r K τ) (hP : P.degree < K)
+    (hbin : ∀ i, r < i → i < K → (i.choose r : F) ≠ 0) (x y : F) :
+    aeval (polynomialJet center P) (taylorAgreementEquation center Q K x y (τ := τ)) =
+      aeval (polynomialJet center P) (initialJetSeparant center Q) ^ τ *
+        (P.eval x - y) := by
+  rw [taylorAgreementEquation, map_sub, map_sum]
+  simp only [map_mul, aeval_C, Algebra.algebraMap_self, RingHom.id_apply, map_pow]
+  simp_rw [commonTaylorNumerator_solution_of_exponent center Q P hsolution hseparant
+    K τ hτ hbin]
+  have hsum : (∑ l : Fin K, (Polynomial.taylor center P).coeff l.val *
+      (x - center) ^ l.val) = P.eval x := by
+    have hp : (∑ l : Fin K, Polynomial.monomial l.val
+        ((Polynomial.taylor center P).coeff l.val)) = Polynomial.taylor center P := by
+      rw [Polynomial.sum_fin (fun i c ↦ Polynomial.monomial i c) (by simp)
+        (by simpa [Polynomial.degree_taylor] using hP), Polynomial.sum_monomial_eq]
+    have he := congrArg (fun p : Polynomial F ↦ p.eval (x - center)) hp
+    simpa [Polynomial.eval_finsetSum, Polynomial.eval_monomial, Polynomial.taylor_eval] using he
+  have hreorder : (∑ l : Fin K, (x - center) ^ l.val *
+      (aeval (polynomialJet center P) (initialJetSeparant center Q) ^ τ *
+        (Polynomial.taylor center P).coeff l.val)) =
+      aeval (polynomialJet center P) (initialJetSeparant center Q) ^ τ *
+        (∑ l : Fin K, (Polynomial.taylor center P).coeff l.val * (x - center) ^ l.val) := by
+    rw [Finset.mul_sum]
+    apply Finset.sum_congr rfl
     intro l _
-    exact (totalDegree_mul _ _).trans (by
-      simpa only [totalDegree_C, zero_add] using totalDegree_commonTaylorNumerator_le
-        center Q hv K l)
-  · apply (totalDegree_mul _ _).trans
-    rw [totalDegree_C, zero_add]
-    exact ((totalDegree_pow _ _).trans (Nat.mul_le_mul_left _
-      (totalDegree_initialJetSeparant_le center Q))).trans (Nat.le_add_left _ _)
+    ring
+  rw [hreorder, hsum]
+  ring
 
 /-- Agreement equations evaluate to the actual discrepancy, times the common denominator. -/
 theorem taylorAgreementEquation_solution (center : F) (Q : DifferentialPolynomial F r)
@@ -203,28 +286,8 @@ theorem taylorAgreementEquation_solution (center : F) (Q : DifferentialPolynomia
     aeval (polynomialJet center P) (taylorAgreementEquation center Q K x y) =
       aeval (polynomialJet center P) (initialJetSeparant center Q) ^ (2 * K) *
         (P.eval x - y) := by
-  rw [taylorAgreementEquation, map_sub, map_sum]
-  simp only [map_mul, aeval_C, Algebra.algebraMap_self, RingHom.id_apply, map_pow]
-  simp_rw [commonTaylorNumerator_solution center Q P hsolution hseparant K hbin]
-  have hsum : (∑ l : Fin K, (Polynomial.taylor center P).coeff l.val *
-      (x - center) ^ l.val) = P.eval x := by
-    have hp : (∑ l : Fin K, Polynomial.monomial l.val
-        ((Polynomial.taylor center P).coeff l.val)) = Polynomial.taylor center P := by
-      rw [Polynomial.sum_fin (fun i c ↦ Polynomial.monomial i c) (by simp)
-        (by simpa [Polynomial.degree_taylor] using hP), Polynomial.sum_monomial_eq]
-    have he := congrArg (fun p : Polynomial F ↦ p.eval (x - center)) hp
-    simpa [Polynomial.eval_finsetSum, Polynomial.eval_monomial, Polynomial.taylor_eval] using he
-  have hreorder : (∑ l : Fin K, (x - center) ^ l.val *
-      (aeval (polynomialJet center P) (initialJetSeparant center Q) ^ (2 * K) *
-        (Polynomial.taylor center P).coeff l.val)) =
-      aeval (polynomialJet center P) (initialJetSeparant center Q) ^ (2 * K) *
-        (∑ l : Fin K, (Polynomial.taylor center P).coeff l.val * (x - center) ^ l.val) := by
-    rw [Finset.mul_sum]
-    apply Finset.sum_congr rfl
-    intro l _
-    ring
-  rw [hreorder, hsum]
-  ring
+  exact taylorAgreementEquation_solution_of_exponent center Q P hsolution hseparant
+    K (2 * K) (taylorExponentSufficient_two_mul r K) hP hbin x y
 
 end
 

@@ -58,7 +58,7 @@ private structure BandInstanceData (n k A d m K : ℕ) where
   product_pos : 0 < m * A
   cutoff_agreement : L ≤ (m * A : ℕ)
   cutoff_jet : L ≤ ((K - 1 : ℕ) : ℝ) * (2 * m : ℕ)
-  comparison : n * asymmetricBandLocalBudget d m W ⌈L / (K - 1 : ℕ) - Cmin⌉₊ <
+  comparison : n * localCoordinateBudget d m W ⌈L / (K - 1 : ℕ) - Cmin⌉₊ <
     asymmetricBandDimensionCount (K - 1) d m W Cmin Cmax L
 
 /-- All numerical premises of the band bridge follow from the prescribed block threshold. -/
@@ -115,7 +115,7 @@ private theorem exists_band_instance_data {delta : ℝ} {n k : ℕ}
     nlinarith only [h]
   have hdim := band_prescribed_budget_lt_dimensionCount
     delta n k hdelta hquarter hk hblock' hA
-  have hdim' : n * asymmetricBandLocalBudget d m W ⌈(m : ℝ) * (1 + g) - Cmin⌉₊ <
+  have hdim' : n * localCoordinateBudget d m W ⌈(m : ℝ) * (1 + g) - Cmin⌉₊ <
       asymmetricBandDimensionCount D d m W Cmin Cmax ((D : ℝ) * m * (1 + g)) := by
     simpa only [d, m, H, W, Cmin, Cmax, asymmetricBandMultiplicity,
       capacityDerivativeOrder_eq_ceil hquarter] using hdim
@@ -128,7 +128,7 @@ private theorem exists_band_instance_data {delta : ℝ} {n k : ℕ}
     ambient_le := hKn, product_pos := Nat.mul_pos hm (hk.trans_le (Nat.le_add_right _ _))
     cutoff_agreement := hL, cutoff_jet := hLt, comparison := ?_
   }⟩
-  change n * asymmetricBandLocalBudget d m W
+  change n * localCoordinateBudget d m W
     ⌈(D : ℝ) * m * (1 + g) / D - Cmin⌉₊ < _
   simpa only [hquot] using hdim'
 

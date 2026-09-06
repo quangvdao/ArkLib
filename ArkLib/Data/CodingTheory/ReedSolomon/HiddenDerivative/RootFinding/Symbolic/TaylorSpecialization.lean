@@ -37,10 +37,12 @@ theorem map_rationalTaylorNumeratorOver_eq (φ : A →ₐ[F] E)
 
 /-- Any specialization to a field recovers the original common numerator. -/
 theorem map_commonTaylorNumeratorOver_eq (φ : A →ₐ[F] E)
-    (center : A) (Q : DifferentialPolynomial A r) (K : ℕ) (l : Fin K) :
-    MvPolynomial.map φ.toRingHom (commonTaylorNumeratorOver (F := F) center Q K l) =
-      commonTaylorNumerator (φ center) (MvPolynomial.map φ.toRingHom Q) K l := by
-  rw [map_commonTaylorNumeratorOver]
+    (center : A) (Q : DifferentialPolynomial A r) (K : ℕ) (l : Fin K)
+    (τ : ℕ := 2 * K) :
+    MvPolynomial.map φ.toRingHom
+        (commonTaylorNumeratorOver (F := F) center Q K l (τ := τ)) =
+      commonTaylorNumerator (φ center) (MvPolynomial.map φ.toRingHom Q) K l (τ := τ) := by
+  rw [map_commonTaylorNumeratorOver (τ := τ)]
   simp only [commonTaylorNumeratorOver, commonTaylorNumerator,
     rationalTaylorNumeratorOver_eq]
   rfl
@@ -68,13 +70,14 @@ theorem eval_rationalTaylorNumeratorOver (center z : F)
 
 /-- Evaluating the challenge specializes the common numerator at every scalar challenge. -/
 theorem eval_commonTaylorNumeratorOver (center z : F)
-    (Q : DifferentialPolynomial (Polynomial F) r) (K : ℕ) (l : Fin K) :
+    (Q : DifferentialPolynomial (Polynomial F) r) (K : ℕ) (l : Fin K)
+    (τ : ℕ := 2 * K) :
     MvPolynomial.map (Polynomial.evalRingHom z)
-        (commonTaylorNumeratorOver (F := F) (Polynomial.C center) Q K l) =
+        (commonTaylorNumeratorOver (F := F) (Polynomial.C center) Q K l (τ := τ)) =
       commonTaylorNumerator center
-        (MvPolynomial.map (Polynomial.evalRingHom z) Q) K l := by
+        (MvPolynomial.map (Polynomial.evalRingHom z) Q) K l (τ := τ) := by
   simpa using map_commonTaylorNumeratorOver_eq (Polynomial.aeval z)
-    (Polynomial.C center) Q K l
+    (Polynomial.C center) Q K l (τ := τ)
 
 end
 

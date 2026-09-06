@@ -50,10 +50,12 @@ theorem rationalTaylorPolynomial_injective (center : F) (Q : DifferentialPolynom
   simpa only [polynomialJet_rationalTaylorPolynomial center Q K hK] using he
 
 /-- On the principal open, high common-numerator cuts impose the actual message degree. -/
-theorem degree_rationalTaylorPolynomial_lt_of_high_cuts
-    (center : F) (Q : DifferentialPolynomial F r) (K k : ℕ)
+theorem degree_rationalTaylorPolynomial_lt_of_high_cuts_and_exponent
+    (center : F) (Q : DifferentialPolynomial F r) (K k τ : ℕ)
+    (hτ : TaylorExponentSufficient r K τ)
     (jet : Fin (r + 1) → F) (hS : aeval jet (initialJetSeparant center Q) ≠ 0)
-    (hhigh : ∀ l : Fin K, k ≤ l.val → aeval jet (commonTaylorNumerator center Q K l) = 0) :
+    (hhigh : ∀ l : Fin K, k ≤ l.val →
+      aeval jet (commonTaylorNumerator center Q K l (τ := τ)) = 0) :
     (rationalTaylorPolynomial center Q K jet).degree < k := by
   rw [← Polynomial.degree_taylor _ center, Polynomial.degree_lt_iff_coeff_zero]
   intro i hi
@@ -62,20 +64,31 @@ theorem degree_rationalTaylorPolynomial_lt_of_high_cuts
   rw [coeff_taylor_centeredCoefficientPrefix]
   split_ifs with hiK
   · have hc := hhigh ⟨i, hiK⟩ hi
-    rw [aeval_commonTaylorNumerator center Q jet K ⟨i, hiK⟩ hS] at hc
+    rw [aeval_commonTaylorNumerator_of_exponent center Q jet K τ hτ ⟨i, hiK⟩ hS] at hc
     exact (mul_eq_zero.mp hc).resolve_left (pow_ne_zero _ hS)
   · rfl
 
+/-- On the principal open, default high common-numerator cuts impose the message degree. -/
+theorem degree_rationalTaylorPolynomial_lt_of_high_cuts
+    (center : F) (Q : DifferentialPolynomial F r) (K k : ℕ)
+    (jet : Fin (r + 1) → F) (hS : aeval jet (initialJetSeparant center Q) ≠ 0)
+    (hhigh : ∀ l : Fin K, k ≤ l.val → aeval jet (commonTaylorNumerator center Q K l) = 0) :
+    (rationalTaylorPolynomial center Q K jet).degree < k := by
+  exact degree_rationalTaylorPolynomial_lt_of_high_cuts_and_exponent
+    center Q K k (2 * K) (taylorExponentSufficient_two_mul r K) jet hS hhigh
+
 /-- Agreement cuts represent actual polynomial evaluation at every regular chart point,
 without assuming that the reconstructed polynomial solves the differential equation. -/
-theorem aeval_taylorAgreementEquation (center : F) (Q : DifferentialPolynomial F r) (K : ℕ)
+theorem aeval_taylorAgreementEquation_of_exponent
+    (center : F) (Q : DifferentialPolynomial F r) (K τ : ℕ)
+    (hτ : TaylorExponentSufficient r K τ)
     (jet : Fin (r + 1) → F) (hS : aeval jet (initialJetSeparant center Q) ≠ 0) (x y : F) :
-    aeval jet (taylorAgreementEquation center Q K x y) =
-      aeval jet (initialJetSeparant center Q) ^ (2 * K) *
+    aeval jet (taylorAgreementEquation center Q K x y (τ := τ)) =
+      aeval jet (initialJetSeparant center Q) ^ τ *
         ((rationalTaylorPolynomial center Q K jet).eval x - y) := by
   rw [taylorAgreementEquation, map_sub, map_sum]
   simp only [map_mul, aeval_C, Algebra.algebraMap_self, RingHom.id_apply, map_pow]
-  simp_rw [aeval_commonTaylorNumerator center Q jet K _ hS]
+  simp_rw [aeval_commonTaylorNumerator_of_exponent center Q jet K τ hτ _ hS]
   have he := congrArg (fun p : Polynomial F ↦ p.eval (x - center))
     (taylor_centeredCoefficientPrefix center (rationalTaylorCoefficient center Q jet) K)
   have hsum : (∑ l : Fin K, rationalTaylorCoefficient center Q jet l.val *
@@ -83,9 +96,9 @@ theorem aeval_taylorAgreementEquation (center : F) (Q : DifferentialPolynomial F
     simpa [rationalTaylorPolynomial, Polynomial.eval_finsetSum, Polynomial.eval_monomial,
       Polynomial.taylor_eval] using he.symm
   have hreorder : (∑ l : Fin K, (x - center) ^ l.val *
-      (aeval jet (initialJetSeparant center Q) ^ (2 * K) *
+      (aeval jet (initialJetSeparant center Q) ^ τ *
         rationalTaylorCoefficient center Q jet l.val)) =
-      aeval jet (initialJetSeparant center Q) ^ (2 * K) *
+      aeval jet (initialJetSeparant center Q) ^ τ *
         (∑ l : Fin K, rationalTaylorCoefficient center Q jet l.val * (x - center) ^ l.val) := by
     rw [Finset.mul_sum]
     apply Finset.sum_congr rfl
@@ -94,7 +107,26 @@ theorem aeval_taylorAgreementEquation (center : F) (Q : DifferentialPolynomial F
   rw [hreorder, hsum]
   ring
 
+/-- Default agreement cuts represent polynomial evaluation at every regular chart point. -/
+theorem aeval_taylorAgreementEquation (center : F) (Q : DifferentialPolynomial F r) (K : ℕ)
+    (jet : Fin (r + 1) → F) (hS : aeval jet (initialJetSeparant center Q) ≠ 0) (x y : F) :
+    aeval jet (taylorAgreementEquation center Q K x y) =
+      aeval jet (initialJetSeparant center Q) ^ (2 * K) *
+        ((rationalTaylorPolynomial center Q K jet).eval x - y) := by
+  exact aeval_taylorAgreementEquation_of_exponent center Q K (2 * K)
+    (taylorExponentSufficient_two_mul r K) jet hS x y
+
 /-- A cleared agreement equation vanishes exactly at the prescribed received value. -/
+theorem taylorAgreementEquation_eq_zero_iff_of_exponent
+    (center : F) (Q : DifferentialPolynomial F r) (K τ : ℕ)
+    (hτ : TaylorExponentSufficient r K τ) (jet : Fin (r + 1) → F)
+    (hS : aeval jet (initialJetSeparant center Q) ≠ 0) (x y : F) :
+    aeval jet (taylorAgreementEquation center Q K x y (τ := τ)) = 0 ↔
+      (rationalTaylorPolynomial center Q K jet).eval x = y := by
+  rw [aeval_taylorAgreementEquation_of_exponent center Q K τ hτ jet hS x y]
+  simp only [mul_eq_zero, pow_ne_zero _ hS, false_or, sub_eq_zero]
+
+/-- A default cleared agreement equation vanishes exactly at the prescribed value. -/
 theorem taylorAgreementEquation_eq_zero_iff (center : F) (Q : DifferentialPolynomial F r)
     (K : ℕ) (jet : Fin (r + 1) → F) (hS : aeval jet (initialJetSeparant center Q) ≠ 0)
     (x y : F) :
