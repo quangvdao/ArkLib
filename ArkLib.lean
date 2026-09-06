@@ -208,6 +208,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.Exce
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.Incidence
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.PairCounting
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.PointRecognition
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.SharpPairCounting
 import ArkLib.Data.CodingTheory.ReedSolomon.Decoding.Specification
 import ArkLib.Data.CodingTheory.ReedSolomon.Folded
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.ExactCharacteristicBudget
@@ -226,6 +227,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.First
 import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.CurveHeightCounting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.CurveRank
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.CurveStages
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.CurveSymbolic
 import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.FiniteCertificate
@@ -311,6 +313,7 @@ import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.CoefficientExtension
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.JetPrefix
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.SeparantChain
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.TaylorBidegree
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.TaylorCutDegree
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.TaylorCuts
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.TaylorDegree
@@ -588,6 +591,8 @@ import ArkLib.ToCompPoly.Univariate.Lagrange
 import ArkLib.ToMathlib.AlgebraicGeometry.CutFamily.Finite
 import ArkLib.ToMathlib.AlgebraicGeometry.CutFamily.Hypersurface
 import ArkLib.ToMathlib.AlgebraicGeometry.CutFamily.Iteration
+import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.Bidegree
+import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.BidegreePoints
 import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.Degree
 import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.FiniteAlgebraGrowth
 import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.FiniteExtensionDegree
@@ -603,6 +608,8 @@ import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.StandardMonomials
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.Agreement
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.Excluded
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.GraphPullback
+import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.SharpPrimeFamily
+import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.SharpRatio
 import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalCut.Bezout
 import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalCut.ComponentCoefficient
 import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalCut.Degree
@@ -649,6 +656,7 @@ import ArkLib.ToMathlib.Polynomial.HasseTaylor.JetDivisibility
 import ArkLib.ToMathlib.Polynomial.HasseTaylor.Lifting
 import ArkLib.ToMathlib.Polynomial.HasseTaylor.Shift
 import ArkLib.ToMathlib.Polynomial.NatDegreeOfSum
+import ArkLib.ToMathlib.Polynomial.RectangleDifference
 import ArkLib.ToMathlib.Polynomial.RootMultiplicity
 import ArkLib.ToMathlib.Polynomial.SimultaneousRoots
 import ArkLib.ToMathlib.Set.Finite

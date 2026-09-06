@@ -19,3 +19,5 @@ import ArkLibExamples.ReedSolomon.ProveKitSharpLists
 import ArkLibExamples.ReedSolomon.ProveKitAffine
 
 import ArkLibExamples.ReedSolomon.ConcreteCurveBounds
+
+import ArkLibExamples.ReedSolomon.LambdaVMFields

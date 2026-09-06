@@ -50,30 +50,40 @@ Place durable, concrete applications under `ArkLibExamples/` and add them to the
 `./scripts/validate.sh` rejects all of its warnings, including admissions. Examples may import
 stable `ArkLib` owner modules; `ArkLib` must not import `ArkLibExamples`.
 
-The Reed–Solomon examples separate numerical consequences from the mathematical certificates
-that justify them. `ProveKit`, `ZisK`, and `LambdaVM` record supplied count expressions and
-query/payload arithmetic. Their `Interpolation` modules derive primitive, specialization-sound
-certificates from exact support and height sums. `ProveKitMCA` also derives an actual scalar
-MCA bound and finite-list bound for the BN254 profile, using the proved source-incidence envelope.
-`ProveKitQueryTuning` derives the same mathematical bounds for a retuned support, then proves
-the 108-query arithmetic with a slightly stricter grinding threshold and unchanged OOD count.
+The Reed–Solomon examples connect finite interpolation certificates to list bounds, mutual
+correlated agreement (MCA), and query/payload arithmetic. Start with the application you need:
+
+- `ProveKitAffine` gives width-eight MCA bounds for both the 109-query and 108-query profiles,
+  over any positive-dimensional affine space. Its canonical BN254 corollaries discharge the
+  field size and characteristic conditions. `ProveKitQueryTuning` checks the 108-query grinding
+  threshold and conservative additional payload saving; `ProveKitSharpLists` derives the
+  sharper original list bounds.
+- `LambdaVMFields` gives the five equality-table list bounds over cubic Goldilocks, including
+  the width-18 tuples. `LambdaVMTables` combines each derived list bound with a supplied
+  exceptional-count bound in the local error expression and checks the payload arithmetic.
+- `ConcreteCurves` constructs actual polynomial-curve interpolation certificates for all six
+  ZisK profiles and all 35 LambdaVM initial/folding profiles. `ConcreteCurveBounds` checks their
+  sharp rational envelopes and matches the five LambdaVM sums to the local error budgets.
+- `Fields` supplies canonical mathematical models and proved cardinalities/characteristics
+  for BN254 and cubic Goldilocks.
 
 Read the generic development in this order:
 
-1. `FirstOrder/Basic` and `Counting`: the monomial support and its exact dimension sum.
-2. `FirstOrder/Interpolation` and `SymbolicRank`: the actual local and symbolic matrix rank.
+1. `FirstOrder/Basic` and `Counting`: monomial support and its exact dimension sum.
+2. `FirstOrder/Interpolation`, `SymbolicRank`, and `CurveRank`: actual matrix rank bounds.
 3. `ToMathlib/LinearAlgebra/ColumnDegreeKernel`, `Symbolic/ColumnHeight`, and
-   `FirstOrder/HeightCounting`: column-sensitive kernel construction and executable height test.
-4. `FirstOrder/Symbolic` and `FiniteCertificate`: one primitive polynomial chosen before all
-   extension fields, challenges, and close candidates.
-5. `FirstOrder/ListBound` and `CorrelatedAgreement/Symbolic/FirstOrderEnvelope`: list counting
-   and the stage-free scalar MCA bound.
+   `Symbolic/CurveColumnHeight`: column-sensitive kernel construction.
+4. `FirstOrder/FiniteCertificate` and `CurveFinite`: executable height tests constructing one
+   primitive equation before all extension fields, challenges, and close candidates.
+5. `FirstOrder/SharpListBound`: list counting that retains the first-derivative cap.
+6. `Interleaved/AgreementBounds` and `AffineAgreementBounds`: width-preserving list and MCA
+   transfer, followed by the affine-space consequence.
 
-The remaining sharper exceptional counts require the manuscript's bidegree geometric transfer.
-The interpolation examples for powers profiles establish the underlying affine-line layer;
-those modules do not themselves prove powers transfer or interleaved protocol conclusions.
-The envelope rank suffices for the recorded supports: a sharper cutoff-sensitive rank would
-expand tuning options, but is not needed to validate those interpolation certificates.
+The sharp curve envelopes are not yet exceptional-set cardinality theorems. Completing that
+connection requires the sharp geometric incidence argument. The original `ZisK` and `LambdaVM`
+modules therefore still label their exceptional counts as supplied. These examples prove
+mathematical specializations and explicit payload-model identities; they do not formalize a
+complete deployed transcript or its serializer.
 
 ### Lean source-policy checks
 
