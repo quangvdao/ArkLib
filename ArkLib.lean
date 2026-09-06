@@ -297,6 +297,10 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbo
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.WeightedSupport.Basic
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.WeightedSupport.Dimension
 import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.WeightedSupport.Expectation
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.WeightedSupport.FloorTransfer
+import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.WeightedSupport.Interpolation
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.WeightedSupport.LocalRank
 import
@@ -324,6 +328,8 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.TaylorCu
 import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.WeightedSupport.EndpointComparison
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.WeightedSupport.Rounding
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.WeightedSupport.ScalarParameters
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.Counting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.Extension
 import
@@ -677,6 +683,7 @@ import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalOpen.Presentation
 import ArkLib.ToMathlib.AlgebraicGeometry.ZeroLocus.Finite
 import ArkLib.ToMathlib.AlgebraicGeometry.ZeroLocus.ZeroDimensional
 import ArkLib.ToMathlib.Analysis.Simplex.MonomialIntegral
+import ArkLib.ToMathlib.Analysis.Simplex.VolumeIntegral
 import ArkLib.ToMathlib.BigOperators.Fin
 import ArkLib.ToMathlib.Combinatorics.CubicStaircase
 import ArkLib.ToMathlib.Combinatorics.DiscreteSimplex.Basic

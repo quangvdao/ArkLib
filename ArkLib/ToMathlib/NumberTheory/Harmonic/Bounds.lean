@@ -139,4 +139,28 @@ theorem harmonic_pred_le_log_add_three_fifths (d : ℕ) (hd : 33 ≤ d) :
   linarith
 
 
+/-- A rational exponential sum bounds the logarithm at the base point. -/
+private theorem log_ten_le : Real.log 10 ≤ (47 / 20 : ℝ) := by
+  have h := Real.sum_le_exp_of_nonneg (by norm_num : (0 : ℝ) ≤ 47 / 20) 10
+  norm_num [Finset.sum_range_succ] at h
+  apply (Real.log_le_iff_le_exp (by norm_num : (0 : ℝ) < 10)).mpr
+  linarith
+
+/-- The harmonic logarithmic upper bound is at most `sqrt x / 10` above dimension 10000. -/
+theorem log_add_three_fifths_le_sqrt_div_ten (x : ℝ) (hx : 10000 ≤ x) :
+    Real.log x + 3 / 5 ≤ Real.sqrt x / 10 := by
+  have hx0 : 0 < x := by linarith
+  have hs : 100 ≤ Real.sqrt x := by
+    rw [Real.le_sqrt (by norm_num) hx0.le]
+    norm_num
+    exact hx
+  have hpos : 0 < Real.sqrt x / 100 := by positivity
+  have h := Real.log_le_sub_one_of_pos hpos
+  rw [Real.log_div (by positivity) (by norm_num), Real.log_sqrt hx0.le] at h
+  have h100 : Real.log 100 ≤ (47 / 10 : ℝ) := by
+    have he : (100 : ℝ) = 10 ^ 2 := by norm_num
+    rw [he, Real.log_pow]
+    nlinarith [log_ten_le]
+  linarith
+
 end Real

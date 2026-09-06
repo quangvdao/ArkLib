@@ -7,7 +7,8 @@ Authors: Quang Dao
 import
   ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.HeightCounting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.CurveRank
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.Band
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.CurveColumnHeight
 
 
 /-!
@@ -22,10 +23,12 @@ both sides by total jet degree. A degree-`t` source column then has weight `ℓ*
 actual degree-`t` local image contributes `r_t` rows of that same weight.
 -/
 
-open PolynomialDifferential
+open PolynomialDifferential Polynomial
 
 
 namespace ReedSolomon.HiddenDerivative
+
+open SymbolicBandInterpolation SymbolicReceivedInterpolation
 
 noncomputable section
 
@@ -229,6 +232,31 @@ theorem sum_firstOrderCurveGradedFinRowWeight_slots
   simpa [firstOrderCurveGradedFinRowWeight, firstOrderCurveGradedRowWeight] using
     (sum_firstOrderCurveGradedRowIndex_slots (F := F) D A m M μ n ℓ h)
 
+/-- Enumerating the canonical first-order columns by `Fin` preserves the exact truncated
+shifted source-slot count. -/
+theorem sum_firstOrderColumns_shifted_slots (D A m M μ ℓ h : ℕ) :
+    (Finset.univ.sum fun j : Fin (Fintype.card ↑(firstOrderExponents D A m M μ)) ↦
+      h + 1 - ℓ * totalJetDegree
+        (firstOrderColumns (D := D) (A := A) (m := m) (M := M) (μ := μ) j).exponent) =
+      firstOrderCurveShiftedColumnSlotCount D A m M μ ℓ h := by
+  let e := Fintype.equivFin ↑(firstOrderExponents D A m M μ)
+  calc
+    (Finset.univ.sum fun j : Fin (Fintype.card ↑(firstOrderExponents D A m M μ)) ↦
+        h + 1 - ℓ * totalJetDegree
+          (firstOrderColumns (D := D) (A := A) (m := m) (M := M) (μ := μ) j).exponent) =
+        Finset.univ.sum fun u : ↑(firstOrderExponents D A m M μ) ↦
+          h + 1 - ℓ * totalJetDegree u.1 := by
+      rw [← e.sum_comp]
+      apply Finset.sum_congr rfl
+      intro u _
+      rw [firstOrderColumns_exponent]
+      simp [e]
+    _ = Finset.sum (firstOrderExponents D A m M μ)
+          (fun u ↦ h + 1 - ℓ * totalJetDegree u) := by
+      simpa using Finset.sum_attach (firstOrderExponents D A m M μ)
+        (fun u ↦ h + 1 - ℓ * totalJetDegree u)
+    _ = firstOrderCurveShiftedColumnSlotCount D A m M μ ℓ h := rfl
+
 /-- The exact truncated shifted-height test. -/
 def FirstOrderCurveShiftedHeightSurplus (F : Type*) [Field F]
     (D A m M μ n ℓ h : ℕ) : Prop :=
@@ -292,6 +320,73 @@ theorem firstOrderCurveShiftedRowSlotCount_add_weight
     _ = (∑ t ∈ Finset.range (μ + 1),
         n * firstOrderGradedRank F D A m M t) * (h + 1) := by
       rw [Finset.sum_mul]
+
+/-! ### Concrete primitive shifted-height constructor -/
+
+/-- The exact shifted surplus for the actual compressed graded rows constructs a primitive
+first-order curve interpolant. Every kernel premise is discharged by the translated
+base-field row-compression theorem. -/
+theorem exists_primitive_firstOrderCurve_interpolant_of_shifted_height
+    {F : Type*} [Field F] (D A m M μ n ℓ h : ℕ) (hD : 0 < D)
+    (centers : Fin n → F) (w : Fin n → F[X]) (hw : ∀ i, (w i).natDegree ≤ ℓ)
+    (hsurplus : FirstOrderCurveShiftedHeightSurplus F D A m M μ n ℓ h) :
+    ∃ v : Fin (Fintype.card ↑(firstOrderExponents D A m M μ)) → F[X],
+      v ≠ 0 ∧
+      (∀ j, v j ∈ Polynomial.degreeLT F
+        (h + 1 - ℓ * totalJetDegree
+          (firstOrderColumns (D := D) (A := A) (m := m) (M := M) (μ := μ) j).exponent)) ∧
+      Ideal.span (Set.range v) = ⊤ ∧
+      (∀ {E : Type*} [Field E] (ι : F →+* E) (z : E),
+        MvPolynomial.map (Polynomial.eval₂RingHom ι z)
+          (SymbolicReceivedInterpolation.interpolant
+            (firstOrderColumns (D := D) (A := A) (m := m) (M := M) (μ := μ)) v) ≠ 0) ∧
+      ∀ i, SatisfiesLocalConstraints m (Polynomial.C (centers i)) (w i)
+        (SymbolicReceivedInterpolation.interpolant
+          (firstOrderColumns (D := D) (A := A) (m := m) (M := M) (μ := μ)) v) := by
+  apply SymbolicReceivedCurve.exists_primitive_interpolant_of_shifted_height
+    m ℓ h centers w
+    (firstOrderColumns (D := D) (A := A) (m := m) (M := M) (μ := μ))
+    firstOrderColumns_injective
+    (firstOrderCurveGradedFinMatrix D A m M μ n centers w)
+    (firstOrderCurveGradedFinRowWeight F D A m M μ n ℓ)
+  · exact firstOrderCurveGradedFinMatrix_kernel_iff
+      D A m M μ n hD centers w
+  · intro i j hweight
+    exact firstOrderCurveGradedFinMatrix_degree_le
+      D A m M μ n ℓ centers w hw i j hweight
+  · intro i j hweight
+    exact firstOrderCurveGradedFinMatrix_eq_zero_of_weight_lt
+      D A m M μ n ℓ centers w hw i j hweight
+  · rw [sum_firstOrderCurveGradedFinRowWeight_slots,
+      sum_firstOrderColumns_shifted_slots]
+    exact hsurplus
+
+/-- The executable numerical row bound and nested source count suffice for the concrete
+primitive constructor. This public adapter exposes no matrix or rank premise. -/
+theorem exists_primitive_firstOrderCurve_interpolant_of_shifted_height_bound
+    {F : Type*} [Field F] (D A m M μ n ℓ h : ℕ) (hD : 0 < D)
+    (centers : Fin n → F) (w : Fin n → F[X]) (hw : ∀ i, (w i).natDegree ≤ ℓ)
+    (hsurplus : firstOrderCurveShiftedRowSlotBound D A m M μ n ℓ h <
+      firstOrderCurveShiftedHeightSlotCount D A m M μ ℓ h) :
+    ∃ v : Fin (Fintype.card ↑(firstOrderExponents D A m M μ)) → F[X],
+      v ≠ 0 ∧
+      (∀ j, v j ∈ Polynomial.degreeLT F
+        (h + 1 - ℓ * totalJetDegree
+          (firstOrderColumns (D := D) (A := A) (m := m) (M := M) (μ := μ) j).exponent)) ∧
+      Ideal.span (Set.range v) = ⊤ ∧
+      (∀ {E : Type*} [Field E] (ι : F →+* E) (z : E),
+        MvPolynomial.map (Polynomial.eval₂RingHom ι z)
+          (SymbolicReceivedInterpolation.interpolant
+            (firstOrderColumns (D := D) (A := A) (m := m) (M := M) (μ := μ)) v) ≠ 0) ∧
+      ∀ i, SatisfiesLocalConstraints m (Polynomial.C (centers i)) (w i)
+        (SymbolicReceivedInterpolation.interpolant
+          (firstOrderColumns (D := D) (A := A) (m := m) (M := M) (μ := μ)) v) := by
+  apply exists_primitive_firstOrderCurve_interpolant_of_shifted_height
+    D A m M μ n ℓ h hD centers w hw
+  unfold FirstOrderCurveShiftedHeightSurplus
+  exact (firstOrderCurveShiftedRowSlotCount_le_bound D A m M μ n ℓ h).trans_lt
+    (hsurplus.trans_eq
+      (firstOrderCurveShiftedColumnSlotCount_eq_heightSlotCount hD).symm)
 
 
 end

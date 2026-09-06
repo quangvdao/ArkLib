@@ -6,7 +6,7 @@ Authors: Quang Dao
 
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.ComponentAgreement
 import
-  ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.TaylorWitnessEmbedding
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.TaylorWitnessEmbedding
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.Agreement
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.DimensionSensitive
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.EvaluationDimension
@@ -803,6 +803,52 @@ theorem symbolicSource_prime_hilbertPolynomial_natDegree_le
   have hdegree : (hilbertPolynomial P).natDegree ≤ (hilbertPolynomial I).natDegree :=
     (hilbertPolynomial_degree_and_leadingCoeff_antitone hIP hP.ne_top).1
   omega
+
+/-- First-order joint-source specialization with the uniform two-dimensional hybrid charge.
+The initial equation proves the ambient two-dimensional bound, while the coefficient
+localization proves the sharper hereditary premise after every retained agreement cut. -/
+theorem finite_firstOrder_sourceAgreementLocus_ncard_le_hybrid_two_of_exponent
+    [IsAlgClosed E]
+    (center : E) (Q : DifferentialPolynomial E[X] 1) (K k n τ L A b : ℕ)
+    (hτ : TaylorExponentSufficient 1 K τ) (hK : 1 < K) (hkK : k ≤ K)
+    (hLA : L ≤ A) (hkA : k ≤ A) (hAn : A ≤ n) (hb : 0 < b)
+    (P : Ideal (SourceRing 1 E)) (hP : P.IsPrime)
+    (hs : symbolicSourceSeparant center Q ∉ P)
+    (hinit0 : symbolicSourceInitialEquation center Q ≠ 0)
+    (hinit : symbolicSourceInitialEquation center Q ∈ P)
+    (hhigh : ∀ l : Fin K, k ≤ l.val →
+      symbolicSourceNumerator center Q K l (τ := τ) ∈ P)
+    (α : Fin n ↪ E) (f g : Fin n → E)
+    (hdeg : ∀ i, (symbolicSourceAgreement center Q K (α i) (f i) (g i)
+      (τ := τ)).totalDegree ≤ b)
+    (excluded : Set (Option (Fin 2) → E))
+    (hterminal : ∀ J : Ideal (SourceRing 1 E),
+      P ≤ J → J.IsPrime → symbolicSourceSeparant center Q ∉ J →
+      0 < (hilbertPolynomial J).natDegree →
+      L ≤ (cutsInIdeal J fun i ↦
+        symbolicSourceAgreement center Q K (α i) (f i) (g i) (τ := τ)).card →
+      principalOpenZeroLocus J (symbolicSourceSeparant center Q) ⊆ excluded) :
+    let cuts : Fin n → MvPolynomial (Option (Fin 2)) E := fun i ↦
+      symbolicSourceAgreement center Q K (α i) (f i) (g i) (τ := τ)
+    let T := {x : Option (Fin 2) → E |
+      x ∈ principalOpenZeroLocus P (symbolicSourceSeparant center Q) ∧ x ∉ excluded ∧
+        A ≤ (agreementIndices cuts x).card}
+    T.Finite ∧ (T.ncard : ℚ) ≤ affineDegree P *
+      (((((n - L + 1) * b : ℕ) : ℚ) / ((A - L + 1 : ℕ) : ℚ))) *
+        (((((n - k + 1) * b : ℕ) : ℚ) / ((A - k + 1 : ℕ) : ℚ))) := by
+  classical
+  dsimp only
+  let cuts : Fin n → MvPolynomial (Option (Fin 2)) E := fun i ↦
+    symbolicSourceAgreement center Q K (α i) (f i) (g i) (τ := τ)
+  apply finite_agreementLocus_off_excluded_and_ncard_le_hybrid_two hP hs cuts hdeg
+    hLA hkA hAn hb
+    (symbolicSource_prime_hilbertPolynomial_natDegree_le center Q P hP hinit0 hinit)
+    excluded
+  · intro J hPJ hJ hsJ hdJ
+    exact symbolicSource_dimensionSensitive_component_of_exponent center Q K k n τ hτ hK
+      hkK J hJ hsJ (fun l hl ↦ hPJ (hhigh l hl)) α f g
+  · intro J hPJ hJ hsJ hdJ hcutsJ
+    exact hterminal J hPJ hJ hsJ hdJ hcutsJ
 
 /-- On a first-order joint source chart, every positive-dimensional retained prime of
 dimension greater than one contains at most `k + 1 - dim(P)` evaluation equations.

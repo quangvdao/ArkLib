@@ -8,6 +8,7 @@ import ArkLib.ToMathlib.MeasureTheory.Integral.FiniteCells
 import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 import Mathlib.Algebra.Order.Archimedean.Real.Basic
 import Mathlib.Tactic.NormNum
+import Mathlib.Tactic.Linarith
 /-!
 # Finite natural flooring cells
 
@@ -104,4 +105,18 @@ lemma integral_bounded_region_le_natFloor_sum [Fintype ι] [DecidableEq ι] {N :
     ← bounded_region_eq_union_natFloorCells S hnonneg hbounded] using h
 
 end
+/-- Flooring nonnegative coordinates loses at most one per coordinate in their sum. -/
+theorem sum_natFloor_bounds {ι : Type*} [Fintype ι] (u : ι → ℝ)
+    (hu : ∀ i, 0 ≤ u i) :
+    (∑ i, (Nat.floor (u i) : ℝ)) ≤ ∑ i, u i ∧
+      (∑ i, u i) - Fintype.card ι ≤ ∑ i, (Nat.floor (u i) : ℝ) := by
+  constructor
+  · exact Finset.sum_le_sum fun i hi ↦ Nat.floor_le (hu i)
+  · have h := Finset.sum_le_sum (s := Finset.univ)
+      (fun i hi ↦ (Nat.lt_floor_add_one (u i)).le)
+    simp only [Finset.sum_add_distrib, Finset.sum_const, Finset.card_univ,
+      nsmul_eq_mul, mul_one] at h
+    linarith
+
+
 end MeasureTheory

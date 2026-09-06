@@ -266,4 +266,34 @@ theorem exp_le_rpow (a H E C : ℝ) (d : ℕ) (ha : 1 ≤ a) (hd : 0 < d)
   exact hexp.trans (by simpa [mul_comm] using h)
 
 
+/-- Rounding the weighted radius changes its associated simplex mean by at most one. -/
+theorem rounded_mean_bounds (a H : ℝ) (d m : ℕ)
+    (ha : 0 ≤ a) (hH : 0 < H) (hd : 0 < d) (hHd : H ≤ d) :
+    let W := Nat.floor (a * d * m / H)
+    a * m - 1 ≤ (W : ℝ) * H / d ∧ (W : ℝ) * H / d ≤ a * m := by
+  have hd0 : (0 : ℝ) < d := by positivity
+  have hr : 0 ≤ a * d * m / H := by positivity
+  have hlo := Nat.floor_le hr
+  have hhi := Nat.lt_floor_add_one (a * d * m / H)
+  have hup := (le_div_iff₀ hH).mp hlo
+  have hdown := (div_lt_iff₀ hH).mp hhi
+  constructor
+  · apply (le_div_iff₀ hd0).mpr
+    nlinarith
+  · apply (div_le_iff₀ hd0).mpr
+    nlinarith
+
+/-- The scaled radius is at most one quarter under the gap-harmonic inequality. -/
+theorem normalized_radius_le_quarter (a H g : ℝ) (d m : ℕ)
+    (ha : 0 ≤ a) (hH : 0 < H) (hg : 0 < g) (hd : 0 < d) (hm : 0 < m)
+    (hgap : 4 * a ≤ g * H) :
+    (Nat.floor (a * d * m / H) : ℝ) / (d * g * m) ≤ 1 / 4 := by
+  have hr : 0 ≤ a * d * m / H := by positivity
+  have hf := (le_div_iff₀ hH).mp (Nat.floor_le hr)
+  have hscale := mul_le_mul_of_nonneg_right hgap
+    (show (0 : ℝ) ≤ d * m by positivity)
+  apply (div_le_iff₀ (by positivity : (0 : ℝ) < d * g * m)).mpr
+  nlinarith
+
+
 end ReedSolomon.HiddenDerivative.InterpolationRounding

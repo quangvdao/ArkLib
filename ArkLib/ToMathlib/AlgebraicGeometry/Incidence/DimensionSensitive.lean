@@ -6,6 +6,7 @@ Authors: Quang Dao
 
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.SharpRatio
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.EvaluationDimension
+import ArkLib.ToMathlib.AlgebraicGeometry.CutFamily.Iteration
 import ArkLib.ToMathlib.Set.Finite
 
 /-!
@@ -92,6 +93,12 @@ theorem dimensionSensitiveIncidenceProduct_succ (n A k b d : ℕ) :
         ((((n - k + d + 1) * b : ℕ) : ℚ) /
           ((A - k + d + 1 : ℕ) : ℚ)) := rfl
 
+@[simp]
+theorem dimensionSensitiveIncidenceProduct_one (n A k b : ℕ) :
+    dimensionSensitiveIncidenceProduct n A k b 1 =
+      ((((n - k + 1) * b : ℕ) : ℚ) / ((A - k + 1 : ℕ) : ℚ)) := by
+  simp [dimensionSensitiveIncidenceProduct]
+
 theorem dimensionSensitiveIncidenceProduct_nonneg (n A k b d : ℕ) :
     0 ≤ dimensionSensitiveIncidenceProduct n A k b d := by
   induction d with
@@ -99,6 +106,24 @@ theorem dimensionSensitiveIncidenceProduct_nonneg (n A k b d : ℕ) :
   | succ d ih =>
       rw [dimensionSensitiveIncidenceProduct_succ]
       exact mul_nonneg ih (div_nonneg (by positivity) (by positivity))
+
+/-- Each incidence factor is at least one when its threshold lies below the agreement target. -/
+theorem one_le_incidenceFactor {n A T b : ℕ} (hTA : T ≤ A) (hAn : A ≤ n)
+    (hb : 0 < b) :
+    (1 : ℚ) ≤ ((((n - T + 1) * b : ℕ) : ℚ) / ((A - T + 1 : ℕ) : ℚ)) := by
+  rw [one_le_div₀ (by exact_mod_cast (show 0 < A - T + 1 by omega))]
+  exact_mod_cast (show A - T + 1 ≤ (n - T + 1) * b from
+    (by omega : A - T + 1 ≤ n - T + 1).trans (Nat.le_mul_of_pos_right _ hb))
+
+/-- In a first-order fiber, every component of dimension at most one is uniformly charged by
+the single fiber ratio. -/
+theorem dimensionSensitiveIncidenceProduct_le_one
+    {n A k d : ℕ} (hd : d ≤ 1) (hkA : k ≤ A) (hAn : A ≤ n) :
+    dimensionSensitiveIncidenceProduct n A k 1 d ≤
+      ((n - k + 1 : ℕ) : ℚ) / ((A - k + 1 : ℕ) : ℚ) := by
+  interval_cases d
+  · simpa using one_le_incidenceFactor (T := k) (b := 1) hkA hAn (by omega)
+  · simp
 
 /-- The ratio of proper cuts at dimension `d` is controlled by the dimension-`d` factor
 when at most `k - d` cuts vanish identically. -/
@@ -195,6 +220,22 @@ theorem hybridDimensionSensitiveIncidenceProduct_nonneg (n A L k b d : ℕ) :
   | succ d ih =>
       rw [hybridDimensionSensitiveIncidenceProduct_succ]
       exact mul_nonneg ih (div_nonneg (by positivity) (by positivity))
+
+/-- In the first-order joint family, every component of dimension at most two is uniformly
+charged by the graph-recognition factor followed by the direct coefficient-space factor. -/
+theorem hybridDimensionSensitiveIncidenceProduct_le_two
+    {n A L k b d : ℕ} (hd : d ≤ 2) (hLA : L ≤ A) (hkA : k ≤ A)
+    (hAn : A ≤ n) (hb : 0 < b) :
+    hybridDimensionSensitiveIncidenceProduct n A L k b d ≤
+      (((((n - L + 1) * b : ℕ) : ℚ) / ((A - L + 1 : ℕ) : ℚ))) *
+        (((((n - k + 1) * b : ℕ) : ℚ) / ((A - k + 1 : ℕ) : ℚ))) := by
+  have hL := one_le_incidenceFactor (T := L) hLA hAn hb
+  have hk := one_le_incidenceFactor (T := k) hkA hAn hb
+  interval_cases d
+  · simpa using (one_le_mul_of_one_le_of_one_le hL hk)
+  · simpa using (mul_le_mul_of_nonneg_left hk (by positivity :
+      0 ≤ (((((n - L + 1) * b : ℕ) : ℚ) / ((A - L + 1 : ℕ) : ℚ)))))
+  · simp
 
 /-- Incidence with an explicit current dimension and a hereditary dimension-sensitive bound
 on identically vanishing cuts. -/
@@ -863,6 +904,152 @@ theorem finite_agreementLocus_off_excluded_and_ncard_le_hybrid
   rw [Set.ncard_eq_toFinset_card T hfinite]
   exact hbound hfinite.toFinset (fun _ hx ↦ hfinite.mem_toFinset.mp hx)
 
+/-- First-order joint specialization of the hybrid finite bound.  Components of dimension at
+most two are uniformly charged by the graph-recognition factor and the direct coefficient-space
+factor. -/
+theorem finite_agreementLocus_off_excluded_and_ncard_le_hybrid_two
+    {n A L k b : ℕ} {P : Ideal (MvPolynomial σ F)} (hP : P.IsPrime)
+    {s : MvPolynomial σ F} (hs : s ∉ P)
+    (cuts : Fin n → MvPolynomial σ F) (hdeg : ∀ i, (cuts i).totalDegree ≤ b)
+    (hLA : L ≤ A) (hkA : k ≤ A) (hAn : A ≤ n) (hb : 0 < b)
+    (hPdim : (hilbertPolynomial P).natDegree ≤ 2)
+    (excluded : Set (σ → F))
+    (hdimension : ∀ Q : Ideal (MvPolynomial σ F),
+      P ≤ Q → Q.IsPrime → s ∉ Q →
+      0 < (hilbertPolynomial Q).natDegree →
+      (hilbertPolynomial Q).natDegree ≤ k + 1 ∧
+        (1 < (hilbertPolynomial Q).natDegree →
+          (cutsInIdeal Q cuts).card ≤ k + 1 - (hilbertPolynomial Q).natDegree))
+    (hterminal : ∀ Q : Ideal (MvPolynomial σ F),
+      P ≤ Q → Q.IsPrime → s ∉ Q →
+      0 < (hilbertPolynomial Q).natDegree →
+      L ≤ (cutsInIdeal Q cuts).card → principalOpenZeroLocus Q s ⊆ excluded) :
+    let T := {x : σ → F | x ∈ principalOpenZeroLocus P s ∧ x ∉ excluded ∧
+      A ≤ (agreementIndices cuts x).card}
+    T.Finite ∧ (T.ncard : ℚ) ≤ affineDegree P *
+      (((((n - L + 1) * b : ℕ) : ℚ) / ((A - L + 1 : ℕ) : ℚ))) *
+        (((((n - k + 1) * b : ℕ) : ℚ) / ((A - k + 1 : ℕ) : ℚ))) := by
+  dsimp only
+  obtain ⟨hfinite, hbound⟩ := finite_agreementLocus_off_excluded_and_ncard_le_hybrid
+    hP hs cuts hdeg hLA hkA hAn excluded hdimension hterminal
+  refine ⟨hfinite, hbound.trans ?_⟩
+  simpa only [mul_assoc] using mul_le_mul_of_nonneg_left
+    (hybridDimensionSensitiveIncidenceProduct_le_two hPdim hLA hkA hAn hb)
+      (affineDegree_nonneg P)
+
+/-- First-order hybrid incidence after a finite list of fixed nonlinear cuts.  The nonlinear
+cuts contribute their degree bound `B` through the retained-family potential, while the later
+agreement cuts are affine-linear and therefore contribute only the two sharp incidence ratios.
+This separation is the form used by the bidegree presentation. -/
+theorem iteratedRetainedCutFamily_incidence_off_excluded_hybrid_two
+    {n A L k B : ℕ} (T₀ : Finset (Ideal (MvPolynomial σ F)))
+    (s : MvPolynomial σ F)
+    (hprime : ∀ P ∈ T₀, P.IsPrime) (hopen : ∀ P ∈ T₀, s ∉ P)
+    (hdim : ∀ P ∈ T₀, (hilbertPolynomial P).natDegree = 2)
+    {V : ℚ} (hsum : ∑ P ∈ T₀, affineDegree P ≤ V)
+    (highCuts : List (MvPolynomial σ F))
+    (hhighDegree : ∀ f ∈ highCuts, f.totalDegree ≤ B) (hB : 0 < B)
+    (cuts : Fin n → MvPolynomial σ F) (hcutsDegree : ∀ i, (cuts i).totalDegree ≤ 1)
+    (hLA : L ≤ A) (hkA : k ≤ A) (hAn : A ≤ n)
+    (excluded : Set (σ → F))
+    (hdimension : ∀ P ∈ T₀, ∀ Q : Ideal (MvPolynomial σ F),
+      P ≤ Q → Q.IsPrime → s ∉ Q →
+      (∀ f ∈ highCuts, f ∈ Q) →
+      0 < (hilbertPolynomial Q).natDegree →
+      (hilbertPolynomial Q).natDegree ≤ k + 1 ∧
+        (1 < (hilbertPolynomial Q).natDegree →
+          (cutsInIdeal Q cuts).card ≤ k + 1 - (hilbertPolynomial Q).natDegree))
+    (hterminal : ∀ P ∈ T₀, ∀ Q : Ideal (MvPolynomial σ F),
+      P ≤ Q → Q.IsPrime → s ∉ Q →
+      (∀ f ∈ highCuts, f ∈ Q) →
+      0 < (hilbertPolynomial Q).natDegree →
+      L ≤ (cutsInIdeal Q cuts).card → principalOpenZeroLocus Q s ⊆ excluded)
+    (S : Finset (σ → F))
+    (hS : ∀ x ∈ S,
+      (∃ P ∈ T₀, x ∈ zeroLocus F P) ∧ aeval x s ≠ 0 ∧
+        (∀ f ∈ highCuts, aeval x f = 0) ∧ x ∉ excluded)
+    (hA : ∀ x ∈ S, A ≤ (agreementIndices cuts x).card) :
+    (S.card : ℚ) ≤ V * (B : ℚ) ^ 2 *
+      (((n - L + 1 : ℕ) : ℚ) / ((A - L + 1 : ℕ) : ℚ)) *
+        (((n - k + 1 : ℕ) : ℚ) / ((A - k + 1 : ℕ) : ℚ)) := by
+  classical
+  let T := iteratedRetainedCutFamily T₀ s highCuts
+  have hT (Q : Ideal (MvPolynomial σ F)) (hQ : Q ∈ T) :
+      Q.IsPrime ∧ s ∉ Q ∧ (∀ f ∈ highCuts, f ∈ Q) ∧ ∃ P ∈ T₀, P ≤ Q := by
+    have hpo := iteratedRetainedCutFamily_prime_open T₀ hprime hopen highCuts Q hQ
+    obtain ⟨P, hP, hPQ, hhigh⟩ := mem_iteratedRetainedCutFamily_contains T₀ highCuts hQ
+    exact ⟨hpo.1, hpo.2, hhigh, P, hP, hPQ⟩
+  have hTdim (Q : Ideal (MvPolynomial σ F)) (hQ : Q ∈ T) :
+      (hilbertPolynomial Q).natDegree ≤ 2 := by
+    obtain ⟨_, _, _, P, hP, hPQ⟩ := hT Q hQ
+    exact (hilbertPolynomial_degree_and_leadingCoeff_antitone hPQ (hT Q hQ).1.ne_top).1
+      |>.trans_eq (hdim P hP)
+  have hpotential :
+      ∑ Q ∈ T, affineDegree Q * (B : ℚ) ^ (hilbertPolynomial Q).natDegree ≤
+        V * (B : ℚ) ^ 2 := by
+    exact (sum_iteratedRetainedCutFamily_affineDegree_mul_pow_le T₀ hprime hopen
+      (Nat.succ_le_iff.mpr hB) highCuts hhighDegree).trans (by
+        calc
+          ∑ P ∈ T₀, affineDegree P * (B : ℚ) ^ (hilbertPolynomial P).natDegree =
+              (∑ P ∈ T₀, affineDegree P) * (B : ℚ) ^ 2 := by
+            rw [Finset.sum_mul]
+            apply Finset.sum_congr rfl
+            intro P hP
+            rw [hdim P hP]
+          _ ≤ V * (B : ℚ) ^ 2 :=
+            mul_le_mul_of_nonneg_right hsum (by positivity))
+  have hcover : S.card ≤ ∑ Q ∈ T, (componentPoints S Q).card := by
+    apply le_trans _ Finset.card_biUnion_le
+    apply Finset.card_le_card
+    intro x hx
+    obtain ⟨P, hP, hxP⟩ := (hS x hx).1
+    obtain ⟨Q, hQ, hxQ⟩ := exists_mem_iteratedRetainedCutFamily_of_mem_zeroLocus T₀
+      highCuts x ⟨P, hP, hxP⟩ (hS x hx).2.1 (hS x hx).2.2.1
+    exact Finset.mem_biUnion.mpr ⟨Q, hQ, by rw [mem_componentPoints]; exact ⟨hx, hxQ⟩⟩
+  let R : ℚ :=
+    (((n - L + 1 : ℕ) : ℚ) / ((A - L + 1 : ℕ) : ℚ)) *
+      (((n - k + 1 : ℕ) : ℚ) / ((A - k + 1 : ℕ) : ℚ))
+  have hcomponent (Q : Ideal (MvPolynomial σ F)) (hQ : Q ∈ T) :
+      ((componentPoints S Q).card : ℚ) ≤ affineDegree Q * R := by
+    obtain ⟨hQprime, hsQ, hhighQ, P, hP, hPQ⟩ := hT Q hQ
+    have hbound := affineAgreementIncidence_bound_hybrid_off_excluded hQprime hsQ
+      cuts hcutsDegree hLA hkA hAn excluded
+      (fun J hQJ hJ hsJ hdJ ↦ hdimension P hP J (hPQ.trans hQJ) hJ hsJ
+        (fun f hf ↦ hQJ (hhighQ f hf)) hdJ)
+      (fun J hQJ hJ hsJ hdJ hcJ ↦ hterminal P hP J
+        (hPQ.trans hQJ) hJ hsJ (fun f hf ↦ hQJ (hhighQ f hf)) hdJ hcJ)
+      (componentPoints S Q)
+      (fun x hx ↦ by
+        rw [mem_componentPoints] at hx
+        exact ⟨⟨hx.2, (hS x hx.1).2.1⟩, (hS x hx.1).2.2.2⟩)
+      (fun x hx ↦ by rw [mem_componentPoints] at hx; exact hA x hx.1)
+    refine hbound.trans ?_
+    have hprod := hybridDimensionSensitiveIncidenceProduct_le_two
+      (n := n) (A := A) (L := L) (k := k) (b := 1)
+      (d := (hilbertPolynomial Q).natDegree)
+      (hTdim Q hQ) hLA hkA hAn Nat.zero_lt_one
+    have hprod' :
+        hybridDimensionSensitiveIncidenceProduct n A L k 1
+            (hilbertPolynomial Q).natDegree ≤ R := by
+      simpa only [R, Nat.mul_one] using hprod
+    exact mul_le_mul_of_nonneg_left hprod' (affineDegree_nonneg Q)
+  have hdegreeSum : ∑ Q ∈ T, affineDegree Q ≤ V * (B : ℚ) ^ 2 := by
+    calc
+      ∑ Q ∈ T, affineDegree Q ≤
+          ∑ Q ∈ T, affineDegree Q * (B : ℚ) ^ (hilbertPolynomial Q).natDegree := by
+        apply Finset.sum_le_sum
+        intro Q hQ
+        exact le_mul_of_one_le_right (affineDegree_nonneg Q)
+          (one_le_pow₀ (by exact_mod_cast hB))
+      _ ≤ V * (B : ℚ) ^ 2 := hpotential
+  calc
+    (S.card : ℚ) ≤ ∑ Q ∈ T, ((componentPoints S Q).card : ℚ) := by exact_mod_cast hcover
+    _ ≤ ∑ Q ∈ T, affineDegree Q * R := Finset.sum_le_sum hcomponent
+    _ = (∑ Q ∈ T, affineDegree Q) * R := by rw [Finset.sum_mul]
+    _ ≤ (V * (B : ℚ) ^ 2) * R :=
+      mul_le_mul_of_nonneg_right hdegreeSum (by positivity)
+    _ = _ := by dsimp only [R]; ring
+
 /-- Fiber incidence in ordinary degree-`< k` coefficient space, with the hereditary dimension
 premise discharged by Vandermonde elimination.  The retained principal-open prime may come from
 any geometric envelope; no Taylor-chart hypothesis is needed at this stage. -/
@@ -884,5 +1071,28 @@ theorem finite_fixedCoefficientAgreementLocus_and_ncard_le_dimensionSensitive
     hkA hAn
   intro Q _ hQ _ hd
   exact fixedCoefficientEvaluation_dimensionSensitive_component α y Q hQ hd
+
+/-- First-order fiber specialization.  A coefficient-space component of dimension at most one
+is charged by exactly the single ratio `(n-k+1)/(A-k+1)`. -/
+theorem finite_fixedCoefficientAgreementLocus_and_ncard_le_firstOrderFiberRatio
+    {n A k : ℕ} (α : Fin n ↪ F) (y : Fin n → F)
+    {P : Ideal (MvPolynomial (Fin k) F)} (hP : P.IsPrime)
+    {s : MvPolynomial (Fin k) F} (hs : s ∉ P)
+    (hPdim : (hilbertPolynomial P).natDegree ≤ 1)
+    (hkA : k ≤ A) (hAn : A ≤ n) :
+    let cuts : Fin n → MvPolynomial (Fin k) F := fun i ↦
+      fixedCoefficientEvaluation k (α i) (y i)
+    let T := {x : Fin k → F | x ∈ principalOpenZeroLocus P s ∧
+      A ≤ (agreementIndices cuts x).card}
+    T.Finite ∧ (T.ncard : ℚ) ≤ affineDegree P *
+      (((n - k + 1 : ℕ) : ℚ) / ((A - k + 1 : ℕ) : ℚ)) := by
+  dsimp only
+  obtain ⟨hfinite, hbound⟩ :=
+    finite_fixedCoefficientAgreementLocus_and_ncard_le_dimensionSensitive
+      α y hP hs hkA hAn
+  refine ⟨hfinite, hbound.trans ?_⟩
+  exact mul_le_mul_of_nonneg_left
+    (dimensionSensitiveIncidenceProduct_le_one hPdim hkA hAn)
+    (affineDegree_nonneg P)
 
 end AffineHilbert
