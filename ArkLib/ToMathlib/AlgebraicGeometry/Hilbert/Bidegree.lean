@@ -10,6 +10,7 @@ import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.FiniteExtensionDegree
 import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.PolynomialGrowthRescaling
 import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalCut.Purity
 import ArkLib.ToMathlib.Polynomial.RectangleDifference
+import ArkLib.ToMathlib.Polynomial.RectangleDifferenceGeneral
 import Mathlib.Data.Finsupp.Option
 
 /-!
@@ -553,6 +554,36 @@ theorem affineDegree_le_of_eventually_hilbertFunction_le
         (s.factorial : ℚ) * (hilbertPolynomial I).coeff s := by
           rw [← hdim, Polynomial.coeff_natDegree]
     _ ≤ (s.factorial : ℚ) * c := mul_le_mul_of_nonneg_left hc (by positivity)
+
+/-- Sharp mixed degree of a pulled-back hypersurface with `r + 1` jet coordinates. -/
+theorem bidegreeHypersurface_affineDegree_le
+    {r a b h v : ℕ} {g : MvPolynomial (Option (Fin (r + 1))) F}
+    (ha : 0 < a) (hb : 0 < b) (hne : g ≠ 0)
+    (hproper : Ideal.span ({g} : Set (MvPolynomial (Option (Fin (r + 1))) F)) ≠ ⊤)
+    (hg : g ∈ restrictBidegree (F := F) (σ := Fin (r + 1)) h v) :
+    affineDegree (bidegreeHypersurfaceIdeal a b g) ≤
+      (h * b ^ (r + 1) + (r + 1) * v * a * b ^ r : ℕ) := by
+  have hdim :
+      (hilbertPolynomial (bidegreeHypersurfaceIdeal a b g)).natDegree = r + 1 := by
+    rw [bidegreeHypersurface_hilbertPolynomial_natDegree a b g ha hb hproper]
+    have hs := hilbertPolynomial_span_singleton_natDegree_add_one hne hproper
+    simp only [Nat.card_eq_fintype_card, Fintype.card_option, Fintype.card_fin] at hs
+    omega
+  apply (affineDegree_le_of_eventually_hilbertFunction_le hdim
+    (Polynomial.rectangleDifference_natDegree_le_succ r a b h v)
+    (Polynomial.rectangleDifference_coeff_succ r a b h v) ?_).trans_eq
+  · push_cast
+    field_simp
+  · filter_upwards [eventually_ge_atTop (max h v)] with N hN
+    have hh : h ≤ a * N := (le_max_left h v).trans hN |>.trans
+      (Nat.le_mul_of_pos_left N ha)
+    have hv : v ≤ b * N := (le_max_right h v).trans hN |>.trans
+      (Nat.le_mul_of_pos_left N hb)
+    rw [Polynomial.eval_rectangleDifference_natCast (r + 1) a b h v N hh hv]
+    have ht := bidegreeHypersurface_hilbertFunction_le_rectangleDifference
+      ha hb hne hg hh hv
+    simp only [Nat.card_eq_fintype_card, Fintype.card_fin] at ht
+    exact_mod_cast ht
 
 /-- Sharp mixed degree of a pulled-back plane hypersurface (one jet coordinate). -/
 theorem bidegreeHypersurface_affineDegree_le_one
