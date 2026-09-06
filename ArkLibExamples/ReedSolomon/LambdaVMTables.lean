@@ -26,6 +26,8 @@ outer payload. No claim about the shared LogUp prefix or a complete VM transcrip
 introduced here.
 -/
 
+open Polynomial
+
 namespace ArkLibExamples.ReedSolomon.LambdaVMTables
 
 /-- One of the five local table parameter choices. -/
@@ -84,6 +86,28 @@ theorem local_error_of_count_bounds (i : Fin 5) {exceptional list : ℕ}
   apply lt_of_le_of_lt _ (budget_at_target i)
   unfold localError
   gcongr
+
+/-- The table list budgets are exactly the bounds derived from interpolation. -/
+theorem list_budget_eq (i : Fin 5) :
+    (tables i).listBudget = LambdaVMLists.listBounds i := by
+  fin_cases i <;> rfl
+
+/-- For an actual finite list, only the exceptional-count hypothesis remains to be supplied.
+The list contribution is discharged by the sharp interpolation theorem. -/
+theorem local_error_of_exceptional_bound {F : Type*} [Field F] (i : Fin 5)
+    (domain : Fin (LambdaVMLists.profiles i).n ↪ F)
+    (received : Fin (LambdaVMLists.profiles i).n → F)
+    (hchar : ringChar F = 0 ∨
+      max (LambdaVMLists.profiles i).n (LambdaVMLists.profiles i).totalJetCap < ringChar F)
+    (S : Finset F[X])
+    (hS : ∀ P ∈ S, ReedSolomon.HiddenDerivative.IsAgreementSolution domain received
+      (LambdaVMLists.profiles i).k (LambdaVMLists.profiles i).agreement P)
+    {exceptional : ℕ} (hE : exceptional ≤ (tables i).exceptionalBudget) :
+    localError (tables i) exceptional S.card < (1 / 2 ^ 128 : ℚ) := by
+  apply local_error_of_count_bounds i hE
+  have hL := LambdaVMLists.finite_list_bound i domain received hchar S hS
+  rw [← list_budget_eq i] at hL
+  exact_mod_cast hL
 
 /-- Every replacement agreement is strictly beyond the finite Johnson radius. -/
 theorem agreement_beyond_johnson (i : Fin 5) :
