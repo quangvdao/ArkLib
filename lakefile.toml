@@ -1,7 +1,7 @@
 name = "Arklib"
 testDriver = "ArkLibTest"
 lintDriver = "batteries/runLinter"
-defaultTargets = ["ArkLib"]
+defaultTargets = ["ArkLib", "ArkLibExamples"]
 
 [leanOptions]
 pp.unicode.fun = true
@@ -42,6 +42,12 @@ roots = ["ArkLibLintPlugin"]
 
 [[lean_lib]]
 name = "ArkLib"
+plugins = ["ArkLibLintPlugin:shared"]
+
+# Maintained, concrete applications of ArkLib theorems. These build by default but remain outside
+# the reusable ArkLib import graph.
+[[lean_lib]]
+name = "ArkLibExamples"
 plugins = ["ArkLibLintPlugin:shared"]
 
 # Compile-time acceptance clients, kept out of the production import graph.

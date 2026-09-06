@@ -35,6 +35,16 @@ def LineExactAgreementBound {F : Type} [Field F] [Fintype F] [DecidableEq F]
         polynomialAgreementSet domain (fun i ↦ f i + z * g i) P =
           commonPolynomialAgreementSet domain f g P₀ P₁
 
+/-- Enlarging the exceptional-cardinality budget preserves exact line agreement. -/
+theorem LineExactAgreementBound.mono
+    {F : Type} [Field F] [Fintype F] [DecidableEq F]
+    {n k A : ℕ} {domain : Fin n ↪ F} {B B' : ℝ}
+    (h : LineExactAgreementBound domain k A B) (hBB' : B ≤ B') :
+    LineExactAgreementBound domain k A B' := by
+  intro f g
+  obtain ⟨exceptional, hcard, hgood⟩ := h f g
+  exact ⟨exceptional, hcard.trans hBB', hgood⟩
+
 open Classical in
 /-- Every canonical line bad seed belongs to the line's exceptional set. -/
 theorem affineLine_bad_set_card_le_of_exactAgreement

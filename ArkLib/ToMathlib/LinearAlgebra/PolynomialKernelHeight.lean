@@ -35,7 +35,8 @@ namespace Matrix
 
 variable {F : Type*} [Field F]
 
-private theorem exists_rows_fin_rank {K : Type*} [Field K] {m N : ℕ}
+/-- Select actual rows forming a basis of the row space, indexed by the matrix rank. -/
+theorem exists_rows_fin_rank {K : Type*} [Field K] {m N : ℕ}
     (A : Matrix (Fin m) (Fin N) K) :
     ∃ rows : Fin A.rank → Fin m,
       LinearIndependent K (fun i ↦ A.row (rows i)) ∧
