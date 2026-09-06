@@ -266,7 +266,7 @@ def differentialWeightedDegree [CommSemiring F] (D : ℕ) (Q : DifferentialPolyn
   Q.weightedTotalDegree (differentialWeight D)
 
 /-- An injective coefficient map preserves the root-specialization weighted degree exactly. -/
-theorem differentialWeightedDegree_map_eq [CommSemiring F] {E : Type*} [CommSemiring E]
+theorem differentialWeightedDegree_map_eq [CommSemiring F] {E : Type*} [CommSemiring E] {D : ℕ}
     (f : F →+* E) (hf : Function.Injective f) (Q : DifferentialPolynomial F d) :
     differentialWeightedDegree D (MvPolynomial.map f Q) =
       differentialWeightedDegree D Q := by
