@@ -212,10 +212,13 @@ import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.Incidence
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.PointRecognition
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.RegularEquation
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.SharpTupleCounting
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.Specialization
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Symbolic.Certificate
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Symbolic.CurveStageCharge
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Symbolic.Equation
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Symbolic.FirstOrderCurveBound
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Symbolic.FirstOrderCurveStageSum
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Symbolic.FirstOrderEnvelope
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Symbolic.RegularEquation
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.TaylorChart.ComponentAgreement
@@ -245,6 +248,7 @@ ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.C
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.CurveRank
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.CurveStages
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.CurveSymbolic
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.CurveTransfer
 import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.FiniteCertificate
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.HeightCounting
@@ -328,6 +332,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.RootCou
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.SpecializationDegree
 import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.CoefficientExtension
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.FirstOrderStageSum
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.JetPrefix
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.SeparantChain
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.TaylorBidegree
@@ -625,6 +630,7 @@ import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.StandardMonomials
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.Agreement
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.Excluded
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.GraphPullback
+import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.SharpExcluded
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.SharpPrimeFamily
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.SharpRatio
 import ArkLib.ToMathlib.AlgebraicGeometry.PrincipalCut.Bezout

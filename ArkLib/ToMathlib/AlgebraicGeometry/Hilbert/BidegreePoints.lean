@@ -92,4 +92,60 @@ theorem mem_zeroLocus_bidegreeHypersurfaceIdeal_iff_source (a b : ℕ)
   rw [Ideal.span_singleton_le_iff_mem]
   rfl
 
+/-- Every point of the rectangle presentation is induced by a source point. -/
+theorem exists_bidegreePoint_of_mem_zeroLocus_bidegreeIdeal (a b : ℕ)
+    (ha : 0 < a) (hb : 0 < b) (z : BidegreeIndex a b σ → E)
+    (hz : z ∈ zeroLocus E (bidegreeIdeal (F := F) (σ := σ) a b)) :
+    ∃ x : Option σ → E, bidegreePoint (F := F) a b x = z := by
+  let evalz : MvPolynomial (BidegreeIndex a b σ) F →ₐ[F] E := aeval z
+  have hker : bidegreeIdeal (F := F) (σ := σ) a b ≤ RingHom.ker evalz.toRingHom := hz
+  have hker' : ∀ p, p ∈ bidegreeIdeal (F := F) (σ := σ) a b → evalz p = 0 :=
+    fun _ hp ↦ hker hp
+  let qeval : (MvPolynomial (BidegreeIndex a b σ) F ⧸ bidegreeIdeal a b) →ₐ[F] E :=
+    Ideal.Quotient.liftₐ (bidegreeIdeal a b) evalz hker'
+  let e₀ : (MvPolynomial (BidegreeIndex a b σ) F ⧸ bidegreeIdeal a b) ≃ₐ[F]
+      MvPolynomial (Option σ) F :=
+    Ideal.quotientKerAlgEquivOfSurjective (bidegreeMap_surjective a b ha hb)
+  let ψ : MvPolynomial (Option σ) F →ₐ[F] E := qeval.comp e₀.symm.toAlgHom
+  let x : Option σ → E := fun i ↦ ψ (MvPolynomial.X i)
+  have hψ : aeval x = ψ := by
+    ext i
+    simp [x]
+  refine ⟨x, funext fun m ↦ ?_⟩
+  have he₀ : e₀ (Ideal.Quotient.mk (bidegreeIdeal a b)
+      (MvPolynomial.X m : MvPolynomial (BidegreeIndex a b σ) F)) =
+      bidegreeMap a b (MvPolynomial.X m) :=
+    Ideal.quotientKerAlgEquivOfSurjective_mk (bidegreeMap_surjective a b ha hb) _
+  have he₀inv : e₀.symm (bidegreeMap a b
+      (MvPolynomial.X m : MvPolynomial (BidegreeIndex a b σ) F)) =
+      Ideal.Quotient.mk (bidegreeIdeal a b) (MvPolynomial.X m) := by
+    apply e₀.injective
+    rw [e₀.apply_symm_apply]
+    exact he₀.symm
+  calc
+    bidegreePoint (F := F) a b x m =
+        aeval x (bidegreeMap a b (MvPolynomial.X m)) := by
+          simpa using (aeval_bidegreePoint (F := F) (E := E) a b x
+            (MvPolynomial.X m : MvPolynomial (BidegreeIndex a b σ) F))
+    _ = ψ (bidegreeMap a b (MvPolynomial.X m)) := by rw [hψ]
+    _ = qeval (Ideal.Quotient.mk (bidegreeIdeal a b) (MvPolynomial.X m)) := by
+      change qeval (e₀.symm (bidegreeMap a b (MvPolynomial.X m))) = _
+      rw [he₀inv]
+    _ = z m := by
+      have hc := DFunLike.congr_fun
+        (Ideal.Quotient.liftₐ_comp (bidegreeIdeal a b) evalz hker')
+        (MvPolynomial.X m)
+      simpa [qeval, evalz] using hc
+
+/-- Positive rectangle sides make the source-to-presentation point map injective. -/
+theorem bidegreePoint_injective (a b : ℕ) (ha : 0 < a) (hb : 0 < b) :
+    Function.Injective (bidegreePoint (F := F) (E := E) (σ := σ) a b) := by
+  intro x y hxy
+  funext i
+  obtain ⟨P, hP⟩ := bidegreeMap_surjective (F := F) a b ha hb
+    (MvPolynomial.X i : MvPolynomial (Option σ) F)
+  have he := congrArg (fun z ↦ aeval z P) hxy
+  rw [aeval_bidegreePoint, aeval_bidegreePoint, hP] at he
+  simpa using he
+
 end AffineHilbert
