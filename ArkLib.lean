@@ -184,6 +184,8 @@ import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.Midpoin
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.Parameters
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.PrescribedCurve
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.PrescribedLine
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.QuarterGap
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.QuarterGapParameters
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.SharpCountingBound
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.ExtensionDescent
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.FirstOrder
