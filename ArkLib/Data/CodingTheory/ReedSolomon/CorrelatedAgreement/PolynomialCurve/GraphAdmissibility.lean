@@ -54,23 +54,6 @@ theorem powerBatchedTaylorCoefficient_eval (iota : F →+* E) (center z : E)
   simp only [powerBatchedPolynomial, map_sum, map_smul, Polynomial.finsetSum_coeff,
     Polynomial.coeff_smul, smul_eq_mul]
 
-/-- Admissibility consists only of intrinsic degree, agreement, and polynomial identities
-on the actual power-batched tuple graph. -/
-structure IsAdmissibleChartTuple [DecidableEq F]
-    (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F)
-    (iota : F →+* E) (center : E) (Q : DifferentialPolynomial E[X] r)
-    (K k L : ℕ) (P : Fin (ℓ + 1) → F[X]) : Prop where
-  degree : ∀ t, (P t).degree < k
-  common : L ≤ (commonCurveAgreementSet domain w P).card
-  initial : chartTuplePullback iota center P (symbolicSourceInitialEquation center Q) = 0
-  high : ∀ l : Fin K, k ≤ l.val →
-    chartTuplePullback iota center P (symbolicSourceNumerator center Q K l) = 0
-  regular : chartTuplePullback iota center P (symbolicSourceSeparant center Q) ≠ 0
-  reconstruction : ∀ l : Fin K,
-    chartTuplePullback iota center P (symbolicSourceNumerator center Q K l) =
-      (chartTuplePullback iota center P (symbolicSourceSeparant center Q)) ^ (2 * K) *
-        powerBatchedTaylorCoefficient iota center P l.val
-
 /-- Admissibility at an explicit common Taylor exponent. All high equations and reconstruction
 identities use the same numerator padding. -/
 structure IsAdmissibleChartTupleAtExponent [DecidableEq F]
@@ -110,67 +93,6 @@ theorem eval_chartTuplePullback_symbolic (iota : F →+* E) (center z : E)
         (MvPolynomial.map (Polynomial.evalRingHom z) p) := by
   rw [eval_chartTuplePullback, MvPolynomial.aeval_optionEquivRight_symm]
   rfl
-
-/-- Every regular specialization of an admissible graph reconstructs the actual
-power-batched polynomial. -/
-theorem IsAdmissibleChartTuple.specialize [DecidableEq F]
-    {domain : Fin n ↪ F} {w : Fin (ℓ + 1) → Fin n → F}
-    {iota : F →+* E} {center : E} {Q : DifferentialPolynomial E[X] r}
-    {K k L : ℕ} {P : Fin (ℓ + 1) → F[X]}
-    (hP : IsAdmissibleChartTuple domain w iota center Q K k L P)
-    (hkK : k ≤ K) (z : E)
-    (hz : (chartTuplePullback iota center P (symbolicSourceSeparant center Q)).eval z ≠ 0) :
-    let Qz := MvPolynomial.map (Polynomial.evalRingHom z) Q
-    let jet := chartTupleJet iota center z P
-    aeval jet (initialJetEquation center Qz) = 0 ∧
-      aeval jet (initialJetSeparant center Qz) ≠ 0 ∧
-      (∀ l : Fin K, k ≤ l.val → aeval jet (commonTaylorNumerator center Qz K l) = 0) ∧
-      rationalTaylorPolynomial center Qz K jet =
-        powerBatchedPolynomial (fun t ↦ (P t).map iota) z := by
-  let Qz := MvPolynomial.map (Polynomial.evalRingHom z) Q
-  let jet : Fin (r + 1) → E := chartTupleJet iota center z P
-  have hsep : aeval jet (initialJetSeparant center Qz) ≠ 0 := by
-    rw [symbolicSourceSeparant, eval_chartTuplePullback_symbolic] at hz
-    rw [map_initialJetSeparantOver,
-      show (Polynomial.evalRingHom z) (Polynomial.C center) = center from Polynomial.eval_C] at hz
-    exact hz
-  have hinit : aeval jet (initialJetEquation center Qz) = 0 := by
-    have h := congrArg (fun p : E[X] ↦ p.eval z) hP.initial
-    rw [symbolicSourceInitialEquation, eval_chartTuplePullback_symbolic] at h
-    rw [map_initialJetEquationOver,
-      show (Polynomial.evalRingHom z) (Polynomial.C center) = center from Polynomial.eval_C,
-      Polynomial.eval_zero] at h
-    exact h
-  have hhigh : ∀ l : Fin K, k ≤ l.val →
-      aeval jet (commonTaylorNumerator center Qz K l) = 0 := by
-    intro l hl
-    have h := congrArg (fun p : E[X] ↦ p.eval z) (hP.high l hl)
-    rw [symbolicSourceNumerator, eval_chartTuplePullback_symbolic] at h
-    simpa only [eval_commonTaylorNumeratorOver, Polynomial.eval_zero] using h
-  refine ⟨hinit, hsep, hhigh, ?_⟩
-  apply Polynomial.taylor_injective center
-  ext l
-  by_cases hl : l < K
-  · have h := congrArg (fun p : E[X] ↦ p.eval z) (hP.reconstruction ⟨l, hl⟩)
-    simp only [Polynomial.eval_mul, Polynomial.eval_pow,
-      powerBatchedTaylorCoefficient_eval] at h
-    rw [symbolicSourceNumerator, eval_chartTuplePullback_symbolic,
-      eval_commonTaylorNumeratorOver, symbolicSourceSeparant,
-      eval_chartTuplePullback_symbolic, map_initialJetSeparantOver,
-      show (Polynomial.evalRingHom z) (Polynomial.C center) = center from Polynomial.eval_C] at h
-    rw [aeval_commonTaylorNumerator _ _ _ _ _ hsep] at h
-    have he := (mul_left_cancel₀ (pow_ne_zero _ hsep)) h
-    simpa only [rationalTaylorPolynomial, coeff_taylor_centeredCoefficientPrefix,
-      if_pos hl] using he
-  · have hleft := degree_rationalTaylorPolynomial_lt_of_high_cuts center Qz K k jet
-      hsep hhigh
-    have hright := powerBatchedPolynomial_degree_lt
-      (fun t ↦ (P t).map iota) z k (fun t ↦ Polynomial.degree_map_le.trans_lt (hP.degree t))
-    have hkl : (k : WithBot ℕ) ≤ l := by exact_mod_cast (show k ≤ l by omega)
-    rw [Polynomial.coeff_eq_zero_of_degree_lt (by
-        simpa only [Polynomial.degree_taylor] using hleft.trans_le hkl),
-      Polynomial.coeff_eq_zero_of_degree_lt (by
-        simpa only [Polynomial.degree_taylor] using hright.trans_le hkl)]
 
 /-- Every regular specialization of an explicitly padded admissible graph reconstructs the
 actual power-batched polynomial. -/
@@ -236,27 +158,28 @@ theorem IsAdmissibleChartTupleAtExponent.specialize [DecidableEq F]
 
 /-- A recognized positive-dimensional prime component produces an intrinsically admissible
 tuple, including all reconstruction identities on the full polynomial graph. -/
-theorem exists_admissibleChartTuple_of_symbolic_prime_agreements
+theorem exists_admissibleChartTuple_of_symbolic_prime_agreements_of_exponent
     [IsAlgClosed E] [DecidableEq F] {K k L : ℕ}
     (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F)
     (indices : Finset (Fin n)) (hcard : indices.card = L) (hkL : k ≤ L)
-    (iota : F →+* E) (center : E) (Q : DifferentialPolynomial E[X] r) (hK : r < K)
+    (iota : F →+* E) (center : E) (Q : DifferentialPolynomial E[X] r)
+    (hK : r < K) (τ : ℕ) (hτ : TaylorExponentSufficient r K τ)
     (I : Ideal (MvPolynomial (Option (Fin (r + 1))) E)) (hI : I.IsPrime)
     (hs : symbolicSourceSeparant center Q ∉ I)
     (hd : 0 < (hilbertPolynomial I).natDegree)
     (hinit : symbolicSourceInitialEquation center Q ∈ I)
-    (hhigh : ∀ l : Fin K, k ≤ l.val → symbolicSourceNumerator center Q K l ∈ I)
+    (hhigh : ∀ l : Fin K, k ≤ l.val → symbolicSourceNumerator center Q K l (τ := τ) ∈ I)
     (hcuts : ∀ i ∈ indices,
-      symbolicSourceCurveAgreement center Q K (iota (domain i))
+      symbolicSourceCurveAgreement_of_exponent center Q K τ (iota (domain i))
         (fun t ↦ iota (w t i)) ∈ I) :
     ∃ P : Fin (ℓ + 1) → F[X],
-      IsAdmissibleChartTuple domain w iota center Q K k L P ∧
+      IsAdmissibleChartTupleAtExponent domain w iota center Q K k L τ P ∧
       ∀ x ∈ principalOpenZeroLocus I (symbolicSourceSeparant center Q),
         x = polynomialGraphPoint
           (powerBatchedJetGraph (r := r) center (fun t ↦ (P t).map iota)) (x none) := by
   obtain ⟨P, hdegree, hcommon, hgraph, hpoly, hvanish, hregular⟩ :=
-    exists_polynomialGraph_of_symbolic_prime_agreements domain w indices hcard hkL
-      iota center Q hK I hI hs hd hhigh hcuts
+    exists_polynomialGraph_of_symbolic_prime_agreements_of_exponent domain w indices
+      hcard hkL iota center Q hK τ hτ I hI hs hd hhigh hcuts
   refine ⟨P, ⟨hdegree, hcommon, hvanish _ hinit,
     (fun l hl ↦ hvanish _ (hhigh l hl)), hregular, ?_⟩, hgraph⟩
   intro l
@@ -273,19 +196,19 @@ theorem exists_admissibleChartTuple_of_symbolic_prime_agreements
   apply Polynomial.eq_of_infinite_eval_eq
   apply (hinfinite.image hinj).mono
   rintro z ⟨x, hx, rfl⟩
-  change (chartTuplePullback iota center P (symbolicSourceNumerator center Q K l)).eval
-      (x none) =
-    ((chartTuplePullback iota center P (symbolicSourceSeparant center Q)) ^ (2 * K) *
+  change (chartTuplePullback iota center P
+      (symbolicSourceNumerator center Q K l (τ := τ))).eval (x none) =
+    ((chartTuplePullback iota center P (symbolicSourceSeparant center Q)) ^ τ *
       powerBatchedTaylorCoefficient iota center P l.val).eval (x none)
   simp only [Polynomial.eval_mul, Polynomial.eval_pow]
   rw [eval_chartTuplePullback, eval_chartTuplePullback,
     powerBatchedTaylorCoefficient_eval]
   change aeval (polynomialGraphPoint
       (powerBatchedJetGraph (r := r) center (fun t ↦ (P t).map iota)) (x none))
-        (symbolicSourceNumerator center Q K l) =
+        (symbolicSourceNumerator center Q K l (τ := τ)) =
     aeval (polynomialGraphPoint
       (powerBatchedJetGraph (r := r) center (fun t ↦ (P t).map iota)) (x none))
-        (symbolicSourceSeparant center Q) ^ (2 * K) *
+        (symbolicSourceSeparant center Q) ^ τ *
       (Polynomial.taylor center
         (powerBatchedPolynomial (fun t ↦ (P t).map iota) (x none))).coeff l.val
   rw [← hgraph x hx]
@@ -296,12 +219,13 @@ theorem exists_admissibleChartTuple_of_symbolic_prime_agreements
       (MvPolynomial.map φ.toRingHom (initialJetSeparantOver (Polynomial.C center) Q)) ≠ 0 := by
     simpa only [symbolicSourceSeparant, MvPolynomial.aeval_optionEquivRight_symm,
       hφ] using hx.2
-  have hcoeff := aeval_map_commonTaylorNumeratorOver_reconstruction φ
-    (Polynomial.C center) Q K (fun j ↦ x (some j)) hS l
+  have hcoeff := aeval_map_commonTaylorNumeratorOver_reconstruction_of_exponent φ
+    (Polynomial.C center) Q K τ hτ (fun j ↦ x (some j)) hS l
   simp only [hφ, φ, Polynomial.aeval_def, Algebra.algebraMap_self,
     Polynomial.eval₂_id, Polynomial.eval_C] at hcoeff
   rw [hpoly x hx] at hcoeff
   simpa only [symbolicSourceNumerator, symbolicSourceSeparant,
     MvPolynomial.aeval_optionEquivRight_symm] using hcoeff
+
 
 end ReedSolomon

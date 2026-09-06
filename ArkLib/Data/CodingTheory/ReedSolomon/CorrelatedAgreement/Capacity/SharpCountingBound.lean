@@ -4,23 +4,24 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
+import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.ProductBounds
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.Midpoint
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.SharpGeneralEquation
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.Parameters
 
 /-!
-# Sharp scalar budgets for polynomial-curve correlated agreement
+# Midpoint scalar budgets for the quarter-gap specialization
 
-This file turns the exact mixed-bidegree bound for each separant stage into the
-block-length-independent coefficient used in the paper.  It keeps the actual stage order
-until the finite-stage aggregation.
+This file bounds the dimension-sensitive stage products by midpoint ratios for the retained
+quarter-gap specialization. It keeps the actual stage order until finite-stage aggregation.
+The prescribed small-gap theorem uses the sharper cutoff and coefficient in `ProductCounting`.
 -/
 
 namespace ReedSolomon
 
 open scoped BigOperators
 
-/-- The exact paper coefficient after midpoint normalization and uniformization over at most
+/-- The coefficient after midpoint normalization and uniformization over at most
 `v` stages of order at most `d`. -/
 noncomputable def polynomialCurveSharpMCAConstant (δ : ℝ) (v h d : ℕ) : ℝ :=
   (h : ℝ) + 2 ^ d * (v : ℝ) ^ (d + 2) *
@@ -55,7 +56,7 @@ theorem sourceCurveCutChallengeDegree_mul_le (n K ℓ H h : ℕ)
       Nat.add_le_add_right hℓnh _
     _ = 3 * n * ℓ * h := by ring
 
-/-- The exact mixed degree of a source stage admits the paper's sharp scalar bound when its
+/-- The exact mixed degree of a source stage admits the midpoint scalar bound when its
 jet degree and challenge height are bounded by the certificate caps. -/
 theorem sourceCurveInitialMixedDegree_le_uniformCaps (r n K ℓ j H v h : ℕ)
     (hn : 0 < n) (hKn : K ≤ n) (hj : 0 < j) (hh : 0 < h)
@@ -128,7 +129,7 @@ noncomputable def polynomialCurveSharpStageBound
     ((h : ℝ) * (3 * r + 5) * (2 / δ) ^ (r + 1) + (2 / δ) ^ r) *
       (n : ℝ) ^ (r + 1)
 
-/-- The exact arbitrary-order regular-chart budget at the midpoint is bounded by the paper's
+/-- The exact arbitrary-order regular-chart budget at the midpoint is bounded by the midpoint
 single-stage scalar.  The stage may use any positive jet degree `j ≤ v` and challenge height
 `H ≤ ell*h`. -/
 theorem regularSymbolicCurveMCASharpBound_midpoint_le_stageBound (δ : ℝ)
@@ -143,46 +144,51 @@ theorem regularSymbolicCurveMCASharpBound_midpoint_le_stageBound (δ : ℝ)
   let L := correlatedMidpoint δ n k
   have hratios := correlatedMidpoint_ratios_le_two_div δ n k A hδ hn hk hgap hAn
   have hL := correlatedMidpoint_bounds δ n k A hδ.le hgap hAn
-  have hJnat := sourceCurveInitialMixedDegree_le_uniformCaps r n K ℓ j H v h
-    hn hKn hj hh hjv hH
+  have hkA := hL.1.trans hL.2.1
   have hJ : (sourceCurveInitialMixedDegree r ℓ K j H : ℝ) ≤
       (ℓ : ℝ) * h * (3 * r + 5) * 2 ^ r * v ^ (r + 1) * n ^ (r + 1) := by
-    exact_mod_cast hJnat
-  have hbNat : sourceCurveCutJetDegree K j ≤ 2 * n * v :=
-    (sourceCurveCutJetDegree_le n K j hn hKn hj).trans
+    exact_mod_cast sourceCurveInitialMixedDegree_le_uniformCaps r n K ℓ j H v h
+      hn hKn hj hh hjv hH
+  have hb : (sourceCurveCutJetDegree K j : ℝ) ≤ 2 * n * v := by
+    exact_mod_cast (sourceCurveCutJetDegree_le n K j hn hKn hj).trans
       (Nat.mul_le_mul_left (2 * n) hjv)
-  have hb : (sourceCurveCutJetDegree K j : ℝ) ≤ 2 * n * v := by exact_mod_cast hbNat
-  have hDpos : (0 : ℝ) < ((L - k + 1 : ℕ) : ℝ) := by positivity
-  have hinner :
-      ((((n - k + 1) * sourceCurveCutJetDegree K j : ℕ) : ℝ) /
-          ((L - k + 1 : ℕ) : ℝ)) ≤
-        (2 / δ) * (2 * (n : ℝ) * v) := by
-    have hm := mul_le_mul hratios.2 hb (by positivity) (by positivity)
-    calc
-      ((((n - k + 1) * sourceCurveCutJetDegree K j : ℕ) : ℝ) /
-          ((L - k + 1 : ℕ) : ℝ)) =
-        (((n - k + 1 : ℕ) : ℝ) / ((L - k + 1 : ℕ) : ℝ)) *
-          sourceCurveCutJetDegree K j := by
-            push_cast
-            field_simp
-      _ ≤ (2 / δ) * (2 * (n : ℝ) * v) := hm
-  have hfirst := mul_le_mul hJ
-    (pow_le_pow_left₀ (by positivity) hratios.1 (r + 1)) (by positivity) (by positivity)
+  have hη : ((n - k + 1 : ℕ) : ℝ) / (A - k + 1 : ℕ) ≤ 2 / δ := by
+    apply le_trans ?_ hratios.2
+    apply div_le_div_of_nonneg_left (by positivity) (by positivity)
+    exact_mod_cast (Nat.add_le_add_right (Nat.sub_le_sub_right hL.2.1 k) 1)
+  have hPA : (AffineHilbert.dimensionSensitiveIncidenceProduct n A k 1 r : ℝ) ≤
+      (2 / δ) ^ r := by
+    have hp : (AffineHilbert.dimensionSensitiveIncidenceProduct n A k 1 r : ℝ) ≤
+        (((n-k+1 : ℕ) : ℝ) / (A-k+1 : ℕ)) ^ r := by
+      simpa only [Rat.cast_pow, Rat.cast_div, Rat.cast_natCast] using
+        ((Rat.cast_le (K := ℝ)).mpr
+          (AffineHilbert.dimensionSensitiveIncidenceProduct_le_first_pow n A k r hkA hAn))
+    exact hp.trans (pow_le_pow_left₀ (by positivity) hη r)
+  have hPL : (AffineHilbert.dimensionSensitiveIncidenceProduct n L k 1 r : ℝ) ≤
+      (2 / δ) ^ r := by
+    have hp : (AffineHilbert.dimensionSensitiveIncidenceProduct n L k 1 r : ℝ) ≤
+        (((n-k+1 : ℕ) : ℝ) / (L-k+1 : ℕ)) ^ r := by
+      simpa only [Rat.cast_pow, Rat.cast_div, Rat.cast_natCast] using
+        ((Rat.cast_le (K := ℝ)).mpr
+          (AffineHilbert.dimensionSensitiveIncidenceProduct_le_first_pow n L k r hL.1 hL.2.2.1))
+    exact hp.trans (pow_le_pow_left₀ (by positivity) hratios.2 r)
+  have hPA0 : (0 : ℝ) ≤ AffineHilbert.dimensionSensitiveIncidenceProduct n A k 1 r := by
+    exact_mod_cast AffineHilbert.dimensionSensitiveIncidenceProduct_nonneg n A k 1 r
+  have hPL0 : (0 : ℝ) ≤ AffineHilbert.dimensionSensitiveIncidenceProduct n L k 1 r := by
+    exact_mod_cast AffineHilbert.dimensionSensitiveIncidenceProduct_nonneg n L k 1 r
+  have hfirst := mul_le_mul (mul_le_mul hJ hratios.1 (by positivity) (by positivity)) hPA
+    (by positivity) (by positivity)
   have hnL : ((n - L : ℕ) : ℝ) ≤ n := by exact_mod_cast Nat.sub_le n L
-  have hjreal : (j : ℝ) ≤ v := by exact_mod_cast hjv
-  have hcoeff : (((ℓ * (n - L) : ℕ) : ℝ) * (j : ℝ)) ≤ (ℓ : ℝ) * n * v := by
-    push_cast
-    exact mul_le_mul (mul_le_mul_of_nonneg_left hnL (by positivity)) hjreal
-      (by positivity) (by positivity)
-  have hsecond := mul_le_mul hcoeff
-    (pow_le_pow_left₀ (by positivity) hinner r) (by positivity) (by positivity)
+  have hjR : (j : ℝ) ≤ v := by exact_mod_cast hjv
+  have hcoeff : (ℓ : ℝ) * (n-L : ℕ) * j * (sourceCurveCutJetDegree K j : ℝ)^r ≤
+      ℓ * n * v * (2*n*v)^r := by gcongr
+  have hsecond := mul_le_mul hcoeff hPL (by positivity) (by positivity)
   unfold regularSymbolicCurveMCASharpBound
-  push_cast at hfirst hsecond ⊢
+  simp only [Rat.cast_add, Rat.cast_mul, Rat.cast_div, Rat.cast_natCast, Rat.cast_pow,
+    Nat.cast_mul]
   calc
-    _ ≤ ((ℓ : ℝ) * h * (3 * r + 5) * 2 ^ r * v ^ (r + 1) * n ^ (r + 1)) *
-          (2 / δ) ^ (r + 1) +
-        ((ℓ : ℝ) * n * v) * ((2 / δ) * (2 * n * v)) ^ r :=
-      add_le_add hfirst hsecond
+    _ ≤ ((ℓ : ℝ) * h * (3*r+5) * 2^r * v^(r+1) * n^(r+1)) *
+        (2/δ) * (2/δ)^r + (ℓ*n*v*(2*n*v)^r) * (2/δ)^r := add_le_add hfirst hsecond
     _ = polynomialCurveSharpStageBound δ n ℓ v h r := by
       unfold polynomialCurveSharpStageBound
       simp only [mul_pow, pow_succ]
@@ -195,7 +201,7 @@ noncomputable def polynomialCurveSharpUniformStageBound
     ((h : ℝ) * (3 * d + 5) * (2 / δ) ^ (d + 1) + (2 / δ) ^ d) *
       (n : ℝ) ^ (d + 1)
 
-/-- A stage of order at most `d` is bounded by the uniform paper scalar. -/
+/-- A stage of order at most `d` is bounded by the uniform midpoint scalar. -/
 theorem polynomialCurveSharpStageBound_le_uniform (δ : ℝ) (n ℓ v h r d : ℕ)
     (hδ : 0 < δ) (hδone : δ ≤ 1) (hn : 0 < n) (hv : 0 < v) (hr : r ≤ d) :
     polynomialCurveSharpStageBound δ n ℓ v h r ≤
@@ -239,7 +245,7 @@ theorem polynomialCurveSharpStageBound_le_uniform (δ : ℝ) (n ℓ v h r d : �
     (by positivity) (by positivity)
 
 /-- Aggregate arbitrary positive stage jet degrees and actual orders without losing the exact
-paper coefficient.  The terminal height and every stage height are bounded by `ell*h`. -/
+midpoint coefficient.  The terminal height and every stage height are bounded by `ell*h`. -/
 theorem regularSymbolicCurveMCASharp_finiteStage_uniform_le
     {ι : Type*} (S : Finset ι) (order jetDegree height : ι → ℕ)
     (δ : ℝ) (n K k A ℓ v h d : ℕ)
@@ -293,29 +299,15 @@ theorem regularSymbolicCurveMCASharp_finiteStage_uniform_le
       unfold B polynomialCurveSharpUniformStageBound polynomialCurveSharpMCAConstant
       ring
 
-/-- The gap-only scalar used by the prescribed polynomial-curve and line certificates. -/
-noncomputable def prescribedMCAConstant (δ : ℝ) : ℝ :=
-  let d := Nat.ceil (Real.exp ((169 / 25) / δ))
-  let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
-  let v := 2 * m - 1
-  polynomialCurveSharpMCAConstant δ v (338 * v) d
-
-/-- The prescribed small-gap scalar is strictly positive. -/
-theorem prescribedMCAConstant_pos {δ : ℝ} (hδ : 0 < δ) (hδquarter : δ < 1 / 4) :
-    0 < prescribedMCAConstant δ := by
-  let d := Nat.ceil (Real.exp ((169 / 25) / δ))
-  let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
-  let v := 2 * m - 1
-  have hlower := HiddenDerivative.band_prescribed_order_lower δ hδ hδquarter.le
-  have hratio : (0 : ℝ) < (169 / 25) / δ := by positivity
-  have hH : 0 < harmonicNumber (d - 1) := by
-    rw [harmonicNumber_eq_harmonic]
-    exact hratio.trans_le hlower.2.2
-  have hmReal : (0 : ℝ) < m := lt_of_lt_of_le (by positivity) (Nat.le_ceil _)
-  have hm : 0 < m := by exact_mod_cast hmReal
-  have hv : 0 < v := by dsimp only [v]; omega
-  change 0 < polynomialCurveSharpMCAConstant δ v (338 * v) d
-  unfold polynomialCurveSharpMCAConstant
-  positivity
+/-- Increasing the certified Taylor exponent only increases the explicit mixed-degree budget. -/
+theorem regularSymbolicCurveMCASharpBound_mono_exponent
+    (r n ℓ K k L A v h τ τ' : ℕ) (hτ : τ ≤ τ') :
+    regularSymbolicCurveMCASharpBound r n ℓ K k L A v h (τ := τ) ≤
+      regularSymbolicCurveMCASharpBound r n ℓ K k L A v h (τ := τ') := by
+  have hPA := AffineHilbert.dimensionSensitiveIncidenceProduct_nonneg n A k 1 r
+  have hPL := AffineHilbert.dimensionSensitiveIncidenceProduct_nonneg n L k 1 r
+  unfold regularSymbolicCurveMCASharpBound sourceCurveInitialMixedDegree
+    sourceCurveCutJetDegree sourceCurveCutChallengeDegree
+  gcongr
 
 end ReedSolomon

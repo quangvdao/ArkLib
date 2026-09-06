@@ -17,9 +17,10 @@ This module applies that transfer to the actual width-eight Reed--Solomon rows.
 
 ## Reading the statements
 
-The original profile uses agreement `492831`, radius `555745 / 1048576`, and exceptional budget
-`2^115`. The retuned profile uses agreement `491867`, radius `556709 / 1048576`, and budget
-`2^125`. For every positive affine dimension `s`, the generic theorems assume only that `F` has
+The original profile uses agreement `492831`, radius `555745 / 1048576`, and the exact published
+exceptional count. The retuned profile uses agreement `491867`, radius `556709 / 1048576`, and
+its exact tight exceptional count. For every positive affine dimension `s`, the generic theorems
+assume only that `F` has
 the pinned BN254 cardinality and satisfies the characteristic condition. Both conclusions are
 the full `mcaError` bound `2^-128`, hence quantify over all families of `s + 1` received
 width-eight words.
@@ -54,15 +55,8 @@ theorem original109_widthEight_affine_mcaError_le
     mcaError (AffineSpaceGenerator F s)
         ((ReedSolomon.code domain 262144) ^⋈ (Fin 8)) (original109Radius : ℝ) ≤
       ENNReal.ofReal ((1 : ℝ) / 2 ^ 128) := by
-  have hmca := ReedSolomon.mcaError_affineSpace_interleaved_le_of_exactAgreement domain
-    (t := 8) (s := s) (A := 492831) (2 ^ 115)
-      (original109_lineAgreement domain hchar) original109Radius
-      (by norm_num) hs
-      (by rw [← NNReal.coe_lt_coe]; norm_num)
-      (by rw [← NNReal.coe_lt_coe]; norm_num)
-      (by rw [original109Radius_coe]; norm_num)
-  rw [hcard] at hmca
-  exact hmca.trans (ENNReal.ofReal_le_ofReal (by norm_num [bn254]))
+  exact bn254_original109_widthEight_affine_mcaError_le_sharp domain
+    (hchar.imp_right (by omega)) hcard hs
 
 open Classical in
 /-- The retuned 108-query profile also meets the target for every positive affine dimension. -/
@@ -75,14 +69,14 @@ theorem retuned108_widthEight_affine_mcaError_le
         ((ReedSolomon.code domain 262144) ^⋈ (Fin 8)) (retuned108Radius : ℝ) ≤
       ENNReal.ofReal ((1 : ℝ) / 2 ^ 128) := by
   have hmca := ReedSolomon.mcaError_affineSpace_interleaved_le_of_exactAgreement domain
-    (t := 8) (s := s) (A := 491867) (2 ^ 125)
+    (t := 8) (s := s) (A := 491867) retunedExceptionalCount
       (retuned_lineAgreement domain (hchar.imp_right (by omega))) retuned108Radius
       (by norm_num) hs
       (by rw [← NNReal.coe_lt_coe]; norm_num)
       (by rw [← NNReal.coe_lt_coe]; norm_num)
       (by rw [retuned108Radius_coe]; norm_num)
   rw [hcard] at hmca
-  exact hmca.trans (ENNReal.ofReal_le_ofReal (by norm_num [bn254]))
+  exact hmca.trans (ENNReal.ofReal_le_ofReal (by norm_num [bn254, retunedExceptionalCount]))
 
 open Classical in
 /-- On the canonical BN254 scalar field, the original affine theorem needs only an evaluation

@@ -3,12 +3,15 @@ Copyright (c) 2026 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.BandCertificate
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.SupportCertificate
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.WeightedSupport.Block
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.GeometricCounting
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Harmonic
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TotalJetDegreeRootCount
 
 
-/-! # Prescribed band parameters for the geometric list count -/
+/-! # Prescribed weighted-support parameters for the geometric list count -/
 
 open PolynomialDifferential
 
@@ -16,43 +19,63 @@ open PolynomialDifferential
 namespace ReedSolomon
 open HiddenDerivative
 
-/-- The prescribed band parameters admit a Taylor cutoff at most n and a total
+/-- The prescribed weighted-support parameters admit a Taylor cutoff at most n and a total
 jet degree strictly below n, exactly as required by geometric counting. -/
 theorem prescribed_geometric_parameters
     (δ : ℝ) (n k : ℕ) (hδ : 0 < δ) (hδ' : δ < 1 / 4) (hk : 0 < k)
     (hblock : 8 * Nat.ceil
-      (100 * (Nat.ceil (Real.exp ((169 / 25) / δ)) : ℝ) ^ 2 *
-        harmonicNumber (Nat.ceil (Real.exp ((169 / 25) / δ)) - 1)) ≤ n)
+      (100 * (Nat.ceil (Real.exp ((27 / 10) / δ)) : ℝ) ^ 2 *
+        harmonicNumber (Nat.ceil (Real.exp ((27 / 10) / δ)) - 1)) ≤ n)
     (hA : agreementThreshold δ n k ≤ n) :
     let A := agreementThreshold δ n k
-    let d := Nat.ceil (Real.exp ((169 / 25) / δ))
+    let d := Nat.ceil (Real.exp ((27 / 10) / δ))
     let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
     let ν := 2 * m - 1
-    let K := max k (d + 1)
+    let K := max k (Nat.floor (δ * n / 2))
     0 < n ∧ 0 < m ∧ 0 < ν ∧ ν ≤ 2 * m ∧ ν < n ∧
       d < K ∧ k ≤ K ∧ K ≤ n ∧ k ≤ A ∧ (k : ℝ) + δ * n ≤ A := by
-  dsimp only
-  let d := Nat.ceil (Real.exp ((169 / 25) / δ))
+  let d := Nat.ceil (Real.exp ((27 / 10) / δ))
   let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
-  let D := asymmetricBandAmbientDimension δ n k - 1
-  obtain ⟨_, _, hm, hdD, _⟩ :=
-    HiddenDerivative.SymbolicReceivedInterpolation.prescribed_symbolic_band_certificate_inputs
-      (F := ℚ) δ n k hδ hδ' hk hblock hA
-  change 0 < m at hm
-  change d < D at hdD
-  have hblock' : 8 * m ≤ n := hblock
-  have hn : 0 < n := by omega
-  obtain ⟨_, _, _, _, hρ⟩ := band_block_size_bounds δ n k hδ hδ' hk hblock hA
-  have hnR : (0 : ℝ) < n := by exact_mod_cast hn
-  have hDnR : (D : ℝ) < n := by
-    have hh : (D : ℝ) / n < 1 := lt_of_le_of_lt hρ (by linarith)
-    exact (div_lt_one hnR).mp hh
-  have hDn : D < n := by exact_mod_cast hDnR
+  let K := max k (Nat.floor (δ * n / 2))
+  have hb := WeightedSupportParameters.prescribedBlockBounds δ n k hδ hδ' hk
+    (by simpa only [WeightedSupportParameters.xi, harmonicNumber_eq_harmonic] using hblock)
+    hA
+  obtain ⟨hn, hD, hdD, _, _, hKn, _⟩ := hb
+  have ho := WeightedSupportParameters.prescribed_order_lower δ hδ hδ'.le
+  have hH : 0 < harmonicNumber (d - 1) := by
+    rw [harmonicNumber_eq_harmonic]
+    exact (div_pos (show (0 : ℝ) < 27 / 10 by norm_num) hδ).trans_le ho.2.2
+  have hd : 0 < d := by
+    have hh := ho.1
+    change 48000 ≤ d at hh
+    omega
+  have hmR : (0 : ℝ) < m := lt_of_lt_of_le (by positivity) (Nat.le_ceil _)
+  have hm : 0 < m := Nat.cast_pos.mp hmR
+  have hdK : d < K := by
+    have hh : d < K - 1 := hdD
+    omega
+  have hkK : k ≤ K := Nat.le_max_left _ _
   have hkA : k ≤ agreementThreshold δ n k := Nat.le_add_right _ _
-  have hg : (k : ℝ) + δ * n ≤ agreementThreshold δ n k :=
+  have hgap : (k : ℝ) + δ * n ≤ agreementThreshold δ n k :=
     (agreementThreshold_le_iff_real hδ.le n k _).mp le_rfl
-  dsimp only [d, m, D] at *
-  refine ⟨hn, hm, ?_, ?_, ?_, ?_, Nat.le_max_left _ _, ?_, hkA, hg⟩ <;> omega
+  have hblock' : 8 * m ≤ n := hblock
+  have hν : 0 < 2 * m - 1 := by omega
+  have hνn : 2 * m - 1 < n := by omega
+  exact ⟨hn, hm, hν, Nat.sub_le _ _, hνn, hdK, hkK, hKn, hkA, hgap⟩
+
+/-- The exact characteristic threshold for the prescribed geometric argument supplies its two
+independent uses: the total jet cap for separant descent and every binomial pivot below `K`.
+Characteristic zero remains an explicit branch. -/
+theorem geometric_characteristic_components {F : Type*} [Field F] {K ν : ℕ}
+    (hK : 0 < K) (hchar : ringChar F = 0 ∨ max (K - 1) ν < ringChar F) :
+    (ringChar F = 0 ∨ ν < ringChar F) ∧
+      (ringChar F = 0 ∨ K ≤ ringChar F) := by
+  constructor
+  · exact hchar.imp_right (fun hc ↦ (Nat.le_max_right (K - 1) ν).trans_lt hc)
+  · apply hchar.imp_right
+    intro hc
+    have hpred : K - 1 < ringChar F := (Nat.le_max_left (K - 1) ν).trans_lt hc
+    omega
 
 /-- The positive-characteristic contract follows from the prescribed total jet
 cap and a field characteristic at least n. -/

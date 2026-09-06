@@ -25,7 +25,7 @@ additionally requires a decoder with proved output refinement and bit complexity
 ## References
 
 * [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
-  up to Capacity*][DKTZ26], asymmetric-band interpolation and uniform capacity decoding.
+  up to Capacity*][DKTZ26], weighted-support interpolation and uniform capacity decoding.
 * [Brakensiek, Chen, Putterman, Zhang, and Zheng, *Algorithmic List Decoding of Reed-Solomon
   Codes up to Capacity in the Low-Rate Regime*][BCPZZ26], hidden-derivative interpolation.
 -/
@@ -98,17 +98,17 @@ def UniformHiddenDerivativeInterpolation : Prop :=
         Nonempty (HiddenDerivativeInterpolationCertificate (k := k)
           (A := agreementThreshold delta n k) d m domain received)
 
-/-- Asymmetric-band interpolants at the prescribed order, multiplicity, ambient dimension, and
+/-- Weighted-support interpolants at the prescribed order, multiplicity, ambient dimension, and
 block threshold. The order indexes an actual differential polynomial and its local constraints. -/
-def AsymmetricBandConstruction : Prop :=
+def WeightedSupportConstruction : Prop :=
   ∀ delta : ℝ, 0 < delta → delta < (1 / 4 : ℝ) →
-    ∀ n k q : ℕ, 8 * asymmetricBandMultiplicity delta ≤ n →
+    ∀ n k q : ℕ, 8 * weightedSupportMultiplicity delta ≤ n →
       0 < k → k ≤ n → q.Prime → n ≤ q → agreementThreshold delta n k ≤ n →
       ∀ (domain : Fin n ↪ ZMod q) (received : Fin n → ZMod q),
         ∃ construction : HiddenDerivativeInterpolationCertificate (k := k)
             (A := agreementThreshold delta n k)
-            (capacityDerivativeOrder delta) (asymmetricBandMultiplicity delta) domain received,
-          construction.ambientDim = asymmetricBandAmbientDimension delta n k
+            (capacityDerivativeOrder delta) (weightedSupportMultiplicity delta) domain received,
+          construction.ambientDim = weightedSupportAmbientDimension delta n k
 
 end
 end ReedSolomon

@@ -6,7 +6,8 @@ Authors: Quang Dao
 
 import ArkLib.ToMathlib.LinearAlgebra.ColumnDegreeKernel
 import ArkLib.ToMathlib.LinearAlgebra.ShiftedDegreeKernel
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.CurveBand
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.CurveWeightedSupport
 
 /-!
 # Column-sensitive interpolation on polynomial received curves

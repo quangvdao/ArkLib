@@ -13,31 +13,30 @@ This module checks every interpolation profile in `goldilocks-beyond-poseidon.js
 Poseidon2 powers row and the five folding rows on domains of sizes `65536`, `8192`, `1024`, `128`,
 and `32`.
 
-For each row, Lean evaluates the exact finite first-order support cardinality, the certified local
-rank bound, and the executable column-height double sum.  It proves
+For each line row, Lean evaluates the exact finite first-order support data and the shifted
+graded-row surplus
 
 ```text
-n * certifiedEnlargedRankBound 1 m M 0 * (h + 1)
-  < firstOrderHeightSlotCount (k - 1) A m M mu h.
+firstOrderCurveShiftedRowSlotBound (k - 1) A m M mu n 1 h
+  < firstOrderCurveShiftedHeightSlotCount (k - 1) A m M mu 1 h.
 ```
 
-The generic full-support constructor turns this numerical surplus into a primitive symbolic
+The full-support constructor turns this numerical surplus into a primitive symbolic
 interpolant over `F[Z]`.  Its specialization remains nonzero over every extension field, and every
 degree-`< k` polynomial agreeing with the specialized received line at `A` positions satisfies
 the resulting differential equation.
 
-The JSON batching degrees 181, 7, 7, 7, 7, and 3 are retained as profile metadata.  The theorem
-proved here is the underlying affine-line interpolation certificate at each recorded height.  It
-does not assert the separate polynomial-curve or powers-batching transfer for degrees above one.
+The initial degree-181 row additionally checks the polynomial-curve surplus at height 22707 and
+constructs that curve certificate. The folding rows expose their affine-line certificates.
 -/
 
-open PolynomialDifferential
+open PolynomialDifferential Polynomial
 
 namespace ArkLibExamples.ReedSolomon.ZisKInterpolation
 
 open CurveProfile
 open ReedSolomon.HiddenDerivative
-open ReedSolomon.HiddenDerivative.SymbolicBandInterpolation
+open ReedSolomon.HiddenDerivative.SymbolicWeightedSupportInterpolation
 
 noncomputable section
 
@@ -57,22 +56,21 @@ def initial : LineProfile where
   supportDimension := 75053054
   localRank := 140
   columnY₀Weight := 388950086
-  height := 42596
-  heightSlots := 3196645991152
+  height := 22707
+  heightSlots := 1615531117915
 
-/-- Lean recomputes the initial support dimension, rank, height slots, and strict surplus. -/
-theorem initial_verified : initial.Verification := by
-  constructor <;> decide
+/-- Lean recomputes the revised degree-181 shifted source and row slots at height 22707. -/
+theorem initial_verified : initial.CurveVerification := by decide
 
-/-- A primitive, universally specialization-sound affine-line certificate for the initial row.
-
-This is the line certificate beneath the degree-181 powers profile; it does not prove powers
-transfer.
--/
-theorem exists_initial_symbolicCertificate {F : Type u} [Field F]
-    (centers : Fin initial.n ↪ F) (f g : Fin initial.n → F) :
-    Nonempty (initial.SymbolicCertificate.{u, v} centers f g) :=
-  initial_verified.exists_symbolicCertificate centers f g
+/-- The revised ZisK row constructs its actual degree-181 polynomial-curve certificate at
+height 22707. -/
+theorem exists_initial_curveCertificate {F : Type u} [Field F]
+    (centers : Fin initial.n ↪ F) (w : Fin initial.n → F[X])
+    (hw : ∀ i, (w i).natDegree ≤ initial.batchingDegree) :
+    Nonempty (FirstOrderCurveCertificate initial.D initial.agreement initial.multiplicity
+      initial.firstDerivativeCap initial.totalJetCap initial.k initial.height centers w
+      initial.columns) :=
+  initial_verified.exists_certificate centers w hw
 
 /-! ## Folding rows -/
 

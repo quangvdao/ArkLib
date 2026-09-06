@@ -49,16 +49,18 @@ def symbolicSourceCurveAgreement (center : E) (Q : DifferentialPolynomial E[X] r
 /-- Actual prime components with a common sample yield a base-field polynomial tuple.
 Every equation of the component vanishes on the whole tuple graph, while its separant
 remains nonzero. The common sample need not be maximal. -/
-theorem exists_polynomialGraph_of_symbolic_prime_sample [IsAlgClosed E]
+theorem exists_polynomialGraph_of_symbolic_prime_sample_of_exponent [IsAlgClosed E]
     (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F)
     (sample : Finset (Fin n)) (hsample : sample.card = k)
-    (ι : F →+* E) (center : E) (Q : DifferentialPolynomial E[X] r) (hK : r < K)
+    (ι : F →+* E) (center : E) (Q : DifferentialPolynomial E[X] r)
+    (hK : r < K) (τ : ℕ) (hτ : TaylorExponentSufficient r K τ)
     (I : Ideal (MvPolynomial (Option (Fin (r + 1))) E)) (hI : I.IsPrime)
     (hs : symbolicSourceSeparant center Q ∉ I)
     (hd : 0 < (hilbertPolynomial I).natDegree)
-    (hhigh : ∀ l : Fin K, k ≤ l.val → symbolicSourceNumerator center Q K l ∈ I)
+    (hhigh : ∀ l : Fin K, k ≤ l.val → symbolicSourceNumerator center Q K l (τ := τ) ∈ I)
     (hcuts : ∀ i ∈ sample,
-      symbolicSourceCurveAgreement center Q K (ι (domain i)) (fun t ↦ ι (w t i)) ∈ I) :
+      symbolicSourceCurveAgreement_of_exponent center Q K τ
+        (ι (domain i)) (fun t ↦ ι (w t i)) ∈ I) :
     ∃ P : Fin (ℓ + 1) → F[X], (∀ t, (P t).degree < k) ∧
       (∀ i ∈ sample, ∀ t, (P t).eval (domain i) = w t i) ∧
       (∀ x ∈ principalOpenZeroLocus I (symbolicSourceSeparant center Q),
@@ -73,7 +75,8 @@ theorem exists_polynomialGraph_of_symbolic_prime_sample [IsAlgClosed E]
         (powerBatchedJetGraph (r := r) center (fun t ↦ (P t).map ι))
         (symbolicSourceSeparant center Q) ≠ 0 := by
   obtain ⟨P, hP, hsampleP, hrecognize⟩ :=
-    exists_polynomialGraph_of_symbolic_sample domain w sample hsample ι center Q hK
+    exists_polynomialGraph_of_symbolic_sample_of_exponent domain w sample hsample
+      ι center Q hK τ hτ
   have hgraph : ∀ x ∈ principalOpenZeroLocus I (symbolicSourceSeparant center Q),
       x = polynomialGraphPoint
         (powerBatchedJetGraph (r := r) center (fun t ↦ (P t).map ι)) (x none) := by
@@ -85,7 +88,7 @@ theorem exists_polynomialGraph_of_symbolic_prime_sample [IsAlgClosed E]
         simpa only [symbolicSourceNumerator, aeval_optionEquivRight_symm] using hz)
       (fun i hi ↦ by
         have hz := hx.1 _ (hcuts i hi)
-        simpa only [symbolicSourceCurveAgreement, symbolicSourceCurveAgreement_of_exponent,
+        simpa only [symbolicSourceCurveAgreement_of_exponent,
           aeval_optionEquivRight_symm] using hz)
     funext j
     cases j with
@@ -102,7 +105,8 @@ theorem exists_polynomialGraph_of_symbolic_prime_sample [IsAlgClosed E]
       simpa only [symbolicSourceNumerator, aeval_optionEquivRight_symm] using hz)
     (fun i hi ↦ by
       have hz := hx.1 _ (hcuts i hi)
-      simpa only [symbolicSourceCurveAgreement, symbolicSourceCurveAgreement_of_exponent,
+      simpa only [symbolicSourceCurveAgreement_of_exponent,
         aeval_optionEquivRight_symm] using hz)).1
+
 
 end ReedSolomon

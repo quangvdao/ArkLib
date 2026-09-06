@@ -739,16 +739,6 @@ theorem symbolicSourceNumerator_mem_sourceCurveHighCuts
   simp only [sourceCurveHighCuts, List.mem_map, Finset.mem_toList]
   exact ⟨⟨l, hl⟩, Finset.mem_univ _, rfl⟩
 
-/-- Source points on graphs of tuples satisfying the actual chart identities. -/
-def sourceCurveTupleLocus [DecidableEq F]
-    (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F)
-    (iota : F →+* E) (center : E) (Q : DifferentialPolynomial E[X] r)
-    (K k L : ℕ) : Set (Option (Fin (r + 1)) → E) :=
-  {x | ∃ P : Fin (ℓ + 1) → F[X],
-    IsAdmissibleChartTuple domain w iota center Q K k L P ∧
-      x = polynomialGraphPoint
-        (powerBatchedJetGraph (r := r) center (fun t ↦ (P t).map iota)) (x none)}
-
 /-- Source points on admissible tuple graphs whose Taylor numerators all use exponent `τ`. -/
 def sourceCurveTupleLocus_of_exponent [DecidableEq F]
     (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F)
@@ -759,54 +749,47 @@ def sourceCurveTupleLocus_of_exponent [DecidableEq F]
       x = polynomialGraphPoint
         (powerBatchedJetGraph (r := r) center (fun t ↦ (P t).map iota)) (x none)}
 
-/-- The explicitly parameterized tuple locus recovers the compatibility locus at exponent
-`2K`. -/
+/-- Source points on graphs satisfying the actual chart identities at the standard exponent
+`2K`. This name is retained as the broad arbitrary-order source-incidence interface. -/
+def sourceCurveTupleLocus [DecidableEq F]
+    (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F)
+    (iota : F →+* E) (center : E) (Q : DifferentialPolynomial E[X] r)
+    (K k L : ℕ) : Set (Option (Fin (r + 1)) → E) :=
+  sourceCurveTupleLocus_of_exponent domain w iota center Q K k L (2 * K)
+
+/-- The explicitly parameterized tuple locus at `2K` is definitionally the broad source
+incidence locus. -/
 theorem sourceCurveTupleLocus_of_exponent_two_mul_eq [DecidableEq F]
     (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F)
     (iota : F →+* E) (center : E) (Q : DifferentialPolynomial E[X] r)
     (K k L : ℕ) :
     sourceCurveTupleLocus_of_exponent domain w iota center Q K k L (2 * K) =
-      sourceCurveTupleLocus domain w iota center Q K k L := by
-  ext x
-  constructor
-  · rintro ⟨P, hP, hx⟩
-    refine ⟨P, ?_, hx⟩
-    exact ⟨hP.degree, hP.common, hP.initial, (by
-      intro l hl
-      simpa only [symbolicSourceNumerator] using hP.high l hl), hP.regular, (by
-      intro l
-      simpa only [symbolicSourceNumerator] using hP.reconstruction l)⟩
-  · rintro ⟨P, hP, hx⟩
-    refine ⟨P, ?_, hx⟩
-    exact ⟨hP.degree, hP.common, hP.initial, (by
-      intro l hl
-      simpa only [symbolicSourceNumerator] using hP.high l hl), hP.regular, (by
-      intro l
-      simpa only [symbolicSourceNumerator] using hP.reconstruction l)⟩
+      sourceCurveTupleLocus domain w iota center Q K k L := rfl
 
 /-- A positive-dimensional prime containing at least `L` curve agreement cuts has all its
 regular points on one actual admissible polynomial graph. -/
-theorem principalOpen_subset_sourceCurveTupleLocus
+theorem principalOpen_subset_sourceCurveTupleLocus_of_exponent
     [IsAlgClosed E] [DecidableEq F] {K k L : ℕ}
     (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F) (iota : F →+* E)
-    (center : E) (Q : DifferentialPolynomial E[X] r) (hK : r < K) (hkL : k ≤ L)
+    (center : E) (Q : DifferentialPolynomial E[X] r)
+    (hK : r < K) (hkL : k ≤ L) (τ : ℕ) (hτ : TaylorExponentSufficient r K τ)
     (I : Ideal (MvPolynomial (Option (Fin (r + 1))) E))
     (hI : I.IsPrime) (hs : symbolicSourceSeparant center Q ∉ I)
     (hinit : symbolicSourceInitialEquation center Q ∈ I)
-    (hhigh : ∀ q ∈ sourceCurveHighCuts center Q K k, q ∈ I)
+    (hhigh : ∀ q ∈ sourceCurveHighCuts_of_exponent center Q K k τ, q ∈ I)
     (hd : 0 < (hilbertPolynomial I).natDegree)
     (hcuts : L ≤ (cutsInIdeal I (fun i ↦
-      symbolicSourceCurveAgreement center Q K (iota (domain i))
+      symbolicSourceCurveAgreement_of_exponent center Q K τ (iota (domain i))
         (fun t ↦ iota (w t i)))).card) :
     principalOpenZeroLocus I (symbolicSourceSeparant center Q) ⊆
-      sourceCurveTupleLocus domain w iota center Q K k L := by
+      sourceCurveTupleLocus_of_exponent domain w iota center Q K k L τ := by
   classical
   obtain ⟨indices, hsub, hcard⟩ := Finset.exists_subset_card_eq hcuts
   obtain ⟨P, hP, hgraph⟩ :=
-    exists_admissibleChartTuple_of_symbolic_prime_agreements domain w indices hcard hkL
-      iota center Q hK I hI hs hd hinit
-      (fun l hl ↦ hhigh _ (symbolicSourceNumerator_mem_sourceCurveHighCuts
-        center Q K k l hl))
+    exists_admissibleChartTuple_of_symbolic_prime_agreements_of_exponent
+      domain w indices hcard hkL iota center Q hK τ hτ I hI hs hd hinit
+      (fun l hl ↦ hhigh _ (commonTaylorNumeratorOver_mem_sourceCurveHighCuts_of_exponent
+        center Q K k τ l hl))
       (fun i hi ↦ mem_cutsInIdeal.mp (hsub hi))
   intro x hx
   exact ⟨P, hP, hgraph x hx⟩
@@ -915,16 +898,19 @@ theorem finite_sourceCurve_points_off_tuples_card_le
   · exact hLA
   · exact hAn
   · intro J hJ hsJ hgJ hhighJ hdJ hcutsJ
-    apply principalOpen_subset_sourceCurveTupleLocus domain w iota center Q hK hkL J hJ
+    rw [← sourceCurveTupleLocus_of_exponent_two_mul_eq]
+    apply principalOpen_subset_sourceCurveTupleLocus_of_exponent domain w iota center Q hK hkL
+      (2 * K) (taylorExponentSufficient_two_mul r K) J hJ
     · simpa only [s, symbolicSourceSeparant, flattenChallenge] using hsJ
     · simpa only [g, symbolicSourceInitialEquation, flattenChallenge] using hgJ
     · intro q hq
-      simp only [sourceCurveHighCuts, List.mem_map, Finset.mem_toList] at hq
+      simp only [sourceCurveHighCuts_of_exponent, List.mem_map, Finset.mem_toList] at hq
       obtain ⟨l, _, rfl⟩ := hq
       simpa only [high, symbolicSourceNumerator, flattenChallenge] using
         hhighJ ⟨l.val, l.property⟩
     · exact hdJ
-    · simpa only [cuts, symbolicSourceCurveAgreement, flattenChallenge] using hcutsJ
+    · simpa only [cuts, symbolicSourceCurveAgreement,
+        symbolicSourceCurveAgreement_of_exponent, flattenChallenge] using hcutsJ
   · intro x hx
     refine ⟨?_, ?_, ?_, (hS x hx).2.2.2⟩
     · simpa only [g, symbolicSourceInitialEquation, flattenChallenge] using (hS x hx).1

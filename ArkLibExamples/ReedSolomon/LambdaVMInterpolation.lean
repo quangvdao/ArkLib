@@ -14,17 +14,15 @@ This module checks the interpolation data behind the largest equality-table row 
 domains, and the original-tuple line certificate used after undoing the DEEP quotient.
 
 Each profile records the script's exact values of `n`, `k`, `A`, `m`, `M`, `mu`, equation
-height, support dimension, local rank bound, and column-degree sum.  The verification theorem
-then recomputes, inside Lean,
+height, support dimension, local rank bound, and column-degree sum. The line verification checks
 
 ```text
-N = firstOrderDimensionCount (k - 1) A m M mu,
-r = certifiedEnlargedRankBound 1 m M 0,
-n * r * (h + 1) < firstOrderHeightSlotCount (k - 1) A m M mu h.
+firstOrderCurveShiftedRowSlotBound (k - 1) A m M mu n 1 h
+  < firstOrderCurveShiftedHeightSlotCount (k - 1) A m M mu 1 h.
 ```
 
-The last strict inequality is the coefficient surplus for the actual canonical enumeration of
-all monomials `X^x Y₀^a Y₁^b` in the finite first-order support.  The generic constructor therefore
+This is the coefficient surplus for the actual canonical enumeration of all monomials
+`X^x Y₀^a Y₁^b` in the finite first-order support. The constructor therefore
 produces a primitive symbolic interpolant whose specialization is nonzero and sound over every
 extension field and every later affine-line challenge.
 
@@ -34,18 +32,17 @@ The initial row uses batching degree 17 and height 20169.  The eight fold rows h
 degree one and heights 1180, 1154, 1130, 1041, 969, 749, 619, and 358.  The original-tuple row
 has `k = 32769` and height 1191.
 
-The batching degree is recorded to identify the source JSON row.  The certificate constructed
-here is the underlying affine-line interpolation certificate.  In particular, the initial
-degree-17 entry does not establish a powers-batching transfer theorem.
+The initial row is checked both as an affine line and as an actual degree-17 polynomial curve.
+The remaining rows expose their affine-line certificates.
 -/
 
-open PolynomialDifferential
+open PolynomialDifferential Polynomial
 
 namespace ArkLibExamples.ReedSolomon.LambdaVMInterpolation
 
 open CurveProfile
 open ReedSolomon.HiddenDerivative
-open ReedSolomon.HiddenDerivative.SymbolicBandInterpolation
+open ReedSolomon.HiddenDerivative.SymbolicWeightedSupportInterpolation
 
 noncomputable section
 
@@ -81,6 +78,18 @@ theorem exists_initial_symbolicCertificate {F : Type u} [Field F]
     (centers : Fin initial.n ↪ F) (f g : Fin initial.n → F) :
     Nonempty (initial.SymbolicCertificate.{u, v} centers f g) :=
   initial_verified.exists_symbolicCertificate centers f g
+
+/-- Lean checks the initial row's shifted degree-17 source and compressed-row surplus. -/
+theorem initial_curveVerified : initial.CurveVerification := by decide
+
+/-- The initial LambdaVM row constructs its full degree-17 polynomial-curve certificate. -/
+theorem exists_initial_curveCertificate {F : Type u} [Field F]
+    (centers : Fin initial.n ↪ F) (w : Fin initial.n → F[X])
+    (hw : ∀ i, (w i).natDegree ≤ initial.batchingDegree) :
+    Nonempty (FirstOrderCurveCertificate initial.D initial.agreement initial.multiplicity
+      initial.firstDerivativeCap initial.totalJetCap initial.k initial.height centers w
+      initial.columns) :=
+  initial_curveVerified.exists_certificate centers w hw
 
 /-! ## Binary-fold rows -/
 

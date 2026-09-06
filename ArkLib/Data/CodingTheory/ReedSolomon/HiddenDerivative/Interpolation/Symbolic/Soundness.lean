@@ -6,13 +6,13 @@ Authors: Quang Dao
 
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.ReceivedLine
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.GlobalMultiplicity
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Band.Basic
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.WeightedSupport.Basic
 
 
 /-!
 # Soundness of symbolic received-curve interpolation
 
-Changing coefficients preserves the actual local constraints and asymmetric band support.
+Changing coefficients preserves the actual local constraints and weighted support support.
 Consequently each challenge specialization of a symbolic interpolant vanishes identically
 on every sufficiently close low-degree polynomial over an arbitrary extension field.
 Received lines are the degree-one specialization of the general curve statement.
@@ -69,34 +69,34 @@ theorem SatisfiesLocalConstraints.map (φ : R →+* S) (m : ℕ) (center receive
   simpa using congrArg (MvPolynomial.map φ) hQ
 
 variable {F E : Type*} [Field F] [Field E]
-variable {D A m W Cmin Cmax : ℕ} {L : ℝ}
+variable {D A m W : ℕ} {L : ℝ}
 
 /-- Specializing the challenge in a linear combination of eligible source monomials remains in
-the asymmetric-band space over the extension field. -/
-theorem map_interpolant_mem_asymmetricBandSpace (hD : 0 < D)
+the weighted-support space over the extension field. -/
+theorem map_interpolant_mem_weightedSupportSpace (hD : 0 < D)
     {N : ℕ} (columns : Fin N → SourceColumn d)
-    (hband : ∀ j, AsymmetricBandEligible D d m W Cmin Cmax L (columns j).exponent)
+    (hband : ∀ j, WeightedSupportEligible D d W L (columns j).exponent)
     (v : Fin N → F[X]) (ι : F →+* E) (z : E) :
     MvPolynomial.map (Polynomial.eval₂RingHom ι z) (interpolant columns v) ∈
-      asymmetricBandSpace E D d m W Cmin Cmax L hD := by
+      weightedSupportSpace E D d W L hD := by
   rw [interpolant, map_sum]
   apply Submodule.sum_mem
   intro j _
   rw [MvPolynomial.map_monomial]
-  rw [mem_asymmetricBandSpace_iff]
+  rw [mem_weightedSupportSpace_iff]
   intro u hu
   have hueq : u = (columns j).exponent := by
     simpa using MvPolynomial.support_monomial_subset hu
   subst u
   exact hband j
 
-/-- Every specialization of a symbolic band interpolant satisfying the polynomial local
+/-- Every specialization of a symbolic weighted-support interpolant satisfying the polynomial local
 constraints solves the differential identity at each sufficiently agreeing bounded-degree
 polynomial over every extension field. -/
 theorem differentialSpecialization_curve_interpolant_eq_zero_of_agreements
-    (hD : 0 < D) (hdD : d < D) (hL : L ≤ (m * A : ℕ)) (hbudget : 0 < m * A)
+    (hD : 0 < D) (hL : L ≤ (m * A : ℕ)) (hbudget : 0 < m * A)
     {n N : ℕ} (centers : Fin n → F) (w : Fin n → F[X]) (columns : Fin N → SourceColumn d)
-    (hband : ∀ j, AsymmetricBandEligible D d m W Cmin Cmax L (columns j).exponent)
+    (hband : ∀ j, WeightedSupportEligible D d W L (columns j).exponent)
     (v : Fin N → F[X])
     (hconstraints : ∀ i, SatisfiesLocalConstraints m (Polynomial.C (centers i))
       (w i) (interpolant columns v))
@@ -110,11 +110,8 @@ theorem differentialSpecialization_curve_interpolant_eq_zero_of_agreements
       (MvPolynomial.map (Polynomial.eval₂RingHom ι z) (interpolant columns v)) P = 0 := by
   let φ := Polynomial.eval₂RingHom ι z
   have hQband : MvPolynomial.map φ (interpolant columns v) ∈
-      asymmetricBandSpace E D d m W Cmin Cmax L hD :=
-    map_interpolant_mem_asymmetricBandSpace hD columns hband v ι z
-  have hQspace : MvPolynomial.map φ (interpolant columns v) ∈
-      exactInterpolationSpace E D A d m m W hdD :=
-    asymmetricBandSpace_le_exactInterpolationSpace hD hdD hL hQband
+      weightedSupportSpace E D d W L hD :=
+    map_interpolant_mem_weightedSupportSpace hD columns hband v ι z
   have hconstraintsE : ∀ i, SatisfiesLocalConstraints m (ι (centers i))
       ((w i).eval₂ ι z) (MvPolynomial.map φ (interpolant columns v)) := by
     intro i
@@ -128,15 +125,20 @@ theorem differentialSpecialization_curve_interpolant_eq_zero_of_agreements
   have hcentersE : Set.InjOn (fun i ↦ ι (centers i)) (indices : Set (Fin n)) := by
     intro i hi j hj hij
     exact hcenters hi hj (ι.injective hij)
-  exact differentialSpecialization_eq_zero_of_mem_exactInterpolationSpace_of_agreements
-    hbudget hdD (fun i ↦ ι (centers i)) (fun i ↦ (w i).eval₂ ι z) indices
-      hQspace hconstraintsE P hPdegree hcentersE hcard hagreements
+  apply differentialSpecialization_eq_zero_of_global_multiplicity
+    (fun i ↦ ι (centers i)) indices m A _ P hcentersE hcard
+  · intro i hi
+    exact X_sub_C_pow_dvd_differentialSpecialization_of_contact
+      _ P (ι (centers i)) ((w i).eval₂ ι z) (hagreements i hi) (hconstraintsE i)
+  · exact (natDegree_differentialSpecialization_le _ P hPdegree).trans_lt
+      (differentialWeightedDegree_lt_of_mem_weightedSupportSpace hbudget hL hQband)
+
 
 /-- Received-line soundness is the degree-one case of symbolic curve soundness. -/
 theorem differentialSpecialization_map_interpolant_eq_zero_of_agreements
-    (hD : 0 < D) (hdD : d < D) (hL : L ≤ (m * A : ℕ)) (hbudget : 0 < m * A)
+    (hD : 0 < D) (hL : L ≤ (m * A : ℕ)) (hbudget : 0 < m * A)
     {n N : ℕ} (centers f g : Fin n → F) (columns : Fin N → SourceColumn d)
-    (hband : ∀ j, AsymmetricBandEligible D d m W Cmin Cmax L (columns j).exponent)
+    (hband : ∀ j, WeightedSupportEligible D d W L (columns j).exponent)
     (v : Fin N → F[X])
     (hconstraints : ∀ i, SatisfiesLocalConstraints m (Polynomial.C (centers i))
       (receivedLine (f i) (g i)) (interpolant columns v))
@@ -149,18 +151,18 @@ theorem differentialSpecialization_map_interpolant_eq_zero_of_agreements
     differentialSpecialization
       (MvPolynomial.map (Polynomial.eval₂RingHom ι z) (interpolant columns v)) P = 0 := by
   apply differentialSpecialization_curve_interpolant_eq_zero_of_agreements
-    hD hdD hL hbudget centers (fun i ↦ receivedLine (f i) (g i)) columns hband v
+    hD hL hbudget centers (fun i ↦ receivedLine (f i) (g i)) columns hband v
     hconstraints ι z indices P hPdegree hcenters hcard
   simpa only [receivedLine, Polynomial.eval₂_add, Polynomial.eval₂_mul,
     Polynomial.eval₂_C, Polynomial.eval₂_X] using hagreements
 
 /-- Degree-`< k` form of symbolic interpolation soundness. The ambient specialization parameter
-only needs to satisfy `k ≤ D + 1`; in the band construction it is `D = K - 1`. -/
+only needs to satisfy `k ≤ D + 1`; in the weighted-support construction it is `D = K - 1`. -/
 theorem differentialSpecialization_map_interpolant_eq_zero_of_degree_lt
-    (hD : 0 < D) (hdD : d < D) (hL : L ≤ (m * A : ℕ)) (hbudget : 0 < m * A)
+    (hD : 0 < D) (hL : L ≤ (m * A : ℕ)) (hbudget : 0 < m * A)
     {n N k : ℕ} (hkD : k ≤ D + 1)
     (centers f g : Fin n → F) (columns : Fin N → SourceColumn d)
-    (hband : ∀ j, AsymmetricBandEligible D d m W Cmin Cmax L (columns j).exponent)
+    (hband : ∀ j, WeightedSupportEligible D d W L (columns j).exponent)
     (v : Fin N → F[X])
     (hconstraints : ∀ i, SatisfiesLocalConstraints m (Polynomial.C (centers i))
       (receivedLine (f i) (g i)) (interpolant columns v))
@@ -179,7 +181,7 @@ theorem differentialSpecialization_map_interpolant_eq_zero_of_degree_lt
         (Polynomial.natDegree_lt_iff_degree_lt hPzero).mpr hPdegree
       omega
   exact differentialSpecialization_map_interpolant_eq_zero_of_agreements
-    hD hdD hL hbudget centers f g columns hband v hconstraints ι z indices P hPnat
+    hD hL hbudget centers f g columns hband v hconstraints ι z indices P hPnat
       hcenters hcard hagreements
 
 end ReedSolomon.HiddenDerivative.SymbolicReceivedInterpolation

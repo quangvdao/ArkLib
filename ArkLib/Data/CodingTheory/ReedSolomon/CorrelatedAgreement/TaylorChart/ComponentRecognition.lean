@@ -74,6 +74,15 @@ def symbolicSourceNumerator (center : E) (Q : DifferentialPolynomial E[X] r)
   (optionEquivRight E _).symm
     (commonTaylorNumeratorOver (F := E) (Polynomial.C center) Q K l (τ := τ))
 
+/-- One polynomial-valued received-word agreement cut in joint source coordinates.  The
+challenge variable of `received` is identified with the source challenge coordinate. -/
+def symbolicSourcePolynomialAgreement (center : E) (Q : DifferentialPolynomial E[X] r)
+    (K : ℕ) (alpha : E) (received : E[X]) (τ : ℕ := 2 * K) :
+    MvPolynomial (Option (Fin (r + 1))) E :=
+  (optionEquivRight E _).symm
+    (taylorAgreementEquationOver (F := E) (Polynomial.C center) Q K (Polynomial.C alpha)
+      received (τ := τ))
+
 /-- One received-line agreement cut in joint source coordinates. -/
 def symbolicSourceAgreement (center : E) (Q : DifferentialPolynomial E[X] r)
     (K : ℕ) (alpha f g : E) (τ : ℕ := 2 * K) :

@@ -16,20 +16,21 @@ The interpolation module constructs a nonzero first-order differential equation 
 received word. The cap-sensitive root theorem counts its close polynomial solutions while
 retaining the separate cap on the first derivative variable. At the two ProveKit parameter rows,
 this gives exactly the list sizes supplied by the paper calculation: `147000408479737` for BN254
-and `5089296970` for cubic Goldilocks.
+and `8279136487` for cubic Goldilocks.
 
 ## Reading the statements
 
 Both rows use block length `n = 2^20`, candidate degree strictly below `k = 2^18`, and Taylor
 cutoff `K = k`. The BN254 row requires `A = 492831` agreements and uses total/first-jet caps
-`(μ, M) = (688, 168)`. The cubic row requires `A = 512754` and uses `(μ, M) = (24, 5)`.
-The two envelope lemmas evaluate
+`(μ, M) = (688, 168)`. The cubic row requires `A = 508263` and uses `(μ, M) = (30, 7)`.
+The BN254 envelope evaluates the legacy cap-sensitive expression. The revised cubic row evaluates
+the dimension-sensitive charge directly:
 
 ```text
-n * firstOrderListWeight K μ M / (A - k + 1)
+firstOrderTightListWeight n A k (2 K - 3) μ M.
 ```
 
-and prove that its integer ceiling is the recorded `Profile.listSize`.
+The scalar theorems bound these expressions by the recorded `Profile.listSize`.
 
 Each field-uniform theorem quantifies over an arbitrary domain embedding, received word, and
 finite set `S`. Its sole assumption on `S` is that every member has degree below `k` and at least
@@ -61,12 +62,12 @@ theorem bn254_sharp_list_envelope :
   norm_num [bn254, firstOrderListWeight]
 
 /-- The cap-sensitive rational expression rounds up to the cubic Goldilocks supplied list size. -/
-theorem goldilocksCubic_sharp_list_envelope :
-    (((goldilocksCubic.n * firstOrderListWeight goldilocksCubic.k
-      goldilocksCubic.totalJetDegreeCap goldilocksCubic.firstJetCap : ℕ) : ℚ) /
-        (((goldilocksCubic.agreementNumerator - goldilocksCubic.k + 1 : ℕ) : ℚ))) ≤
-      goldilocksCubic.listSize := by
-  norm_num [goldilocksCubic, firstOrderListWeight]
+theorem goldilocksCubic113_sharp_list_envelope :
+    firstOrderTightListWeight goldilocksCubic113.n goldilocksCubic113.agreementNumerator
+      goldilocksCubic113.k (2 * goldilocksCubic113.k - 3)
+        goldilocksCubic113.totalJetDegreeCap goldilocksCubic113.firstJetCap ≤
+          goldilocksCubic113.listSize := by
+  norm_num [goldilocksCubic113, firstOrderTightListWeight]
 
 /-- Every finite scalar BN254-profile agreement list obeys the supplied sharp list cap. -/
 theorem bn254_finite_list_bound_sharp {F : Type*} [Field F]
@@ -88,26 +89,26 @@ theorem bn254_finite_list_bound_sharp {F : Type*} [Field F]
   exact hb.trans (by simpa only [bn254] using bn254_sharp_list_envelope)
 
 /-- Every finite scalar cubic-Goldilocks-profile agreement list obeys its supplied sharp cap. -/
-theorem goldilocksCubic_finite_list_bound_sharp {F : Type*} [Field F]
-    (domain : Fin goldilocksCubic.n ↪ F) (received : Fin goldilocksCubic.n → F)
+theorem goldilocksCubic113_finite_list_bound_sharp {F : Type*} [Field F]
+    (domain : Fin goldilocksCubic113.n ↪ F) (received : Fin goldilocksCubic113.n → F)
     (hchar : ringChar F = 0 ∨
-      max goldilocksCubic.n goldilocksCubic.totalJetDegreeCap < ringChar F)
+      max goldilocksCubic113.n goldilocksCubic113.totalJetDegreeCap < ringChar F)
     (S : Finset F[X])
-    (hS : ∀ P ∈ S, IsAgreementSolution domain received goldilocksCubic.k
-      goldilocksCubic.agreementNumerator P) :
-    (S.card : ℚ) ≤ goldilocksCubic.listSize := by
-  have hb := finite_firstOrder_list_bound_of_heightSlotCount_sharp
-    (F := F) (D := 262143) (A := 512754) (m := 13) (M := 5) (μ := 24)
-      (k := 262144) (h := 423) (K := 262144)
+    (hS : ∀ P ∈ S, IsAgreementSolution domain received goldilocksCubic113.k
+      goldilocksCubic113.agreementNumerator P) :
+    (S.card : ℚ) ≤ goldilocksCubic113.listSize := by
+  have hb := finite_firstOrder_list_bound_of_shiftedHeightSlotCount_tight
+    (F := F) (D := 262143) (A := 508263) (m := 16) (M := 7) (μ := 30)
+      (k := 262144) (h := 339) (K := 262144)
       (by norm_num) (by norm_num) (by norm_num)
-      (by simpa only [goldilocksCubic] using domain)
-      (by simpa only [goldilocksCubic] using received)
-      goldilocksCubic_interpolation_height
+      (by simpa only [goldilocksCubic113] using domain)
+      (by simpa only [goldilocksCubic113] using received)
+      goldilocksCubic113_interpolation_height
       (by norm_num) le_rfl (by norm_num) (by norm_num) (by norm_num) (by norm_num)
-      (by simpa only [goldilocksCubic] using hchar) S
-      (by simpa only [goldilocksCubic] using hS)
-  exact hb.trans (by simpa only [goldilocksCubic] using
-    goldilocksCubic_sharp_list_envelope)
+      (by simpa only [goldilocksCubic113] using hchar) S
+      (by simpa only [goldilocksCubic113] using hS)
+  exact hb.trans (by simpa only [goldilocksCubic113] using
+    goldilocksCubic113_sharp_list_envelope)
 
 /-- The canonical BN254 scalar field has the cardinality recorded in the ProveKit row. -/
 theorem bn254_concrete_field_card : Fintype.card BN254Scalar = bn254.fieldSize := by
@@ -115,10 +116,10 @@ theorem bn254_concrete_field_card : Fintype.card BN254Scalar = bn254.fieldSize :
   norm_num [BN254.scalarFieldSize, bn254]
 
 /-- The canonical cubic Goldilocks field has the cardinality recorded in the ProveKit row. -/
-theorem goldilocksCubic_concrete_field_card :
-    Fintype.card ConcreteFields.GoldilocksCubic = goldilocksCubic.fieldSize := by
+theorem goldilocksCubic113_concrete_field_card :
+    Fintype.card ConcreteFields.GoldilocksCubic = goldilocksCubic113.fieldSize := by
   rw [ConcreteFields.goldilocksCubic_card]
-  norm_num [Goldilocks.fieldSize, goldilocksCubic]
+  norm_num [Goldilocks.fieldSize, goldilocksCubic113]
 
 /-- The sharp list theorem specialized to the actual BN254 scalar-field model. -/
 theorem bn254_concrete_finite_list_bound_sharp
@@ -140,25 +141,25 @@ theorem bn254_concrete_finite_list_bound_sharp
     _ ≤ (1 : ℚ) / 2 ^ 128 := by norm_num [bn254]
 
 /-- The sharp list theorem specialized to the actual degree-three Goldilocks field model. -/
-theorem goldilocksCubic_concrete_finite_list_bound_sharp
-    (domain : Fin goldilocksCubic.n ↪ ConcreteFields.GoldilocksCubic)
-    (received : Fin goldilocksCubic.n → ConcreteFields.GoldilocksCubic)
+theorem goldilocksCubic113_concrete_finite_list_bound_sharp
+    (domain : Fin goldilocksCubic113.n ↪ ConcreteFields.GoldilocksCubic)
+    (received : Fin goldilocksCubic113.n → ConcreteFields.GoldilocksCubic)
     (S : Finset ConcreteFields.GoldilocksCubic[X])
-    (hS : ∀ P ∈ S, IsAgreementSolution domain received goldilocksCubic.k
-      goldilocksCubic.agreementNumerator P) :
-    (S.card : ℚ) ≤ goldilocksCubic.listSize ∧
+    (hS : ∀ P ∈ S, IsAgreementSolution domain received goldilocksCubic113.k
+      goldilocksCubic113.agreementNumerator P) :
+    (S.card : ℚ) ≤ goldilocksCubic113.listSize ∧
       (S.card : ℚ) / Fintype.card ConcreteFields.GoldilocksCubic ≤
         (1 : ℚ) / 2 ^ 128 := by
-  have hlist := goldilocksCubic_finite_list_bound_sharp domain received (by
+  have hlist := goldilocksCubic113_finite_list_bound_sharp domain received (by
     right
     rw [ConcreteFields.goldilocksCubic_ringChar]
-    norm_num [Goldilocks.fieldSize, goldilocksCubic]) S hS
+    norm_num [Goldilocks.fieldSize, goldilocksCubic113]) S hS
   refine ⟨hlist, ?_⟩
-  rw [goldilocksCubic_concrete_field_card]
+  rw [goldilocksCubic113_concrete_field_card]
   calc
-    (S.card : ℚ) / goldilocksCubic.fieldSize ≤
-        (goldilocksCubic.listSize : ℚ) / goldilocksCubic.fieldSize := by
+    (S.card : ℚ) / goldilocksCubic113.fieldSize ≤
+        (goldilocksCubic113.listSize : ℚ) / goldilocksCubic113.fieldSize := by
       exact div_le_div_of_nonneg_right hlist (by positivity)
-    _ ≤ (1 : ℚ) / 2 ^ 128 := by norm_num [goldilocksCubic]
+    _ ≤ (1 : ℚ) / 2 ^ 128 := by norm_num [goldilocksCubic113]
 
 end ArkLibExamples.ReedSolomon.ProveKit

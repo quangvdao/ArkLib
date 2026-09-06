@@ -74,10 +74,11 @@ theorem polynomialJet_powerBatched (center z : E) (P : Fin (ℓ + 1) → E[X]) :
 
 /-- A common sample recognizes every regular Taylor-chart point as belonging to one
 base-field polynomial graph. This also identifies all cleared Taylor coefficients. -/
-theorem exists_polynomialGraph_of_symbolic_sample
+theorem exists_polynomialGraph_of_symbolic_sample_of_exponent
     (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F)
     (sample : Finset (Fin n)) (hsample : sample.card = k)
-    (ι : F →+* E) (center : E) (Q : DifferentialPolynomial E[X] r) (hK : r < K) :
+    (ι : F →+* E) (center : E) (Q : DifferentialPolynomial E[X] r)
+    (hK : r < K) (τ : ℕ) (hτ : TaylorExponentSufficient r K τ) :
     ∃ P : Fin (ℓ + 1) → F[X], (∀ t, (P t).degree < k) ∧
       (∀ i ∈ sample, ∀ t, (P t).eval (domain i) = w t i) ∧
       ∀ (z : E) (jet : Fin (r + 1) → E),
@@ -85,20 +86,20 @@ theorem exists_polynomialGraph_of_symbolic_sample
           (initialJetSeparantOver (Polynomial.C center) Q)) ≠ 0 →
         (∀ l : Fin K, k ≤ l.val →
           aeval jet (MvPolynomial.map (Polynomial.evalRingHom z)
-            (commonTaylorNumeratorOver (F := E) (Polynomial.C center) Q K l)) = 0) →
+            (commonTaylorNumeratorOver (F := E) (Polynomial.C center) Q K l (τ := τ))) = 0) →
         (∀ i ∈ sample,
           aeval jet (MvPolynomial.map (Polynomial.evalRingHom z)
             (taylorAgreementEquationOver (F := E) (Polynomial.C center) Q K
               (Polynomial.C (ι (domain i)))
-              (powerBatchedCoordinate (fun t ↦ ι (w t i))))) = 0) →
+              (powerBatchedCoordinate (fun t ↦ ι (w t i))) (τ := τ))) = 0) →
         rationalTaylorPolynomial center (MvPolynomial.map (Polynomial.evalRingHom z) Q) K jet =
             powerBatchedPolynomial (fun t ↦ (P t).map ι) z ∧
         jet = (fun j ↦ (powerBatchedJetGraph (r := r) center (fun t ↦ (P t).map ι) j).eval z) ∧
         ∀ l : Fin K,
           aeval jet (MvPolynomial.map (Polynomial.evalRingHom z)
-            (commonTaylorNumeratorOver (F := E) (Polynomial.C center) Q K l)) =
+            (commonTaylorNumeratorOver (F := E) (Polynomial.C center) Q K l (τ := τ))) =
           aeval jet (MvPolynomial.map (Polynomial.evalRingHom z)
-            (initialJetSeparantOver (Polynomial.C center) Q)) ^ (2 * K) *
+            (initialJetSeparantOver (Polynomial.C center) Q)) ^ τ *
             (Polynomial.taylor center
               (powerBatchedPolynomial (fun t ↦ (P t).map ι) z)).coeff l.val := by
   obtain ⟨P, hP, hs, hrecognize⟩ := exists_polynomialGraph_of_sample domain w k sample hsample
@@ -110,14 +111,15 @@ theorem exists_polynomialGraph_of_symbolic_sample
   have hdegree :
       (rationalTaylorPolynomial center (MvPolynomial.map (Polynomial.evalRingHom z) Q)
         K jet).degree < k := by
-    simpa only [hcenter, hφ] using degree_rationalTaylorPolynomial_lt_of_symbolic_high_cuts φ
-      (Polynomial.C center) Q K k jet hS hhigh
+    simpa only [hcenter, hφ] using
+      degree_rationalTaylorPolynomial_lt_of_symbolic_high_cuts_and_exponent
+        φ (Polynomial.C center) Q K k τ hτ jet hS hhigh
   have hagree : ∀ i ∈ sample,
       (rationalTaylorPolynomial center (MvPolynomial.map (Polynomial.evalRingHom z) Q)
         K jet).eval (ι (domain i)) = ∑ t, z ^ t.val * ι (w t i) := by
     intro i hi
-    have heval := (aeval_map_taylorAgreementEquationOver_eq_zero_iff φ
-      (Polynomial.C center) Q K jet hS (Polynomial.C (ι (domain i)))
+    have heval := (aeval_map_taylorAgreementEquationOver_eq_zero_iff_of_exponent φ
+      (Polynomial.C center) Q K τ hτ jet hS (Polynomial.C (ι (domain i)))
       (powerBatchedCoordinate (fun t ↦ ι (w t i)))).mp (hcuts i hi)
     simpa only [hφ, hcenter, φ, Polynomial.aeval_def, Algebra.algebraMap_self,
       Polynomial.eval₂_id, Polynomial.eval_C, powerBatchedCoordinate_eval] using heval
@@ -126,8 +128,9 @@ theorem exists_polynomialGraph_of_symbolic_sample
   · rw [← polynomialJet_powerBatched, ← hpoly,
       polynomialJet_rationalTaylorPolynomial center _ K hK]
   · intro l
-    have hcoeff := aeval_map_commonTaylorNumeratorOver_reconstruction φ
-      (Polynomial.C center) Q K jet hS l
+    have hcoeff := aeval_map_commonTaylorNumeratorOver_reconstruction_of_exponent φ
+      (Polynomial.C center) Q K τ hτ jet hS l
     simpa only [hcenter, hφ, hpoly] using hcoeff
+
 
 end ReedSolomon

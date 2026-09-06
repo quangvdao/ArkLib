@@ -30,14 +30,14 @@ example : 1 * (1 + 1) < firstOrderHeightSlotCount 2 3 1 0 1 1 := by
 open SymbolicReceivedInterpolation
 
 example : Function.Injective
-    (SymbolicBandInterpolation.firstOrderColumns
+    (SymbolicWeightedSupportInterpolation.firstOrderColumns
       (D := 2) (A := 3) (m := 1) (M := 0) (μ := 1)) :=
-  SymbolicBandInterpolation.firstOrderColumns_injective
+  SymbolicWeightedSupportInterpolation.firstOrderColumns_injective
 
 example (j : Fin (Fintype.card ↑(firstOrderExponents 2 3 1 0 1))) :
-    (SymbolicBandInterpolation.firstOrderColumns
+    (SymbolicWeightedSupportInterpolation.firstOrderColumns
       (D := 2) (A := 3) (m := 1) (M := 0) (μ := 1) j).exponent ∈
         firstOrderExponents 2 3 1 0 1 :=
-  SymbolicBandInterpolation.firstOrderColumns_eligible j
+  SymbolicWeightedSupportInterpolation.firstOrderColumns_eligible j
 
 end ReedSolomon.HiddenDerivative

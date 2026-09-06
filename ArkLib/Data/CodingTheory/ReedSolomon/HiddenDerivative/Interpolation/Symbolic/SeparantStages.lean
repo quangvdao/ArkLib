@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.BandCertificate
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.SupportCertificate
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.JetPrefix
 
 
@@ -27,18 +28,18 @@ open Polynomial MvPolynomial SymbolicSeparantChain
 
 universe u
 
-variable {F : Type u} [Field F] {n A k ν d : ℕ}
+variable {F : Type u} [Field F] {n A k ν d h : ℕ}
   {domain : Fin n ↪ F} {f g : Fin n → F}
 
 /-- A symbolic certificate's equation is nonzero before any challenge specialization. -/
-theorem Certificate.nonzero (cert : Certificate.{u, u} F A k ν d domain f g) : cert.Q ≠ 0 := by
+theorem Certificate.nonzero (cert : Certificate.{u, u} F A k ν d h domain f g) : cert.Q ≠ 0 := by
   intro hzero
   have h := (cert.specialization_sound (RingHom.id F) 0).1
   rw [hzero, map_zero] at h
   exact h rfl
 
 /-- The support bound in the interpolation certificate bounds the actual symbolic jet weight. -/
-theorem Certificate.jetWeight_le (cert : Certificate.{u, u} F A k ν d domain f g) :
+theorem Certificate.jetWeight_le (cert : Certificate.{u, u} F A k ν d h domain f g) :
     jetWeight cert.Q ≤ ν := by
   apply Finset.sup_le_iff.mpr
   intro u hu
@@ -46,13 +47,13 @@ theorem Certificate.jetWeight_le (cert : Certificate.{u, u} F A k ν d domain f 
   simpa [totalJetDegree, Finsupp.degree_eq_sum, Finsupp.weight_apply,
     Finsupp.sum_fintype] using h
 
-/-- Strict coefficient height gives the integral terminal-obstruction budget. -/
-theorem Certificate.challengeHeight_le (cert : Certificate.{u, u} F A k ν d domain f g) :
-    ∀ u, (MvPolynomial.coeff u cert.Q).natDegree ≤ 338 * ν - 1 :=
-  fun u ↦ Nat.le_sub_one_of_lt (cert.challengeDegree_lt u)
+/-- The certified coefficient height gives the terminal-obstruction budget. -/
+theorem Certificate.challengeHeight_le (cert : Certificate.{u, u} F A k ν d h domain f g) :
+    ∀ u, (MvPolynomial.coeff u cert.Q).natDegree ≤ h :=
+  cert.challengeDegree_le
 
 /-- Construct actual symbolic derivative stages directly from a proved interpolation certificate. -/
-theorem Certificate.exists_separant_chain (cert : Certificate.{u, u} F A k ν d domain f g)
+theorem Certificate.exists_separant_chain (cert : Certificate.{u, u} F A k ν d h domain f g)
     (hchar : ringChar F = 0 ∨ ν < ringChar F) :
     ∃ stages terminal, Chain cert.Q stages terminal := by
   apply exists_symbolic_chain cert.Q cert.nonzero
@@ -61,11 +62,11 @@ theorem Certificate.exists_separant_chain (cert : Certificate.{u, u} F A k ν d 
 /-- One height-bounded exceptional set gives regular-stage coverage of every close
 polynomial, uniformly over every extension field and every challenge outside the set. -/
 theorem Certificate.exists_exceptional_stage_coverage
-    (cert : Certificate.{u, u} F A k ν d domain f g)
+    (cert : Certificate.{u, u} F A k ν d h domain f g)
     {stages : List (Stage F[X] d)} {terminal : DifferentialPolynomial F[X] d}
     (hc : Chain cert.Q stages terminal)
     {E : Type u} [Field E] (iota : F →+* E) :
-    ∃ exceptional : Finset E, exceptional.card ≤ 338 * ν - 1 ∧
+    ∃ exceptional : Finset E, exceptional.card ≤ h ∧
       ∀ z ∉ exceptional, ∀ (indices : Finset (Fin n)) (P : E[X]),
         P.degree < k → A ≤ indices.card →
         (∀ i ∈ indices, P.eval (iota (domain i)) = iota (f i) + z * iota (g i)) →

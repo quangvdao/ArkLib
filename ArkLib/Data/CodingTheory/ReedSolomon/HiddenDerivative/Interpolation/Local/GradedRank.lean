@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.SourceMonomial
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.LocalRank
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Local.Translation
 import Mathlib.RingTheory.MvPolynomial.WeightedHomogeneous
 
 /-!

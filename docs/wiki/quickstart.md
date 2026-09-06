@@ -124,6 +124,20 @@ rejects source-level linter suppressions in their actual parsed context.
 If the task is specifically Lean warning cleanup, follow
 [`../skills/fix-lean-warnings.md`](../skills/fix-lean-warnings.md).
 
+### RS mathematical import boundary
+
+`./scripts/validate.sh` checks that the mathematical RS entry points do not transitively import
+execution, machine, cost, semantics, or refinement modules under the current naming conventions.
+Run the source-level check alone with:
+
+```bash
+python3 scripts/check-rs-math-imports.py
+```
+
+This is a dependency regression check, not a proof of semantic purity. The
+[repository map](repo-map.md) describes current ownership; the
+[RS separation record](../design/rs-algebraic-machine-plan.md) preserves its development history.
+
 ### Filling a `sorry`, or work that must stay axiom-clean
 
 ```bash
@@ -181,8 +195,8 @@ python3 -m pip install leanblueprint
 
 - `./scripts/validate.sh` is the recommended convenience wrapper for routine local validation.
 - By default it runs `lake build`, rejects non-`sorry` warnings anywhere under `ArkLib/`, rejects
-  every warning under `ArkLibExamples/`, runs the
-  Lean-native source-policy gate, runs the compiled `toyproblem-runtime` and `hachi-runtime`
+  every warning under `ArkLibExamples/`, runs the Lean-native source-policy gate, and runs the
+  compiled `toyproblem-runtime`, `hachi-runtime`, and `regular-lift-runtime`
   checks, checks generated imports and documentation integrity, and lints knowledge-base inputs.
 - The lower-level scripts remain valid when you only want one specific check.
 - `docs/kb/_generated/**` freshness is handled by generated-files PRs from the main-branch KB
@@ -225,6 +239,7 @@ it gives the expected answer — are checked by compiled executables under `scri
 | --- | --- | --- |
 | `toyproblem-runtime` | `scripts/ToyProblemRuntime.lean` | the toy-problem launch cone |
 | `hachi-runtime` | `scripts/HachiRuntime.lean` | the nonrecursive Hachi honest-prover path |
+| `regular-lift-runtime` | `scripts/RegularLiftRuntime.lean` | concrete regular-lifting acceptance, rejection, and partial-counter vectors; not a complexity theorem |
 
 **Put them here, not under `ArkLib/`.** A file under `ArkLib/` is picked up by the generated
 library root, so a `#eval` in one is paid on every build by everyone; and `#eval` runs in the
@@ -251,6 +266,7 @@ You can still run the underlying pieces directly when debugging a specific issue
 lake build
 lake exe toyproblem-runtime
 lake exe hachi-runtime
+lake exe regular-lift-runtime
 ./scripts/check-imports.sh
 python3 ./scripts/check-docs-integrity.py
 python3 ./scripts/kb/lint.py

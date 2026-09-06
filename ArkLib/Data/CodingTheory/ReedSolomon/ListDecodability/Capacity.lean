@@ -18,8 +18,9 @@ The capacity gap is fixed before the block length, dimension,
 prime field, evaluation points, and received word. The statement includes both
 field-size regimes and uses ordinary polynomial degree, including the zero polynomial.
 
-This module proves list existence and cardinality, not an executable decoder or running time.
-The exact decoder specification is in `ReedSolomon/Decoding/Specification`.
+This module proves list existence and cardinality. The exact decoder specification is in
+`ReedSolomon/ListDecoding/Specification`, and the executable same-output theorem with its
+primitive-work ledger is in `ReedSolomon/ListDecoding/CapacityDecoderExecution`.
 
 ## Decoding procedure and formalization scope
 
@@ -27,9 +28,9 @@ The hidden-derivative algorithm chooses interpolation parameters and an ambient 
 solves the homogeneous local-contact constraints for a nonzero differential polynomial, enumerates
 its bounded-degree polynomial solutions by separant descent and regular Taylor lifting, and filters
 by the original degree and agreement thresholds. The interpolation and solution-counting results
-below justify the list bounds. This branch does not package those steps as an executable
-decoder, and makes no operation-count or bit-complexity claim. Classical finite-set extraction in
-the theorem is not a claim of efficient enumeration.
+below justify the list bounds. The separate execution theorem packages these steps and proves an
+observed primitive-work bound. Neither theorem makes a bit-RAM complexity claim. Classical
+finite-set extraction here is not a claim of efficient enumeration.
 
 ## Decoding regimes
 
@@ -68,20 +69,20 @@ to the same exact list, not to separately chosen candidate families.
 -/
 
 /-- Minimum block length: one at gaps at least `1/4`, and `8m` for smaller gaps.
-Here `m = asymmetricBandMultiplicity δ = ⌈100 d² H_(d-1)⌉`, where
+Here `m = weightedSupportMultiplicity δ = ⌈100 d² H_(d-1)⌉`, where
 `d = capacityDerivativeOrder δ` and `H_r = ∑_{i=1}^r 1/i` is the harmonic number.
-In the small-gap regime, `d = ⌈exp(6.76 / δ)⌉`. The multiplicity formula is used
+In the small-gap regime, `d = ⌈exp(2.7 / δ)⌉`. The multiplicity formula is used
 only in that regime; gaps at least `1/4` have length threshold one. -/
 def capacityLengthThreshold (δ : ℝ) : ℕ :=
-  if (1 / 4 : ℝ) ≤ δ then 1 else 8 * asymmetricBandMultiplicity δ
+  if (1 / 4 : ℝ) ≤ δ then 1 else 8 * weightedSupportMultiplicity δ
 
 /-- Field-independent list bound. At small gaps it is `4m²(4m/δ)^d n^d`;
 at gaps at least `1/4` we use `n`, with strict inequality proved separately.
 The derivative order `d` and multiplicity `m` depend only on the gap. -/
 def capacityListBound (δ : ℝ) (n : ℕ) : ℝ :=
   if (1 / 4 : ℝ) ≤ δ then n else
-    4 * (asymmetricBandMultiplicity δ : ℝ) ^ 2 *
-      (4 * asymmetricBandMultiplicity δ / δ) ^ capacityDerivativeOrder δ *
+    4 * (weightedSupportMultiplicity δ : ℝ) ^ 2 *
+      (4 * weightedSupportMultiplicity δ / δ) ^ capacityDerivativeOrder δ *
       n ^ capacityDerivativeOrder δ
 
 /-- Exact list decodability at a fixed gap, uniformly over prime fields and code rates.
@@ -144,14 +145,14 @@ structure CapacityListBounds (δ : ℝ) (n k q A ℓ : ℕ) : Prop where
 
   -- At small gaps, finite-field root counting also gives 4m q^(2d).
   finiteField : δ < (1 / 4 : ℝ) →
-    ℓ ≤ 4 * asymmetricBandMultiplicity δ * q ^ (2 * capacityDerivativeOrder δ)
+    ℓ ≤ 4 * weightedSupportMultiplicity δ * q ^ (2 * capacityDerivativeOrder δ)
 
   -- A larger field improves this to 4m q^d. With K = max{k, ⌊δn/2⌋},
   -- truncated natural subtraction expresses q ≥ 2 max{0, mA - K + d}.
   largeField : δ < (1 / 4 : ℝ) →
-    2 * (asymmetricBandMultiplicity δ * A + capacityDerivativeOrder δ -
+    2 * (weightedSupportMultiplicity δ * A + capacityDerivativeOrder δ -
       max k ⌊δ * (n : ℝ) / 2⌋₊) ≤ q →
-    ℓ ≤ 4 * asymmetricBandMultiplicity δ * q ^ capacityDerivativeOrder δ
+    ℓ ≤ 4 * weightedSupportMultiplicity δ * q ^ capacityDerivativeOrder δ
 
 /-- **Capacity lists at every rate, with all prescribed list bounds.**
 
@@ -179,10 +180,10 @@ theorem exists_capacity_list (δ : ℝ) (hδ : 0 < δ) (hδ_one : δ < 1) :
         positivity
       · let : Fact q.Prime := ⟨hq⟩
         have hthreshold := (agreementThreshold_le_iff_real hδ.le n k A).mpr hA
-        have hblock : 8 * asymmetricBandMultiplicity δ ≤ n := by
+        have hblock : 8 * weightedSupportMultiplicity δ ≤ n := by
           simpa only [capacityLengthThreshold, if_neg hlarge] using hn
         have hgeom := prescribed_geometric_finite_list_bound δ n k α y hδ hδsmall hk
-          (by simpa only [asymmetricBandMultiplicity, capacityDerivativeOrder, if_neg hlarge]
+          (by simpa only [weightedSupportMultiplicity, capacityDerivativeOrder, if_neg hlarge]
             using hblock)
           (hthreshold.trans (Nat.le_of_not_gt hover))
           (Or.inr (by simpa only [ringChar.eq (ZMod q) q] using hnq)) list (by
@@ -194,7 +195,7 @@ theorem exists_capacity_list (δ : ℝ) (hδ : 0 < δ) (hδ_one : δ < 1) :
             congr 1
             ext i
             simp)
-        simpa only [capacityListBound, asymmetricBandMultiplicity, capacityDerivativeOrder,
+        simpa only [capacityListBound, weightedSupportMultiplicity, capacityDerivativeOrder,
           if_neg hlarge] using hgeom
   · intro hs
     exact (hsmall hs).1

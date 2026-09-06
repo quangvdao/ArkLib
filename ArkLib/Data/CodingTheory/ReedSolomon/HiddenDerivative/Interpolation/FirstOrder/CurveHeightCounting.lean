@@ -7,6 +7,7 @@ Authors: Quang Dao
 import
   ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.HeightCounting
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.CurveRank
+import ArkLib.ToMathlib.Finset.SumRangeFrom
 import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.CurveColumnHeight
 
@@ -28,79 +29,13 @@ open PolynomialDifferential Polynomial
 
 namespace ReedSolomon.HiddenDerivative
 
-open SymbolicBandInterpolation SymbolicReceivedInterpolation
+open SymbolicWeightedSupportInterpolation SymbolicReceivedInterpolation
 
 noncomputable section
 
 open scoped BigOperators
 
 variable {D A m M μ ℓ h : ℕ}
-
-/-- Total number of polynomial coefficient slots allowed by height `h` across the actual finite
-first-order support. -/
-def firstOrderCurveColumnSlotCount (D A m M μ ℓ h : ℕ) : ℕ :=
-  Finset.sum (firstOrderExponents D A m M μ) fun u ↦ h + 1 - ℓ * u (some 0)
-
-/-- Executable nested sum for the first-order column-height slot count. -/
-def firstOrderCurveHeightSlotCount (D A m M μ ℓ h : ℕ) : ℕ :=
-  Finset.sum (Finset.range (μ + 1)) fun t ↦
-    Finset.sum (Finset.range (min t M + 1)) fun b ↦
-      (m * A + b - D * t) * (h + 1 - ℓ * (t - b))
-
-/-- The dependent `(t,b,x)` index has the expected weighted cardinality, where every `x` at a
-fixed `(t,b)` contributes the same number of height slots. -/
-theorem sum_firstOrderDimensionIndex_curveHeight (D A m M μ ℓ h : ℕ) :
-    (Finset.univ.sum fun q : FirstOrderDimensionIndex D A m M μ ↦
-        h + 1 - ℓ * (q.1.val - q.2.1.val)) =
-      firstOrderCurveHeightSlotCount D A m M μ ℓ h := by
-  rw [Fintype.sum_sigma]
-  calc
-    (Finset.univ.sum fun t : Fin (μ + 1) ↦
-        Finset.univ.sum fun q : (Σ b : Fin (min t.val M + 1),
-          Fin (m * A + b.val - D * t.val)) ↦
-          h + 1 - ℓ * (t.val - q.1.val)) =
-        Finset.univ.sum fun t : Fin (μ + 1) ↦
-          Finset.univ.sum fun b : Fin (min t.val M + 1) ↦
-            (m * A + b.val - D * t.val) * (h + 1 - ℓ * (t.val - b.val)) := by
-      apply Finset.sum_congr rfl
-      intro t _
-      rw [Fintype.sum_sigma]
-      apply Finset.sum_congr rfl
-      intro b _
-      simp
-    _ = Finset.sum (Finset.range (μ + 1)) fun t ↦
-          Finset.univ.sum fun b : Fin (min t M + 1) ↦
-            (m * A + b.val - D * t) * (h + 1 - ℓ * (t - b.val)) := by
-      exact Fin.sum_univ_eq_sum_range
-        (fun t ↦ Finset.univ.sum fun b : Fin (min t M + 1) ↦
-          (m * A + b.val - D * t) * (h + 1 - ℓ * (t - b.val))) (μ + 1)
-    _ = Finset.sum (Finset.range (μ + 1)) fun t ↦
-          Finset.sum (Finset.range (min t M + 1)) fun b ↦
-            (m * A + b - D * t) * (h + 1 - ℓ * (t - b)) := by
-      apply Finset.sum_congr rfl
-      intro t _
-      exact Fin.sum_univ_eq_sum_range
-        (fun b ↦ (m * A + b - D * t) * (h + 1 - ℓ * (t - b))) (min t M + 1)
-    _ = firstOrderCurveHeightSlotCount D A m M μ ℓ h := rfl
-
-/-- The support-side column-slot sum is exactly the executable nested height sum. -/
-theorem firstOrderCurveColumnSlotCount_eq_heightSlotCount (hD : 0 < D) :
-    firstOrderCurveColumnSlotCount D A m M μ ℓ h =
-      firstOrderCurveHeightSlotCount D A m M μ ℓ h := by
-  rw [firstOrderCurveColumnSlotCount, ← Finset.sum_attach]
-  let e := firstOrderExponentDimensionIndexEquiv
-    (D := D) (A := A) (m := m) (M := M) (μ := μ) hD
-  calc
-    (Finset.univ.sum fun u : ↑(firstOrderExponents D A m M μ) ↦
-        h + 1 - ℓ * u.1 (some 0)) =
-        Finset.univ.sum fun q : FirstOrderDimensionIndex D A m M μ ↦
-          h + 1 - ℓ * (q.1.val - q.2.1.val) := by
-      rw [← e.sum_comp]
-      apply Finset.sum_congr rfl
-      intro u _
-      rw [firstOrderExponentDimensionIndex_y₀ hD]
-    _ = firstOrderCurveHeightSlotCount D A m M μ ℓ h :=
-      sum_firstOrderDimensionIndex_curveHeight D A m M μ ℓ h
 
 /-! ### Shifted source and row profiles -/
 
@@ -186,6 +121,33 @@ def firstOrderCurveShiftedRowSlotBound
     (D A m M μ n ℓ h : ℕ) : ℕ :=
   Finset.sum (Finset.range (μ + 1)) fun t ↦
     n * firstOrderGradedRankBound D A m M t * (h + 1 - ℓ * t)
+
+/-- Express the shifted row-slot bound as one finite interval sum. This form supports bounded
+kernel evaluation of large concrete grade ranges. -/
+theorem firstOrderCurveShiftedRowSlotBound_eq_sumRangeFrom
+    (D A m M μ n ℓ h : ℕ) :
+    firstOrderCurveShiftedRowSlotBound D A m M μ n ℓ h =
+      Finset.sumRangeFrom (fun t ↦ n * firstOrderGradedRankBound D A m M t *
+        (h + 1 - ℓ * t)) 0 (μ + 1) := by
+  simp [firstOrderCurveShiftedRowSlotBound, Finset.sumRangeFrom]
+
+/-- Express the shifted source-slot count as one finite interval sum. -/
+theorem firstOrderCurveShiftedHeightSlotCount_eq_sumRangeFrom
+    (D A m M μ ℓ h : ℕ) :
+    firstOrderCurveShiftedHeightSlotCount D A m M μ ℓ h =
+      Finset.sumRangeFrom (fun t ↦ ∑ b ∈ Finset.range (min t M + 1),
+        (m * A + b - D * t) * (h + 1 - ℓ * t)) 0 (μ + 1) := by
+  simp [firstOrderCurveShiftedHeightSlotCount, Finset.sumRangeFrom]
+
+/-- A pointwise numerical rank profile bounds the corresponding shifted row-slot sum. -/
+theorem firstOrderCurveShiftedRowSlotBound_le_of_rankBound
+    (D A m M μ n ℓ h : ℕ) (rankBound : ℕ → ℕ)
+    (hrank : ∀ t, firstOrderGradedRankBound D A m M t ≤ rankBound t) :
+    firstOrderCurveShiftedRowSlotBound D A m M μ n ℓ h ≤
+      ∑ t ∈ Finset.range (μ + 1), n * rankBound t * (h + 1 - ℓ * t) := by
+  apply Finset.sum_le_sum
+  intro t ht
+  exact Nat.mul_le_mul_right (h + 1 - ℓ * t) (Nat.mul_le_mul_left n (hrank t))
 
 /-- The actual compressed-row slot count is bounded by the sharp paper profile. -/
 theorem firstOrderCurveShiftedRowSlotCount_le_bound

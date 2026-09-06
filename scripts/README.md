@@ -25,6 +25,9 @@ This directory contains various utility scripts for the ArkLib project.
 - **`ToyProblemRuntime.lean`** (`lake exe toyproblem-runtime`) - Compiled small-parameter checks
   for KoalaBear sextic arithmetic, executable interleaved-RS extraction, and the C6.9 virtual
   output-oracle and exact-extractor paths
+- **`RegularLiftRuntime.lean`** (`lake exe regular-lift-runtime`) - Thirty concrete checks of
+  regular differential lifting, final rejection of invalid candidates, and partial arithmetic
+  counters. These are executable regression tests, not runtime-complexity proofs.
 - **`HachiRuntime.lean`** (`lake exe hachi-runtime`) - Compiled small-parameter checks that the
   nonrecursive Hachi honest-prover path executes: the balanced committer, the computable honest
   lift quotient, the concrete Ajtai lift commitment, and the terminal reveal-and-check. `--full`

@@ -42,4 +42,34 @@ theorem integral_biUnion_le_sum_of_cell_measure_le_one
     _ ≤ w i * 1 := mul_le_mul_of_nonneg_left hv (hw i hi)
     _ = w i := mul_one _
 
+/-- Unit cells contained in a region transfer their pointwise lower bounds to its integral. -/
+theorem sum_le_integral_of_unit_cells {X ι : Type*} [MeasurableSpace X]
+    {μ : Measure X} (s : Finset ι) (cell : ι → Set X) (S : Set X)
+    (f : X → ℝ) (w : ι → ℝ)
+    (hmeas : ∀ i ∈ s, MeasurableSet (cell i))
+    (hdisj : Set.PairwiseDisjoint (s : Set ι) cell)
+    (hvol : ∀ i ∈ s, μ (cell i) = 1)
+    (hsub : ∀ i ∈ s, cell i ⊆ S)
+    (hint : IntegrableOn f S μ) (hf : ∀ x, 0 ≤ f x)
+    (hbound : ∀ i ∈ s, ∀ x ∈ cell i, w i ≤ f x) :
+    ∑ i ∈ s, w i ≤ ∫ x in S, f x ∂μ := by
+  have hintCell : ∀ i ∈ s, IntegrableOn f (cell i) μ :=
+    fun i hi ↦ hint.mono_set (hsub i hi)
+  have hsum : ∑ i ∈ s, w i ≤ ∫ x in ⋃ i ∈ s, cell i, f x ∂μ := by
+    rw [integral_biUnion_finset s hmeas hdisj hintCell]
+    apply Finset.sum_le_sum
+    intro i hi
+    have hfin : μ (cell i) < ⊤ := by rw [hvol i hi]; simp
+    have hc : IntegrableOn (fun _ : X ↦ w i) (cell i) μ :=
+      integrableOn_const hfin.ne
+    have h := setIntegral_mono_on hc (hintCell i hi) (hmeas i hi) (hbound i hi)
+    simpa [Measure.real, hvol i hi] using h
+  apply hsum.trans
+  apply setIntegral_mono_set hint (Filter.Eventually.of_forall hf)
+  apply Filter.Eventually.of_forall
+  intro x hx
+  obtain ⟨i, hx⟩ := Set.mem_iUnion.mp hx
+  obtain ⟨hi, hx⟩ := Set.mem_iUnion.mp hx
+  exact hsub i hi hx
+
 end MeasureTheory

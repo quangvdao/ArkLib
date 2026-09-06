@@ -43,6 +43,10 @@ home_page/            site assets and assembled website root
 ## Where To Start By Task
 
 - Extending foundational math or coding theory: start in `ArkLib/Data/`.
+- Generic operational machines and their representation/refinement lemmas live in
+  `ArkLib/Data/Computation/`. Reed–Solomon execution consumers stay under `ListDecoding/`;
+  mathematical capacity entry points remain independent of that machinery. The retained lower-level
+  bit operations do not constitute a whole-decoder bit/RAM complexity theorem.
 - Changing typed interaction or dependent reduction foundations: start in `ArkLib/Interaction/`.
 - Changing legacy reduction or security abstractions: start in `ArkLib/OracleReduction/`.
 - Working on protocol statements or proofs: start in `ArkLib/ProofSystem/`.
@@ -67,16 +71,19 @@ Their supporting modules
 are grouped by mathematical role:
 
 - `HiddenDerivative/Interpolation/Local` contains contact identities, constraint maps and kernels,
-  and local rank bounds; `Interpolation/Band` contains asymmetric-band dimension and rank bounds.
+  and local rank bounds; `Interpolation/WeightedSupport` contains the cubic dimension estimate
+  and the weighted residual-coordinate rank count.
   Global interpolation and multiplicity arguments live directly under `Interpolation`;
   `Interpolation/Symbolic` retains the unevaluated challenge.
-- `HiddenDerivative/Parameters/Band` assembles band estimates, while `Parameters/Lattice` owns
+- `HiddenDerivative/Parameters/WeightedSupport` assembles the no-band scalar estimates and
+  prescribed surplus, while `Parameters/Lattice` owns
   the scaled-lattice and shell estimates.
 - `HiddenDerivative/RootFinding/Regular` contains regular Taylor lifting and singular descent.
   `FiniteField` contains finite-field witness counts and extension transport; `Taylor` constructs
   rational charts; `Geometry` counts their solution loci; `Symbolic` retains coefficient parameters.
   The assembled root bounds remain directly under `RootFinding`.
-- `ListDecodability/Capacity/RatePartition` contains the rate-cover and uniform-threshold argument.
+- `ListDecodability/Capacity/WeightedSupport` assembles the prescribed no-band construction.
+  `RatePartition` retains the more general rate-cover argument.
   `CorrelatedAgreement/Pairs` packages polynomial pairs and their exceptional sets;
   `CorrelatedAgreement/Symbolic` connects symbolic equations to agreement certificates.
   `CorrelatedAgreement/TaylorChart` contains the chart-specific incidence argument.
@@ -370,9 +377,10 @@ there are no forwarding modules at the retired paths.
   Capacity MCA is collected in `ReedSolomon/CorrelatedAgreement/Capacity.lean`, with line,
   affine-family, and power-batching results available through that single import.
   `ReedSolomon/Agreement.lean` contains the basic agreement sets, without a decoding theorem.
-  The cost-free decoder specification is in `ReedSolomon/Decoding/Specification.lean`;
-  the capacity module describes the algorithm but does not claim an executable implementation
-  or a running-time bound.
+  The decoder specification is in `ReedSolomon/ListDecoding/Specification.lean`.
+  `ListDecoding/CapacityDecoder.lean` and `CapacityDecoderExecution.lean` certify the actual
+  physical output and its primitive-work bound at the prescribed parameters. The mathematical
+  capacity imports remain independent of execution machinery; no bit/RAM bound is claimed.
 - Reusable finite-jet differential equations live in `Data/Polynomial/Differential`.
   Discrete-simplex cardinality, moments and variance live in
   `ToMathlib/Combinatorics/DiscreteSimplex`, independently of coding theory.

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.UniformFirstOrder
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.PrescribedLine
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.PrescribedCurve
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.QuarterGap
@@ -226,7 +227,7 @@ theorem exists_capacity_lineAgreement (δ : ℝ) (hδ : 0 < δ) :
       positivity
     · simpa using quarterGap_capacity_lineAgreement δ hquarter (lt_of_not_ge hhalf)
   have hδquarter : δ < 1 / 4 := lt_of_not_ge hquarter
-  let d := Nat.ceil (Real.exp ((169 / 25) / δ))
+  let d := Nat.ceil (Real.exp ((27 / 10) / δ))
   let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
   let C := prescribedMCAConstant δ
   have hC : 0 < C := prescribedMCAConstant_pos hδ hδquarter
@@ -238,8 +239,17 @@ theorem exists_capacity_lineAgreement (δ : ℝ) (hδ : 0 < δ) :
   by_cases hsmall : agreementThreshold δ n k ≤ n
   · let E := AlgebraicClosure F
     let iota : F →+* E := algebraMap F E
+    obtain ⟨_hn, _hm, _hν, _hνm, hνn, _hdK, _hkK, hKn, _hkA, _hgap⟩ :=
+      prescribed_geometric_parameters δ n k hδ hδquarter hk hn hsmall
+    have hchar' : ringChar F = 0 ∨
+        max (max k (Nat.floor (δ * n / 2)) - 1) (2 * m - 1) < ringChar F := by
+      apply hchar.imp_right
+      intro hnchar
+      apply max_lt
+      · omega
+      · exact hνn.trans_le hnchar
     obtain ⟨exceptional, hcard, hgood⟩ := exists_prescribedLineMCA
-      δ n k domain f g iota hδ hδquarter hk hn hsmall hchar
+      δ n k domain f g iota hδ hδquarter hk hn hsmall (by simpa only [d, m] using hchar')
     obtain ⟨baseExceptional, hbase, hbasegood⟩ :=
       exists_exceptional_correlatedAgreement_descend domain f g iota k
         (agreementThreshold δ n k) exceptional hgood
@@ -448,7 +458,7 @@ theorem exists_capacity_powerBatchingAgreement (δ : ℝ) (hδ : 0 < δ) :
     split_ifs with h
     · exact le_refl _
     · linarith
-  let d := Nat.ceil (Real.exp ((169 / 25) / ε))
+  let d := Nat.ceil (Real.exp ((27 / 10) / ε))
   let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
   let C := prescribedMCAConstant ε
   have hC : 0 < C := prescribedMCAConstant_pos hε hεquarter
@@ -462,8 +472,18 @@ theorem exists_capacity_powerBatchingAgreement (δ : ℝ) (hδ : 0 < δ) :
   by_cases hsmall : agreementThreshold ε n k ≤ n
   · let E := AlgebraicClosure F
     let iota : F →+* E := algebraMap F E
+    obtain ⟨_hn, _hm, _hν, _hνm, hνn, _hdK, _hkK, hKn, _hkA, _hgap⟩ :=
+      prescribed_geometric_parameters ε n k hε hεquarter hk hn hsmall
+    have hchar' : ringChar F = 0 ∨
+        max (max k (Nat.floor (ε * n / 2)) - 1) (2 * m - 1) < ringChar F := by
+      apply hchar.imp_right
+      intro hnchar
+      apply max_lt
+      · omega
+      · exact hνn.trans_le hnchar
     obtain ⟨exceptional, hcard, hgood⟩ := exists_prescribedCurveMCA
-      ε n k ℓ domain w iota hε hεquarter hk hℓ hn hsmall hchar
+      ε n k ℓ domain w iota hε hεquarter hk hℓ hn hsmall (by
+        simpa only [d, m] using hchar')
     obtain ⟨baseExceptional, hbase, hbasegood⟩ :=
       exists_exceptional_powerAgreement_descend domain w iota k
         (agreementThreshold ε n k) exceptional hgood

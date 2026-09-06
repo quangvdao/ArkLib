@@ -28,21 +28,20 @@ theorem supplies them.
 namespace ReedSolomon.HiddenDerivative
 
 /-- Joint and accidental-agreement charge for one order-zero stage. -/
-def curveStageZero (K ell h : ℕ) (s c : ℚ) (v : ℕ) (τ : ℕ := 2 * K) : ℚ :=
+def curveStageZero (_K ell h : ℕ) (s c : ℚ) (v τ : ℕ) : ℚ :=
   s * ((h * (1 + τ * (v - 1)) + v * (ell + τ * h) : ℕ) : ℚ) + c * v
 
 /-- Joint and accidental-agreement charge for one order-one stage. The direct joint ratio `η`
-is independent of the split joint ratio `s`. Its default `s` preserves the coarse legacy charge
-for callers that have not yet migrated to the dimension-sensitive incidence theorem. -/
-def curveStageOne (K ell h : ℕ) (s t c : ℚ) (v : ℕ) (τ : ℕ := 2 * K)
-    (η : ℚ := s) : ℚ :=
+is independent of the split joint ratio `s`; both it and the common Taylor exponent are
+explicit. -/
+def curveStageOne (_K ell h : ℕ) (s t c : ℚ) (v τ : ℕ) (η : ℚ) : ℚ :=
   s * η * ((h * (1 + τ * (v - 1)) ^ 2 +
     2 * v * (ell + τ * h) * (1 + τ * (v - 1)) : ℕ) : ℚ) +
     c * t * ((v * (1 + τ * (v - 1)) : ℕ) : ℚ)
 
 /-- Nonnegative incidence ratios give nonnegative order-zero charges. -/
 theorem curveStageZero_nonneg (K ell h : ℕ) {s c : ℚ} (hs : 0 ≤ s) (hc : 0 ≤ c)
-    (v : ℕ) (τ : ℕ := 2 * K) : 0 ≤ curveStageZero K ell h s c v τ := by
+    (v τ : ℕ) : 0 ≤ curveStageZero K ell h s c v τ := by
   unfold curveStageZero
   positivity
 
@@ -52,13 +51,6 @@ theorem curveStageOne_nonneg_of_factors (K ell h : ℕ) {s η t c : ℚ}
     (v τ : ℕ) : 0 ≤ curveStageOne K ell h s t c v τ η := by
   unfold curveStageOne
   positivity
-
-/-- The former square-factor order-one charge remains nonnegative. -/
-theorem curveStageOne_nonneg (K ell h : ℕ) {s t c : ℚ} (ht : 0 ≤ t) (hc : 0 ≤ c)
-    (v : ℕ) : 0 ≤ curveStageOne K ell h s t c v := by
-  unfold curveStageOne
-  exact add_nonneg (mul_nonneg (mul_self_nonneg s) (by positivity))
-    (mul_nonneg (mul_nonneg hc ht) (by positivity))
 
 /-- Enlarging the jet cap can only increase the order-zero charge at any common exponent. -/
 theorem curveStageZero_mono_of_exponent (K ell h : ℕ) {s c : ℚ}
@@ -73,11 +65,6 @@ theorem curveStageZero_mono_of_exponent (K ell h : ℕ) {s c : ℚ}
   apply add_le_add
   · exact mul_le_mul_of_nonneg_left (by exact_mod_cast hjoint) hs
   · exact mul_le_mul_of_nonneg_left (by exact_mod_cast hvw) hc
-
-/-- Compatibility form at the former coarse exponent. -/
-theorem curveStageZero_mono (K ell h : ℕ) {s c : ℚ} (hs : 0 ≤ s) (hc : 0 ≤ c) :
-    Monotone fun v ↦ curveStageZero K ell h s c v :=
-  curveStageZero_mono_of_exponent K ell h hs hc (2 * K)
 
 /-- Enlarging the jet cap can only increase the order-one charge. -/
 theorem curveStageOne_mono_of_factors (K ell h : ℕ) {s η t c : ℚ}
@@ -94,23 +81,6 @@ theorem curveStageOne_mono_of_factors (K ell h : ℕ) {s η t c : ℚ}
   unfold curveStageOne
   apply add_le_add
   · exact mul_le_mul_of_nonneg_left (by exact_mod_cast hjoint) (mul_nonneg hs hη)
-  · exact mul_le_mul_of_nonneg_left (by exact_mod_cast hfiber) (mul_nonneg hc ht)
-
-/-- The former square-factor order-one charge is monotone. -/
-theorem curveStageOne_mono (K ell h : ℕ) {s t c : ℚ} (ht : 0 ≤ t) (hc : 0 ≤ c) :
-    Monotone fun v ↦ curveStageOne K ell h s t c v := by
-  intro v w hvw
-  have hsub : v - 1 ≤ w - 1 := Nat.sub_le_sub_right hvw 1
-  have hb : 1 + 2 * K * (v - 1) ≤ 1 + 2 * K * (w - 1) := by gcongr
-  have hjoint : h * (1 + 2 * K * (v - 1)) ^ 2 +
-      2 * v * (ell + 2 * K * h) * (1 + 2 * K * (v - 1)) ≤
-      h * (1 + 2 * K * (w - 1)) ^ 2 +
-        2 * w * (ell + 2 * K * h) * (1 + 2 * K * (w - 1)) := by gcongr
-  have hfiber : v * (1 + 2 * K * (v - 1)) ≤
-      w * (1 + 2 * K * (w - 1)) := by gcongr
-  unfold curveStageOne
-  apply add_le_add
-  · exact mul_le_mul_of_nonneg_left (by exact_mod_cast hjoint) (mul_self_nonneg s)
   · exact mul_le_mul_of_nonneg_left (by exact_mod_cast hfiber) (mul_nonneg hc ht)
 
 /-- At incidence ratios at least one, order one dominates order zero at every degree. -/
@@ -139,11 +109,5 @@ theorem curveStageZero_le_one_of_factors (K ell h : ℕ) {s η t c : ℚ}
   apply add_le_add
   · exact mul_le_mul hsη (by exact_mod_cast hjoint) (by positivity) (mul_nonneg hs0 hη0)
   · exact mul_le_mul hct (by exact_mod_cast hvb) (by positivity) (mul_nonneg hc ht0)
-
-/-- Compatibility form where the direct joint ratio is the split joint ratio. -/
-theorem curveStageZero_le_one (K ell h : ℕ) {s t c : ℚ}
-    (hs : 1 ≤ s) (ht : 1 ≤ t) (hc : 0 ≤ c) (v : ℕ) :
-    curveStageZero K ell h s c v ≤ curveStageOne K ell h s t c v := by
-  exact curveStageZero_le_one_of_factors K ell h hs hs ht hc v (2 * K)
 
 end ReedSolomon.HiddenDerivative

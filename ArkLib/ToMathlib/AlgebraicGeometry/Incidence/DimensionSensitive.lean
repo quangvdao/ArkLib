@@ -107,6 +107,18 @@ theorem dimensionSensitiveIncidenceProduct_nonneg (n A k b d : ℕ) :
       rw [dimensionSensitiveIncidenceProduct_succ]
       exact mul_nonneg ih (div_nonneg (by positivity) (by positivity))
 
+/-- The cut-degree contribution separates from the evaluation ratios. -/
+theorem dimensionSensitiveIncidenceProduct_eq_pow_mul (n A k b d : ℕ) :
+    dimensionSensitiveIncidenceProduct n A k b d =
+      (b : ℚ) ^ d * dimensionSensitiveIncidenceProduct n A k 1 d := by
+  induction d with
+  | zero => simp
+  | succ d ih =>
+      rw [dimensionSensitiveIncidenceProduct_succ,
+        dimensionSensitiveIncidenceProduct_succ, ih, pow_succ]
+      push_cast
+      ring
+
 /-- Each incidence factor is at least one when its threshold lies below the agreement target. -/
 theorem one_le_incidenceFactor {n A T b : ℕ} (hTA : T ≤ A) (hAn : A ≤ n)
     (hb : 0 < b) :
@@ -220,6 +232,21 @@ theorem hybridDimensionSensitiveIncidenceProduct_nonneg (n A L k b d : ℕ) :
   | succ d ih =>
       rw [hybridDimensionSensitiveIncidenceProduct_succ]
       exact mul_nonneg ih (div_nonneg (by positivity) (by positivity))
+
+/-- The hybrid product is monotone in the ambient dimension when every incidence threshold is
+at most the agreement target. -/
+theorem hybridDimensionSensitiveIncidenceProduct_mono_dimension
+    {n A L k b : ℕ} (hLA : L ≤ A) (hkA : k ≤ A) (hAn : A ≤ n) (hb : 0 < b) :
+    Monotone (hybridDimensionSensitiveIncidenceProduct n A L k b) := by
+  apply monotone_nat_of_le_succ
+  intro d
+  rw [hybridDimensionSensitiveIncidenceProduct_succ]
+  apply le_mul_of_one_le_right
+  · exact hybridDimensionSensitiveIncidenceProduct_nonneg n A L k b d
+  · by_cases hd : d = 0
+    · simpa only [if_pos hd] using one_le_incidenceFactor hLA hAn hb
+    · simpa only [if_neg hd] using
+        one_le_incidenceFactor (T := k + 1 - d) (by omega) hAn hb
 
 /-- In the first-order joint family, every component of dimension at most two is uniformly
 charged by the graph-recognition factor followed by the direct coefficient-space factor. -/
@@ -936,6 +963,116 @@ theorem finite_agreementLocus_off_excluded_and_ncard_le_hybrid_two
   simpa only [mul_assoc] using mul_le_mul_of_nonneg_left
     (hybridDimensionSensitiveIncidenceProduct_le_two hPdim hLA hkA hAn hb)
       (affineDegree_nonneg P)
+
+/-- Arbitrary-dimensional hybrid incidence after a finite list of fixed nonlinear cuts. The
+fixed cuts contribute `B^d` through the retained-family degree potential; the later affine-linear
+agreement cuts contribute the terminal factor at `L` followed by the dimension-sensitive
+coefficient-space product. -/
+theorem iteratedRetainedCutFamily_incidence_off_excluded_hybrid
+    {n A L k B d : ℕ} (T₀ : Finset (Ideal (MvPolynomial σ F)))
+    (s : MvPolynomial σ F)
+    (hprime : ∀ P ∈ T₀, P.IsPrime) (hopen : ∀ P ∈ T₀, s ∉ P)
+    (hdim : ∀ P ∈ T₀, (hilbertPolynomial P).natDegree = d)
+    {V : ℚ} (hsum : ∑ P ∈ T₀, affineDegree P ≤ V)
+    (highCuts : List (MvPolynomial σ F))
+    (hhighDegree : ∀ f ∈ highCuts, f.totalDegree ≤ B) (hB : 0 < B)
+    (cuts : Fin n → MvPolynomial σ F) (hcutsDegree : ∀ i, (cuts i).totalDegree ≤ 1)
+    (hLA : L ≤ A) (hkA : k ≤ A) (hAn : A ≤ n)
+    (excluded : Set (σ → F))
+    (hdimension : ∀ P ∈ T₀, ∀ Q : Ideal (MvPolynomial σ F),
+      P ≤ Q → Q.IsPrime → s ∉ Q →
+      (∀ f ∈ highCuts, f ∈ Q) →
+      0 < (hilbertPolynomial Q).natDegree →
+      (hilbertPolynomial Q).natDegree ≤ k + 1 ∧
+        (1 < (hilbertPolynomial Q).natDegree →
+          (cutsInIdeal Q cuts).card ≤ k + 1 - (hilbertPolynomial Q).natDegree))
+    (hterminal : ∀ P ∈ T₀, ∀ Q : Ideal (MvPolynomial σ F),
+      P ≤ Q → Q.IsPrime → s ∉ Q →
+      (∀ f ∈ highCuts, f ∈ Q) →
+      0 < (hilbertPolynomial Q).natDegree →
+      L ≤ (cutsInIdeal Q cuts).card → principalOpenZeroLocus Q s ⊆ excluded)
+    (S : Finset (σ → F))
+    (hS : ∀ x ∈ S,
+      (∃ P ∈ T₀, x ∈ zeroLocus F P) ∧ aeval x s ≠ 0 ∧
+        (∀ f ∈ highCuts, aeval x f = 0) ∧ x ∉ excluded)
+    (hA : ∀ x ∈ S, A ≤ (agreementIndices cuts x).card) :
+    (S.card : ℚ) ≤ V * (B : ℚ) ^ d *
+      hybridDimensionSensitiveIncidenceProduct n A L k 1 (min (d - 1) k + 1) := by
+  classical
+  let T := iteratedRetainedCutFamily T₀ s highCuts
+  have hT (Q : Ideal (MvPolynomial σ F)) (hQ : Q ∈ T) :
+      Q.IsPrime ∧ s ∉ Q ∧ (∀ f ∈ highCuts, f ∈ Q) ∧ ∃ P ∈ T₀, P ≤ Q := by
+    have hpo := iteratedRetainedCutFamily_prime_open T₀ hprime hopen highCuts Q hQ
+    obtain ⟨P, hP, hPQ, hhigh⟩ := mem_iteratedRetainedCutFamily_contains T₀ highCuts hQ
+    exact ⟨hpo.1, hpo.2, hhigh, P, hP, hPQ⟩
+  have hTdim (Q : Ideal (MvPolynomial σ F)) (hQ : Q ∈ T) :
+      (hilbertPolynomial Q).natDegree ≤ d := by
+    obtain ⟨hQprime, _, _, P, hP, hPQ⟩ := hT Q hQ
+    exact (hilbertPolynomial_degree_and_leadingCoeff_antitone hPQ hQprime.ne_top).1
+      |>.trans_eq (hdim P hP)
+  have hpotential :
+      ∑ Q ∈ T, affineDegree Q * (B : ℚ) ^ (hilbertPolynomial Q).natDegree ≤
+        V * (B : ℚ) ^ d := by
+    exact (sum_iteratedRetainedCutFamily_affineDegree_mul_pow_le T₀ hprime hopen
+      (Nat.succ_le_iff.mpr hB) highCuts hhighDegree).trans (by
+        calc
+          ∑ P ∈ T₀, affineDegree P * (B : ℚ) ^ (hilbertPolynomial P).natDegree =
+              (∑ P ∈ T₀, affineDegree P) * (B : ℚ) ^ d := by
+            rw [Finset.sum_mul]
+            apply Finset.sum_congr rfl
+            intro P hP
+            rw [hdim P hP]
+          _ ≤ V * (B : ℚ) ^ d :=
+            mul_le_mul_of_nonneg_right hsum (by positivity))
+  have hcover : S.card ≤ ∑ Q ∈ T, (componentPoints S Q).card := by
+    apply le_trans _ Finset.card_biUnion_le
+    apply Finset.card_le_card
+    intro x hx
+    obtain ⟨P, hP, hxP⟩ := (hS x hx).1
+    obtain ⟨Q, hQ, hxQ⟩ := exists_mem_iteratedRetainedCutFamily_of_mem_zeroLocus T₀
+      highCuts x ⟨P, hP, hxP⟩ (hS x hx).2.1 (hS x hx).2.2.1
+    exact Finset.mem_biUnion.mpr ⟨Q, hQ, by rw [mem_componentPoints]; exact ⟨hx, hxQ⟩⟩
+  let R := hybridDimensionSensitiveIncidenceProduct n A L k 1 (min (d - 1) k + 1)
+  have hcomponent (Q : Ideal (MvPolynomial σ F)) (hQ : Q ∈ T) :
+      ((componentPoints S Q).card : ℚ) ≤ affineDegree Q * R := by
+    obtain ⟨hQprime, hsQ, hhighQ, P, hP, hPQ⟩ := hT Q hQ
+    have hbound := affineAgreementIncidence_bound_hybrid_off_excluded hQprime hsQ
+      cuts hcutsDegree hLA hkA hAn excluded
+      (fun J hQJ hJ hsJ hdJ ↦ hdimension P hP J (hPQ.trans hQJ) hJ hsJ
+        (fun f hf ↦ hQJ (hhighQ f hf)) hdJ)
+      (fun J hQJ hJ hsJ hdJ hcJ ↦ hterminal P hP J
+        (hPQ.trans hQJ) hJ hsJ (fun f hf ↦ hQJ (hhighQ f hf)) hdJ hcJ)
+      (componentPoints S Q)
+      (fun x hx ↦ by
+        rw [mem_componentPoints] at hx
+        exact ⟨⟨hx.2, (hS x hx.1).2.1⟩, (hS x hx.1).2.2.2⟩)
+      (fun x hx ↦ by rw [mem_componentPoints] at hx; exact hA x hx.1)
+    refine hbound.trans (mul_le_mul_of_nonneg_left ?_ (affineDegree_nonneg Q))
+    apply hybridDimensionSensitiveIncidenceProduct_mono_dimension hLA hkA hAn
+      Nat.zero_lt_one
+    by_cases hQzero : (hilbertPolynomial Q).natDegree = 0
+    · omega
+    · have hQpos : 0 < (hilbertPolynomial Q).natDegree := Nat.pos_of_ne_zero hQzero
+      have hkdim := (hdimension P hP Q hPQ hQprime hsQ hhighQ hQpos).1
+      have hddim := hTdim Q hQ
+      omega
+  have hdegreeSum : ∑ Q ∈ T, affineDegree Q ≤ V * (B : ℚ) ^ d := by
+    calc
+      ∑ Q ∈ T, affineDegree Q ≤
+          ∑ Q ∈ T, affineDegree Q * (B : ℚ) ^ (hilbertPolynomial Q).natDegree := by
+        apply Finset.sum_le_sum
+        intro Q hQ
+        exact le_mul_of_one_le_right (affineDegree_nonneg Q)
+          (one_le_pow₀ (by exact_mod_cast hB))
+      _ ≤ V * (B : ℚ) ^ d := hpotential
+  calc
+    (S.card : ℚ) ≤ ∑ Q ∈ T, ((componentPoints S Q).card : ℚ) := by exact_mod_cast hcover
+    _ ≤ ∑ Q ∈ T, affineDegree Q * R := Finset.sum_le_sum hcomponent
+    _ = (∑ Q ∈ T, affineDegree Q) * R := by rw [Finset.sum_mul]
+    _ ≤ (V * (B : ℚ) ^ d) * R :=
+      mul_le_mul_of_nonneg_right hdegreeSum
+        (hybridDimensionSensitiveIncidenceProduct_nonneg n A L k 1 (min (d - 1) k + 1))
+    _ = _ := rfl
 
 /-- First-order hybrid incidence after a finite list of fixed nonlinear cuts.  The nonlinear
 cuts contribute their degree bound `B` through the retained-family potential, while the later

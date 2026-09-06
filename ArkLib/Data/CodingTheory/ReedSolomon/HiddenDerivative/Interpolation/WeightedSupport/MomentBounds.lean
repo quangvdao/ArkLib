@@ -15,7 +15,7 @@ import Mathlib.Tactic.Ring
 
 Once simplex integration supplies the moment identities, their estimates are elementary real
 inequalities. This module isolates that arithmetic from integration: the variance uses a lower
-bound on the second harmonic sum, and the third and fourth moments use upper harmonic bounds.
+bound on the second harmonic sum, and the third moment uses upper harmonic bounds.
 The identities themselves are separate obligations; these lemmas do not assume a probability
 model or claim to construct one.
 -/
@@ -33,41 +33,31 @@ theorem weightedSupport_variance_factor_gt {d H H₂ : ℝ}
   rw [hid, lt_div_iff₀ hden]
   nlinarith [mul_nonneg hd0.le (sub_nonneg.mpr h₂)]
 
-/-- The third centered moment numerator is nonnegative under the finite harmonic bounds. -/
-theorem weightedSupport_third_moment_numerator_nonneg {d H H₂ H₃ : ℝ}
-    (hd : 0 ≤ d) (hH0 : 0 ≤ H) (hH : H ≤ d / 10)
-    (h₂ : H₂ ≤ 5 / 3) (h₃ : 1 ≤ H₃) :
-    0 ≤ d ^ 2 * H₃ - 3 * d * H * H₂ + 2 * H ^ 3 := by
-  have hprod : H * H₂ ≤ (d / 10) * (5 / 3) :=
-    (mul_le_mul_of_nonneg_left h₂ hH0).trans
-      (mul_le_mul_of_nonneg_right hH (by norm_num))
-  have hlow := mul_nonneg (sq_nonneg d) (sub_nonneg.mpr h₃)
-  have hhigh := mul_le_mul_of_nonneg_left hprod (show 0 ≤ 3 * d by positivity)
-  have hcube : 0 ≤ H ^ 3 := by positivity
+/-- Dropping the negative mixed term bounds the third centered moment factor. -/
+theorem weightedSupport_third_factor_le {d H H₂ H₃ : ℝ}
+    (hd : 0 < d) (hH : 0 ≤ H) (h₂ : 0 ≤ H₂) (h₃ : 0 ≤ H₃) :
+    2 * (d ^ 2 * H₃ - 3 * d * H * H₂ + 2 * H ^ 3) / ((d + 1) * (d + 2)) ≤
+      2 * (H₃ + 2 * H ^ 3 / d ^ 2) := by
+  have hden : 0 < (d + 1) * (d + 2) := by positivity
+  have hneg : 0 ≤ 3 * d * H * H₂ := by positivity
+  have hright : 0 ≤ 2 * (H₃ + 2 * H ^ 3 / d ^ 2) := by positivity
+  have he : 2 * (d ^ 2 * H₃ + 2 * H ^ 3) = (2 * (H₃ + 2 * H ^ 3 / d ^ 2)) * d ^ 2 := by field_simp
+  rw [div_le_iff₀ hden]
+  have hp := mul_le_mul_of_nonneg_left (show d ^ 2 ≤ (d + 1) * (d + 2) by nlinarith) hright
   nlinarith
 
-/-- In the fourth centered moment, the terms involving the first harmonic sum have
-nonpositive total contribution. The remaining two terms have the stated uniform bound. -/
-theorem weightedSupport_fourth_moment_factor_le {d H H₂ H₃ H₄ : ℝ}
-    (hd : 6 ≤ d) (hH0 : 0 ≤ H) (h₂0 : 0 ≤ H₂) (h₃0 : 0 ≤ H₃)
-    (hH : H ^ 2 ≤ (d - 1) * H₂)
-    (h₂ : H₂ ≤ 329 / 200) (h₄ : H₄ ≤ 13 / 12) :
-    (3 * d ^ 3 * H₂ ^ 2 + 6 * d ^ 3 * H₄ - 24 * d ^ 2 * H * H₃ -
-        6 * d * (d - 6) * H ^ 2 * H₂ + 3 * (d - 6) * H ^ 4) /
-      ((d + 1) * (d + 2) * (d + 3)) ≤ 584723 / 40000 := by
-  have hd0 : 0 ≤ d := by linarith
-  have hden : 0 < (d + 1) * (d + 2) * (d + 3) := by positivity
-  have hH' : H ^ 2 ≤ 2 * d * H₂ := by
-    nlinarith [mul_nonneg hd0 h₂0]
-  have htail := mul_nonneg
-    (show 0 ≤ 3 * (d - 6) * H ^ 2 by positivity)
-    (sub_nonneg.mpr hH')
-  have hnegative : 0 ≤ 24 * d ^ 2 * H * H₃ := by positivity
-  have hsquare : H₂ ^ 2 ≤ (329 / 200 : ℝ) ^ 2 := by nlinarith
-  have hmain : 3 * H₂ ^ 2 + 6 * H₄ ≤ 584723 / 40000 := by nlinarith
-  have hscaled := mul_le_mul_of_nonneg_left hmain
-    (show 0 ≤ d ^ 3 by positivity)
-  rw [div_le_iff₀ hden]
-  nlinarith [sq_nonneg d]
-
+/-- Finite harmonic bounds give the third-moment coefficient `2.41`. -/
+theorem weightedSupport_third_factor_numeric {d H H₃ : ℝ}
+    (hd : 48000 ≤ d) (hH : 0 ≤ H) (hHsq : H ^ 2 ≤ d / 100)
+    (h₃ : H₃ ≤ 12021 / 10000) :
+    2 * (H₃ + 2 * H ^ 3 / d ^ 2) ≤ (241 / 100 : ℝ) := by
+  have hd0 : 0 < d := by linarith
+  have hHlin : H ≤ d / 100 := by
+    nlinarith [sq_nonneg (H - d / 100)]
+  have hprod := mul_le_mul hHsq hHlin hH (by positivity : (0:ℝ) ≤ d / 100)
+  have hcube : H ^ 3 / d ^ 2 ≤ (1 / 10000:ℝ) := by
+    rw [div_le_iff₀ (sq_pos_of_pos hd0)]
+    nlinarith
+  rw [mul_div_assoc]
+  linarith
 end ReedSolomon.HiddenDerivative

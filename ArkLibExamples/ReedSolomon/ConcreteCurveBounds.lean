@@ -47,8 +47,8 @@ theorem zisKRevisedInitial_taylorExponent_sufficient (r : ℕ) :
   simpa [zisK] using
     taylorExponentSufficient_two_mul_sub_three r (by norm_num : 2 ≤ 131072)
 
-/-- The revised ZisK `λ₁η` envelope lies below the one-bit-grinding count.  The semantic
-exceptional-set theorem remains conditional on the shifted finite certificate at height 22707. -/
+/-- The revised ZisK `λ₁η` envelope lies below the one-bit-grinding count used by the
+concrete exceptional-set theorem. -/
 theorem zisKRevisedInitial_envelope_le :
     firstOrderCurveBound 524288 131072 131072 zisKRevisedInitialSplit 260512
         17 3 181 zisKRevisedInitialHeight 262141
@@ -75,9 +75,8 @@ theorem proveKitGoldilocksCubic_taylorExponent_sufficient (r : ℕ) :
   simpa [ProveKit.goldilocksCubic113] using
     taylorExponentSufficient_two_mul_sub_three r (by norm_num : 2 ≤ 262144)
 
-/-- The revised `λ₁η` envelope at `τ = 2k - 3` lies below its recorded integer ceiling.
-This is exact arithmetic for the geometric conclusion; producing the corresponding exceptional
-set still requires the shifted finite certificate and dimension-sensitive incidence bridge. -/
+/-- The revised `λ₁η` envelope at `τ = 2k - 3` lies below the integer ceiling used by
+the concrete Goldilocks exceptional-set theorem. -/
 theorem proveKitGoldilocksCubic_envelope_le :
     firstOrderCurveBound 1048576 262144 262144 proveKitGoldilocksCubicSplit 508263
         30 7 1 proveKitGoldilocksCubicHeight 524285
@@ -100,15 +99,9 @@ def envelope (p : LineProfile) (split : ℕ) : ℚ :=
     p.firstDerivativeCap p.batchingDegree p.height (taylorExponent p)
       (firstOrderCurveDirectRatio p.n p.k p.agreement)
 
-/-- Temporary coarse expression used by semantic clients that have not yet been moved to the
-sufficient-exponent, dimension-sensitive incidence theorem. -/
-def legacyEnvelope (p : LineProfile) (split : ℕ) : ℚ :=
-  firstOrderCurveBound p.n p.k p.k split p.agreement p.totalJetCap
-    p.firstDerivativeCap p.batchingDegree p.height
-
 /-- Recorded split for each zisK curve profile. -/
 def zisKSplit : Fin 6 → ℕ := ![
-  133969,
+  136608,
   16746,
   2093,
   261,
@@ -118,7 +111,7 @@ def zisKSplit : Fin 6 → ℕ := ![
 
 /-- Recorded budget for each zisK curve profile. -/
 def zisKBudget : Fin 6 → ℕ := ![
-  60881724329658740667,
+  32400105256997946305,
   36668433835251914,
   554102788624746,
   7211277004693,
@@ -135,11 +128,6 @@ theorem zisK_split_admissible (i : Fin 6) :
 /-- The exact rational envelope is below its displayed integer ceiling. -/
 theorem zisK_envelope_le (i : Fin 6) :
     envelope (zisK i) (zisKSplit i) ≤ zisKBudget i := by
-  fin_cases i <;> decide +kernel
-
-/-- The existing semantic route remains within the same displayed ZisK ceilings. -/
-theorem zisK_legacyEnvelope_le (i : Fin 6) :
-    legacyEnvelope (zisK i) (zisKSplit i) ≤ zisKBudget i := by
   fin_cases i <;> decide +kernel
 
 /-- Recorded split for each lambdaVM curve profile. -/
@@ -229,11 +217,6 @@ theorem lambdaVM_split_admissible (i : Fin 35) :
 /-- The exact rational envelope is below its displayed integer ceiling. -/
 theorem lambdaVM_envelope_le (i : Fin 35) :
     envelope (lambdaVM i) (lambdaVMSplit i) ≤ lambdaVMBudget i := by
-  fin_cases i <;> decide +kernel
-
-/-- The existing semantic route remains within the same displayed LambdaVM ceilings. -/
-theorem lambdaVM_legacyEnvelope_le (i : Fin 35) :
-    legacyEnvelope (lambdaVM i) (lambdaVMSplit i) ≤ lambdaVMBudget i := by
   fin_cases i <;> decide +kernel
 
 /-- Sum the initial curve and every fold belonging to one table configuration. -/

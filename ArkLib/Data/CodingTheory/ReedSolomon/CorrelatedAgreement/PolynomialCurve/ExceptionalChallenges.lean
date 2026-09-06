@@ -129,9 +129,12 @@ theorem finite_sourceCurve_bad_challenges_card_le
         ((((n * (1 + 2 * K * (v - 1)) : ℕ) : ℚ) /
           ((L - k + 1 : ℕ) : ℚ)) ^ r)) := by
   classical
-  let tuples := admissibleChartTupleFamily domain w iota center Q K k L
+  let τ := 2 * K
+  have hτ : TaylorExponentSufficient r K τ := taylorExponentSufficient_two_mul r K
+  let tuples := admissibleChartTupleFamilyAtExponent domain w iota center Q K k L τ
   have htuple (P : Fin (ℓ + 1) → F[X]) (hP : P ∈ tuples) :=
-    (mem_admissibleChartTupleFamily_iff domain w iota center Q K k L hkL P).mp hP
+    (mem_admissibleChartTupleFamilyAtExponent_iff
+      domain w iota center Q K k L τ hkL P).mp hP
   obtain ⟨exceptional, hexc, hexact⟩ := exists_exceptional_exactPowerAgreement_family
     (k := k) (L := L) domain w iota tuples
       (fun P hP ↦ (htuple P hP).degree) (fun P hP ↦ (htuple P hP).common)
@@ -143,7 +146,7 @@ theorem finite_sourceCurve_bad_challenges_card_le
   let S := remaining.image point
   have hcard : S.card = remaining.card := Finset.card_image_of_injective _ hpointinj
   have hoff (z : E) (hz : z ∈ remaining) :
-      point z ∉ sourceCurveTupleLocus domain w iota center Q K k L := by
+      point z ∉ sourceCurveTupleLocus_of_exponent domain w iota center Q K k L τ := by
     obtain ⟨hzc, hze⟩ := Finset.mem_sdiff.mp hz
     rintro ⟨P, hP, heq⟩
     have hjetEq : jet z = chartTupleJet iota center z P := by
@@ -157,12 +160,13 @@ theorem finite_sourceCurve_bad_challenges_card_le
         (powerBatchedJetGraph (r := r) center (fun t ↦ (P t).map iota)) z from heq]
       rw [source_separant_eval]
       exact hs
-    have hrec := (hP.specialize hkK z hregular).2.2.2
+    have hrec := (hP.specialize hτ hkK z hregular).2.2.2
     have hw : witness z = powerBatchedPolynomial (fun t ↦ (P t).map iota) z := by
       rw [← (hchart z hzc).2.2.2.2, hjetEq]
       exact hrec
     have hPmem : P ∈ tuples :=
-      (mem_admissibleChartTupleFamily_iff domain w iota center Q K k L hkL P).mpr hP
+      (mem_admissibleChartTupleFamilyAtExponent_iff
+        domain w iota center Q K k L τ hkL P).mpr hP
     apply hbad z hzc
     rw [hw]
     exact hexact P hPmem z hze
@@ -190,13 +194,15 @@ theorem finite_sourceCurve_bad_challenges_card_le
     · intro x hx
       obtain ⟨z, hz, rfl⟩ := Finset.mem_image.mp hx
       have hzc := (Finset.mem_sdiff.mp hz).1
-      refine ⟨?_, ?_, ?_, hoff z hz⟩
+      refine ⟨?_, ?_, ?_, ?_⟩
       · exact (source_initial_eval center z Q (jet z)).trans (hchart z hzc).2.1
       · rw [source_separant_eval]
         exact (hchart z hzc).2.2.1
       · intro l hl
         rw [source_numerator_eval]
         exact (hchart z hzc).2.2.2.1 l hl
+      · rw [← sourceCurveTupleLocus_of_exponent_two_mul_eq]
+        exact hoff z hz
     · intro x hx
       obtain ⟨z, hz, rfl⟩ := Finset.mem_image.mp hx
       have hzc := (Finset.mem_sdiff.mp hz).1
@@ -207,8 +213,8 @@ theorem finite_sourceCurve_bad_challenges_card_le
         taylorAgreementEquation_eq_zero_iff _ _ _ _ (hchart z hzc).2.2.1,
         (hchart z hzc).2.2.2.2]
       exact (Finset.mem_filter.mp hi).2
-  have htuplebound := admissibleChartTupleFamily_card_le
-    domain w iota center Q K k L v hK hkK hk hkL (hLA.trans hAn) hjet
+  have htuplebound := admissibleChartTupleFamilyAtExponent_card_le
+    domain w iota center Q K k L v τ hτ hK hkK hk hkL (hLA.trans hAn) hjet
   have hexcbound : (exceptional.card : ℚ) ≤
       ((ℓ * (n - L) : ℕ) : ℚ) * ((v : ℚ) *
         ((((n * (1 + 2 * K * (v - 1)) : ℕ) : ℚ) /
@@ -219,7 +225,7 @@ theorem finite_sourceCurve_bad_challenges_card_le
     apply he.trans
     have hm := mul_le_mul_of_nonneg_right htuplebound
       (show (0 : ℚ) ≤ ((ℓ * (n - L) : ℕ) : ℚ) by positivity)
-    simpa only [tuples, mul_comm] using hm
+    simpa only [tuples, τ, mul_comm, mul_left_comm, mul_assoc] using hm
   have hcover : challenges.card ≤ remaining.card + exceptional.card := by
     have he := Finset.card_sdiff_add_card_inter challenges exceptional
     have hi := Finset.card_le_card (Finset.inter_subset_right :

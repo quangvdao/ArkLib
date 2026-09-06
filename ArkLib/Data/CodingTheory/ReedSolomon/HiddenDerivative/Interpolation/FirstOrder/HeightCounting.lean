@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.Counting
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.Band
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.WeightedSupport
 
 
 /-!
@@ -196,7 +196,7 @@ theorem firstOrder_rowTotal_mul_height_lt_heightSlotCount (hD : 0 < D)
 
 /-! ### Complete symbolic source-column enumeration -/
 
-namespace SymbolicBandInterpolation
+namespace SymbolicWeightedSupportInterpolation
 
 open SymbolicReceivedInterpolation
 
@@ -231,7 +231,7 @@ theorem firstOrderColumns_eligible
   rw [firstOrderColumns_exponent]
   exact ((Fintype.equivFin ↑(firstOrderExponents D A m M μ)).symm j).2
 
-end SymbolicBandInterpolation
+end SymbolicWeightedSupportInterpolation
 
 end
 

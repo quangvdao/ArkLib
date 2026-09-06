@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ListDecodability
-import ArkLib.Data.CodingTheory.ReedSolomon.Decoding.Specification
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.Specification
 import Mathlib.Analysis.SpecialFunctions.Exp
 
 /-!
@@ -203,10 +203,10 @@ theorem UniformPrimeFieldCapacityListBound.exists_uniform_pointwise_bound
 /-- The prescribed derivative order for uniform prime-field capacity decoding.
 
 The order-zero branch covers every gap at least `1 / 4`. Below that boundary, the constant
-`169 / 25` is the exact rational representation of `6.76`. -/
+`27 / 10` is the prescribed no-band weighted-support constant. -/
 def capacityDerivativeOrder (delta : ℝ) : ℕ :=
   if (1 / 4 : ℝ) ≤ delta then 0
-  else Nat.ceil (Real.exp (((169 : ℝ) / 25) / delta))
+  else Nat.ceil (Real.exp (((27 : ℝ) / 10) / delta))
 
 @[simp]
 theorem capacityDerivativeOrder_eq_zero {delta : ℝ} (hdelta : (1 / 4 : ℝ) ≤ delta) :
@@ -214,32 +214,32 @@ theorem capacityDerivativeOrder_eq_zero {delta : ℝ} (hdelta : (1 / 4 : ℝ) �
   rw [capacityDerivativeOrder, if_pos hdelta]
 
 theorem capacityDerivativeOrder_eq_ceil {delta : ℝ} (hdelta : delta < (1 / 4 : ℝ)) :
-    capacityDerivativeOrder delta = Nat.ceil (Real.exp (((169 : ℝ) / 25) / delta)) := by
+    capacityDerivativeOrder delta = Nat.ceil (Real.exp (((27 : ℝ) / 10) / delta)) := by
   rw [capacityDerivativeOrder, if_neg (not_le_of_gt hdelta)]
 
-/-- The harmonic number `H_r = sum_{i=1}^r 1/i` used by the asymmetric-band parameters. -/
+/-- The harmonic number `H_r = sum_{i=1}^r 1/i` used by the weighted-support parameters. -/
 def harmonicNumber (r : ℕ) : ℝ :=
   ∑ i ∈ Finset.range r, (1 : ℝ) / (i + 1)
 
-/-- The optimized asymmetric-band multiplicity `ceil(100 d^2 H_{d-1})`. This parameter package
+/-- The weighted-support multiplicity `ceil(100 d^2 H_{d-1})`. This parameter package
 is used only below gap `1 / 4`; the order-zero branch instead uses an instance-dependent
 multiplicity and is deliberately specified separately. -/
-def asymmetricBandMultiplicity (delta : ℝ) : ℕ :=
+def weightedSupportMultiplicity (delta : ℝ) : ℕ :=
   let derivOrder := capacityDerivativeOrder delta
   Nat.ceil (100 * (derivOrder : ℝ) ^ 2 * harmonicNumber (derivOrder - 1))
 
-/-- The ambient dimension in the optimized asymmetric-band certificate. -/
-def asymmetricBandAmbientDimension (delta : ℝ) (blockLength messageDim : ℕ) : ℕ :=
+/-- The ambient dimension in the prescribed weighted-support certificate. -/
+def weightedSupportAmbientDimension (delta : ℝ) (blockLength messageDim : ℕ) : ℕ :=
   max messageDim ⌊(delta * (blockLength : ℝ)) / 2⌋₊
 
-/-- The larger-field condition under which the asymmetric-band target improves its root exponent
+/-- The larger-field condition under which the weighted-support target improves its root exponent
 from `2d` to `d`. The truncated natural subtraction represents
 `max {0, m * A - K + d}` from the manuscript. -/
 def LargeFieldCondition (delta : ℝ)
     (blockLength messageDim fieldSize derivOrder multiplicity : ℕ) :
     Prop :=
   2 * (multiplicity * agreementThreshold delta blockLength messageDim + derivOrder -
-    asymmetricBandAmbientDimension delta blockLength messageDim) ≤ fieldSize
+    weightedSupportAmbientDimension delta blockLength messageDim) ≤ fieldSize
 
 /-- Capacity lists have size at most one for gaps at least one half and strictly less than `4q`
 for gaps between one quarter and one half. This asserts list cardinalities, not an interpolation
@@ -260,14 +260,14 @@ def QuarterGapListBound : Prop :=
                   (agreementThreshold delta blockLength messageDim) received).encard <
                     ((4 * fieldSize : ℕ) : ℕ∞))
 
-/-- Below gap one quarter, asymmetric-band parameters give list bounds `B(delta) * q^(2d)`
+/-- Below gap one quarter, weighted-support parameters give list bounds `B(delta) * q^(2d)`
 for all prime fields `q ≥ n` and `B(delta) * q^d` under `LargeFieldCondition`, once `n ≥ 8m`.
 The prefactor depends only on the gap. These are exact-list bounds, with no runtime guarantee;
-order-indexed interpolants are specified by `AsymmetricBandConstruction`. -/
-def AsymmetricBandListBound : Prop :=
+order-indexed interpolants are specified by `WeightedSupportConstruction`. -/
+def WeightedSupportListBound : Prop :=
   ∀ delta : ℝ, 0 < delta → delta < (1 / 4 : ℝ) →
     let derivOrder := capacityDerivativeOrder delta
-    let multiplicity := asymmetricBandMultiplicity delta
+    let multiplicity := weightedSupportMultiplicity delta
     0 < multiplicity ∧
     ∃ listFactor : ℕ, 0 < listFactor ∧
       ∀ blockLength messageDim fieldSize : ℕ,

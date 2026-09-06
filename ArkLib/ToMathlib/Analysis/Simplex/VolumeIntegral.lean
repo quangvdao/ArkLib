@@ -187,4 +187,11 @@ theorem integral_standardSimplex_eq (n : ℕ) (a : Fin n → ℕ) (b : ℕ)
   simp only [List.length_ofFn, List.sum_ofFn, List.prod_ofFn, List.map_ofFn,
     Function.comp_apply]
 
+/-- The `n`-dimensional standard simplex has volume `L ^ n / n!`. -/
+theorem volume_standardSimplex (n : ℕ) {L : ℝ} (hL : 0 ≤ L) :
+    volume.real (standardSimplex n L) = L ^ n / n.factorial := by
+  have h := integral_standardSimplex_eq n (fun _ ↦ 0) 0 hL
+  simpa [simplexMonomial, isClosed_standardSimplex n L |>.measurableSet,
+    div_eq_mul_inv] using h
+
 end SimplexIntegration

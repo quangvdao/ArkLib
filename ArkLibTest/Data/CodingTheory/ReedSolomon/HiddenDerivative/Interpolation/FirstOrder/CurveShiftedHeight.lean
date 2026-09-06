@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 
 import
-  ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.CurveHeightCounting
+  ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.CurveFinite
 
 /-!
 # Acceptance clients for shifted first-order curve interpolation
@@ -19,7 +19,7 @@ open scoped Matrix
 
 namespace ReedSolomon.HiddenDerivative
 
-open SymbolicBandInterpolation SymbolicReceivedInterpolation
+open SymbolicWeightedSupportInterpolation SymbolicReceivedInterpolation
 
 /-- At the boundary `μ = 0`, the flattened compressed translated matrix still detects exactly
 the complete local constraint system. -/
@@ -51,5 +51,14 @@ example : firstOrderCurveShiftedColumnSlotCount 2 3 1 0 1 2 2 +
       2 * firstOrderTotalJetWeight 2 3 1 0 1 =
     (firstOrderExponents 2 3 1 0 1).card * (2 + 1) := by
   exact firstOrderCurveShiftedColumnSlotCount_add_weight (by decide)
+
+/-- The public finite constructor needs only an executable shifted surplus. This small client
+also includes an inactive positive-grade source block. -/
+example {F : Type*} [Field F] (centers : Fin 1 ↪ F) (w : Fin 1 → F[X])
+    (hw : ∀ i, (w i).natDegree ≤ 2) :
+    Nonempty (FirstOrderCurveCertificate 2 3 1 0 1 3 2 centers w
+      (firstOrderColumns (D := 2) (A := 3) (m := 1) (M := 0) (μ := 1))) := by
+  exact exists_finite_firstOrder_curve_certificate_of_heightSlotCount
+    2 (by decide) (by decide) (by decide) centers w hw (by decide)
 
 end ReedSolomon.HiddenDerivative

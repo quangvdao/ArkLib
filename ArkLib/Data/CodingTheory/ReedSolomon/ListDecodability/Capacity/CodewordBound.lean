@@ -56,10 +56,10 @@ theorem prescribed_geometric_lambda_bound
     (δ : ℝ) (n k : ℕ) (domain : Fin n ↪ F)
     (hδ : 0 < δ) (hδ' : δ < 1 / 4) (hk : 0 < k)
     (hblock : 8 * Nat.ceil
-      (100 * (Nat.ceil (Real.exp ((169 / 25) / δ)) : ℝ) ^ 2 *
-        harmonicNumber (Nat.ceil (Real.exp ((169 / 25) / δ)) - 1)) ≤ n)
+      (100 * (Nat.ceil (Real.exp ((27 / 10) / δ)) : ℝ) ^ 2 *
+        harmonicNumber (Nat.ceil (Real.exp ((27 / 10) / δ)) - 1)) ≤ n)
     (hA : agreementThreshold δ n k ≤ n) (hchar : ringChar F = 0 ∨ n ≤ ringChar F) :
-    let d := Nat.ceil (Real.exp ((169 / 25) / δ))
+    let d := Nat.ceil (Real.exp ((27 / 10) / δ))
     let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
     Code.Lambda (ReedSolomon.code domain k : Set (Fin n → F)) (capacityRadius δ n k) ≤
       (Nat.ceil (4 * (m : ℝ) ^ 2 * (4 * m / δ) ^ d * n ^ d) : ℕ∞) := by

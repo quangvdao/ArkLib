@@ -29,10 +29,10 @@ therefore proves the same published agreement and exceptional-count conclusion.
 ## Proof route
 
 The finite height inequalities supply actual polynomial-curve interpolation certificates.
-`exists_baseExceptional_firstOrderCurve_of_heightSlotCount` then constructs the exceptional
-set, performs the sharp geometric count, and descends exact agreement from an algebraically
-closed extension to the base field. No final exceptional-count or agreement conclusion is
-assumed.
+`exists_baseExceptional_firstOrderCurve_of_heightSlotCount_tight` then constructs the
+exceptional set, performs the dimension-sensitive geometric count at the tight Taylor exponent,
+and descends exact agreement from an algebraically closed extension to the base field. No final
+exceptional-count or agreement conclusion is assumed.
 -/
 
 open Polynomial
@@ -49,28 +49,30 @@ universe u
 
 /-- The 512-word BN254 profile at gap `11 / 50` has the published exceptional ceiling. -/
 theorem bn254_gap22_curve_envelope_le :
-    firstOrderCurveBound 1048576 262144 262144 262197 492831 688 168 511 973916154 ≤
+    firstOrderCurveBound 1048576 262144 262144 262197 492831 688 168 511 973916154
+      (2 * 262144 - 3) (firstOrderCurveDirectRatio 1048576 262144 492831) ≤
       575805257522140069855911588994 := by
   decide +kernel
 
 /-- A smaller witness for the 512-word BN254 row at gap `439 / 2000` is already below the
 published exceptional ceiling. -/
 theorem bn254_gap2195_curve_envelope_le :
-    firstOrderCurveBound 1048576 262144 262144 262246 492307 717 168 511 263537005 ≤
+    firstOrderCurveBound 1048576 262144 262144 262246 492307 717 168 511 263537005
+      (2 * 262144 - 3) (firstOrderCurveDirectRatio 1048576 262144 492307) ≤
       2350054974909344148634572067848032 := by
   decide +kernel
 
 /-- The gap-`11 / 50` height passes the actual polynomial-curve coefficient test. -/
 theorem bn254_gap22_curve_interpolation_height :
-    1048576 * certifiedEnlargedRankBound 1 384 168 0 * (973916154 + 1) <
-      firstOrderCurveHeightSlotCount 262143 492831 384 168 688 511 973916154 := by
+    firstOrderCurveShiftedRowSlotBound 262143 492831 384 168 688 1048576 511 973916154 <
+      firstOrderCurveShiftedHeightSlotCount 262143 492831 384 168 688 511 973916154 := by
   decide +kernel
 
 /-- A smaller support gives a stronger certificate at gap `439 / 2000` than the published
 ceiling. -/
 theorem bn254_gap2195_curve_interpolation_height :
-    1048576 * certifiedEnlargedRankBound 1 384 168 0 * (263537005 + 1) <
-      firstOrderCurveHeightSlotCount 262143 492307 384 168 717 511 263537005 := by
+    firstOrderCurveShiftedRowSlotBound 262143 492307 384 168 717 1048576 511 263537005 <
+      firstOrderCurveShiftedHeightSlotCount 262143 492307 384 168 717 511 263537005 := by
   decide +kernel
 
 /-- The published 512-word BN254 profile at gap `11 / 50` constructs an actual exceptional
@@ -86,7 +88,7 @@ theorem bn254_gap22_exists_exceptional_exact_powerAgreement
         492831 ≤ (polynomialAgreementSet domain (powerBatchedWord values z) P).card →
         HasExactPowerAgreement domain values (RingHom.id F) 262144 z P := by
   obtain ⟨exceptional, hcard, hgood⟩ :=
-    exists_baseExceptional_firstOrderCurve_of_heightSlotCount
+    exists_baseExceptional_firstOrderCurve_of_heightSlotCount_tight
       (D := 262143) (A := 492831) (m := 384) (M := 168) (mu := 688)
       (k := 262144) (h := 973916154) (n := 1048576) (K := 262144)
       (L := 262197) (ell := 511) domain values iota
@@ -108,7 +110,7 @@ theorem bn254_gap2195_exists_exceptional_exact_powerAgreement
         492307 ≤ (polynomialAgreementSet domain (powerBatchedWord values z) P).card →
         HasExactPowerAgreement domain values (RingHom.id F) 262144 z P := by
   obtain ⟨exceptional, hcard, hgood⟩ :=
-    exists_baseExceptional_firstOrderCurve_of_heightSlotCount
+    exists_baseExceptional_firstOrderCurve_of_heightSlotCount_tight
       (D := 262143) (A := 492307) (m := 384) (M := 168) (mu := 717)
       (k := 262144) (h := 263537005) (n := 1048576) (K := 262144)
       (L := 262246) (ell := 511) domain values iota

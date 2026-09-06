@@ -29,7 +29,8 @@ open scoped BigOperators Matrix
 
 namespace ReedSolomon.HiddenDerivative
 
-open MvPolynomial SymbolicReceivedInterpolation SymbolicReceivedCurve SymbolicBandInterpolation
+open MvPolynomial SymbolicReceivedInterpolation SymbolicReceivedCurve
+open SymbolicWeightedSupportInterpolation
 
 noncomputable section
 

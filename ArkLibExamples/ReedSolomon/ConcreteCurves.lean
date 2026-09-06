@@ -4,15 +4,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLibExamples.ReedSolomon.CurveProfile
+import ArkLibExamples.ReedSolomon.LambdaVMInterpolation
+import
+  ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.FirstOrder.CurveFinite
 
 /-!
 # Exact polynomial-curve interpolation for ZisK and LambdaVM
 
 The interpolation equation must hold on the polynomial received curve used by powers
-batching, not only on an affine line. At batching degree `ℓ`, every source column with
-`Y₀` exponent `a` consumes `ℓ * a` degrees in the challenge. This module checks that
-stronger finite height test at the exact heights recorded in the concrete certificates.
+batching, not only on an affine line. At batching degree `ℓ`, the shifted engine assigns
+weight `ℓ * t` to total jet grade `t` on both source columns and compressed local-image rows.
+This module checks that finite height test at the exact heights recorded in the certificates.
 
 The ZisK family contains its initial degree-181 curve and all five folds. The LambdaVM
 family contains all five equality-table configurations from the paper, with their initial
@@ -36,14 +38,14 @@ open ReedSolomon.HiddenDerivative
 
 namespace ArkLibExamples.ReedSolomon.ConcreteCurves
 
-open CurveProfile
+open CurveProfile LambdaVMInterpolation
 
 /-- The six ZisK initial and folding profiles. -/
 def zisK : Fin 6 → LineProfile := ![
   { n := 524288, k := 131072, agreement := 260512, multiplicity := 9,
     firstDerivativeCap := 3, totalJetCap := 17, batchingDegree := 181,
     supportDimension := 75053054, localRank := 140,
-    columnY₀Weight := 388950086, height := 42596, heightSlots := 3126634975672 },
+    columnY₀Weight := 388950086, height := 22707, heightSlots := 1615531117915 },
   { n := 65536, k := 16384, agreement := 32564, multiplicity := 9,
     firstDerivativeCap := 3, totalJetCap := 17, batchingDegree := 7,
     supportDimension := 9382246, localRank := 140,

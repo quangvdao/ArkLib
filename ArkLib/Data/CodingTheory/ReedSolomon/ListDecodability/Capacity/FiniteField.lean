@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.AsymmetricBand
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.WeightedSupport
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.QuarterGap
 
 
@@ -29,7 +29,7 @@ the block length gives the empty list. This theorem certifies no algorithmic run
 theorem exists_field_bounded_capacity_list
     (delta : ℝ) (hdelta : 0 < delta) (_hOne : delta < 1) :
     let d : ℕ := if (1 / 4 : ℝ) ≤ delta then 0
-      else Nat.ceil (Real.exp (((169 : ℝ) / 25) / delta))
+      else Nat.ceil (Real.exp (((27 : ℝ) / 10) / delta))
     let m : ℕ := Nat.ceil (100 * (d : ℝ) ^ 2 *
       ∑ i ∈ Finset.range (d - 1), (1 : ℝ) / (i + 1))
     let N : ℕ := if (1 / 4 : ℝ) ≤ delta then 1 else 8 * m
@@ -48,7 +48,7 @@ theorem exists_field_bounded_capacity_list
                 list.card ≤ 4 * m * q ^ d)) := by
   classical
   let d := capacityDerivativeOrder delta
-  let m := asymmetricBandMultiplicity delta
+  let m := weightedSupportMultiplicity delta
   change ∀ n k q A : ℕ,
     (if (1 / 4 : ℝ) ≤ delta then 1 else 8 * m) ≤ n → _
   by_cases hquarter : (1 / 4 : ℝ) ≤ delta
@@ -79,9 +79,9 @@ theorem exists_field_bounded_capacity_list
     · intro hsmall
       exact (not_lt_of_ge hquarter hsmall).elim
   · have hsmall : delta < (1 / 4 : ℝ) := lt_of_not_ge hquarter
-    have hbound := asymmetricBand_capacity_list_bound_four_mul delta hdelta hsmall
+    have hbound := weightedSupport_capacity_list_bound_four_mul delta hdelta hsmall
     intro n k q A hn hk hkn hq hnq hA _hAupper alpha y
-    have hblock : 8 * asymmetricBandMultiplicity delta ≤ n := by
+    have hblock : 8 * weightedSupportMultiplicity delta ≤ n := by
       simpa only [if_neg hquarter] using hn
     obtain ⟨⟨certificate⟩, hlarge⟩ := hbound n k q hblock hk hkn hq hnq alpha
     have hthreshold := (agreementThreshold_le_iff_real hdelta.le n k A).mpr hA

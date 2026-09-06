@@ -90,25 +90,26 @@ theorem mem_polynomialTupleFamily_iff [DecidableEq F]
   · rintro ⟨hdegree, hcommon⟩
     exact mem_polynomialTupleFamily_of_commonAgreement domain w P k hdegree hcommon
 
-/-- The finite sample-interpolation family filtered by the intrinsic chart identities. -/
-def admissibleChartTupleFamily [DecidableEq F]
+/-- The finite sample-interpolation family filtered by the intrinsic chart identities at a
+specified common Taylor exponent. -/
+def admissibleChartTupleFamilyAtExponent [DecidableEq F]
     (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F)
     (iota : F →+* E) (center : E) (Q : DifferentialPolynomial E[X] r)
-    (K k L : ℕ) : Finset (Fin (ℓ + 1) → F[X]) := by
+    (K k L τ : ℕ) : Finset (Fin (ℓ + 1) → F[X]) := by
   classical
   exact (polynomialTupleFamily domain w k).filter
-    (IsAdmissibleChartTuple domain w iota center Q K k L)
+    (IsAdmissibleChartTupleAtExponent domain w iota center Q K k L τ)
 
 /-- When `k ≤ L`, the finite filtered family contains every admissible tuple and only
 admissible tuples. -/
-theorem mem_admissibleChartTupleFamily_iff [DecidableEq F]
+theorem mem_admissibleChartTupleFamilyAtExponent_iff [DecidableEq F]
     (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F)
     (iota : F →+* E) (center : E) (Q : DifferentialPolynomial E[X] r)
-    (K k L : ℕ) (hkL : k ≤ L) (P : Fin (ℓ + 1) → F[X]) :
-    P ∈ admissibleChartTupleFamily domain w iota center Q K k L ↔
-      IsAdmissibleChartTuple domain w iota center Q K k L P := by
+    (K k L τ : ℕ) (hkL : k ≤ L) (P : Fin (ℓ + 1) → F[X]) :
+    P ∈ admissibleChartTupleFamilyAtExponent domain w iota center Q K k L τ ↔
+      IsAdmissibleChartTupleAtExponent domain w iota center Q K k L τ P := by
   classical
-  simp only [admissibleChartTupleFamily, Finset.mem_filter]
+  simp only [admissibleChartTupleFamilyAtExponent, Finset.mem_filter]
   constructor
   · exact And.right
   · intro hP
@@ -128,15 +129,17 @@ private theorem jetDegree_pos_of_initialSeparant_ne_zero (center : E)
 
 /-- Any finite family of intrinsic admissible tuple graphs satisfies the sharp ordinary-chart
 bound after one common regular specialization. -/
-theorem admissibleChartTuples_card_le [DecidableEq F] [IsAlgClosed E]
+theorem admissibleChartTuples_card_le_of_exponent [DecidableEq F] [IsAlgClosed E]
     (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F) (iota : F →+* E)
-    (center : E) (Q : DifferentialPolynomial E[X] r) (K k L v : ℕ)
+    (center : E) (Q : DifferentialPolynomial E[X] r) (K k L v τ : ℕ)
+    (hτ : TaylorExponentSufficient r K τ)
     (hK : r < K) (hkK : k ≤ K) (hk : 0 < k) (hkL : k ≤ L) (hLn : L ≤ n)
     (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
     (tuples : Finset (Fin (ℓ + 1) → F[X]))
-    (htuples : ∀ P ∈ tuples, IsAdmissibleChartTuple domain w iota center Q K k L P) :
+    (htuples : ∀ P ∈ tuples,
+      IsAdmissibleChartTupleAtExponent domain w iota center Q K k L τ P) :
     (tuples.card : ℚ) ≤ (v : ℚ) *
-      ((((n * (1 + 2 * K * (v - 1)) : ℕ) : ℚ) / ((L - k + 1 : ℕ) : ℚ)) ^ r) := by
+      ((((n * (1 + τ * (v - 1)) : ℕ) : ℚ) / ((L - k + 1 : ℕ) : ℚ)) ^ r) := by
   classical
   by_cases hempty : tuples = ∅
   · subst tuples
@@ -153,7 +156,7 @@ theorem admissibleChartTuples_card_le [DecidableEq F] [IsAlgClosed E]
   let Qz := MvPolynomial.map (Polynomial.evalRingHom z) Q
   let jets : Finset (Fin (r + 1) → E) := tuples.image (chartTupleJet iota center z)
   have hspec (P : Fin (ℓ + 1) → F[X]) (hP : P ∈ tuples) :=
-    (htuples P hP).specialize hkK z
+    (htuples P hP).specialize hτ hkK z
       (havoid _ (Finset.mem_image.mpr ⟨P, hP, rfl⟩))
   have hjetinj : Set.InjOn (chartTupleJet (r := r) iota center z)
       (tuples : Set (Fin (ℓ + 1) → F[X])) := by
@@ -170,7 +173,8 @@ theorem admissibleChartTuples_card_le [DecidableEq F] [IsAlgClosed E]
   have hvz := jetDegree_pos_of_initialSeparant_ne_zero center Qz hsep
   let domainE : Fin n ↪ E := mappedDomain domain iota
   let received : Fin n → E := powerBatchedWord (fun t i ↦ iota (w t i)) z
-  have hbound := finite_regularHighCutJets_card_le center Qz K k hK hsep hvz
+  have hbound := finite_regularHighCutJets_card_le_of_exponent
+    center Qz K k τ hτ hK hsep hvz
     domainE received hk hkL hLn jets (by
       intro jet hjetmem
       obtain ⟨P, hP, rfl⟩ := Finset.mem_image.mp hjetmem
@@ -181,8 +185,8 @@ theorem admissibleChartTuples_card_le [DecidableEq F] [IsAlgClosed E]
       apply (htuples P hP).common.trans
       apply Finset.card_le_card
       intro i hi
-      rw [mem_agreementIndices, taylorAgreementEquation_eq_zero_iff _ _ _ _
-        (hspec P hP).2.1, (hspec P hP).2.2.2]
+      rw [mem_agreementIndices, taylorAgreementEquation_eq_zero_iff_of_exponent
+        _ _ _ τ hτ _ (hspec P hP).2.1, (hspec P hP).2.2.2]
       have hi' : ∀ t, (P t).eval (domain i) = w t i := by
         simpa only [commonCurveAgreementSet, Finset.mem_filter, Finset.mem_univ,
           true_and] using hi
@@ -200,7 +204,7 @@ theorem admissibleChartTuples_card_le [DecidableEq F] [IsAlgClosed E]
     intro m hm
     exact (le_weightedTotalDegree _
       (support_map_subset (Polynomial.evalRingHom z) Q hm)).trans hjet
-  have hB : rationalTaylorCutDegreeBound Qz K ≤ 1 + 2 * K * (v - 1) := by
+  have hB : rationalTaylorCutDegreeBound Qz K (τ := τ) ≤ 1 + τ * (v - 1) := by
     unfold rationalTaylorCutDegreeBound
     exact Nat.add_le_add_left (Nat.mul_le_mul_left _ (Nat.sub_le_sub_right hvle 1)) 1
   apply mul_le_mul
@@ -212,16 +216,19 @@ theorem admissibleChartTuples_card_le [DecidableEq F] [IsAlgClosed E]
   · positivity
 
 /-- The complete finite family of admissible tuples satisfies the sharp ordinary-chart bound. -/
-theorem admissibleChartTupleFamily_card_le [DecidableEq F] [IsAlgClosed E]
+theorem admissibleChartTupleFamilyAtExponent_card_le [DecidableEq F] [IsAlgClosed E]
     (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F) (iota : F →+* E)
-    (center : E) (Q : DifferentialPolynomial E[X] r) (K k L v : ℕ)
+    (center : E) (Q : DifferentialPolynomial E[X] r) (K k L v τ : ℕ)
+    (hτ : TaylorExponentSufficient r K τ)
     (hK : r < K) (hkK : k ≤ K) (hk : 0 < k) (hkL : k ≤ L) (hLn : L ≤ n)
     (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v) :
-    ((admissibleChartTupleFamily domain w iota center Q K k L).card : ℚ) ≤ (v : ℚ) *
-      ((((n * (1 + 2 * K * (v - 1)) : ℕ) : ℚ) / ((L - k + 1 : ℕ) : ℚ)) ^ r) := by
-  apply admissibleChartTuples_card_le domain w iota center Q K k L v hK hkK hk hkL hLn
-    hjet
+    ((admissibleChartTupleFamilyAtExponent domain w iota center Q K k L τ).card : ℚ) ≤
+      (v : ℚ) *
+        ((((n * (1 + τ * (v - 1)) : ℕ) : ℚ) / ((L - k + 1 : ℕ) : ℚ)) ^ r) := by
+  apply admissibleChartTuples_card_le_of_exponent domain w iota center Q K k L v τ hτ
+    hK hkK hk hkL hLn hjet
   intro P hP
-  exact (mem_admissibleChartTupleFamily_iff domain w iota center Q K k L hkL P).mp hP
+  exact (mem_admissibleChartTupleFamilyAtExponent_iff
+    domain w iota center Q K k L τ hkL P).mp hP
 
 end ReedSolomon

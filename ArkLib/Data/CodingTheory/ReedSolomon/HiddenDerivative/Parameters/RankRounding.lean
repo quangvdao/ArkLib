@@ -192,22 +192,6 @@ theorem kappa_reciprocal_factor_le (κ t d m : ℝ)
   exact hfactor.trans hnum
 
 
-/-- Rounding the lower cutoff and error window costs less than two. -/
-theorem errorWindow_lt (β g : ℝ) (m : ℕ) (hg : 0 ≤ g)
-    (hβg : 0 ≤ β * g) (hβgmax : β * g ≤ 1) :
-    (Nat.ceil ((m : ℝ) * (1 + g) - Nat.floor ((1 - β * g) * m)) : ℝ) <
-      (1 + β) * g * m + 2 := by
-  have hm : (0 : ℝ) ≤ m := Nat.cast_nonneg m
-  have hc : 0 ≤ (1 - β * g) * (m : ℝ) := mul_nonneg (by linarith) hm
-  have hlo := Nat.floor_le hc
-  have hhi := Nat.lt_floor_add_one ((1 - β * g) * (m : ℝ))
-  have hgm := mul_nonneg hg hm
-  have hβgm := mul_nonneg hβg hm
-  have hn : 0 ≤ (m : ℝ) * (1 + g) - Nat.floor ((1 - β * g) * m) := by nlinarith
-  have hceil := Nat.ceil_lt_add_one hn
-  nlinarith
-
-
 /-- The rounded radius and multiplicity satisfy every scalar rank prerequisite. -/
 theorem prescribed_kappa_bounds (a H : ℝ) (d : ℕ)
     (ha : 1 ≤ a) (hH : 0 < H) (hd : 1000 ≤ d) :

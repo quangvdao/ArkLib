@@ -31,13 +31,18 @@ theorem exists_prescribedLineMCA {F E : Type u} [Field F] [Field E]
     (δ : ℝ) (n k : ℕ) (domain : Fin n ↪ F) (f g : Fin n → F) (iota : F →+* E)
     (hδ : 0 < δ) (hδ' : δ < 1 / 4) (hk : 0 < k)
     (hblock : 8 * Nat.ceil
-      (100 * (Nat.ceil (Real.exp ((169 / 25) / δ)) : ℝ) ^ 2 *
-        harmonicNumber (Nat.ceil (Real.exp ((169 / 25) / δ)) - 1)) ≤ n)
+      (100 * (Nat.ceil (Real.exp ((27 / 10) / δ)) : ℝ) ^ 2 *
+        harmonicNumber (Nat.ceil (Real.exp ((27 / 10) / δ)) - 1)) ≤ n)
     (hA : agreementThreshold δ n k ≤ n)
-    (hchar : ringChar F = 0 ∨ n ≤ ringChar F) :
+    (hchar :
+      let d := Nat.ceil (Real.exp ((27 / 10) / δ))
+      let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
+      let ν := 2 * m - 1
+      let K := max k (Nat.floor (δ * n / 2))
+      ringChar F = 0 ∨ max (K - 1) ν < ringChar F) :
     ∃ exceptional : Finset E,
       (exceptional.card : ℝ) ≤ prescribedMCAConstant δ *
-        (n : ℝ) ^ (Nat.ceil (Real.exp ((169 / 25) / δ)) + 1) ∧
+        (n : ℝ) ^ (Nat.ceil (Real.exp ((27 / 10) / δ)) + 1) ∧
       ∀ z ∉ exceptional, ∀ P : E[X], P.degree < k →
         agreementThreshold δ n k ≤ (polynomialAgreementSet (mappedDomain domain iota)
           (fun i ↦ iota (f i) + z * iota (g i)) P).card →

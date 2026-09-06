@@ -150,29 +150,6 @@ def goldilocksCubic113 : Profile where
   fieldBytes := 8
   extensionBytes := 24
 
-/-- Temporary historical row used by semantic clients until the shifted finite certificate and
-dimension-sensitive incidence bridge are connected. -/
-def goldilocksCubic : Profile where
-  n := 1048576
-  k := 262144
-  vectorSize := 2097152
-  interleavingWidth := 8
-  batchSize := 1
-  fieldSize := 6277101731002175853884774869567645561244584131361410908161
-  agreementNumerator := 512754
-  multiplicity := 13
-  firstJetCap := 5
-  totalJetDegreeCap := 24
-  exceptionalCount := 8210316778177167673
-  listSize := 5089296970
-  queries := 115
-  initialOodSamples := 2
-  powThreshold := 18786624067678312
-  nominalQueries := 127
-  zeroSlackQueryReference := 119
-  fieldBytes := 8
-  extensionBytes := 24
-
 /-! ## BN254 checks -/
 
 /-- The BN254 row has rate one quarter and the expected interleaved vector size. Its agreement is
@@ -299,39 +276,5 @@ theorem goldilocksCubic113_payload_lower_bounds :
         (goldilocksCubic113.interleavingWidth * goldilocksCubic113.fieldBytes) 32
         ((goldilocksCubic113.initialOodSamples - 1) * goldilocksCubic113.extensionBytes) = 168 := by
   norm_num [conservativePayloadSaving, fixedPayloadSaving, goldilocksCubic113]
-
-/-! ## Historical semantic-client arithmetic -/
-
-/-- Historical 115-query local inequalities, retained while semantic clients migrate. -/
-theorem goldilocksCubic_changed_slots_meet_target :
-    goldilocksCubic.listSize * (goldilocksCubic.listSize - 1) *
-          (goldilocksCubic.vectorSize - 1) ^ 2 * 2 ^ 128 ≤
-        2 * goldilocksCubic.fieldSize ^ 2 ∧
-      goldilocksCubic.exceptionalCount * 2 ^ 128 ≤ goldilocksCubic.fieldSize ∧
-      2 * goldilocksCubic.listSize * 2 ^ 128 ≤ goldilocksCubic.fieldSize ∧
-      (goldilocksCubic.exceptionalCount + 2 * goldilocksCubic.listSize) * 2 ^ 128 ≤
-        goldilocksCubic.fieldSize ∧
-      2 * (1 + goldilocksCubic.queries) * 160 * 2 ^ 128 ≤ goldilocksCubic.fieldSize := by
-  norm_num [goldilocksCubic]
-
-/-- Historical 115-query selection used by existing semantic bundles. -/
-theorem goldilocksCubic_query_selection :
-    (goldilocksCubic.powThreshold + 1) *
-          goldilocksCubic.agreementNumerator ^ goldilocksCubic.queries * 2 ^ 128 ≤
-        2 ^ 64 * goldilocksCubic.n ^ goldilocksCubic.queries ∧
-      2 ^ 64 * goldilocksCubic.n ^ (goldilocksCubic.queries - 1) <
-        (goldilocksCubic.powThreshold + 1) *
-          goldilocksCubic.agreementNumerator ^ (goldilocksCubic.queries - 1) * 2 ^ 128 := by
-  norm_num [goldilocksCubic]
-
-/-- Historical conservative payload values used by existing semantic bundles. -/
-theorem goldilocksCubic_payload_lower_bounds :
-    (goldilocksCubic.nominalQueries - goldilocksCubic.queries) *
-          (goldilocksCubic.interleavingWidth * goldilocksCubic.fieldBytes - 32) -
-        (goldilocksCubic.initialOodSamples - 1) * goldilocksCubic.extensionBytes = 360 ∧
-      (goldilocksCubic.zeroSlackQueryReference - goldilocksCubic.queries) *
-          (goldilocksCubic.interleavingWidth * goldilocksCubic.fieldBytes - 32) -
-        (goldilocksCubic.initialOodSamples - 1) * goldilocksCubic.extensionBytes = 104 := by
-  norm_num [goldilocksCubic]
 
 end ArkLibExamples.ReedSolomon.ProveKit

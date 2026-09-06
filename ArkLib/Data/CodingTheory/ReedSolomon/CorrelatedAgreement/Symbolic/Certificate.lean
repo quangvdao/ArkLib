@@ -29,21 +29,21 @@ open Polynomial MvPolynomial SymbolicSeparantChain SymbolicJetPrefix ReedSolomon
 universe u
 
 variable {F E : Type u} [Field F] [Field E] [DecidableEq F] [DecidableEq E]
-  [IsAlgClosed E] {n A k ν d : ℕ} {domain : Fin n ↪ F} {f g : Fin n → F}
+  [IsAlgClosed E] {n A k ν d h : ℕ} {domain : Fin n ↪ F} {f g : Fin n → F}
 
 /-- A certificate supplies its own regular stages and a single exception set, with an
 explicit sum over actual stage orders and exact full agreement with a base-field pair. -/
 theorem Certificate.exists_exceptional_symbolicLineMCA
-    (cert : Certificate.{u, u} F A k ν d domain f g) (iota : F →+* E)
+    (cert : Certificate.{u, u} F A k ν d h domain f g) (iota : F →+* E)
     (K L : ℕ) (hK : d < K) (hkK : k ≤ K) (hk : 0 < k) (hkL : k ≤ L)
     (hLA : L ≤ A) (hAn : A ≤ n) (hν : 0 < ν)
     (hchar : ringChar F = 0 ∨ ν < ringChar F)
     (hbin : ∀ r ≤ d, ∀ i, r < i → i < K → (i.choose r : F) ≠ 0) :
     ∃ stages terminal, Chain cert.Q stages terminal ∧
       ∃ exceptional : Finset E,
-        (exceptional.card : ℚ) ≤ ((338 * ν - 1 : ℕ) : ℚ) +
+        (exceptional.card : ℚ) ≤ ((h : ℕ) : ℚ) +
           ∑ stage ∈ stages.toFinset,
-            regularSymbolicMCABound n stage.2.val K k L A ν (338 * ν - 1) ∧
+            regularSymbolicMCABound n stage.2.val K k L A ν (h) ∧
         ∀ z ∉ exceptional, ∀ P : E[X], P.degree < k →
           A ≤ (polynomialAgreementSet (mappedDomain domain iota)
             (fun i ↦ iota (f i) + z * iota (g i)) P).card →
@@ -54,7 +54,7 @@ theorem Certificate.exists_exceptional_symbolicLineMCA
   have hstage : ∀ stage : Stage F[X] d, ∃ exceptional : Finset E,
       stage ∈ stages →
         (exceptional.card : ℚ) ≤
-          regularSymbolicMCABound n stage.2.val K k L A ν (338 * ν - 1) ∧
+          regularSymbolicMCABound n stage.2.val K k L A ν (h) ∧
         ∀ z ∉ exceptional, ∀ P : E[X], P.degree < k →
           A ≤ (polynomialAgreementSet (mappedDomain domain iota)
             (fun i ↦ iota (f i) + z * iota (g i)) P).card →
@@ -75,7 +75,7 @@ theorem Certificate.exists_exceptional_symbolicLineMCA
         apply iota.injective
         simpa only [map_natCast, map_zero] using hzero
       obtain ⟨ex, hb, he⟩ := exists_exceptional_regularSymbolicLineMCA domain f g iota
-        (extendSymbolicCoefficients iota pres.equation) K k L A ν (338 * ν - 1)
+        (extendSymbolicCoefficients iota pres.equation) K k L A ν (h)
         ((Fin.is_le stage.2).trans_lt hK) hkK hk hkL hLA hAn hν hweight
         (challengeHeightLE_extendSymbolicCoefficients iota pres.equation hh) hbins
       refine ⟨ex, fun _ ↦ ⟨hb, ?_⟩⟩
@@ -98,7 +98,7 @@ theorem Certificate.exists_exceptional_symbolicLineMCA
       ((base ∪ stages.toFinset.biUnion ex).card : ℚ) ≤
           (base.card : ℚ) + ((stages.toFinset.biUnion ex).card : ℚ) := by
         exact_mod_cast Finset.card_union_le base (stages.toFinset.biUnion ex)
-      _ ≤ ((338 * ν - 1 : ℕ) : ℚ) +
+      _ ≤ ((h : ℕ) : ℚ) +
           ∑ stage ∈ stages.toFinset, ((ex stage).card : ℚ) := by
         apply add_le_add
         · exact_mod_cast hbase

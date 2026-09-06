@@ -77,6 +77,12 @@ name = "hachi-runtime"
 srcDir = "scripts"
 root = "HachiRuntime"
 
+# Concrete coefficient-lifting vectors; separate from kernel-checked refinement theorems.
+[[lean_exe]]
+name = "regular-lift-runtime"
+srcDir = "scripts"
+root = "RegularLiftRuntime"
+
 # Lean-native, exception-free source-policy gate. Since the executable imports Lake, it must link
 # Lake explicitly; keeping it out of the default target avoids adding linter-only dependencies to
 # the library build graph.

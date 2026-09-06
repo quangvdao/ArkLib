@@ -4,25 +4,23 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.Radius
-import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.RatePartition.Interpolant
 import
-  ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.ExtensionRootCount
+  ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.CertificateRootBound
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.QuarterGap
+import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.WeightedSupport
 
 
 /-!
 # Qualitative all-rate Reed--Solomon list bounds
 
-Actual uniform hidden-derivative constructions imply the canonical all-rate polynomial-list
-contract. Each agreeing message embeds, with its original polynomial unchanged, into the bounded
-differential roots of the construction. The general extension-field root count, instantiated at
-degree three, gives the coarse bound `2 * (d + 1) * q^(3*d + 2)`, where `d` depends only on the
-capacity gap. Oversized agreement thresholds yield empty lists, without requiring an impossible
-interpolant.
+The generic theorem in this module turns any uniform family of actual hidden-derivative
+constructions into the canonical all-rate polynomial-list contract. The concrete theorem combines
+the elementary quarter-gap certificate with the prescribed no-band weighted-support certificate.
+Oversized agreement thresholds yield empty lists without requiring an impossible interpolant.
 
 The finite-set decoder is a classical witness, not a polynomial-time implementation. The
-paper-facing quantitative list theorem is in `Capacity.lean`; this module supplies the separate
-consequence of a uniform family of interpolation witnesses without prescribing its parameters.
+paper-facing quantitative list theorem is in `Capacity.lean`; the generic transformer here remains
+available to alternative uniform families of interpolation witnesses.
 
 ## References
 
@@ -31,92 +29,11 @@ consequence of a uniform family of interpolation witnesses without prescribing i
   (all-rate transfer from the low-rate certificate).
 -/
 
-open PolynomialDifferential
-
-
 namespace ReedSolomon
 
-open HiddenDerivative ListDecoding Polynomial
+open HiddenDerivative
 
 noncomputable section
-
-/-- Package a polynomial without changing its representation. -/
-private theorem exists_boundedSolution_of_polynomial {F : Type*} [CommSemiring F] {d D : ℕ}
-    (Q : DifferentialPolynomial F d) (P : Polynomial F)
-    (hP : P ∈ Polynomial.degreeLT F (D + 1))
-    (hQ : differentialSpecialization Q P = 0) :
-    ∃ s : BoundedSolution Q D, s.polynomial = P :=
-  ⟨⟨⟨P, hP⟩, hQ⟩, rfl⟩
-
-/-- An agreeing message has a solution representative with the same polynomial. -/
-private theorem HiddenDerivativeInterpolationCertificate.exists_solution
-    {n q k A d m : ℕ} [Fact q.Prime] {domain : Fin n ↪ ZMod q}
-    {received : Fin n → ZMod q}
-    (construction : HiddenDerivativeInterpolationCertificate (k := k) (A := A) d m domain received)
-    (p : agreeingPolynomials domain k A received) :
-    ∃ solution : BoundedSolution construction.interpolant (construction.ambientDim - 1),
-      solution.polynomial = (p.1 : Polynomial (ZMod q)) := by
-  have hK : k ≤ (construction.ambientDim - 1) + 1 := by
-    have := construction.order_lt_degree
-    have := construction.messageDim_le
-    omega
-  exact exists_boundedSolution_of_polynomial construction.interpolant (p.1 : Polynomial (ZMod q))
-    (Polynomial.degreeLT_mono hK p.1.property)
-    (construction.specializes_to_zero p.1 p.property)
-
-/-- Keep the original polynomial while viewing an agreeing message as a differential root. -/
-def HiddenDerivativeInterpolationCertificate.solutionEmbedding
-    {n q k A d m : ℕ} [Fact q.Prime] {domain : Fin n ↪ ZMod q}
-    {received : Fin n → ZMod q}
-    (construction :
-      HiddenDerivativeInterpolationCertificate (k := k) (A := A) d m domain received) :
-    agreeingPolynomials domain k A received ↪
-      BoundedSolution construction.interpolant (construction.ambientDim - 1) where
-  toFun p := (construction.exists_solution p).choose
-  inj' := by
-    intro p p' h
-    apply Subtype.ext
-    apply Subtype.ext
-    have hp := (construction.exists_solution p).choose_spec
-    have hp' := (construction.exists_solution p').choose_spec
-    exact hp.symm.trans ((congrArg BoundedSolution.polynomial h).trans hp')
-
-/-- Actual construction witnesses give the coarse pointwise root-count bound. Neither an exact
-interpolation-space membership premise nor a separately assumed list bound is required. -/
-theorem HiddenDerivativeInterpolationCertificate.agreeingPolynomials_encard_le
-    {n q k A d m : ℕ} [Fact q.Prime] {domain : Fin n ↪ ZMod q}
-    {received : Fin n → ZMod q}
-    (construction :
-      HiddenDerivativeInterpolationCertificate (k := k) (A := A) d m domain received) :
-    (agreeingPolynomials domain k A received).encard ≤
-      (2 * (d + 1) * q ^ (3 * d + 2) : ℕ) := by
-  have hq : 2 ≤ q := (Fact.out : q.Prime).two_le
-  have hlarge : 2 * q ^ 2 ≤ q ^ 3 := by
-    calc
-      2 * q ^ 2 ≤ q * q ^ 2 := Nat.mul_le_mul_right (q ^ 2) hq
-      _ = q ^ 3 := by ring
-  have hRoots := natCard_boundedSolution_le_extension_pow_of_weightedDegree
-    construction.interpolant 3 (q ^ 2) (by decide) construction.nonzero
-    construction.below_characteristic
-    (by simpa only [Nat.card_zmod] using
-      construction.weighted_degree_lt.le.trans construction.contact_budget_le)
-    (by simpa only [Nat.card_zmod] using hlarge)
-  have hRootsQ : Nat.card (BoundedSolution construction.interpolant
-      (construction.ambientDim - 1)) ≤ 2 * (d + 1) * q ^ 2 * q ^ (3 * d) := by
-    simpa only [Nat.card_zmod] using hRoots
-  have hRoots' : Nat.card (BoundedSolution construction.interpolant
-      (construction.ambientDim - 1)) ≤ 2 * (d + 1) * q ^ (3 * d + 2) := by
-    convert hRootsQ using 1
-    rw [pow_add, pow_mul]
-    ring
-  calc
-    (agreeingPolynomials domain k A received).encard
-        ≤ ENat.card (BoundedSolution construction.interpolant (construction.ambientDim - 1)) :=
-      ENat.card_le_card_of_injective construction.solutionEmbedding.injective
-    _ = (Nat.card (BoundedSolution construction.interpolant
-        (construction.ambientDim - 1)) : ℕ∞) := ENat.card_eq_coe_natCard _
-    _ ≤ (2 * (d + 1) * q ^ (3 * d + 2) : ℕ) := by
-      exact_mod_cast hRoots'
 
 /-- Uniform actual constructions imply gap-only polynomial bounds for all rates, including the
 canonical relative-radius and empty-list conventions. There is no algorithmic claim. -/
@@ -138,9 +55,36 @@ theorem capacityListBound_of_uniform_interpolation
     simp
 
 /-- Unconditional qualitative all-rate list decoding over prime fields, with constants depending
-only on the gap. This is not the full algorithmic or explicit-parameter claim. -/
-theorem uniform_primeField_capacityListBound : UniformPrimeFieldCapacityListBound :=
-  capacityListBound_of_uniform_interpolation uniform_hiddenDerivative_interpolation
+only on the gap. The large-gap branch uses elementary pairwise-agreement counting, while the
+small-gap branch uses the prescribed weighted-support certificate. This is not an algorithmic
+running-time claim. -/
+theorem uniform_primeField_capacityListBound : UniformPrimeFieldCapacityListBound := by
+  intro delta hdelta hOne
+  by_cases hquarter : (1 / 4 : ℝ) ≤ delta
+  · obtain ⟨N, hlargeGap⟩ := quarter_gap_list_bound delta hquarter hOne
+    refine ⟨N, 4, 1, by norm_num, ?_⟩
+    intro n k q hn hk hkn hq hnq domain
+    obtain ⟨⟨certificate⟩, _hstrict⟩ := hlargeGap n k q hn hk hkn hq hnq domain
+    refine ⟨CapacityGapCertificate.ofPointwiseBound hdelta.le
+      (hk.trans_le hkn) domain ?_⟩
+    intro received
+    have hpointwise := (certificate.pointwiseListBound received).1
+    by_cases hhalf : (1 / 2 : ℝ) ≤ delta
+    · simp only [hhalf, if_true] at hpointwise
+      apply hpointwise.trans
+      simp only [polynomialListBound, pow_one, Nat.cast_mul, Nat.cast_ofNat]
+      exact_mod_cast (show 1 ≤ 4 * q by omega)
+    · simpa only [hhalf, if_false, polynomialListBound, pow_one] using hpointwise
+  · have hsmall : delta < (1 / 4 : ℝ) := lt_of_not_ge hquarter
+    let d := capacityDerivativeOrder delta
+    let m := weightedSupportMultiplicity delta
+    refine ⟨8 * m, 4 * m, 2 * d, ?_, ?_⟩
+    · exact Nat.mul_pos (by norm_num) (weightedSupportMultiplicity_pos hdelta hsmall)
+    · intro n k q hn hk hkn hq hnq domain
+      obtain ⟨certificate, _largeFieldCertificate⟩ :=
+        weightedSupport_capacity_list_bound_four_mul delta hdelta hsmall
+          n k q (by simpa only [m] using hn) hk hkn hq hnq domain
+      simpa only [polynomialListBound, d, m] using certificate
 
 end
 end ReedSolomon

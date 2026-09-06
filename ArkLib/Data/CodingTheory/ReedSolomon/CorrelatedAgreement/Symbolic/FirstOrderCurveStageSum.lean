@@ -89,7 +89,7 @@ theorem firstOrderCurveDirectRatio_le_jointRatio {n k L A : ℕ}
 
 /-- The actual regular-stage charge whose sum appears in the curve envelope. -/
 def firstOrderCurveStageCharge (n K k L A ell h : ℕ) (stage : Stage F[X] 1)
-    (τ : ℕ := 2 * K) (η : ℚ := firstOrderCurveJointRatio n L A) : ℚ :=
+    (τ : ℕ) (η : ℚ) : ℚ :=
   firstOrderStageCharge
     (fun v ↦ curveStageZero K ell h (firstOrderCurveJointRatio n L A)
       ((ell * (n - L) : ℕ) : ℚ) v (τ := τ))
@@ -131,20 +131,6 @@ private theorem sum_curveStageOne_eq (K μ M ell h τ : ℕ) (s η t c : ℚ) :
   by_cases hj : μ - min M μ ≤ j
   · simp [hj]
   · simp [hj]
-
-/-- The closed first-order curve envelope is exactly the terminal height plus the extremal
-cap-sensitive schedule of order-zero and order-one stage charges. -/
-theorem firstOrderCurveStageCap_add_height_eq (n K k L A μ M ell h : ℕ) :
-    (h : ℚ) + firstOrderStageCap
-        (fun v ↦ curveStageZero K ell h (firstOrderCurveJointRatio n L A)
-          ((ell * (n - L) : ℕ) : ℚ) v (τ := 2 * K))
-        (fun v ↦ curveStageOne K ell h (firstOrderCurveJointRatio n L A)
-          (firstOrderCurveFiberRatio n k L) ((ell * (n - L) : ℕ) : ℚ) v (τ := 2 * K)
-          (η := firstOrderCurveJointRatio n L A)) μ M =
-      firstOrderCurveBound n K k L A μ M ell h := by
-  rw [firstOrderStageCap, sum_curveStageZero_eq, sum_curveStageOne_eq]
-  unfold firstOrderCurveBound firstOrderCurveJointRatio firstOrderCurveFiberRatio
-  ring
 
 /-- Parameterized form of the exact cap identity, keeping the common exponent and order-one
 joint factor independent. -/
@@ -232,18 +218,6 @@ theorem SymbolicSeparantChain.Chain.sum_firstOrderCurveStageCharge_add_height_le
   hc.sum_firstOrderCurveStageCharge_add_height_le_of_factors τ
     (firstOrderCurveDirectRatio n k A)
     (firstOrderCurveDirectRatio_one_le (hkL.trans hLA) hAn)
-    hμ hM hk hkL hLA hAn
-
-/-- Compatibility form at the former coarse common exponent. -/
-theorem SymbolicSeparantChain.Chain.sum_firstOrderCurveStageCharge_add_height_le
-    {Q terminal : DifferentialPolynomial F[X] 1} {stages : List (Stage F[X] 1)}
-    (hc : Chain Q stages terminal) {n K k L A μ M ell h : ℕ}
-    (hμ : jetWeight Q ≤ μ) (hM : jetDegree Q 1 ≤ M)
-    (hk : 0 < k) (hkL : k ≤ L) (hLA : L ≤ A) (hAn : A ≤ n) :
-    (h : ℚ) + (stages.map (firstOrderCurveStageCharge n K k L A ell h)).sum ≤
-      firstOrderCurveBound n K k L A μ M ell h :=
-  hc.sum_firstOrderCurveStageCharge_add_height_le_of_factors (2 * K)
-    (firstOrderCurveJointRatio n L A) (firstOrderCurveJointRatio_one_le hLA hAn)
     hμ hM hk hkL hLA hAn
 
 end

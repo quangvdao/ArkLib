@@ -130,30 +130,4 @@ theorem exists_exceptional_of_regular_stage_bounds_of_exponent
     (firstOrderCurveDirectRatio_one_le (hkL.trans hLA) hAn)
     hk hkL hLA hAn conclusion hregular
 
-/-- Compatibility form at the former coarse common exponent. -/
-theorem exists_exceptional_of_regular_stage_bounds
-    (cert : FirstOrderCurveCertificate.{u, u} D A m M μ k h domain w columns)
-    {stages : List (Stage F[X] 1)} {terminal : DifferentialPolynomial F[X] 1}
-    (hc : Chain cert.Q stages terminal) (ι : F →+* E)
-    (K L ell : ℕ) (hk : 0 < k) (hkL : k ≤ L) (hLA : L ≤ A) (hAn : A ≤ n)
-    (conclusion : E → E[X] → Prop)
-    (hregular : ∀ stage ∈ stages, ∃ exceptional : Finset E,
-      (exceptional.card : ℚ) ≤ firstOrderCurveStageCharge n K k L A ell h stage ∧
-        ∀ z ∉ exceptional, ∀ (indices : Finset (Fin n)) (P : E[X]),
-          P.degree < k → A ≤ indices.card →
-          (∀ i ∈ indices, P.eval (ι (domain i)) = (w i).eval₂ ι z) →
-          differentialSpecialization
-            (MvPolynomial.map (Polynomial.eval₂RingHom ι z) stage.1) P = 0 →
-          differentialSpecialization
-            (separant (MvPolynomial.map (Polynomial.eval₂RingHom ι z) stage.1)
-              stage.2) P ≠ 0 → conclusion z P) :
-    ∃ exceptional : Finset E,
-      (exceptional.card : ℚ) ≤ firstOrderCurveBound n K k L A μ M ell h ∧
-        ∀ z ∉ exceptional, ∀ (indices : Finset (Fin n)) (P : E[X]),
-          P.degree < k → A ≤ indices.card →
-          (∀ i ∈ indices, P.eval (ι (domain i)) = (w i).eval₂ ι z) → conclusion z P :=
-  cert.exists_exceptional_of_regular_stage_bounds_of_factors hc ι K L ell (2 * K)
-    (firstOrderCurveJointRatio n L A) (firstOrderCurveJointRatio_one_le hLA hAn)
-    hk hkL hLA hAn conclusion hregular
-
 end ReedSolomon.HiddenDerivative.FirstOrderCurveCertificate

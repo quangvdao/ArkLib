@@ -12,9 +12,9 @@ import
 # Shared finite first-order certificate profiles
 
 Concrete Reed--Solomon applications use the same finite support and local interpolation engine.
-A `LineProfile` records one row of exact arithmetic.  `Verification` connects the recorded values
-to the scalar symbolic constructor, while `CurveVerification` checks the coefficient height after
-the `Y₀` degree is multiplied by a received polynomial curve's batching degree.
+A `LineProfile` records one row of exact arithmetic. `Verification` checks the shifted line
+surplus at degree one, while `CurveVerification` checks the same graded engine at the received
+polynomial curve's batching degree.
 
 The structures only certify interpolation.  Exceptional-set and security conclusions require
 the separate geometric and probability theorems used by each application.
@@ -25,7 +25,7 @@ open PolynomialDifferential Polynomial
 namespace ArkLibExamples.ReedSolomon.CurveProfile
 
 open ReedSolomon.HiddenDerivative
-open ReedSolomon.HiddenDerivative.SymbolicBandInterpolation
+open ReedSolomon.HiddenDerivative.SymbolicWeightedSupportInterpolation
 
 noncomputable section
 
@@ -65,6 +65,16 @@ def computedHeightSlots (p : LineProfile) : ℕ :=
   firstOrderHeightSlotCount p.D p.agreement p.multiplicity p.firstDerivativeCap
     p.totalJetCap p.height
 
+/-- Executable upper bound on the shifted graded rows at batching degree `ℓ`. -/
+def shiftedRowSlots (p : LineProfile) (ℓ : ℕ) : ℕ :=
+  firstOrderCurveShiftedRowSlotBound p.D p.agreement p.multiplicity p.firstDerivativeCap
+    p.totalJetCap p.n ℓ p.height
+
+/-- Executable shifted source slots at batching degree `ℓ`. -/
+def shiftedHeightSlots (p : LineProfile) (ℓ : ℕ) : ℕ :=
+  firstOrderCurveShiftedHeightSlotCount p.D p.agreement p.multiplicity
+    p.firstDerivativeCap p.totalJetCap ℓ p.height
+
 /-- Exact facts needed by the scalar finite symbolic constructor. -/
 structure Verification (p : LineProfile) : Prop where
   D_gt_one : 1 < p.D
@@ -75,7 +85,7 @@ structure Verification (p : LineProfile) : Prop where
   localRank_eq : p.computedLocalRank = p.localRank
   heightSlots_eq : p.computedHeightSlots = p.heightSlots
   columnWeight_eq : p.heightSlots + p.columnY₀Weight = p.supportDimension * (p.height + 1)
-  heightSurplus : p.n * p.computedLocalRank * (p.height + 1) < p.computedHeightSlots
+  heightSurplus : p.shiftedRowSlots 1 < p.shiftedHeightSlots 1
 
 /-- The recorded dimension is the cardinality of the constrained support. -/
 theorem Verification.support_card_eq {p : LineProfile} (hp : p.Verification) :
@@ -116,19 +126,11 @@ theorem Verification.exists_symbolicCertificate {F : Type u} [Field F] {p : Line
   exact exists_finite_firstOrder_symbolic_certificate_of_heightSlotCount
     hp.D_gt_one hp.budget_pos hp.degree_le centers f g hp.heightSurplus
 
-/-- Coefficient slots after multiplying each `Y₀` exponent by the batching degree. -/
-def curveHeightSlots (p : LineProfile) : ℕ :=
-  firstOrderCurveHeightSlotCount p.D p.agreement p.multiplicity p.firstDerivativeCap
-    p.totalJetCap p.batchingDegree p.height
-
 /-- Exact facts required by the polynomial-curve interpolation constructor. -/
 def CurveVerification (p : LineProfile) : Prop :=
   1 < p.D ∧ 0 < p.multiplicity * p.agreement ∧ p.k ≤ p.D + 1 ∧
-    p.n * p.computedLocalRank * (p.height + 1) < p.curveHeightSlots ∧
-    p.computedDimension = p.supportDimension ∧ p.computedLocalRank = p.localRank ∧
-    p.curveHeightSlots = p.heightSlots ∧
-    p.heightSlots + p.batchingDegree * p.columnY₀Weight =
-      p.supportDimension * (p.height + 1)
+    p.shiftedRowSlots p.batchingDegree < p.shiftedHeightSlots p.batchingDegree ∧
+    p.computedDimension = p.supportDimension ∧ p.computedLocalRank = p.localRank
 
 instance (p : LineProfile) : Decidable p.CurveVerification := by
   unfold CurveVerification

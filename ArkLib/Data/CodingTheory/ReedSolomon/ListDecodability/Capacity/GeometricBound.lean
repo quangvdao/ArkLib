@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.TaylorCutoff
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.GeometricCounting
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.AgreementList
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.TaylorCharZeroSolutions
 
@@ -37,23 +38,23 @@ theorem prescribed_geometric_finite_list_bound
     (δ : ℝ) (n k : ℕ) (domain : Fin n ↪ F) (received : Fin n → F)
     (hδ : 0 < δ) (hδ' : δ < 1 / 4) (hk : 0 < k)
     (hblock : 8 * Nat.ceil
-      (100 * (Nat.ceil (Real.exp ((169 / 25) / δ)) : ℝ) ^ 2 *
-        harmonicNumber (Nat.ceil (Real.exp ((169 / 25) / δ)) - 1)) ≤ n)
+      (100 * (Nat.ceil (Real.exp ((27 / 10) / δ)) : ℝ) ^ 2 *
+        harmonicNumber (Nat.ceil (Real.exp ((27 / 10) / δ)) - 1)) ≤ n)
     (hA : agreementThreshold δ n k ≤ n) (hchar : ringChar F = 0 ∨ n ≤ ringChar F)
     (S : Finset (Polynomial F))
     (hS : ∀ P ∈ S, IsAgreementSolution domain received k (agreementThreshold δ n k) P) :
-    let d := Nat.ceil (Real.exp ((169 / 25) / δ))
+    let d := Nat.ceil (Real.exp ((27 / 10) / δ))
     let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
     (S.card : ℝ) ≤ 4 * (m : ℝ) ^ 2 * (4 * m / δ) ^ d * n ^ d := by
   classical
   let A := agreementThreshold δ n k
-  let d := Nat.ceil (Real.exp ((169 / 25) / δ))
+  let d := Nat.ceil (Real.exp ((27 / 10) / δ))
   let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
   let ν := 2 * m - 1
-  let K := max k (d + 1)
+  let K := max k (Nat.floor (δ * n / 2))
   obtain ⟨hn, _hm, hν, hνm, hνn, hdK, hkK, hKn, hkA, hgap⟩ :=
     prescribed_geometric_parameters δ n k hδ hδ' hk hblock hA
-  obtain ⟨cert⟩ := exists_prescribed_symbolic_band_certificate
+  obtain ⟨cert⟩ := exists_prescribed_symbolic_weightedSupport_certificate
     δ n k domain received (fun _ ↦ 0) hδ hδ' hk hblock hA
   let Q : DifferentialPolynomial F d :=
     MvPolynomial.map (Polynomial.eval₂RingHom (RingHom.id F) 0) cert.Q
@@ -88,10 +89,10 @@ theorem prescribed_geometric_close_list_bound
     (δ : ℝ) (n k : ℕ) (domain : Fin n ↪ F) (received : Fin n → F)
     (hδ : 0 < δ) (hδ' : δ < 1 / 4) (hk : 0 < k)
     (hblock : 8 * Nat.ceil
-      (100 * (Nat.ceil (Real.exp ((169 / 25) / δ)) : ℝ) ^ 2 *
-        harmonicNumber (Nat.ceil (Real.exp ((169 / 25) / δ)) - 1)) ≤ n)
+      (100 * (Nat.ceil (Real.exp ((27 / 10) / δ)) : ℝ) ^ 2 *
+        harmonicNumber (Nat.ceil (Real.exp ((27 / 10) / δ)) - 1)) ≤ n)
     (hA : agreementThreshold δ n k ≤ n) (hchar : ringChar F = 0 ∨ n ≤ ringChar F) :
-    let d := Nat.ceil (Real.exp ((169 / 25) / δ))
+    let d := Nat.ceil (Real.exp ((27 / 10) / δ))
     let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
     (closePolynomialSet domain received k (agreementThreshold δ n k)).Finite ∧
       ((closePolynomialSet domain received k (agreementThreshold δ n k)).ncard : ℝ) ≤

@@ -31,20 +31,24 @@ universe u
 def quarterGapMCAConstant (δ : ℝ) : ℝ :=
   1449 + 156274905024 / δ ^ 2 + 6740636 / δ
 
-/-- The cap-sensitive first-order envelope is no larger than the arbitrary-order sharp scalar
-with derivative cap one. -/
+/-- The cap-sensitive first-order envelope with the tight Taylor exponent and direct
+dimension-sensitive order-one factor is no larger than the arbitrary-order sharp scalar with
+derivative cap one. -/
 theorem firstOrderCurveBound_midpoint_le_sharpScalar
     (δ : ℝ) (n K k A μ M h : ℕ)
     (hδ : 0 < δ) (hδone : δ ≤ 1) (hn : 0 < n) (hk : 0 < k) (hμ : 0 < μ)
     (hh : 0 < h) (hKn : K ≤ n) (hgap : (k : ℝ) + δ * n ≤ A) (hAn : A ≤ n) :
-    (firstOrderCurveBound n K k (correlatedMidpoint δ n k) A μ M 1 h : ℝ) ≤
+    (firstOrderCurveBound n K k (correlatedMidpoint δ n k) A μ M 1 h
+      (τ := 2 * K - 3) (η := firstOrderCurveDirectRatio n k A) : ℝ) ≤
       polynomialCurveSharpMCAConstant δ μ h 1 * (n : ℝ) ^ 2 := by
   let L := correlatedMidpoint δ n k
+  let τ := 2 * K - 3
   let s := firstOrderCurveJointRatio n L A
+  let η := firstOrderCurveDirectRatio n k A
   let t := firstOrderCurveFiberRatio n k L
   let c : ℚ := ((n - L : ℕ) : ℚ)
-  let c₀ := curveStageZero K 1 h s c
-  let c₁ := curveStageOne K 1 h s t c
+  let c₀ := curveStageZero K 1 h s c (τ := τ)
+  let c₁ := curveStageOne K 1 h s t c (τ := τ) (η := η)
   have hL := correlatedMidpoint_bounds δ n k A hδ.le hgap hAn
   have hs : 1 ≤ s := by
     unfold s firstOrderCurveJointRatio
@@ -56,6 +60,8 @@ theorem firstOrderCurveBound_midpoint_le_sharpScalar
     apply (le_div_iff₀ (by positivity)).2
     simpa only [one_mul] using
       (show ((L - k + 1 : ℕ) : ℚ) ≤ (n - k + 1 : ℕ) by exact_mod_cast (by omega))
+  have hη : 1 ≤ η := by
+    exact firstOrderCurveDirectRatio_one_le (hL.1.trans hL.2.1) hAn
   have hc : 0 ≤ c := by positivity
   have hcap : firstOrderStageCap c₀ c₁ μ M ≤ ∑ j ∈ Finset.range μ, c₁ (j + 1) := by
     unfold firstOrderStageCap
@@ -64,27 +70,42 @@ theorem firstOrderCurveBound_midpoint_le_sharpScalar
     apply add_le_add
     · apply Finset.sum_le_sum
       intro j _
-      exact curveStageZero_le_one K 1 h hs ht hc (j + 1)
+      exact curveStageZero_le_one_of_factors K 1 h hs hη ht hc (j + 1) τ
     · exact le_rfl
-  have hboundQ : firstOrderCurveBound n K k L A μ M 1 h ≤
+  have hboundQ : firstOrderCurveBound n K k L A μ M 1 h
+      (τ := τ) (η := η) ≤
       (h : ℚ) + ∑ j ∈ Finset.range μ, c₁ (j + 1) := by
-    rw [← firstOrderCurveStageCap_add_height_eq n K k L A μ M 1 h]
+    rw [← firstOrderCurveStageCap_add_height_eq_of_factors n K k L A μ M 1 h τ η]
     simp only [Nat.one_mul]
     change (h : ℚ) + firstOrderStageCap c₀ c₁ μ M ≤ _
     exact add_le_add le_rfl hcap
   have hcharge (j : ℕ) :
-      c₁ (j + 1) = regularSymbolicCurveMCASharpBound 1 n 1 K k L A (j + 1) h := by
-    simp [c₁, c, s, t, curveStageOne, regularSymbolicCurveMCASharpBound,
+      c₁ (j + 1) = regularSymbolicCurveMCASharpBound 1 n 1 K k L A (j + 1) h
+        (τ := τ) := by
+    simp [c₁, c, s, η, t, curveStageOne, regularSymbolicCurveMCASharpBound,
       sourceCurveInitialMixedDegree, sourceCurveCutChallengeDegree,
-      sourceCurveCutJetDegree, firstOrderCurveJointRatio, firstOrderCurveFiberRatio]
+      sourceCurveCutJetDegree, firstOrderCurveJointRatio, firstOrderCurveFiberRatio,
+      firstOrderCurveDirectRatio, AffineHilbert.dimensionSensitiveIncidenceProduct]
     ring
-  have hboundR : (firstOrderCurveBound n K k L A μ M 1 h : ℝ) ≤
+  have hboundR : (firstOrderCurveBound n K k L A μ M 1 h
+      (τ := τ) (η := η) : ℝ) ≤
       (h : ℝ) + ∑ j ∈ Finset.range μ,
-        (regularSymbolicCurveMCASharpBound 1 n 1 K k L A (j + 1) h : ℝ) := by
+        (regularSymbolicCurveMCASharpBound 1 n 1 K k L A (j + 1) h
+          (τ := τ) : ℝ) := by
     have := hboundQ
     simp_rw [hcharge] at this
     exact_mod_cast this
+  have hmono : ∑ j ∈ Finset.range μ,
+        (regularSymbolicCurveMCASharpBound 1 n 1 K k L A (j + 1) h
+          (τ := τ) : ℝ) ≤
+      ∑ j ∈ Finset.range μ,
+        (regularSymbolicCurveMCASharpBound 1 n 1 K k L A (j + 1) h : ℝ) := by
+    apply Finset.sum_le_sum
+    intro j _
+    exact_mod_cast regularSymbolicCurveMCASharpBound_mono_exponent
+      1 n 1 K k L A (j + 1) h τ (2 * K) (by dsimp [τ]; omega)
   apply hboundR.trans
+  apply (add_le_add (le_refl (h : ℝ)) hmono).trans
   simpa only [L, Nat.one_mul, Nat.cast_one, one_mul, Nat.reduceAdd] using
     (regularSymbolicCurveMCASharp_finiteStage_uniform_le (Finset.range μ)
       (fun _ ↦ 1) (fun j ↦ j + 1) (fun _ ↦ h)
@@ -148,14 +169,15 @@ theorem exists_quarterGapLineMCA
   obtain ⟨hD, hbudget, hkD, hheight⟩ :=
     quarterGap_firstOrderCurve_parameters δ n k A hn hk hkn hAn hδ hδhalf hgap
   obtain ⟨exceptional, hcard, hgood⟩ :=
-    exists_baseExceptional_firstOrderCurve_of_heightSlotCount
+    exists_baseExceptional_firstOrderCurve_of_heightSlotCount_tight
       (D := D) (A := A) (m := 64) (M := 16) (mu := 119) (k := k) (h := 1449)
       (n := n) (K := K) (L := L) (ell := 1)
       domain values iota hD hbudget hkD hheight hK hkK hk hmid.1 hmid.2.1 hAn
         (by norm_num) hchar'
   refine ⟨exceptional, ?_, ?_⟩
   · have hcardR : (exceptional.card : ℝ) ≤
-        (firstOrderCurveBound n K k L A 119 16 1 1449 : ℝ) := by
+        (firstOrderCurveBound n K k L A 119 16 1 1449
+          (τ := 2 * K - 3) (η := firstOrderCurveDirectRatio n k A) : ℝ) := by
       exact_mod_cast hcard
     apply hcardR.trans
     have hscalar := firstOrderCurveBound_midpoint_le_sharpScalar

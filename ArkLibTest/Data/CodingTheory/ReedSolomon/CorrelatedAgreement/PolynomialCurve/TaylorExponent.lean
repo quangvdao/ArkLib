@@ -6,6 +6,8 @@ Authors: Quang Dao
 
 import
   ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.SharpGeneralEquation
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.TaylorCutoff
+import Mathlib.Algebra.Field.ZMod
 
 /-!
 # Tight polynomial-curve degree formula tests
@@ -46,11 +48,25 @@ example : regularSymbolicCurveMCASharpBoundTwo 11 3 2 3 5 8 4 5
   norm_num [regularSymbolicCurveMCASharpBoundTwo, sourceCurveInitialMixedDegreeTwo,
     sourceCurveCutChallengeDegree, sourceCurveCutJetDegree]
 
-/-- The direct factor improves the temporary square-factor compatibility budget. -/
-example : regularSymbolicCurveMCASharpBoundTwo 11 3 2 3 5 8 4 5
-    (τ := 1) (η := 3 / 2) ≤
-      regularSymbolicCurveMCASharpBoundTwo 11 3 2 3 5 8 4 5 (τ := 1) := by
-  norm_num [regularSymbolicCurveMCASharpBoundTwo, sourceCurveInitialMixedDegreeTwo,
-    sourceCurveCutChallengeDegree, sourceCurveCutJetDegree]
+/-- The arbitrary-order product gives the same order-one budget at the direct joint factor. -/
+example : regularSymbolicCurveMCASharpBound 1 11 3 2 3 5 8 4 5 (τ := 1) =
+    regularSymbolicCurveMCASharpBoundTwo 11 3 2 3 5 8 4 5 (τ := 1) (η := 3 / 2) := by
+  norm_num [regularSymbolicCurveMCASharpBound, regularSymbolicCurveMCASharpBoundTwo,
+    sourceCurveInitialMixedDegree, sourceCurveInitialMixedDegreeTwo,
+    sourceCurveCutChallengeDegree, sourceCurveCutJetDegree,
+    AffineHilbert.dimensionSensitiveIncidenceProduct]
+
+/-- Characteristic equal to the Taylor cutoff is allowed: only pivots strictly below it
+are needed, and the total jet cap is checked separately. -/
+example : (ringChar (ZMod 5) = 0 ∨ 3 < ringChar (ZMod 5)) ∧
+    (ringChar (ZMod 5) = 0 ∨ 5 ≤ ringChar (ZMod 5)) := by
+  have : Fact (Nat.Prime 5) := ⟨by decide⟩
+  exact geometric_characteristic_components (K := 5) (ν := 3) (by norm_num)
+    (by right; norm_num [ZMod.ringChar_zmod_n])
+
+/-- The zero-characteristic branch places no finite upper bound on either parameter. -/
+example (K ν : ℕ) (hK : 0 < K) :
+    (ringChar ℚ = 0 ∨ ν < ringChar ℚ) ∧ (ringChar ℚ = 0 ∨ K ≤ ringChar ℚ) := by
+  exact geometric_characteristic_components hK (Or.inl (by simp))
 
 end ReedSolomon

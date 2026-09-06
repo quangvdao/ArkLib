@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.CurveCertificate
+import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.Symbolic.CurveSupportCertificate
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Symbolic.JetPrefix
 
 /-!
@@ -26,18 +27,18 @@ open Polynomial MvPolynomial SymbolicSeparantChain
 
 universe u
 
-variable {F : Type u} [Field F] {n A k ℓ ν d : ℕ}
+variable {F : Type u} [Field F] {n A k ℓ ν d h : ℕ}
   {domain : Fin n ↪ F} {w : Fin n → F[X]}
 
 /-- Universal nonvanishing under specialization implies the symbolic equation is nonzero. -/
-theorem Certificate.nonzero (cert : Certificate.{u, u} F A k ℓ ν d domain w) : cert.Q ≠ 0 := by
+theorem Certificate.nonzero (cert : Certificate.{u, u} F A k ℓ ν d h domain w) : cert.Q ≠ 0 := by
   intro hzero
   have h := (cert.specialization_sound (RingHom.id F) 0).1
   rw [hzero, map_zero] at h
   exact h rfl
 
 /-- The support cap bounds the actual jet weight used by separant descent. -/
-theorem Certificate.jetWeight_le (cert : Certificate.{u, u} F A k ℓ ν d domain w) :
+theorem Certificate.jetWeight_le (cert : Certificate.{u, u} F A k ℓ ν d h domain w) :
     jetWeight cert.Q ≤ ν := by
   apply Finset.sup_le_iff.mpr
   intro u hu
@@ -45,13 +46,13 @@ theorem Certificate.jetWeight_le (cert : Certificate.{u, u} F A k ℓ ν d domai
   simpa [totalJetDegree, Finsupp.degree_eq_sum, Finsupp.weight_apply,
     Finsupp.sum_fintype] using h
 
-/-- The terminal exceptional-set budget is linear in batching degree. -/
-theorem Certificate.challengeHeight_le (cert : Certificate.{u, u} F A k ℓ ν d domain w) :
-    ∀ u, (MvPolynomial.coeff u cert.Q).natDegree ≤ 338 * (ℓ * ν) - 1 :=
-  fun u ↦ Nat.le_sub_one_of_lt (cert.challengeDegree_lt u)
+/-- The terminal exceptional set uses the height certified by the interpolation theorem. -/
+theorem Certificate.challengeHeight_le (cert : Certificate.{u, u} F A k ℓ ν d h domain w) :
+    ∀ u, (MvPolynomial.coeff u cert.Q).natDegree ≤ h :=
+  cert.challengeDegree_le
 
 /-- Construct the actual symbolic derivative chain from a proved curve certificate. -/
-theorem Certificate.exists_separant_chain (cert : Certificate.{u, u} F A k ℓ ν d domain w)
+theorem Certificate.exists_separant_chain (cert : Certificate.{u, u} F A k ℓ ν d h domain w)
     (hchar : ringChar F = 0 ∨ ν < ringChar F) :
     ∃ stages terminal, Chain cert.Q stages terminal := by
   apply exists_symbolic_chain cert.Q cert.nonzero
@@ -60,10 +61,10 @@ theorem Certificate.exists_separant_chain (cert : Certificate.{u, u} F A k ℓ �
 /-- One exceptional set covers every close polynomial simultaneously. Outside it each such
 polynomial solves a listed equation with nonzero separant, after any scalar extension. -/
 theorem Certificate.exists_exceptional_stage_coverage
-    (cert : Certificate.{u, u} F A k ℓ ν d domain w)
+    (cert : Certificate.{u, u} F A k ℓ ν d h domain w)
     {stages : List (Stage F[X] d)} {terminal : DifferentialPolynomial F[X] d}
     (hc : Chain cert.Q stages terminal) {E : Type u} [Field E] (ι : F →+* E) :
-    ∃ exceptional : Finset E, exceptional.card ≤ 338 * (ℓ * ν) - 1 ∧
+    ∃ exceptional : Finset E, exceptional.card ≤ h ∧
       ∀ z ∉ exceptional, ∀ (indices : Finset (Fin n)) (P : E[X]),
         P.degree < k → A ≤ indices.card →
         (∀ i ∈ indices, P.eval (ι (domain i)) = (w i).eval₂ ι z) →

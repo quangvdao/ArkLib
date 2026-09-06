@@ -27,6 +27,9 @@ GENERIC_ENTRY_POINTS = (
     "ArkLib.Data.Polynomial.Differential.Basic",
     "ArkLib.Data.Polynomial.Differential.DerivativeDescent",
     "ArkLib.ToMathlib.Combinatorics.DiscreteSimplex.Variance",
+    "ArkLib.ToMathlib.LinearAlgebra.ShiftedDegreeKernel",
+    "ArkLib.ToMathlib.Analysis.Simplex.Moments",
+    "ArkLib.ToMathlib.AlgebraicGeometry.Incidence.ProductBounds",
 )
 
 
@@ -50,7 +53,8 @@ def imports(module):
 
 def execution_module(module):
     return (module.startswith("ArkLib.Data.Computation.") or
-            module == PREFIX + "Decoding.CapacityDecoder") or any(
+            module in (PREFIX + "Decoding.CapacityDecoder",
+                       PREFIX + "ListDecoding.CapacityDecoder")) or any(
         word in module.rsplit(".", 1)[-1]
         for word in ("Machine", "Execution", "Cost", "Semantics", "Refinement")
     )

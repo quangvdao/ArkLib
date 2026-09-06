@@ -14,10 +14,9 @@ import Mathlib.Tactic.Linarith
 /-!
 # Explicit harmonic estimates
 
-Finite rational sums and telescoping midpoint tails bound the second and fourth harmonic
-sums uniformly in the endpoint. The first eight squared reciprocals give a useful lower bound.
-The logarithmic estimate is extracted from the monotone Euler–Mascheroni sequence. These
-estimates are independent of any coding-theory support or concentration argument.
+Finite rational sums and telescoping midpoint tails bound harmonic power sums uniformly in the
+endpoint. The logarithmic estimate is extracted from the monotone Euler–Mascheroni sequence.
+These estimates are independent of any coding-theory support or concentration argument.
 -/
 
 open scoped BigOperators
@@ -61,6 +60,46 @@ theorem reciprocal_square_sum_lt (n : ℕ) :
         (Finset.range_mono (by omega)) (fun _ _ _ ↦ sq_nonneg _)
     linarith [reciprocal_square_initial]
 
+private theorem reciprocal_cube_tail_step (n : ℕ) :
+    (1 / (n + 1 : ℝ)) ^ 3 + 2 / (2 * (n + 1 : ℝ) + 1) ^ 2 ≤
+      2 / (2 * (n : ℝ) + 1) ^ 2 := by
+  have h₁ : (0 : ℝ) < n + 1 := by positivity
+  have h₂ : (0 : ℝ) < 2 * (n + 1 : ℝ) + 1 := by positivity
+  have h₃ : (0 : ℝ) < 2 * (n : ℝ) + 1 := by positivity
+  field_simp
+  nlinarith [show (0 : ℝ) ≤ (n : ℝ) ^ 2 by positivity,
+    show (0 : ℝ) ≤ (n : ℝ) ^ 3 by positivity]
+
+private theorem reciprocal_cube_initial :
+    (∑ i ∈ Finset.range 12, (1 / (i + 1 : ℝ)) ^ 3) + 2 / (25 : ℝ) ^ 2 <
+      12021 / 10000 := by
+  norm_num [Finset.sum_range_succ]
+
+/-- A twelve-term rational calculation and a midpoint telescoping tail bound the third
+harmonic power sum. -/
+theorem reciprocal_cube_sum_lt (n : ℕ) :
+    (∑ i ∈ Finset.range n, (1 / (i + 1 : ℝ)) ^ 3) < 12021 / 10000 := by
+  by_cases hn : 12 ≤ n
+  · have hbound : ∀ k, 12 ≤ k →
+        (∑ i ∈ Finset.range k, (1 / (i + 1 : ℝ)) ^ 3) +
+            2 / (2 * (k : ℝ) + 1) ^ 2 ≤
+          (∑ i ∈ Finset.range 12, (1 / (i + 1 : ℝ)) ^ 3) + 2 / (25 : ℝ) ^ 2 := by
+      intro k hk
+      induction k, hk using Nat.le_induction with
+      | base => norm_num
+      | succ k hk ih =>
+        rw [Finset.sum_range_succ]
+        push_cast
+        have h := reciprocal_cube_tail_step k
+        linarith
+    have h := hbound n hn
+    have hp : (0 : ℝ) < 2 / (2 * (n : ℝ) + 1) ^ 2 := by positivity
+    linarith [reciprocal_cube_initial]
+  · have hsum : (∑ i ∈ Finset.range n, (1 / (i + 1 : ℝ)) ^ 3) ≤
+        ∑ i ∈ Finset.range 12, (1 / (i + 1 : ℝ)) ^ 3 :=
+      Finset.sum_le_sum_of_subset_of_nonneg
+        (Finset.range_mono (by omega)) (fun _ _ _ ↦ by positivity)
+    linarith [reciprocal_cube_initial]
 
 private theorem reciprocal_fourth_tail_step (n : ℕ) :
     (1 / (n + 1 : ℝ)) ^ 4 + 8 / (3 * (2 * (n + 1 : ℝ) + 1) ^ 3) ≤
@@ -71,7 +110,6 @@ private theorem reciprocal_fourth_tail_step (n : ℕ) :
   field_simp
   nlinarith [show (0 : ℝ) ≤ (n : ℝ)^3 by positivity,
     show (0 : ℝ) ≤ (n : ℝ)^4 by positivity]
-
 
 /-- A four-term sum and a midpoint telescoping tail bound every fourth harmonic sum. -/
 theorem reciprocal_fourth_sum_lt (n : ℕ) :
@@ -138,8 +176,6 @@ theorem harmonic_pred_le_log_add_three_fifths (d : ℕ) (hd : 33 ≤ d) :
   have := Real.log_le_log hp hle
   linarith
 
-
-/-- A rational exponential sum bounds the logarithm at the base point. -/
 private theorem log_ten_le : Real.log 10 ≤ (47 / 20 : ℝ) := by
   have h := Real.sum_le_exp_of_nonneg (by norm_num : (0 : ℝ) ≤ 47 / 20) 10
   norm_num [Finset.sum_range_succ] at h

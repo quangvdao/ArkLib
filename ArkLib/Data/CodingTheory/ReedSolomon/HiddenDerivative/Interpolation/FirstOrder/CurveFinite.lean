@@ -11,9 +11,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Interpolation.First
 /-!
 # Executable finite curve certificates
 
-The complete first-order support has a canonical enumeration. Its column-slot sum is
-exactly the executable double sum in `firstOrderCurveHeightSlotCount`. Combining this
-identity with the polynomial-curve rank and primitive-kernel constructions leaves only
+The complete first-order support has a canonical enumeration. Grading by total jet degree gives
+an executable truncated source-slot sum and a compressed row-slot bound. Combining their strict
+surplus with the translated polynomial-curve matrix and primitive-kernel construction leaves only
 an integer inequality for the caller to check.
 
 The received curve has coordinate degree at most `ℓ`; the resulting single equation
@@ -28,55 +28,81 @@ open scoped BigOperators
 
 namespace ReedSolomon.HiddenDerivative
 
-open SymbolicReceivedInterpolation SymbolicBandInterpolation
+open SymbolicReceivedInterpolation SymbolicWeightedSupportInterpolation
 
 noncomputable section
 
 variable {F : Type*} [Field F]
 
-/-- The coefficient-slot sum over the canonical column enumeration is the executable
-first-order height count. -/
-theorem sum_firstOrderColumns_curveHeight_eq_heightSlotCount
-    {D A m M μ ℓ h : ℕ} (hD : 0 < D) :
-    (Finset.univ.sum fun j : Fin (Fintype.card ↑(firstOrderExponents D A m M μ)) ↦
-      h + 1 - ℓ *
-        (firstOrderColumns (D := D) (A := A) (m := m) (M := M) (μ := μ) j).y₀) =
-        firstOrderCurveHeightSlotCount D A m M μ ℓ h := by
-  let e := Fintype.equivFin ↑(firstOrderExponents D A m M μ)
-  calc
-    (Finset.univ.sum fun j : Fin (Fintype.card ↑(firstOrderExponents D A m M μ)) ↦
-        h + 1 - ℓ *
-          (firstOrderColumns (D := D) (A := A) (m := m) (M := M) (μ := μ) j).y₀) =
-        Finset.univ.sum fun u : ↑(firstOrderExponents D A m M μ) ↦
-          h + 1 - ℓ * u.1 (some 0) := by
-      rw [← e.sum_comp]
-      apply Finset.sum_congr rfl
-      intro u _
-      simp [firstOrderColumns, e, SourceColumn.ofExponent]
-    _ = firstOrderCurveColumnSlotCount D A m M μ ℓ h := by
-      rw [firstOrderCurveColumnSlotCount, Finset.univ_eq_attach]
-      exact Finset.sum_attach (firstOrderExponents D A m M μ)
-        (fun u ↦ (h + 1 - ℓ * u (some 0) : ℕ))
-    _ = firstOrderCurveHeightSlotCount D A m M μ ℓ h :=
-      firstOrderCurveColumnSlotCount_eq_heightSlotCount hD
-
-/-- An executable column-height inequality constructs the complete finite first-order
-symbolic certificate. All rank and column-eligibility facts are discharged internally. -/
+/-- The shifted graded-row inequality constructs the complete finite first-order curve
+certificate. All matrix, rank, and kernel facts are discharged internally. -/
 theorem exists_finite_firstOrder_curve_certificate_of_heightSlotCount
     {D A m M μ k h n : ℕ} (ℓ : ℕ)
     (hD : 1 < D) (hbudget : 0 < m * A) (hkD : k ≤ D + 1)
     (centers : Fin n ↪ F) (w : Fin n → F[X])
     (hw : ∀ i, (w i).natDegree ≤ ℓ)
-    (hheight : n * certifiedEnlargedRankBound 1 m M 0 * (h + 1) <
-      firstOrderCurveHeightSlotCount D A m M μ ℓ h) :
+    (hheight : firstOrderCurveShiftedRowSlotBound D A m M μ n ℓ h <
+      firstOrderCurveShiftedHeightSlotCount D A m M μ ℓ h) :
     Nonempty (FirstOrderCurveCertificate (F := F) D A m M μ k h centers w
       (firstOrderColumns (D := D) (A := A) (m := m) (M := M) (μ := μ))) := by
-  apply exists_firstOrder_curve_certificate_of_column_height
-    ℓ hD hbudget hkD centers w hw
-      (firstOrderColumns (D := D) (A := A) (m := m) (M := M) (μ := μ))
-      firstOrderColumns_injective firstOrderColumns_eligible
-  rw [sum_firstOrderColumns_curveHeight_eq_heightSlotCount (by omega : 0 < D)]
-  exact hheight
+  obtain ⟨v, _hv, hvdegree, hprimitive, hnonzero, hconstraints⟩ :=
+    exists_primitive_firstOrderCurve_interpolant_of_shifted_height_bound
+      D A m M μ n ℓ h (by omega) (fun i ↦ centers i) w hw hheight
+  let columns := firstOrderColumns (D := D) (A := A) (m := m) (M := M) (μ := μ)
+  let Q : DifferentialPolynomial F[X] 1 := interpolant columns v
+  have hvheight : ∀ j, (v j).natDegree ≤ h := by
+    intro j
+    by_cases hz : v j = 0
+    · simp [hz]
+    · have hlt : (v j).natDegree <
+          h + 1 - ℓ * totalJetDegree (columns j).exponent :=
+        (Polynomial.natDegree_lt_iff_degree_lt hz).mpr
+          (Polynomial.mem_degreeLT.mp (hvdegree j))
+      omega
+  have hQsupport : Q ∈ firstOrderSpace F[X] D A m M μ :=
+    interpolant_mem_firstOrderSpace columns firstOrderColumns_eligible v
+  have hfirstJet : ∀ u ∈ Q.support, firstJetExponent u ≤ M := by
+    intro u hu
+    exact (mem_firstOrderExponents.mp (mem_firstOrderSpace_iff.mp hQsupport u hu)).1
+  have htotalJet : ∀ u ∈ Q.support, totalJetDegree u ≤ μ := by
+    intro u hu
+    exact (mem_firstOrderExponents.mp (mem_firstOrderSpace_iff.mp hQsupport u hu)).2.1
+  refine ⟨⟨v, Q, rfl, hprimitive, coeff_interpolant_natDegree_le columns
+    firstOrderColumns_injective v hvheight, hQsupport, hfirstJet, htotalJet,
+    hconstraints, ?_⟩⟩
+  intro E _ ι z
+  refine ⟨hnonzero ι z, ?_⟩
+  intro indices P hPdegree hcard hagreements
+  let φ := Polynomial.eval₂RingHom ι z
+  have hQexact : Q ∈ exactInterpolationSpace F[X] D A 1 m M 0 hD :=
+    firstOrderSpace_le_exactInterpolationSpace hD hQsupport
+  have hQmapped : MvPolynomial.map φ Q ∈
+      exactInterpolationSpace E D A 1 m M 0 hD := by
+    rw [mem_exactInterpolationSpace_iff]
+    intro u hu
+    have huQ : u ∈ Q.support := MvPolynomial.support_map_subset φ Q hu
+    exact mem_exactInterpolationSpace_iff.mp hQexact u huQ
+  have hconstraintsE : ∀ i, SatisfiesLocalConstraints m (ι (centers i))
+      ((w i).eval₂ ι z) (MvPolynomial.map φ Q) := by
+    intro i
+    have hi := SatisfiesLocalConstraints.map φ m (Polynomial.C (centers i))
+      (w i) Q (hconstraints i)
+    change SatisfiesLocalConstraints m
+      (Polynomial.eval₂ ι z (Polynomial.C (centers i)))
+      ((w i).eval₂ ι z) (MvPolynomial.map φ Q) at hi
+    simpa only [Polynomial.eval₂_C] using hi
+  have hPnat : P.natDegree ≤ D := by
+    by_cases hPzero : P = 0
+    · simp [hPzero]
+    · have hlt : P.natDegree < k :=
+        (Polynomial.natDegree_lt_iff_degree_lt hPzero).mpr hPdegree
+      omega
+  have hcenters : Set.InjOn (fun i ↦ ι (centers i)) (indices : Set (Fin n)) := by
+    intro i _ j _ hij
+    exact centers.injective (ι.injective hij)
+  exact differentialSpecialization_eq_zero_of_mem_exactInterpolationSpace_of_agreements
+    hbudget hD (fun i ↦ ι (centers i)) (fun i ↦ (w i).eval₂ ι z)
+      indices hQmapped hconstraintsE P hPnat hcenters hcard hagreements
 
 
 end
