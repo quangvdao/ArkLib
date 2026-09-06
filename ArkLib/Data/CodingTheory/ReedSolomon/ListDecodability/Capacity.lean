@@ -38,8 +38,8 @@ This extends the low-rate hidden-derivative result of [BCPZZ26]. It is distinct 
 unique decoding (`CodingTheory/BerlekampWelch`) and Johnson-radius interpolation
 (`CodingTheory/GuruswamiSudan`). Those are separate developments, not assumptions here.
 Field-independent geometric list bounds are in `ListDecodability/Capacity/GeometricBound`.
-Mutual correlated agreement at capacity is in `CorrelatedAgreement/Capacity` and
-`CorrelatedAgreement/Capacity`; list cardinality and MCA are different properties.
+Mutual correlated agreement at capacity is in `CorrelatedAgreement/Capacity`;
+list cardinality and MCA are different properties.
 
 ## References
 
