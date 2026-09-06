@@ -86,7 +86,9 @@ private theorem sum_curveStageOne_eq (K μ M ell h : ℕ) (s t c : ℚ) :
   · simp [hj]
   · simp [hj]
 
-private theorem firstOrderCurveStageCap_add_height_eq (n K k L A μ M ell h : ℕ) :
+/-- The closed first-order curve envelope is exactly the terminal height plus the extremal
+cap-sensitive schedule of order-zero and order-one stage charges. -/
+theorem firstOrderCurveStageCap_add_height_eq (n K k L A μ M ell h : ℕ) :
     (h : ℚ) + firstOrderStageCap
         (curveStageZero K ell h (firstOrderCurveJointRatio n L A)
           ((ell * (n - L) : ℕ) : ℚ))
