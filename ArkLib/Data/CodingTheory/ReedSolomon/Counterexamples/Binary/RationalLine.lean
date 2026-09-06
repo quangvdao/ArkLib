@@ -9,7 +9,15 @@ import ArkLib.Data.CodingTheory.ReedSolomon.Counterexamples.Binary.RationalLine.
 /-!
 # Binary rational-line counterexample
 
-The definitions and conclusions are annotated where they occur in the statements below.
+This file is the reader-facing statement of the binary-field rational-line counterexample.
+It writes out the field parameters, the two source words, the affine mixtures, the explicit
+explaining polynomial, and the relevant agreement sets in one place. The first theorem gives
+the complete deterministic construction; the second records its consequences for ArkLib's
+correlated-agreement and multi-correlated-agreement errors.
+
+The supporting modules contain the reusable definitions and proofs. Here, comments are placed
+beside the corresponding Lean expressions so that the mathematical statement can be read from
+top to bottom without unfolding problem-specific abbreviations or moving between files.
 -/
 
 namespace ReedSolomon.Binary
