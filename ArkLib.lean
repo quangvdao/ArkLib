@@ -190,6 +190,7 @@ import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.Prescri
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.PrescribedLine
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.ExtensionDescent
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.FirstOrder
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.FirstOrderCurve
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.FullAgreement
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.GraphLine
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.HalfGap.Line
@@ -211,7 +212,9 @@ import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.GraphCounting
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.Incidence
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.PointRecognition
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.PowerToLine
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.RegularEquation
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.SharpRegularEquation
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.SharpTupleCounting
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.Specialization
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Symbolic.Certificate
@@ -628,8 +631,10 @@ import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.PrimeFamilyCoefficient
 import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.RadicalDegree
 import ArkLib.ToMathlib.AlgebraicGeometry.Hilbert.StandardMonomials
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.Agreement
+import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.BidegreeExcluded
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.Excluded
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.GraphPullback
+import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.SharpCutFamily
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.SharpExcluded
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.SharpPrimeFamily
 import ArkLib.ToMathlib.AlgebraicGeometry.Incidence.SharpRatio
