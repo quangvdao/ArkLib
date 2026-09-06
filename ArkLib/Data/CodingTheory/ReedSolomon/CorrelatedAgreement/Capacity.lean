@@ -5,6 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.PrescribedLine
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.PowerBatching
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.ExtensionDescent
 import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 
@@ -19,7 +20,11 @@ the full agreement set equals the constituent polynomials' common agreement set.
 
 This is the qualitative all-rate line conclusion of [DKTZ26]. Its proof uses ordinary
 joint-space incidence; it does not certify the manuscript's sharper numerical prefactor.
-The prescribed small-gap derivative order remains available in `PrescribedLineMCA`.
+The prescribed small-gap derivative order remains available in `exists_prescribedLineMCA`.
+
+The imported `exists_capacity_powerBatchingAgreement` is the corresponding public theorem for
+degree-`ℓ` polynomial curves.  Its exceptional count is linear in `ℓ`, has the same gap-dependent
+order and `n^(d+1)` exponent, and places no batching-dependent restriction on characteristic.
 
 ## Reading the statement
 
@@ -43,7 +48,7 @@ The prescribed small-gap derivative order remains available in `PrescribedLineMC
 This is a mutual correlated agreement theorem, not a list-size or running-time theorem.
 Unique-decoding and Johnson-range agreement results belong to the general
 `CodingTheory/ProximityGap` development. The capacity list-size theorem is separately
-in `ReedSolomon/ListDecoding/Capacity`. None of those properties should be inferred
+in `ReedSolomon/ListDecodability/Capacity`. None of those properties should be inferred
 from another merely because their decoding radii coincide.
 
 Compared with the paper's qualitative theorem, `δ < 1` and `A ≤ n` are unnecessary:
@@ -53,7 +58,7 @@ also includes equality `n = ringChar F`, covering prime fields of size exactly `
 ## References
 
 * [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated Agreement
-  up to Capacity*][DKTZ26], Theorem 1.2 (line case) and Sections 8–9.
+  up to Capacity*][DKTZ26], Theorem 1.2 and Sections 8–9 and 11.
 -/
 
 open PolynomialDifferential
