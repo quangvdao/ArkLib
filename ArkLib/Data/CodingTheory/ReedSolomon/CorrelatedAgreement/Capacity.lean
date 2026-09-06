@@ -7,6 +7,7 @@ Authors: Quang Dao
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.PrescribedLine
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.Capacity.PrescribedCurve
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.ExtensionDescent
+import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.HalfGap.Line
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.PolynomialCurve.ExtensionDescent
 import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.LineToAffine
 import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
@@ -97,6 +98,75 @@ def HasCapacityLineAgreement (δ : ℝ) (N : ℕ) (E : ℕ → ℝ) : Prop :=
             -- Recover the candidate itself, not merely its evaluations on a subset.
             P = F₀ + z • G₀ ∧
             S z P = T F₀ G₀
+
+/-- Characteristic-free mutual correlated agreement at the half gap.
+
+The threshold is the integral form `k + n / 2`. There is no minimum block length and no
+restriction on the field characteristic. One set of at most `2 * n` exceptional challenges works
+for every close polynomial, and outside it the complete agreement set is the common agreement set
+of two degree-`< k` constituents. Thresholds above `n` are allowed and give an empty exceptional
+set because no polynomial can have that many agreements. -/
+def HasHalfGapLineAgreement : Prop :=
+  ∀ (n k A : ℕ),
+    0 < k →
+    k ≤ n →
+    k + n / 2 ≤ A →
+    ∀ (F : Type u) [Field F] [DecidableEq F],
+      ∀ (α : Fin n ↪ F) (f g : Fin n → F),
+        ∃ exceptional : Finset F, exceptional.card ≤ 2 * n ∧
+          ∀ z ∉ exceptional, ∀ P : F[X], P.degree < k →
+            A ≤ (polynomialAgreementSet α (fun i ↦ f i + z * g i) P).card →
+            ∃ F₀ G₀ : F[X],
+              F₀.degree < k ∧
+              G₀.degree < k ∧
+              P = F₀ + z • G₀ ∧
+              polynomialAgreementSet α (fun i ↦ f i + z * g i) P =
+                commonPolynomialAgreementSet α f g F₀ G₀
+
+/-- **Half-gap line agreement.** Reed--Solomon codes have exact mutual correlated agreement at
+agreement `k + n / 2` over every field, outside at most `2 * n` challenges.
+
+Unlike the general capacity theorem below, this endpoint has no characteristic hypothesis. -/
+theorem halfGap_lineAgreement : HasHalfGapLineAgreement := by
+  intro n k A hk _hkn hhalf F _ _ domain f g
+  by_cases hAn : A ≤ n
+  · obtain ⟨exceptional, hcard, hgood⟩ :=
+      exists_exceptionalSet_exactAgreement_of_messageDim_add_half_blockLength_le
+        domain f g hk hAn hhalf
+    refine ⟨exceptional, hcard, ?_⟩
+    intro z hz P hdegree hagree
+    obtain ⟨F₀, G₀, hF₀, hG₀, heq, hsets⟩ := hgood z hz P hdegree hagree
+    exact ⟨F₀, G₀, hF₀, hG₀, by simpa [Polynomial.smul_eq_C_mul] using heq, hsets⟩
+  · refine ⟨∅, by simp, ?_⟩
+    intro z _ P _ hagree
+    have hcard :
+        (polynomialAgreementSet domain (fun i ↦ f i + z * g i) P).card ≤ n :=
+      (Finset.card_filter_le _ _).trans_eq (by simp)
+    exact (hAn (hagree.trans hcard)).elim
+
+/-- Every real gap at least one half inherits the characteristic-free `2 * n` endpoint. This
+specializes the common capacity interface while retaining the stronger standalone theorem
+`halfGap_lineAgreement`, which does not ask for a characteristic witness. -/
+theorem halfGap_capacity_lineAgreement (δ : ℝ) (hδ : (1 / 2 : ℝ) ≤ δ) :
+    HasCapacityLineAgreement δ 0 (fun n ↦ 2 * n) := by
+  intro n k A _hn hk hkn hgap F _ _ _hchar domain f g
+  have hnHalf : (((n / 2 : ℕ) : ℝ)) ≤ (n : ℝ) / 2 := Nat.cast_div_le
+  have hhalfReal : (k : ℝ) + (n / 2 : ℕ) ≤ A := by
+    calc
+      (k : ℝ) + (n / 2 : ℕ) ≤ (k : ℝ) + (n : ℝ) / 2 :=
+        add_le_add_right hnHalf _
+      _ = (k : ℝ) + (1 / 2 : ℝ) * n := by ring
+      _ ≤ (k : ℝ) + δ * n := by
+        gcongr
+      _ ≤ A := hgap
+  have hhalf : k + n / 2 ≤ A := by exact_mod_cast hhalfReal
+  obtain ⟨exceptional, hcard, hgood⟩ :=
+    halfGap_lineAgreement n k A hk hkn hhalf F domain f g
+  refine ⟨exceptional, ?_, ?_⟩
+  · have hcardReal : (exceptional.card : ℝ) ≤ (2 * n : ℕ) := by
+      exact_mod_cast hcard
+    simpa using hcardReal
+  · simpa only [Polynomial.smul_eq_C_mul] using hgood
 
 /-- Every positive gap has a field-independent polynomial bound on exceptional line
 challenges, uniformly over all rates. The conclusion identifies the whole agreement set.
