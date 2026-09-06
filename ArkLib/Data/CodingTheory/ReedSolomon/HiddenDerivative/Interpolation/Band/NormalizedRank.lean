@@ -160,7 +160,7 @@ theorem localCoordinateBudget_le_normalized_of_band_card_lower
   have hHlog : H ≤ Real.log d + 3 / 5 := by
     dsimp [H]
     rw [band_harmonic_sum_eq]
-    exact band_harmonic_pred_le_log d (by omega)
+    exact Real.harmonic_pred_le_log_add_three_fifths d (by omega)
   obtain ⟨hm, hW, hκ, hlo, hhi, he, herr, hrec⟩ :=
     band_prescribed_kappa_bounds g H d hg hH hd
   have hBe : (Be : ℝ) ≤ 9 / 8 * g * m := band_errorWindow_le g m hg hg' hgm

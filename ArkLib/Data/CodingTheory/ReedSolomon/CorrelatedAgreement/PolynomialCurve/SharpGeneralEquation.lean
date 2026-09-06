@@ -319,6 +319,62 @@ theorem finite_sourceCurve_points_off_tuples_card_le_sharp
       exact (hS x hx).2.2.1 l.val l.property), (hS x hx).2.2.2⟩
   · simpa only [cuts] using hA
 
+/-- Exact fixed-center bad-challenge bound at an explicit sufficient Taylor exponent. All
+source and tuple cuts use `τ`; only the dimension-sensitive terminal recognition premise is
+left for the localization bridge. -/
+theorem finite_sourceCurve_bad_challenges_card_le_sharp_of_exponent
+    {r : ℕ} [DecidableEq F] [DecidableEq E] [IsAlgClosed E]
+    (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F) (iota : F →+* E)
+    (center : E) (Q : DifferentialPolynomial E[X] r) (K k L A v h τ : ℕ)
+    (hτ : TaylorExponentSufficient r K τ) (hτpos : 0 < τ)
+    (hK : r < K) (hkK : k ≤ K) (hk : 0 < k) (hkL : k ≤ L)
+    (hLA : L ≤ A) (hAn : A ≤ n) (hD : 0 < ℓ + h) (hv : 0 < v)
+    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
+    (hheight : ChallengeHeightLE Q h)
+    (hterminal : ∀ J : Ideal (MvPolynomial (Option (Fin (r + 1))) E),
+      J.IsPrime → symbolicSourceSeparant center Q ∉ J →
+      symbolicSourceInitialEquation center Q ∈ J →
+      (∀ f ∈ sourceCurveHighCuts_of_exponent center Q K k τ, f ∈ J) →
+      0 < (hilbertPolynomial J).natDegree →
+      L ≤ (cutsInIdeal J (fun i ↦ symbolicSourceCurveAgreement_of_exponent
+        center Q K τ (iota (domain i)) (fun t ↦ iota (w t i)))).card →
+      principalOpenZeroLocus J (symbolicSourceSeparant center Q) ⊆
+        sourceCurveTupleLocus_of_exponent domain w iota center Q K k L τ)
+    (challenges : Finset E) (witness : E → E[X]) (jet : E → Fin (r + 1) → E)
+    (hchart : ∀ z ∈ challenges,
+      let Qz := MvPolynomial.map (Polynomial.evalRingHom z) Q
+      (witness z).degree < k ∧
+        aeval (jet z) (initialJetEquation center Qz) = 0 ∧
+        aeval (jet z) (initialJetSeparant center Qz) ≠ 0 ∧
+        (∀ l : Fin K, k ≤ l.val →
+          aeval (jet z) (commonTaylorNumerator center Qz K l (τ := τ)) = 0) ∧
+        rationalTaylorPolynomial center Qz K (jet z) = witness z)
+    (hagree : ∀ z ∈ challenges,
+      A ≤ (polynomialAgreementSet (mappedDomain domain iota)
+        (powerBatchedWord (fun t i ↦ iota (w t i)) z) (witness z)).card)
+    (hbad : ∀ z ∈ challenges,
+      ¬ HasExactPowerAgreement domain w iota k z (witness z)) :
+    (challenges.card : ℚ) ≤
+      regularSymbolicCurveMCASharpBound r n ℓ K k L A v h (τ := τ) := by
+  classical
+  by_cases hempty : challenges = ∅
+  · subst challenges
+    simp only [Finset.card_empty, Nat.cast_zero]
+    unfold regularSymbolicCurveMCASharpBound
+    positivity
+  obtain ⟨z₀, hz₀⟩ := Finset.nonempty_iff_ne_empty.mpr hempty
+  have hinit := source_initial_ne_zero_of_regular_general center z₀ Q (jet z₀)
+    (hchart z₀ hz₀).2.2.1
+  simpa only [regularSymbolicCurveMCASharpBound] using
+    (finite_sourceCurve_bad_challenges_card_le_of_source_bound_of_exponent
+      domain w iota center Q K k L A v τ hτ hK hkK hk hkL hLA hAn hjet
+      ((sourceCurveInitialMixedDegree r ℓ K v h (τ := τ) : ℚ) *
+        (((n - L + 1 : ℕ) : ℚ) / ((A - L + 1 : ℕ) : ℚ)) ^ (r + 1))
+      (fun S hS hA ↦ finite_sourceCurve_points_off_tuples_card_le_sharp_of_exponent
+        domain w iota center Q K k L A v h τ hτ hτpos hLA hAn hD hv hinit
+          hjet hheight hterminal S hS hA)
+      challenges witness jet hchart hagree hbad)
+
 /-- Exact fixed-center bad-challenge bound for an order-`r` source equation. -/
 theorem finite_sourceCurve_bad_challenges_card_le_sharp
     {r : ℕ} [DecidableEq E] [IsAlgClosed E]

@@ -5,6 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.Band.SimplexCantelli
+import ArkLib.ToMathlib.NumberTheory.Harmonic.Bounds
 
 
 /-!
@@ -24,43 +25,6 @@ namespace ReedSolomon.HiddenDerivative
 noncomputable section
 
 open scoped BigOperators
-
-private theorem reciprocal_square_tail_step (n : ℕ) :
-    (1 / (n + 1 : ℝ)) ^ 2 + 2 / (2 * (n + 1 : ℝ) + 1) ≤ 2 / (2 * (n : ℝ) + 1) := by
-  have h₁ : (0 : ℝ) < n + 1 := by positivity
-  have h₂ : (0 : ℝ) < 2 * (n + 1 : ℝ) + 1 := by positivity
-  have h₃ : (0 : ℝ) < 2 * (n : ℝ) + 1 := by positivity
-  field_simp
-  nlinarith
-
-private theorem reciprocal_square_initial :
-    (∑ i ∈ Finset.range 12, (1 / (i + 1 : ℝ)) ^ 2) + 2 / 25 < 329 / 200 := by
-  norm_num [Finset.sum_range_succ]
-
-/-- A twelve-term rational calculation and a midpoint telescoping tail bound the second
-harmonic sum. The tail estimate is valid for every dimension, including zero. -/
-theorem reciprocal_square_sum_lt (n : ℕ) :
-    (∑ i ∈ Finset.range n, (1 / (i + 1 : ℝ)) ^ 2) < 329 / 200 := by
-  by_cases hn : 12 ≤ n
-  · have hbound : ∀ k, 12 ≤ k →
-        (∑ i ∈ Finset.range k, (1 / (i + 1 : ℝ)) ^ 2) + 2 / (2 * (k : ℝ) + 1) ≤
-          (∑ i ∈ Finset.range 12, (1 / (i + 1 : ℝ)) ^ 2) + 2 / 25 := by
-      intro k hk
-      induction k, hk using Nat.le_induction with
-      | base => norm_num
-      | succ k hk ih =>
-        rw [Finset.sum_range_succ]
-        push_cast
-        have h := reciprocal_square_tail_step k
-        linarith
-    have h := hbound n hn
-    have hp : (0 : ℝ) < 2 / (2 * (n : ℝ) + 1) := by positivity
-    linarith [reciprocal_square_initial]
-  · have hsum : (∑ i ∈ Finset.range n, (1 / (i + 1 : ℝ)) ^ 2) ≤
-        ∑ i ∈ Finset.range 12, (1 / (i + 1 : ℝ)) ^ 2 :=
-      Finset.sum_le_sum_of_subset_of_nonneg
-        (Finset.range_mono (by omega)) (fun _ _ _ ↦ sq_nonneg _)
-    linarith [reciprocal_square_initial]
 
 /-- The manuscript's margins yield mass at least `29/100` when the exact variance is
 at most `9/250` times the squared scale. -/
@@ -110,7 +74,7 @@ theorem band_finite_variance_bound {d W : ℕ} (hd : 0 < d) (s : ℝ)
   have hdR : (0 : ℝ) < d := by exact_mod_cast hd
   have hW : (0 : ℝ) ≤ W := Nat.cast_nonneg _
   have hH₂ : H₂ ≤ 329 / 200 := by
-    have h := reciprocal_square_sum_lt (d - 1)
+    have h := Real.reciprocal_square_sum_lt (d - 1)
     have heq : H₂ = ∑ i ∈ Finset.range (d - 1), (1 / (i + 1 : ℝ)) ^ 2 := by
       simpa only [H₂, simplexReciprocalWeights, Nat.cast_add, Nat.cast_one] using
         Fin.sum_univ_eq_sum_range (fun i ↦ (1 / (i + 1 : ℝ)) ^ 2) (d - 1)

@@ -759,6 +759,31 @@ def sourceCurveTupleLocus_of_exponent [DecidableEq F]
       x = polynomialGraphPoint
         (powerBatchedJetGraph (r := r) center (fun t ↦ (P t).map iota)) (x none)}
 
+/-- The explicitly parameterized tuple locus recovers the compatibility locus at exponent
+`2K`. -/
+theorem sourceCurveTupleLocus_of_exponent_two_mul_eq [DecidableEq F]
+    (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F)
+    (iota : F →+* E) (center : E) (Q : DifferentialPolynomial E[X] r)
+    (K k L : ℕ) :
+    sourceCurveTupleLocus_of_exponent domain w iota center Q K k L (2 * K) =
+      sourceCurveTupleLocus domain w iota center Q K k L := by
+  ext x
+  constructor
+  · rintro ⟨P, hP, hx⟩
+    refine ⟨P, ?_, hx⟩
+    exact ⟨hP.degree, hP.common, hP.initial, (by
+      intro l hl
+      simpa only [symbolicSourceNumerator] using hP.high l hl), hP.regular, (by
+      intro l
+      simpa only [symbolicSourceNumerator] using hP.reconstruction l)⟩
+  · rintro ⟨P, hP, hx⟩
+    refine ⟨P, ?_, hx⟩
+    exact ⟨hP.degree, hP.common, hP.initial, (by
+      intro l hl
+      simpa only [symbolicSourceNumerator] using hP.high l hl), hP.regular, (by
+      intro l
+      simpa only [symbolicSourceNumerator] using hP.reconstruction l)⟩
+
 /-- A positive-dimensional prime containing at least `L` curve agreement cuts has all its
 regular points on one actual admissible polynomial graph. -/
 theorem principalOpen_subset_sourceCurveTupleLocus

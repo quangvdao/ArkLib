@@ -30,10 +30,12 @@ open scoped BigOperators
 
 variable {F : Type*} [Field F] {r : ℕ}
 
-/-- Finite regular high-cut jets obey the sharp ordinary-chart incidence ratio. -/
-theorem finite_regularHighCutJets_card_le_sharp
+/-- Finite regular high-cut jets obey the sharp ordinary-chart incidence ratio at any
+sufficient common Taylor exponent. -/
+theorem finite_regularHighCutJets_card_le_sharp_of_exponent
     [IsAlgClosed F]
-    (center : F) (Q : DifferentialPolynomial F r) (K k : ℕ) (hK : r < K)
+    (center : F) (Q : DifferentialPolynomial F r) (K k τ : ℕ)
+    (hτ : TaylorExponentSufficient r K τ) (hK : r < K)
     (hsep : initialJetSeparant center Q ≠ 0)
     (hv : 0 < Q.weightedTotalDegree (fun i ↦ i.elim (0 : ℕ) (fun _ ↦ 1)))
     {n A : ℕ} (domain : Fin n ↪ F) (received : Fin n → F)
@@ -43,18 +45,19 @@ theorem finite_regularHighCutJets_card_le_sharp
       aeval jet (initialJetEquation center Q) = 0 ∧
       aeval jet (initialJetSeparant center Q) ≠ 0 ∧
       ∀ l : {l : Fin K // k ≤ l.val},
-        aeval jet (commonTaylorNumerator center Q K l.val) = 0)
+        aeval jet (commonTaylorNumerator center Q K l.val (τ := τ)) = 0)
     (hA : ∀ jet ∈ S, A ≤ (agreementIndices
-      (fun i ↦ taylorAgreementEquation center Q K (domain i) (received i)) jet).card) :
+      (fun i ↦ taylorAgreementEquation center Q K (domain i) (received i) (τ := τ))
+        jet).card) :
     (S.card : ℚ) ≤
       (Q.weightedTotalDegree (fun i ↦ i.elim (0 : ℕ) (fun _ ↦ 1)) : ℕ) *
-        ((((((n - k + 1) * rationalTaylorCutDegreeBound Q K : ℕ) : ℚ) /
+        ((((((n - k + 1) * rationalTaylorCutDegreeBound Q K (τ := τ) : ℕ) : ℚ) /
           ((A - k + 1 : ℕ) : ℚ))) ^ r) := by
   classical
-  let B := rationalTaylorCutDegreeBound Q K
-  let T := highTaylorPrimeFamily center Q K k
+  let B := rationalTaylorCutDegreeBound Q K (τ := τ)
+  let T := highTaylorPrimeFamily center Q K k (τ := τ)
   let cuts : Fin n → MvPolynomial (Fin (r + 1)) F := fun i ↦
-    taylorAgreementEquation center Q K (domain i) (received i)
+    taylorAgreementEquation center Q K (domain i) (received i) (τ := τ)
   let R : ℚ := (((n - k + 1) * B : ℕ) : ℚ) / ((A - k + 1 : ℕ) : ℚ)
   let t : ℚ := ((n - k + 1 : ℕ) : ℚ) / ((A - k + 1 : ℕ) : ℚ)
   have hinit : initialJetEquation center Q ≠ 0 :=
@@ -70,7 +73,7 @@ theorem finite_regularHighCutJets_card_le_sharp
     dsimp only [R, t]
     push_cast
     field_simp
-  have hspec := highTaylorPrimeFamily_spec (F := F) (E := F) center Q K k
+  have hspec := highTaylorPrimeFamily_spec (F := F) (E := F) center Q K k (τ := τ)
   have hcoverNat : S.card ≤
       ∑ P ∈ T, (componentPoints S P).card := by
     calc
@@ -92,7 +95,8 @@ theorem finite_regularHighCutJets_card_le_sharp
     intro P hPT
     have hPspec := hspec.1 P hPT
     apply affineAgreementIncidence_bound_sharp hPspec.1 hPspec.2.1
-      cuts (fun i ↦ totalDegree_taylorAgreementEquation_le center Q hv K _ _)
+      cuts (fun i ↦ totalDegree_taylorAgreementEquation_le_of_exponent
+        center Q hv K τ hτ _ _)
       hB hk hkA hAn (componentPoints S P)
     · intro jet hjet
       rw [mem_componentPoints] at hjet
@@ -101,15 +105,15 @@ theorem finite_regularHighCutJets_card_le_sharp
       rw [mem_componentPoints] at hjet
       exact hA jet hjet.1
     · intro U hU jet jet' hjetP hjetS hjetP' hjetS' hzero
-      apply eq_of_mem_principalOpen_of_highCuts_of_agreementFinset
-        center Q K k hK P hPspec.2.2 domain received U hU
+      apply eq_of_mem_principalOpen_of_highCuts_of_agreementFinset_of_exponent
+        center Q K k τ hτ hK P hPspec.2.2 domain received U hU
         ⟨hjetP, hjetS⟩ ⟨hjetP', hjetS'⟩
       · intro i hi
         exact (hzero i hi).1
       · intro i hi
         exact (hzero i hi).2
-  have hpotential := sum_highTaylorPrimeFamily_affineDegree_mul_pow_le
-    center Q hsep hv K k
+  have hpotential := sum_highTaylorPrimeFamily_affineDegree_mul_pow_le_of_exponent
+    center Q hsep hv K k τ hτ
   calc
     (S.card : ℚ) ≤ ∑ P ∈ T,
         ((componentPoints S P).card : ℚ) := hcover
@@ -127,7 +131,8 @@ theorem finite_regularHighCutJets_card_le_sharp
       intro P hPT
       apply mul_le_mul_of_nonneg_left
       · exact pow_le_pow_right₀ ht
-          (highTaylorPrimeFamily_hilbertPolynomial_natDegree_le center Q K k (τ := 2 * K) hinit hPT)
+          (highTaylorPrimeFamily_hilbertPolynomial_natDegree_le
+            center Q K k (τ := τ) hinit hPT)
       · exact mul_nonneg (affineDegree_nonneg P) (by positivity)
     _ = (∑ P ∈ T, affineDegree P * (B : ℚ) ^
           (hilbertPolynomial P).natDegree) * t ^ r := by rw [Finset.sum_mul]
@@ -138,6 +143,29 @@ theorem finite_regularHighCutJets_card_le_sharp
           R ^ r := by
       rw [hR, mul_pow]
       ring
+
+/-- Compatibility form of the sharp chart incidence theorem at exponent `2K`. -/
+theorem finite_regularHighCutJets_card_le_sharp
+    [IsAlgClosed F]
+    (center : F) (Q : DifferentialPolynomial F r) (K k : ℕ) (hK : r < K)
+    (hsep : initialJetSeparant center Q ≠ 0)
+    (hv : 0 < Q.weightedTotalDegree (fun i ↦ i.elim (0 : ℕ) (fun _ ↦ 1)))
+    {n A : ℕ} (domain : Fin n ↪ F) (received : Fin n → F)
+    (hk : 0 < k) (hkA : k ≤ A) (hAn : A ≤ n)
+    (S : Finset (Fin (r + 1) → F))
+    (hS : ∀ jet ∈ S,
+      aeval jet (initialJetEquation center Q) = 0 ∧
+      aeval jet (initialJetSeparant center Q) ≠ 0 ∧
+      ∀ l : {l : Fin K // k ≤ l.val},
+        aeval jet (commonTaylorNumerator center Q K l.val) = 0)
+    (hA : ∀ jet ∈ S, A ≤ (agreementIndices
+      (fun i ↦ taylorAgreementEquation center Q K (domain i) (received i)) jet).card) :
+    (S.card : ℚ) ≤
+      (Q.weightedTotalDegree (fun i ↦ i.elim (0 : ℕ) (fun _ ↦ 1)) : ℕ) *
+        ((((((n - k + 1) * rationalTaylorCutDegreeBound Q K : ℕ) : ℚ) /
+          ((A - k + 1 : ℕ) : ℚ))) ^ r) := by
+  exact finite_regularHighCutJets_card_le_sharp_of_exponent center Q K k (2 * K)
+    (taylorExponentSufficient_two_mul r K) hK hsep hv domain received hk hkA hAn S hS hA
 
 end ReedSolomon.HiddenDerivative
 
