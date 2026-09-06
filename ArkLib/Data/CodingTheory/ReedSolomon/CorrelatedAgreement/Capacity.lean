@@ -101,7 +101,8 @@ def HasCapacityLineAgreement (δ : ℝ) (N : ℕ) (E : ℕ → ℝ) : Prop :=
 
 /-- Characteristic-free mutual correlated agreement at the half gap.
 
-The threshold is the integral form `k + n / 2`. There is no minimum block length and no
+Here `n / 2` is natural-number division: the threshold is `k + floor(n/2)`, which also covers
+the paper's real half-gap threshold. There is no minimum block length and no
 restriction on the field characteristic. One set of at most `2 * n` exceptional challenges works
 for every close polynomial, and outside it the complete agreement set is the common agreement set
 of two degree-`< k` constituents. Thresholds above `n` are allowed and give an empty exceptional
@@ -126,7 +127,8 @@ def HasHalfGapLineAgreement : Prop :=
 /-- **Half-gap line agreement.** Reed--Solomon codes have exact mutual correlated agreement at
 agreement `k + n / 2` over every field, outside at most `2 * n` challenges.
 
-Unlike the general capacity theorem below, this endpoint has no characteristic hypothesis. -/
+Unlike the general capacity theorem below, this endpoint has no characteristic hypothesis.
+It gives the bound in [DKTZ26, Theorem 5.11(3)], including equality of full agreement sets. -/
 theorem halfGap_lineAgreement : HasHalfGapLineAgreement := by
   intro n k A hk _hkn hhalf F _ _ domain f g
   by_cases hAn : A ≤ n
@@ -175,10 +177,21 @@ theorem exists_capacity_lineAgreement (δ : ℝ) (hδ : 0 < δ) :
     ∃ N d : ℕ, ∃ C : ℝ, 0 < C ∧
       HasCapacityLineAgreement δ N (fun n ↦ C * (n : ℝ) ^ (d + 1)) := by
   classical
-  let ε := min δ (1 / 8 : ℝ)
-  have hε : 0 < ε := lt_min hδ (by norm_num)
-  have hεquarter : ε < 1 / 4 := (min_le_right _ _).trans_lt (by norm_num)
-  have hεδ : ε ≤ δ := min_le_left _ _
+  by_cases hhalf : (1 / 2 : ℝ) ≤ δ
+  · refine ⟨0, 0, 2, by norm_num, ?_⟩
+    simpa using halfGap_capacity_lineAgreement δ hhalf
+  let ε := if δ < 1 / 4 then δ else (1 / 8 : ℝ)
+  have hε : 0 < ε := by
+    dsimp only [ε]
+    split_ifs <;> first | exact hδ | norm_num
+  have hεquarter : ε < 1 / 4 := by
+    dsimp only [ε]
+    split_ifs with h <;> first | exact h | norm_num
+  have hεδ : ε ≤ δ := by
+    dsimp only [ε]
+    split_ifs with h
+    · exact le_refl _
+    · linarith
   let d := Nat.ceil (Real.exp ((169 / 25) / ε))
   let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
   let C := prescribedLineMCAConstant ε + 1
@@ -394,10 +407,18 @@ theorem exists_capacity_powerBatchingAgreement (δ : ℝ) (hδ : 0 < δ) :
       HasCapacityPowerBatchingAgreement δ N
         (fun ℓ n ↦ (ℓ : ℝ) * C * (n : ℝ) ^ (d + 1)) := by
   classical
-  let ε := min δ (1 / 8 : ℝ)
-  have hε : 0 < ε := lt_min hδ (by norm_num)
-  have hεquarter : ε < 1 / 4 := (min_le_right _ _).trans_lt (by norm_num)
-  have hεδ : ε ≤ δ := min_le_left _ _
+  let ε := if δ < 1 / 4 then δ else (1 / 8 : ℝ)
+  have hε : 0 < ε := by
+    dsimp only [ε]
+    split_ifs <;> first | exact hδ | norm_num
+  have hεquarter : ε < 1 / 4 := by
+    dsimp only [ε]
+    split_ifs with h <;> first | exact h | norm_num
+  have hεδ : ε ≤ δ := by
+    dsimp only [ε]
+    split_ifs with h
+    · exact le_refl _
+    · linarith
   let d := Nat.ceil (Real.exp ((169 / 25) / ε))
   let m := Nat.ceil (100 * (d : ℝ) ^ 2 * harmonicNumber (d - 1))
   let C := prescribedCurveMCAConstant ε + 1
