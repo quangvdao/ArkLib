@@ -20,18 +20,17 @@ namespace Polynomial
 section Definitions
 
 /-- The leading exponent in an `m`-term binary trace. -/
-def binaryTraceTopDegree (m : ℕ) : ℕ := 2 ^ (m - 1)
+abbrev binaryTraceTopDegree (m : ℕ) : ℕ := 2 ^ (m - 1)
 
 /-- The quarter-field degree threshold used by the quotient polynomial. -/
-def binaryTraceQuarterDegree (m : ℕ) : ℕ := 2 ^ (m - 2)
+abbrev binaryTraceQuarterDegree (m : ℕ) : ℕ := 2 ^ (m - 2)
 
 /-- The explicit quotient obtained after the leading trace monomial cancels and `X` is removed. -/
 noncomputable def binaryTraceQuotient {F : Type*} [Field F] (m : ℕ) (s : F) : F[X] :=
   ∑ i ∈ Finset.range (m - 1),
     C (s ^ (2 ^ (i + 1) - 1)) * X ^ (2 ^ i - 1)
 
-/-- A normalized trace polynomial with leading coefficient one. -/
-noncomputable def binaryNormalizedTracePoly {F : Type*} [Field F]
+private noncomputable def binaryNormalizedTracePoly {F : Type*} [Field F]
     (m : ℕ) (s : F) : F[X] :=
   X ^ binaryTraceTopDegree m + X * binaryTraceQuotient m s
 
@@ -74,60 +73,6 @@ lemma binaryTraceQuotient_eval_zero {m : ℕ} (hm : 2 ≤ m) (s : F) :
   rw [Finset.sum_eq_zero hzero, zero_add]
   norm_num
 
-lemma binaryNormalizedTracePoly_eval_zero {m : ℕ} (_hm : 1 ≤ m) (s : F) :
-    (binaryNormalizedTracePoly m s).eval 0 = 0 := by
-  simp [binaryNormalizedTracePoly, binaryTraceTopDegree,
-    zero_pow (pow_ne_zero _ (by omega : (2 : ℕ) ≠ 0))]
-
-lemma binaryNormalizedTracePoly_monic {m : ℕ} (hm : 3 ≤ m) (s : F) :
-    (binaryNormalizedTracePoly m s).Monic := by
-  rw [binaryNormalizedTracePoly]
-  apply monic_X_pow_add
-  by_cases hq : binaryTraceQuotient m s = 0
-  · rw [hq, mul_zero, degree_zero]
-    exact WithBot.bot_lt_coe _
-  rw [← natDegree_lt_iff_degree_lt (mul_ne_zero X_ne_zero hq), natDegree_X_mul hq]
-  have hqdeg := binaryTraceQuotient_natDegree_lt hm s
-  simp only [binaryTraceTopDegree, binaryTraceQuarterDegree] at hqdeg ⊢
-  have hquarter : 2 ^ (m - 2) + 1 ≤ 2 ^ (m - 1) := by
-    have hm2 : 1 ≤ m - 2 := by omega
-    calc
-      2 ^ (m - 2) + 1 ≤ 2 ^ (m - 2) + 2 ^ (m - 2) := by omega
-      _ = 2 ^ (m - 1) := by
-        rw [show m - 1 = (m - 2) + 1 by omega, pow_succ]
-        omega
-  omega
-
-lemma binaryNormalizedTracePoly_natDegree {m : ℕ} (hm : 3 ≤ m) (s : F) :
-    (binaryNormalizedTracePoly m s).natDegree = binaryTraceTopDegree m := by
-  rw [binaryNormalizedTracePoly]
-  calc
-    (X ^ binaryTraceTopDegree m + X * binaryTraceQuotient m s).natDegree =
-        (X ^ binaryTraceTopDegree m : F[X]).natDegree := by
-      apply natDegree_add_eq_left_of_natDegree_lt
-      by_cases hq : binaryTraceQuotient m s = 0
-      · simp [hq, binaryTraceTopDegree]
-      rw [natDegree_X_mul hq, natDegree_X_pow]
-      have hqdeg := binaryTraceQuotient_natDegree_lt hm s
-      simp only [binaryTraceTopDegree, binaryTraceQuarterDegree] at hqdeg ⊢
-      have hquarter : 2 ^ (m - 2) + 1 ≤ 2 ^ (m - 1) := by
-        calc
-          2 ^ (m - 2) + 1 ≤ 2 ^ (m - 2) + 2 ^ (m - 2) := by
-            have hp : 0 < 2 ^ (m - 2) := pow_pos Nat.zero_lt_two _
-            omega
-          _ = 2 ^ (m - 1) := by
-            rw [show m - 1 = (m - 2) + 1 by omega, pow_succ]
-            omega
-      omega
-    _ = binaryTraceTopDegree m := natDegree_X_pow _
-
-lemma binaryTraceQuotient_identity {F : Type*} [Field F] [CharP F 2]
-    (m : ℕ) (s : F) :
-    X * binaryTraceQuotient m s =
-      X ^ binaryTraceTopDegree m + binaryNormalizedTracePoly m s := by
-  rw [binaryNormalizedTracePoly]
-  rw [← add_assoc, CharTwo.add_self_eq_zero, zero_add]
-
 end Field
 
 section FiniteBinaryField
@@ -141,6 +86,15 @@ lemma binaryTraceTopDegree_eq_card_div_two {m : ℕ} (hm : 1 ≤ m)
   obtain ⟨n, rfl⟩ : ∃ n, m = n + 1 := ⟨m - 1, by omega⟩
   rw [hcard, binaryTraceTopDegree]
   simp [pow_succ]
+
+omit [Field F] [DecidableEq F] [CharP F 2] in
+lemma binaryTraceQuarterDegree_eq_card_div_four {m : ℕ} (hm : 2 ≤ m)
+    (hcard : Fintype.card F = 2 ^ m) :
+    binaryTraceQuarterDegree m = Fintype.card F / 4 := by
+  obtain ⟨n, rfl⟩ : ∃ n, m = n + 2 := ⟨m - 2, by omega⟩
+  rw [hcard, binaryTraceQuarterDegree]
+  simp [pow_succ]
+  omega
 
 omit [Fintype F] [DecidableEq F] [CharP F 2] in
 private lemma inv_mul_trace_term (s x : F) (hs : s ≠ 0) (i : ℕ) :
@@ -165,7 +119,7 @@ private lemma inv_mul_trace_term (s x : F) (hs : s ≠ 0) (i : ℕ) :
       (s⁻¹ * s ^ (2 ^ (i + 1))) * x ^ (2 ^ i) by ac_rfl, hcoeff]
 
 omit [DecidableEq F] [CharP F 2] in
-lemma binaryNormalizedTracePoly_eval {m : ℕ} (hm : 3 ≤ m)
+private lemma binaryNormalizedTracePoly_eval {m : ℕ} (hm : 3 ≤ m)
     (hcard : Fintype.card F = 2 ^ m) {s : F} (hs : s ≠ 0) (x : F) :
     (binaryNormalizedTracePoly m s).eval x = s⁻¹ * binaryTrace m (s ^ 2 * x) := by
   classical
@@ -197,6 +151,23 @@ lemma binaryNormalizedTracePoly_eval {m : ℕ} (hm : 3 ≤ m)
   ac_rfl
 
 omit [DecidableEq F] in
+private lemma mul_binaryTraceQuotient_eval {m : ℕ} (hm : 3 ≤ m)
+    (hcard : Fintype.card F = 2 ^ m) {s : F} (hs : s ≠ 0) (x : F) :
+    x * (binaryTraceQuotient m s).eval x =
+      x ^ binaryTraceTopDegree m + s⁻¹ * binaryTrace m (s ^ 2 * x) := by
+  have hnorm := binaryNormalizedTracePoly_eval hm hcard hs x
+  rw [binaryNormalizedTracePoly, eval_add, eval_X_pow, eval_mul, eval_X] at hnorm
+  calc
+    x * (binaryTraceQuotient m s).eval x =
+        (x ^ binaryTraceTopDegree m + x ^ binaryTraceTopDegree m) +
+          x * (binaryTraceQuotient m s).eval x := by
+            rw [CharTwo.add_self_eq_zero, zero_add]
+    _ = x ^ binaryTraceTopDegree m +
+        (x ^ binaryTraceTopDegree m + x * (binaryTraceQuotient m s).eval x) := by
+          rw [add_assoc]
+    _ = x ^ binaryTraceTopDegree m + s⁻¹ * binaryTrace m (s ^ 2 * x) := by rw [hnorm]
+
+omit [DecidableEq F] in
 /-- For a nonzero evaluation point, the quotient agrees with the power-plus-reciprocal word
 exactly on a trace-one fiber after the reciprocal coefficient is normalized as `s⁻¹`. -/
 lemma binaryTraceQuotient_agreement_iff {m : ℕ} (hm : 3 ≤ m)
@@ -204,46 +175,17 @@ lemma binaryTraceQuotient_agreement_iff {m : ℕ} (hm : 3 ≤ m)
     (binaryTraceQuotient m s).eval x =
         x ^ (binaryTraceTopDegree m - 1) + s⁻¹ * x⁻¹ ↔
       binaryTrace m (s ^ 2 * x) = 1 := by
-  have hnorm := binaryNormalizedTracePoly_eval hm hcard hs x
-  rw [binaryNormalizedTracePoly, eval_add, eval_X_pow, eval_mul, eval_X] at hnorm
+  have hmul := mul_binaryTraceQuotient_eval hm hcard hs x
+  have htop : binaryTraceTopDegree m ≠ 0 := pow_ne_zero _ (by omega)
+  have hxrecip : x * (s⁻¹ * x⁻¹) = s⁻¹ := by field_simp
   constructor
   · intro hagree
-    rw [hagree] at hnorm
-    have hxpow : x * x ^ (binaryTraceTopDegree m - 1) = x ^ binaryTraceTopDegree m := by
-      rw [← pow_succ']
-      congr 1
-      exact Nat.sub_add_cancel (by
-        simp only [binaryTraceTopDegree]
-        have hp : 0 < 2 ^ (m - 1) := pow_pos Nat.zero_lt_two _
-        omega)
-    have hxrecip : x * (s⁻¹ * x⁻¹) = s⁻¹ := by field_simp
-    rw [mul_add, hxpow, hxrecip] at hnorm
-    have hs_inv : s⁻¹ ≠ 0 := inv_ne_zero hs
-    have hcancel : x ^ binaryTraceTopDegree m +
-        (x ^ binaryTraceTopDegree m + s⁻¹) = s⁻¹ := by
-      rw [← add_assoc, CharTwo.add_self_eq_zero, zero_add]
-    exact (mul_left_cancel₀ hs_inv) (by simpa [hnorm] using hcancel)
+    rw [hagree, mul_add, mul_pow_sub_one htop, hxrecip] at hmul
+    apply (mul_left_cancel₀ (inv_ne_zero hs))
+    simpa only [mul_one] using (add_left_cancel hmul).symm
   · intro htrace
-    rw [htrace, mul_one] at hnorm
-    have hxpow : x * x ^ (binaryTraceTopDegree m - 1) = x ^ binaryTraceTopDegree m := by
-      rw [← pow_succ']
-      congr 1
-      exact Nat.sub_add_cancel (by
-        simp only [binaryTraceTopDegree]
-        have hp : 0 < 2 ^ (m - 1) := pow_pos Nat.zero_lt_two _
-        omega)
-    have hxrecip : x * (s⁻¹ * x⁻¹) = s⁻¹ := by field_simp
     apply (mul_left_cancel₀ hx)
-    rw [mul_add, hxpow, hxrecip]
-    calc
-      x * (binaryTraceQuotient m s).eval x =
-          (x ^ binaryTraceTopDegree m + x ^ binaryTraceTopDegree m) +
-            x * (binaryTraceQuotient m s).eval x := by
-              rw [CharTwo.add_self_eq_zero, zero_add]
-      _ = x ^ binaryTraceTopDegree m +
-          (x ^ binaryTraceTopDegree m + x * (binaryTraceQuotient m s).eval x) := by
-            rw [add_assoc]
-      _ = x ^ binaryTraceTopDegree m + s⁻¹ := by rw [hnorm]
+    rw [mul_add, mul_pow_sub_one htop, hxrecip, hmul, htrace, mul_one]
 
 lemma binaryTraceQuotient_agreement_card {m : ℕ} (hm : 3 ≤ m)
     (hcard : Fintype.card F = 2 ^ m) {s : F} (hs : s ≠ 0) :
@@ -316,47 +258,26 @@ lemma binaryTraceQuotient_one_nonzero_agreement_card {m : ℕ} (hm : 3 ≤ m)
           constructor
           · rintro ⟨hx, hagree⟩
             refine ⟨hx, ?_⟩
-            have hnorm := binaryNormalizedTracePoly_eval hm hcard one_ne_zero x
-            rw [binaryNormalizedTracePoly, eval_add, eval_X_pow, eval_mul, eval_X,
-              hagree] at hnorm
-            have hxpow : x * x ^ (binaryTraceTopDegree m - 1) =
-                x ^ binaryTraceTopDegree m := by
-              rw [← pow_succ']
-              congr 1
-              exact Nat.sub_add_cancel (by
-                simp only [binaryTraceTopDegree]
-                have hp : 0 < 2 ^ (m - 1) := pow_pos Nat.zero_lt_two _
-                omega)
-            rw [hxpow] at hnorm
-            have hz : 0 = binaryTrace m x := by
-              simpa only [one_pow, one_mul, inv_one, ← add_assoc,
-                CharTwo.add_self_eq_zero, zero_add] using hnorm
-            exact hz.symm
+            have hmul := mul_binaryTraceQuotient_eval hm hcard one_ne_zero x
+            rw [hagree, mul_pow_sub_one (pow_ne_zero _ (by omega)), one_pow, one_mul,
+              inv_one] at hmul
+            have hmul' : x ^ (2 ^ (m - 1)) =
+                x ^ (2 ^ (m - 1)) + binaryTrace m x := by
+              simpa only [one_mul] using hmul
+            calc
+              binaryTrace m x = 0 + binaryTrace m x := (zero_add _).symm
+              _ = (x ^ (2 ^ (m - 1)) + x ^ (2 ^ (m - 1))) + binaryTrace m x := by
+                rw [CharTwo.add_self_eq_zero]
+              _ = x ^ (2 ^ (m - 1)) +
+                  (x ^ (2 ^ (m - 1)) + binaryTrace m x) := by rw [add_assoc]
+              _ = x ^ (2 ^ (m - 1)) + x ^ (2 ^ (m - 1)) := by rw [← hmul']
+              _ = 0 := CharTwo.add_self_eq_zero _
           · rintro ⟨hx, htrace⟩
             refine ⟨hx, ?_⟩
-            have hnorm := binaryNormalizedTracePoly_eval hm hcard one_ne_zero x
-            rw [binaryNormalizedTracePoly, eval_add, eval_X_pow, eval_mul, eval_X] at hnorm
-            simp only [one_pow, one_mul, inv_one] at hnorm
-            rw [htrace] at hnorm
             apply (mul_left_cancel₀ hx)
-            have hxpow : x * x ^ (binaryTraceTopDegree m - 1) =
-                x ^ binaryTraceTopDegree m := by
-              rw [← pow_succ']
-              congr 1
-              exact Nat.sub_add_cancel (by
-                simp only [binaryTraceTopDegree]
-                have hp : 0 < 2 ^ (m - 1) := pow_pos Nat.zero_lt_two _
-                omega)
-            rw [hxpow]
-            calc
-              x * (binaryTraceQuotient m 1).eval x =
-                  (x ^ binaryTraceTopDegree m + x ^ binaryTraceTopDegree m) +
-                    x * (binaryTraceQuotient m 1).eval x := by
-                      rw [CharTwo.add_self_eq_zero, zero_add]
-              _ = x ^ binaryTraceTopDegree m +
-                  (x ^ binaryTraceTopDegree m + x * (binaryTraceQuotient m 1).eval x) := by
-                    rw [add_assoc]
-              _ = x ^ binaryTraceTopDegree m := by rw [hnorm, add_zero]
+            rw [mul_pow_sub_one (pow_ne_zero _ (by omega)),
+              mul_binaryTraceQuotient_eval hm hcard one_ne_zero x, one_pow, one_mul, inv_one,
+              htrace, mul_zero, add_zero]
     _ = traceSet.card - 1 := Finset.card_erase_of_mem hzero_trace
     _ = Fintype.card F / 2 - 1 := by rw [hcard_trace]
 

@@ -28,6 +28,12 @@ section Definitions
 def rationalPowerWord {F : Type*} [Field F] [DecidableEq F] (m : ℕ) (x : F) : F :=
   if x = 0 then 1 else x ^ (binaryTraceTopDegree m - 1)
 
+/-- The explicit explaining polynomial. The origin challenge uses parameter one;
+every other challenge uses its inverse. No existence theorem or choice is involved. -/
+noncomputable def rationalLinePolynomial {F : Type*} [Field F] [DecidableEq F]
+    (m : ℕ) (z : F) : F[X] :=
+  binaryTraceQuotient m (if z = 0 then 1 else z⁻¹)
+
 end Definitions
 
 section FiniteBinaryField
@@ -45,18 +51,22 @@ private lemma rationalLineWord_ne_zero (m : ℕ) (τ z : F) {x : F} (hx : x ≠ 
       x ^ (binaryTraceTopDegree m - 1) + z * x⁻¹ := by
   simp [rationalPowerWord, reciprocalWord, hx]
 
-/-- Every word on the trace line has an explicit polynomial below the quarter-field degree
-threshold agreeing at exactly half the field. -/
-theorem rationalLine_agreement_witness {m : ℕ} (hm : 3 ≤ m)
+omit [Fintype F] [CharP F 2] in
+/-- The explicit explanation lies below the quarter-field degree threshold. -/
+theorem rationalLinePolynomial_degree_lt {m : ℕ} (hm : 3 ≤ m) (z : F) :
+    (rationalLinePolynomial m z).degree < binaryTraceQuarterDegree m :=
+  degree_le_natDegree.trans_lt (by
+    exact_mod_cast binaryTraceQuotient_natDegree_lt hm (if z = 0 then 1 else z⁻¹))
+
+/-- The explicit explanation agrees with the received mixture on exactly half the field. -/
+theorem rationalLinePolynomial_agree_eq {m : ℕ} (hm : 3 ≤ m)
     (hcard : Fintype.card F = 2 ^ m) {τ : F} (hτ : binaryTrace m τ = 1) (z : F) :
-    ∃ p : F[X], p.natDegree < binaryTraceQuarterDegree m ∧
-      Code.agree (fun x : F ↦ rationalPowerWord m x + z * reciprocalWord τ x)
-        (fun x ↦ p.eval x) =
-        binaryTraceTopDegree m := by
+    Code.agree (fun x : F ↦ rationalPowerWord m x + z * reciprocalWord τ x)
+      (fun x ↦ (rationalLinePolynomial m z).eval x) = binaryTraceTopDegree m := by
   classical
   by_cases hz : z = 0
   · subst z
-    refine ⟨binaryTraceQuotient m 1, binaryTraceQuotient_natDegree_lt hm 1, ?_⟩
+    simp only [rationalLinePolynomial]
     let nonzeroAgreements := Finset.univ.filter fun x : F ↦ x ≠ 0 ∧
       (binaryTraceQuotient m 1).eval x = x ^ (binaryTraceTopDegree m - 1)
     have hnonzero : nonzeroAgreements.card = Fintype.card F / 2 - 1 := by
@@ -89,7 +99,7 @@ theorem rationalLine_agreement_witness {m : ℕ} (hm : 3 ≤ m)
     · simp [nonzeroAgreements]
   · let s : F := z⁻¹
     have hs : s ≠ 0 := inv_ne_zero hz
-    refine ⟨binaryTraceQuotient m s, binaryTraceQuotient_natDegree_lt hm s, ?_⟩
+    simp only [rationalLinePolynomial, if_neg hz]
     have horigin :
         ¬rationalPowerWord m 0 + z * reciprocalWord τ 0 =
           (binaryTraceQuotient m s).eval 0 := by

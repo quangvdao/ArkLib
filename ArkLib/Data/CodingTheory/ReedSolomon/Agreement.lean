@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import Mathlib.LinearAlgebra.Lagrange
+import Mathlib.Algebra.Polynomial.Eval.Defs
+import ArkLib.Data.CodingTheory.Basic.Distance
 import Mathlib.Data.Finset.Filter
 
 /-!
@@ -30,27 +31,17 @@ def commonPolynomialAgreementSet {F ι : Type*} [Field F] [DecidableEq F] [Finty
     (domain : ι ↪ F) (f g : ι → F) (F₀ G₀ : F[X]) : Finset (ι) :=
   Finset.univ.filter fun i ↦ F₀.eval (domain i) = f i ∧ G₀.eval (domain i) = g i
 
-/-- Any two words have degree-bounded explanations on a common set of `k` coordinates. -/
-theorem exists_commonPolynomialAgreementSet_card_ge
+/-- Agreement-set cardinality is the ordinary agreement count. -/
+@[simp] theorem card_polynomialAgreementSet
     {F ι : Type*} [Field F] [DecidableEq F] [Fintype ι]
-    (domain : ι ↪ F) (f g : ι → F) (k : ℕ) (hk : k ≤ Fintype.card ι) :
-    ∃ P Q : F[X], P.degree < k ∧ Q.degree < k ∧
-      k ≤ (commonPolynomialAgreementSet domain f g P Q).card := by
+    (domain : ι ↪ F) (received : ι → F) (P : F[X]) :
+    (polynomialAgreementSet domain received P).card =
+      Code.agree received (fun i ↦ P.eval (domain i)) := by
   classical
-  obtain ⟨S, _, hS⟩ := Finset.exists_subset_card_eq
-    (s := (Finset.univ : Finset ι)) (by simpa using hk)
-  let P := Lagrange.interpolate S domain f
-  let Q := Lagrange.interpolate S domain g
-  have hinj : Set.InjOn domain S := domain.injective.injOn
-  refine ⟨P, Q, ?_, ?_, ?_⟩
-  · simpa [P, hS] using Lagrange.degree_interpolate_lt f hinj
-  · simpa [Q, hS] using Lagrange.degree_interpolate_lt g hinj
-  · rw [← hS]
-    apply Finset.card_le_card
-    intro i hi
-    exact Finset.mem_filter.mpr ⟨Finset.mem_univ _,
-      Lagrange.eval_interpolate_at_node f hinj hi,
-      Lagrange.eval_interpolate_at_node g hinj hi⟩
+  simp only [polynomialAgreementSet, Code.agree]
+  congr 1
+  ext i
+  simp [eq_comm]
 
 end
 end ReedSolomon

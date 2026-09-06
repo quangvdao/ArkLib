@@ -177,9 +177,13 @@ import ArkLib.Data.CodingTheory.ProximityGenerator.PolynomialGenerator
 import ArkLib.Data.CodingTheory.ProximityGenerator.TensorGenerator
 import ArkLib.Data.CodingTheory.ReedSolomon
 import ArkLib.Data.CodingTheory.ReedSolomon.Agreement
+import ArkLib.Data.CodingTheory.ReedSolomon.Agreement.Interpolation
 import ArkLib.Data.CodingTheory.ReedSolomon.Constrained
-import ArkLib.Data.CodingTheory.ReedSolomon.CorrelatedAgreement.LowerBound
 import ArkLib.Data.CodingTheory.ReedSolomon.Counterexamples.Binary.RationalLine
+import ArkLib.Data.CodingTheory.ReedSolomon.Counterexamples.Binary.RationalLine.Bounds
+import ArkLib.Data.CodingTheory.ReedSolomon.Counterexamples.Binary.RationalLine.Errors
+import ArkLib.Data.CodingTheory.ReedSolomon.Counterexamples.Binary.RationalLine.Lacunary
+import ArkLib.Data.CodingTheory.ReedSolomon.Counterexamples.Binary.RationalLine.Rigidity
 import ArkLib.Data.CodingTheory.ReedSolomon.Counterexamples.Binary.TraceLine
 import ArkLib.Data.CodingTheory.ReedSolomon.Folded
 import ArkLib.Data.CodingTheory.ReedSolomon.Interleaved
@@ -261,7 +265,6 @@ import ArkLib.Data.MvPolynomial.RestrictDegree
 import ArkLib.Data.MvPolynomial.RestrictDegreeVar
 import ArkLib.Data.MvPolynomial.SchwartzZippelCounting
 import ArkLib.Data.Polynomial.BinaryLacunary
-import ArkLib.Data.Polynomial.BinaryLacunaryAgreement
 import ArkLib.Data.Polynomial.BinaryTrace
 import ArkLib.Data.Polynomial.BinaryTraceWitness
 import ArkLib.Data.Polynomial.Bivariate

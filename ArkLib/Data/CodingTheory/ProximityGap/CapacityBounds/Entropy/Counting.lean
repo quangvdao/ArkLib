@@ -442,53 +442,6 @@ theorem cs25_shell_power_bound
     _ = (q : ℝ) ^ (f + 2) := by
       simp only [pow_succ]
 
-private theorem epsCa_le_one
-    {ι : Type} [Fintype ι] [Nonempty ι]
-    {F : Type} [Field F] [Fintype F] [DecidableEq F]
-    (C : Set (ι → F)) (δ_fld δ_int : NNReal) :
-    epsCa (F := F) (A := F) C δ_fld δ_int ≤ 1 := by
-  classical
-  unfold epsCa
-  refine iSup_le fun u => ?_
-  split_ifs
-  · exact zero_le_one
-  · exact PMF.coe_le_one _ _
-
-open scoped ProbabilityTheory in
-theorem epsCa_eq_one_of_all_folds_close_not_joint
-    {ι : Type} [Fintype ι] [Nonempty ι]
-    {F : Type} [Field F] [Fintype F] [DecidableEq F]
-    (C : Set (ι → F)) (δ : NNReal) (u : Code.WordStack F (Fin 2) ι)
-    (hjoint : ¬ Code.jointProximity C (u := u) δ)
-    (hclose : ∀ γ : F, Code.relDistFromCode (u 0 + γ • u 1) C ≤ (δ : ENNReal)) :
-    epsCa (F := F) (A := F) C δ δ = 1 := by
-  classical
-  refine le_antisymm (epsCa_le_one C δ δ) ?_
-  have hprob :
-      Pr_{let γ ← $ᵖ F}[Code.relDistFromCode (u 0 + γ • u 1) C ≤ (δ : ENNReal)] = 1 := by
-    rw [Probability.prob_uniform_eq_card_filter_div_card]
-    have hfilter :
-        Finset.univ.filter (fun γ : F =>
-          Code.relDistFromCode (u 0 + γ • u 1) C ≤ (δ : ENNReal)) = Finset.univ := by
-      ext γ
-      simp only [Finset.mem_filter, Finset.mem_univ, true_and]
-      exact iff_true_intro (hclose γ)
-    rw [hfilter]
-    apply ENNReal.div_self
-    · simp
-    · simp
-  calc
-    1 = Pr_{let γ ← $ᵖ F}[Code.relDistFromCode (u 0 + γ • u 1) C ≤ (δ : ENNReal)] := hprob.symm
-    _ = (if Code.jointProximity C (u := u) δ then 0
-        else Pr_{let γ ← $ᵖ F}[
-          Code.relDistFromCode (u 0 + γ • u 1) C ≤ (δ : ENNReal)]) := (if_neg hjoint).symm
-    _ ≤ epsCa (F := F) (A := F) C δ δ := by
-      unfold epsCa
-      exact le_iSup (fun w : Code.WordStack F (Fin 2) ι =>
-        if Code.jointProximity C (u := w) δ then 0
-        else Pr_{let γ ← $ᵖ F}[
-          Code.relDistFromCode (w 0 + γ • w 1) C ≤ (δ : ENNReal)]) u
-
 theorem exists_base_all_translates_close_of_bad_count
     {ι : Type} [Fintype ι] [Nonempty ι] [DecidableEq ι]
     {F : Type} [Field F] [Fintype F] [DecidableEq F]
@@ -585,27 +538,6 @@ theorem nat_card_lt_pow_pred_of_weighted_bound
     le_of_mul_le_mul_of_pos_left hfactor hpPos
   have hcontr : (N : ℝ) ≤ ((q : ℝ) - 1) * A := by linarith
   exact (not_le_of_gt hsmall) hcontr
-
-theorem not_jointProximity_of_second_row_far
-    {ι : Type} [Fintype ι] [Nonempty ι]
-    {F : Type} [Field F] [DecidableEq F]
-    (C : Set (ι → F)) (u : Code.WordStack F (Fin 2) ι) (δ : NNReal)
-    (hfar : ¬ Code.relDistFromCode (u 1) C ≤ (δ : ENNReal)) :
-    ¬ Code.jointProximity C (u := u) δ := by
-  intro hjoint
-  rw [← Code.jointAgreement_iff_jointProximity] at hjoint
-  obtain ⟨S, hS_card, v, hv⟩ := hjoint
-  apply hfar
-  rw [Code.relCloseToCode_iff_relCloseToCodeword_of_minDist]
-  refine ⟨v 1, (hv 1).1, ?_⟩
-  rw [Code.relCloseToWord_iff_exists_agreementCols]
-  refine ⟨S, (Code.relDist_floor_bound_iff_complement_bound _ _ _).mpr hS_card, ?_⟩
-  intro j
-  constructor
-  · intro hj
-    exact ((Finset.mem_filter.mp ((hv 1).2 hj)).2).symm
-  · intro hne hj
-    exact hne ((Finset.mem_filter.mp ((hv 1).2 hj)).2).symm
 
 noncomputable def rsAgreementSpace
     {ι F : Type} [Fintype ι] [DecidableEq ι]

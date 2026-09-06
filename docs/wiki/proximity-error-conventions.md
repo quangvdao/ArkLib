@@ -113,6 +113,19 @@ The numeric correlated-agreement values are connected to the predicate API by:
 These equivalences allow existing predicate-based proofs to consume numeric bounds without
 introducing a second predicate.
 
+Error-one witnesses also belong to `Errors.lean`:
+
+- `epsCa_le_one` bounds the correlated-agreement error by one.
+- `epsCa_eq_one_of_all_folds_close_not_joint` gives error one when every affine fold is close
+  but the source words are not jointly close.
+- `not_jointProximity_of_second_row_far` supplies non-jointness from a far direction word.
+
+For equal radii, derive MCA error one from CA error one using
+`epsCa_le_mcaError_affineLine` and `mcaError_le_one`. The binary rational-line example in
+`ReedSolomon/Counterexamples/Binary/RationalLine/Errors.lean` instead obtains non-jointness
+from its common-agreement bound and uses the same general CA endpoint.
+
+
 ## Numeric types
 
 | Quantity | Type |

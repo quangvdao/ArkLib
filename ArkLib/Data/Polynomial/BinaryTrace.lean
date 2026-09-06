@@ -7,7 +7,7 @@ Authors: Quang Dao
 import Mathlib.Algebra.CharP.Two
 import Mathlib.Algebra.Polynomial.Eval.Defs
 import Mathlib.Algebra.Polynomial.Roots
-import Mathlib.FieldTheory.Finite.Basic
+import Mathlib.FieldTheory.Finite.Trace
 
 /-!
 # The absolute trace of a finite binary field
@@ -105,6 +105,18 @@ lemma binaryTrace_sq_eq_self {m : ℕ} (hcard : Fintype.card F = 2 ^ m) (x : F) 
 lemma binaryTrace_eq_zero_or_one {m : ℕ} (hcard : Fintype.card F = 2 ^ m) (x : F) :
     binaryTrace m x = 0 ∨ binaryTrace m x = 1 := by
   exact eq_zero_or_one_of_sq_eq_self (binaryTrace_sq_eq_self hcard x)
+
+omit [CharP F 2] in
+/-- On a field of size `2^m`, the Frobenius sum is the field trace to `ZMod 2`,
+viewed in the extension field. -/
+lemma binaryTrace_eq_algebraMap_trace [Algebra (ZMod 2) F] {m : ℕ}
+    (hcard : Fintype.card F = 2 ^ m) (x : F) :
+    binaryTrace m x = algebraMap (ZMod 2) F (Algebra.trace (ZMod 2) F x) := by
+  have hfinrank : Module.finrank (ZMod 2) F = m := by
+    apply Nat.pow_right_injective (by omega : 2 ≤ 2)
+    simp only [FiniteField.pow_finrank_eq_card, hcard]
+  rw [FiniteField.algebraMap_trace_eq_sum_pow]
+  simp [binaryTrace, hfinrank]
 
 omit [CharP F 2] [Fintype F] in
 lemma binaryTracePoly_natDegree {m : ℕ} (hm : 0 < m) :
