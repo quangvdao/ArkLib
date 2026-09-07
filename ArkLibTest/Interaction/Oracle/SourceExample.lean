@@ -25,8 +25,8 @@ def dependent : SourceCtx Bool (Bool × Fin 3) where
 
 /-- Both dependent response branches affect the final scalar. -/
 def observe : OracleComp dependent.spec Nat := do
-  let bit ← liftM (dependent.spec.query false)
-  let value ← liftM (dependent.spec.query true)
+  let bit : Bool ← liftM (dependent.spec.query false)
+  let value : Fin 3 ← liftM (dependent.spec.query true)
   return if bit then value.val + 7 else value.val + 11
 
 example : dependent.eval (true, ⟨2, by decide⟩) observe = 9 := rfl
@@ -40,7 +40,7 @@ example (env : Bool × Fin 3) (p : OracleComp tagged.spec Nat) :
     tagged.eval (env, 4) p = tagged.eval (env, 19) p :=
   tagged.eval_eq_of_handler_eq rfl p
 
-example (env : Bool × Fin 3) : (env, 4 : (Bool × Fin 3) × Nat) ≠ (env, 19) := by
+example (env : Bool × Fin 3) : ((env, 4) : (Bool × Fin 3) × Nat) ≠ (env, 19) := by
   intro h
   have htag := congrArg Prod.snd h
   norm_num at htag
@@ -50,14 +50,14 @@ def numbers := SourceCtx.ofSpec (Bool →ₒ Nat)
 
 /-- Flip the primitive query and then add three to its answer. -/
 def shift : SourceHom numbers numbers where
-  route := ⟨Bool.not, fun _ answer => answer + 3⟩
-  onEnv := fun env q => env (!q) + 3
+  route := ⟨Bool.not, fun _ (answer : Nat) => (answer + 3 : Nat)⟩
+  onEnv := fun (env : Bool → Nat) q => (env (!q) + 3 : Nat)
   commutes := fun _ _ => rfl
 
 /-- Double an answer without changing its query. -/
 def double : SourceHom numbers numbers where
-  route := ⟨fun q => q, fun _ answer => answer * 2⟩
-  onEnv := fun env q => env q * 2
+  route := ⟨fun q => q, fun _ (answer : Nat) => (answer * 2 : Nat)⟩
+  onEnv := fun (env : Bool → Nat) q => (env q * 2 : Nat)
   commutes := fun _ _ => rfl
 
 /-- Distinct primitive answers reject a route that always chooses one branch. -/
@@ -80,15 +80,15 @@ example : (numbers.tensor numbers).eval (answers, fun _ => 29)
     ((SourceHom.inl numbers numbers).mapProgram twoQueries) = (2, 5) := rfl
 
 /-- Reindexing can explicitly give two names to the same primitive query. -/
-example : (numbers.reindex (fun _ : Bool => true)).handler answers false = 5 := rfl
+example : (numbers.reindex (fun _ : Bool => true)).handler answers false = (5 : Nat) := rfl
 
 /-- Parallel queries return both answers, not a sum response. -/
 example : (dependent.parallel numbers).handler ((true, ⟨2, by decide⟩), answers)
-    (true, false) = (⟨2, by decide⟩, 2) := rfl
+    (true, false) = ((⟨2, by decide⟩ : Fin 3), (2 : Nat)) := rfl
 
 /-- Family selection retains the index in the backing environment. -/
 example : (SourceCtx.family (fun _ : Bool => numbers)).handler
-    (fun | false => answers | true => fun _ => 29) ⟨true, false⟩ = 29 := rfl
+    (fun | false => answers | true => fun _ => 29) ⟨true, false⟩ = (29 : Nat) := rfl
 
 section Universes
 
@@ -110,7 +110,7 @@ example (S : SourceCtx.{u, v, w} I E) : SourceEquiv S (S.liftResponse.{u, v, w, 
 
 /-- The backward response map unwraps a concretely raised answer. -/
 example : (SourceHom.toLiftResponse.{0, 0, 0, 2} numbers).pull
-    ((numbers.liftResponse.{0, 0, 0, 2}).handler answers) true = 5 := rfl
+    ((numbers.liftResponse.{0, 0, 0, 2}).handler answers) true = (5 : Nat) := rfl
 
 end Universes
 
