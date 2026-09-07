@@ -171,6 +171,8 @@ import ArkLib.Data.CodingTheory.ProximityGap.GrandChallenges.UniqueDecoding
 import ArkLib.Data.CodingTheory.ProximityGap.InformationSetLowerBound
 import ArkLib.Data.CodingTheory.ProximityGap.LineDecoding
 import ArkLib.Data.CodingTheory.ProximityGap.Separation
+import ArkLib.Data.CodingTheory.ProximityGap.SymbolicCurveInterpolation
+import ArkLib.Data.CodingTheory.ProximityGap.SymbolicInterpolation
 import ArkLib.Data.CodingTheory.ProximityGenerator.AffineGenerator
 import ArkLib.Data.CodingTheory.ProximityGenerator.Basic
 import ArkLib.Data.CodingTheory.ProximityGenerator.ExceptionalSet
@@ -258,6 +260,7 @@ import ArkLib.Data.MvPolynomial.RestrictDegree
 import ArkLib.Data.MvPolynomial.RestrictDegreeVar
 import ArkLib.Data.MvPolynomial.SchwartzZippelCounting
 import ArkLib.Data.Polynomial.Bivariate
+import ArkLib.Data.Polynomial.BivariateMultiplicity
 import ArkLib.Data.Polynomial.ClassicalWronskian
 import ArkLib.Data.Polynomial.FoldedWronskian
 import ArkLib.Data.Polynomial.FoldingPolynomial
@@ -277,6 +280,9 @@ import ArkLib.Data.Polynomial.RationalFunctions.Lifts
 import ArkLib.Data.Polynomial.RationalFunctions.RationalRootVanishing
 import ArkLib.Data.Polynomial.RationalFunctions.Weight
 import ArkLib.Data.Polynomial.SplitFold
+import ArkLib.Data.Polynomial.SymbolicCurveInterpolation
+import ArkLib.Data.Polynomial.SymbolicCurveSurplus
+import ArkLib.Data.Polynomial.SymbolicInterpolation
 import ArkLib.Data.Polynomial.SymbolicInterpolationParameters
 import ArkLib.Data.Polynomial.SymbolicInterpolationSupport
 import ArkLib.Data.Polynomial.SymbolicInterpolationSurplus
