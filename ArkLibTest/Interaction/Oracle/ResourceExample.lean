@@ -5,6 +5,8 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Interaction.Oracle.Resource
+import Mathlib.Algebra.Polynomial.Degree.Operations
+import Mathlib.Algebra.Polynomial.Eval.Defs
 
 /-!
 # Resource-schema acceptance clients
@@ -46,10 +48,16 @@ theorem separate : left.Disjoint right := by
 /-- Two independent allocated objects. -/
 def pair := left.tensor right separate
 
+/-- A concrete object in the three-valued backing type. -/
+def smallObject : Fin 3 := ⟨2, by decide⟩
+
+/-- A concrete object in the five-valued backing type. -/
+def largeObject : Fin 5 := ⟨4, by decide⟩
+
 /-- Neither side's backing data is constant or interchangeable with the other's type. -/
 def pairEnv : (x : pair.Slot) → Fin (if pair.key x then 5 else 3)
-  | .inl _ => ⟨2, by decide⟩
-  | .inr _ => ⟨4, by decide⟩
+  | .inl _ => smallObject
+  | .inr _ => largeObject
 
 /-- Query both allocations, distinguishing both the resource and primitive-query routing. -/
 def readPair : OracleComp (pair.asSource catalog).spec (Nat × Nat) := do
@@ -71,7 +79,7 @@ def readAliases : OracleComp (aliases.asSource catalog).spec (Nat × Nat) := do
   let y : Nat ← liftM ((aliases.asSource catalog).spec.query ⟨true, false⟩)
   return (x, y)
 
-example : (aliases.asSource catalog).eval (fun _ => ⟨2, by decide⟩) readAliases = (2, 2) :=
+example : (aliases.asSource catalog).eval (fun _ => smallObject) readAliases = (2, 2) :=
   rfl
 
 example : aliases.key false = aliases.key true := rfl
@@ -83,7 +91,9 @@ example (env : (x : left.Slot) → Fin (if left.key x then 5 else 3)) :
   aliases.asSource_promise catalog env true
 
 /-- The same descriptor language can express a false promise; it is not automatically granted. -/
-example : ¬ catalog.meaning false 0 (⟨0, by decide⟩ : Fin 3) := by decide
+example : ¬ catalog.meaning false 0 (⟨0, by decide⟩ : Fin 3) := by
+  change ¬ (0 < (0 : Nat))
+  decide
 
 /-- A client cannot strengthen the real three-valued resource to the impossible bound zero. -/
 example (h : ∀ obj : Fin 3, catalog.meaning false 0 obj) : False := by
@@ -127,11 +137,11 @@ def inclusion := SchemaHom.fromReindex both flip
 
 /-- Distinct objects selected by stable identity. -/
 def bothEnv : (r : Bool) → Fin (if r then 5 else 3)
-  | false => ⟨2, by decide⟩
-  | true => ⟨4, by decide⟩
+  | false => smallObject
+  | true => largeObject
 
 example : (inclusion.toSourceHom catalog).onEnv bothEnv false =
-    (⟨4, by decide⟩ : Fin 5) := rfl
+    (largeObject : Fin 5) := rfl
 
 /-- Read in handle order, which is different from the original allocation order. -/
 def readRenamed : OracleComp (renamed.asSource catalog).spec (Nat × Nat) := do
@@ -149,7 +159,7 @@ example : (x : (ResourceSchema.empty : ResourceSchema.{0, 0} Bool).Slot) →
 
 /-- Tensor forgetting routes both resources to their matching product environments. -/
 example : ((left.asSource catalog).tensor (right.asSource catalog)).eval
-    ((fun _ => ⟨2, by decide⟩), (fun _ => ⟨4, by decide⟩))
+    ((fun _ => smallObject), (fun _ => largeObject))
     ((ResourceSchema.tensorSourceEquiv left right separate catalog).toHom.mapProgram readPair) =
       (3, 4) := rfl
 
@@ -162,7 +172,7 @@ def readShared : OracleComp (shared.asSource catalog).spec (Nat × Nat) := do
   let y : Nat ← liftM ((shared.asSource catalog).spec.query ⟨.inr true, false⟩)
   return (x, y)
 
-example : (left.asSource catalog).eval (fun _ => ⟨2, by decide⟩)
+example : (left.asSource catalog).eval (fun _ => smallObject)
     ((shared.toSourceHom catalog).mapProgram readShared) = (3, 2) := rfl
 
 /-- Both the primitive-query and response types vary with resource identity. -/
@@ -190,6 +200,42 @@ def readMixed : OracleComp (renamed.asSource mixedCatalog).spec (Bool × Nat) :=
 
 example : (both.asSource mixedCatalog).eval bothEnv
     ((inclusion.toSourceHom mixedCatalog).mapProgram readMixed) = (true, 2) := rfl
+
+/-- A reified degree promise is witnessed by the actual polynomial used for evaluation.
+
+The polynomial stays in the backing environment; the query interface only exposes evaluation.
+This client uses Mathlib's refined mathematical objects, not an arbitrary function tagged as
+low-degree. -/
+noncomputable def polynomialCatalog : ResourceCatalog Unit (fun _ => Nat)
+    (fun _ => {p : Polynomial Nat // p.natDegree < 2}) Unit Nat (fun _ => Nat) where
+  source := fun _ =>
+    { spec := Nat →ₒ Nat
+      impl := fun query (obj : {p : Polynomial Nat // p.natDegree < 2}) => obj.val.eval query }
+  owner := fun _ => ()
+  origin := fun _ => 7
+  promise := fun _ => 2
+  meaning := fun _ bound obj => obj.val.natDegree < bound
+  promise_holds := fun _ obj => obj.property
+
+/-- A nonconstant polynomial whose refined type certifies its advertised degree bound. -/
+noncomputable def linearObject : {p : Polynomial Nat // p.natDegree < 2} :=
+  ⟨Polynomial.X, by simp⟩
+
+example : (polynomialCatalog.source ()).handler linearObject 3 = (3 : Nat) := by
+  change (Polynomial.X : Polynomial Nat).eval 3 = 3
+  simp
+
+example : (polynomialCatalog.source ()).handler linearObject 7 = (7 : Nat) := by
+  change (Polynomial.X : Polynomial Nat).eval 7 = 7
+  simp
+
+example : polynomialCatalog.meaning () (polynomialCatalog.promise ()) linearObject :=
+  polynomialCatalog.promise_holds () linearObject
+
+/-- The descriptor zero cannot be substituted for the actual degree promise. -/
+example : ¬ polynomialCatalog.meaning () 0 linearObject := by
+  change ¬ (Polynomial.X : Polynomial Nat).natDegree < 0
+  exact Nat.not_lt_zero _
 
 section Universes
 
