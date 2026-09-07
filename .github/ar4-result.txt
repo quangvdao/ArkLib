@@ -1,45 +1,173 @@
-CHECKOUT=6be0c0e8daf5b1ca39811cacbbf201daf9c3dc71
-RUN=34090266346
-FOCUSED=failure
-FULL=skipped
+CHECKOUT=141598b4c8e86114fbfe691baa4089364645540b
+RUN=34090568411
+FOCUSED=success
+FULL=success
 --- Focused output ---
 Build completed successfully (3032 jobs).
-✔ [2658/2659] Built ArkLib.Interaction.Oracle.Source (2.7s)
-✔ [2659/2659] Built ArkLibTest.Interaction.Oracle.SourceExample (2.1s)
+✔ [2658/2659] Built ArkLib.Interaction.Oracle.Source (2.6s)
+✔ [2659/2659] Built ArkLibTest.Interaction.Oracle.SourceExample (1.0s)
 Build completed successfully (2659 jobs).
-✔ [2662/2663] Built ArkLib.Interaction.Oracle.Resource (2.8s)
-✖ [2663/2663] Building ArkLibTest.Interaction.Oracle.ResourceExample (2.2s)
-trace: .> LEAN_PATH=/home/runner/work/ArkLib/ArkLib/.lake/packages/cslib/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/batteries/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/Qq/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/aesop/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/proofwidgets/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/importGraph/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/plausible/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/loom2/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/PolyFun/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/MD4Lean/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/BibtexQuery/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/UnicodeBasic/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/Cli/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/leansqlite/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/mathlib/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/doc-gen4/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/checkdecls/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/CompPoly/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/build/lib/lean /home/runner/.elan/toolchains/leanprover--lean4---v4.33.1/bin/lean /home/runner/work/ArkLib/ArkLib/ArkLibTest/Interaction/Oracle/ResourceExample.lean -o /home/runner/work/ArkLib/ArkLib/.lake/build/lib/lean/ArkLibTest/Interaction/Oracle/ResourceExample.olean -i /home/runner/work/ArkLib/ArkLib/.lake/build/lib/lean/ArkLibTest/Interaction/Oracle/ResourceExample.ilean -c /home/runner/work/ArkLib/ArkLib/.lake/build/ir/ArkLibTest/Interaction/Oracle/ResourceExample.c --setup /home/runner/work/ArkLib/ArkLib/.lake/build/ir/ArkLibTest/Interaction/Oracle/ResourceExample.setup.json --json
-error: ArkLibTest/Interaction/Oracle/ResourceExample.lean:51:21: Expected type must not contain free variables
-  2 < if pair.key (Sum.inl val✝) = true then 5 else 3
-
-Hint: Use the `+revert` option to automatically clean up and revert free variables
-error: ArkLibTest/Interaction/Oracle/ResourceExample.lean:52:21: Expected type must not contain free variables
-  4 < if pair.key (Sum.inr val✝) = true then 5 else 3
-
-Hint: Use the `+revert` option to automatically clean up and revert free variables
-error: ArkLibTest/Interaction/Oracle/ResourceExample.lean:74:59: Expected type must not contain free variables
-  2 < if left.key x✝ = true then 5 else 3
-
-Hint: Use the `+revert` option to automatically clean up and revert free variables
-error: ArkLibTest/Interaction/Oracle/ResourceExample.lean:86:67: failed to synthesize
-  Decidable ¬catalog.meaning false 0 ⟨0, ⋯⟩
-
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
-error: ArkLibTest/Interaction/Oracle/ResourceExample.lean:152:22: Expected type must not contain free variables
-  2 < if left.key x✝ = true then 5 else 3
-
-Hint: Use the `+revert` option to automatically clean up and revert free variables
-error: ArkLibTest/Interaction/Oracle/ResourceExample.lean:152:49: Expected type must not contain free variables
-  4 < if right.key x✝ = true then 5 else 3
-
-Hint: Use the `+revert` option to automatically clean up and revert free variables
-error: ArkLibTest/Interaction/Oracle/ResourceExample.lean:165:56: Expected type must not contain free variables
-  2 < if left.key x✝ = true then 5 else 3
-
-Hint: Use the `+revert` option to automatically clean up and revert free variables
-error: Lean exited with code 1
-Some required targets logged failures:
-- ArkLibTest.Interaction.Oracle.ResourceExample
-error: build failed
+✔ [2662/2663] Built ArkLib.Interaction.Oracle.Resource (2.7s)
+✔ [2663/2663] Built ArkLibTest.Interaction.Oracle.ResourceExample (2.3s)
+Build completed successfully (2663 jobs).
 --- Full gate output (last 160 lines) ---
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mlkem-native/mlkem/mlkem_native.h:171:3: note: in expansion of macro ‘MLK_API_CONCAT_UNDERSCORE’
+  171 |   MLK_API_CONCAT_UNDERSCORE(MLK_CONFIG_API_NAMESPACE_PREFIX, sym)
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mlkem-native/mlkem/mlkem_native_config.h:75:37: note: in expansion of macro ‘MLK_DEFAULT_NAMESPACE_PREFIX’
+   75 | #define MLK_CONFIG_NAMESPACE_PREFIX MLK_DEFAULT_NAMESPACE_PREFIX
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mlkem-native/mlkem/mlkem_native.h:149:41: note: in expansion of macro ‘MLK_CONFIG_NAMESPACE_PREFIX’
+  149 | #define MLK_CONFIG_API_NAMESPACE_PREFIX MLK_CONFIG_NAMESPACE_PREFIX
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mlkem-native/mlkem/mlkem_native.h:171:29: note: in expansion of macro ‘MLK_CONFIG_API_NAMESPACE_PREFIX’
+  171 |   MLK_API_CONCAT_UNDERSCORE(MLK_CONFIG_API_NAMESPACE_PREFIX, sym)
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mlkem-native/mlkem/mlkem_native.h:444:31: note: in expansion of macro ‘MLK_API_NAMESPACE’
+  444 | #define crypto_kem_enc_derand MLK_API_NAMESPACE(enc_derand)
+      |                               ^~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/csrc/mlkem/lean_mlkem1024_ffi.c:48:9: note: in expansion of macro ‘crypto_kem_enc_derand’
+   48 |   (void)crypto_kem_enc_derand(ct, ss, pk_ptr, m_ptr);
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/csrc/mlkem/lean_mlkem1024_ffi.c: In function ‘lean_mlkem1024_dec’:
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mlkem-native/mlkem/mlkem_native_config.h:706:38: warning: ignoring return value of ‘PQCP_MLKEM_NATIVE_MLKEM1024_dec’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  706 | #define MLK_DEFAULT_NAMESPACE_PREFIX PQCP_MLKEM_NATIVE_MLKEM1024
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mlkem-native/mlkem/mlkem_native.h:125:31: note: in definition of macro ‘MLK_API_CONCAT_’
+  125 | #define MLK_API_CONCAT_(x, y) x##y
+      |                               ^
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mlkem-native/mlkem/mlkem_native.h:127:41: note: in expansion of macro ‘MLK_API_CONCAT’
+  127 | #define MLK_API_CONCAT_UNDERSCORE(x, y) MLK_API_CONCAT(MLK_API_CONCAT(x, _), y)
+      |                                         ^~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mlkem-native/mlkem/mlkem_native.h:126:30: note: in expansion of macro ‘MLK_API_CONCAT_’
+  126 | #define MLK_API_CONCAT(x, y) MLK_API_CONCAT_(x, y)
+      |                              ^~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mlkem-native/mlkem/mlkem_native.h:127:56: note: in expansion of macro ‘MLK_API_CONCAT’
+  127 | #define MLK_API_CONCAT_UNDERSCORE(x, y) MLK_API_CONCAT(MLK_API_CONCAT(x, _), y)
+      |                                                        ^~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mlkem-native/mlkem/mlkem_native.h:171:3: note: in expansion of macro ‘MLK_API_CONCAT_UNDERSCORE’
+  171 |   MLK_API_CONCAT_UNDERSCORE(MLK_CONFIG_API_NAMESPACE_PREFIX, sym)
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mlkem-native/mlkem/mlkem_native_config.h:75:37: note: in expansion of macro ‘MLK_DEFAULT_NAMESPACE_PREFIX’
+   75 | #define MLK_CONFIG_NAMESPACE_PREFIX MLK_DEFAULT_NAMESPACE_PREFIX
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mlkem-native/mlkem/mlkem_native.h:149:41: note: in expansion of macro ‘MLK_CONFIG_NAMESPACE_PREFIX’
+  149 | #define MLK_CONFIG_API_NAMESPACE_PREFIX MLK_CONFIG_NAMESPACE_PREFIX
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mlkem-native/mlkem/mlkem_native.h:171:29: note: in expansion of macro ‘MLK_CONFIG_API_NAMESPACE_PREFIX’
+  171 |   MLK_API_CONCAT_UNDERSCORE(MLK_CONFIG_API_NAMESPACE_PREFIX, sym)
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mlkem-native/mlkem/mlkem_native.h:446:24: note: in expansion of macro ‘MLK_API_NAMESPACE’
+  446 | #define crypto_kem_dec MLK_API_NAMESPACE(dec)
+      |                        ^~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/csrc/mlkem/lean_mlkem1024_ffi.c:59:9: note: in expansion of macro ‘crypto_kem_dec’
+   59 |   (void)crypto_kem_dec(ss, ct_ptr, sk_ptr);
+      |         ^~~~~~~~~~~~~~
+ℹ [21/32] Replayed VCVio/mldsa_ffi.o
+info: stderr:
+In file included from /home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/csrc/mldsa/lean_mldsa_ffi.c:19:
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/csrc/mldsa/lean_mldsa_ffi.c: In function ‘lean_mldsa_keypair_internal’:
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native_config.h:718:38: warning: ignoring return value of ‘PQCP_MLDSA_NATIVE_MLDSA65_keypair_internal’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  718 | #define MLD_DEFAULT_NAMESPACE_PREFIX PQCP_MLDSA_NATIVE_MLDSA65
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:138:31: note: in definition of macro ‘MLD_API_CONCAT_’
+  138 | #define MLD_API_CONCAT_(x, y) x##y
+      |                               ^
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:140:41: note: in expansion of macro ‘MLD_API_CONCAT’
+  140 | #define MLD_API_CONCAT_UNDERSCORE(x, y) MLD_API_CONCAT(MLD_API_CONCAT(x, _), y)
+      |                                         ^~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:139:30: note: in expansion of macro ‘MLD_API_CONCAT_’
+  139 | #define MLD_API_CONCAT(x, y) MLD_API_CONCAT_(x, y)
+      |                              ^~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:140:56: note: in expansion of macro ‘MLD_API_CONCAT’
+  140 | #define MLD_API_CONCAT_UNDERSCORE(x, y) MLD_API_CONCAT(MLD_API_CONCAT(x, _), y)
+      |                                                        ^~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:183:3: note: in expansion of macro ‘MLD_API_CONCAT_UNDERSCORE’
+  183 |   MLD_API_CONCAT_UNDERSCORE(MLD_CONFIG_API_NAMESPACE_PREFIX, sym)
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native_config.h:75:37: note: in expansion of macro ‘MLD_DEFAULT_NAMESPACE_PREFIX’
+   75 | #define MLD_CONFIG_NAMESPACE_PREFIX MLD_DEFAULT_NAMESPACE_PREFIX
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:162:41: note: in expansion of macro ‘MLD_CONFIG_NAMESPACE_PREFIX’
+  162 | #define MLD_CONFIG_API_NAMESPACE_PREFIX MLD_CONFIG_NAMESPACE_PREFIX
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:183:29: note: in expansion of macro ‘MLD_CONFIG_API_NAMESPACE_PREFIX’
+  183 |   MLD_API_CONCAT_UNDERSCORE(MLD_CONFIG_API_NAMESPACE_PREFIX, sym)
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/csrc/mldsa/lean_mldsa_ffi.c:55:9: note: in expansion of macro ‘MLD_API_NAMESPACE’
+   55 |   (void)MLD_API_NAMESPACE(keypair_internal)(pk, sk, seed_ptr);
+      |         ^~~~~~~~~~~~~~~~~
+ℹ [23/32] Replayed VCVio/mldsa44_ffi.o
+info: stderr:
+In file included from /home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/csrc/mldsa/lean_mldsa44_ffi.c:13:
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/csrc/mldsa/lean_mldsa44_ffi.c: In function ‘lean_mldsa44_keypair_internal’:
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native_config.h:716:38: warning: ignoring return value of ‘PQCP_MLDSA_NATIVE_MLDSA44_keypair_internal’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  716 | #define MLD_DEFAULT_NAMESPACE_PREFIX PQCP_MLDSA_NATIVE_MLDSA44
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:138:31: note: in definition of macro ‘MLD_API_CONCAT_’
+  138 | #define MLD_API_CONCAT_(x, y) x##y
+      |                               ^
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:140:41: note: in expansion of macro ‘MLD_API_CONCAT’
+  140 | #define MLD_API_CONCAT_UNDERSCORE(x, y) MLD_API_CONCAT(MLD_API_CONCAT(x, _), y)
+      |                                         ^~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:139:30: note: in expansion of macro ‘MLD_API_CONCAT_’
+  139 | #define MLD_API_CONCAT(x, y) MLD_API_CONCAT_(x, y)
+      |                              ^~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:140:56: note: in expansion of macro ‘MLD_API_CONCAT’
+  140 | #define MLD_API_CONCAT_UNDERSCORE(x, y) MLD_API_CONCAT(MLD_API_CONCAT(x, _), y)
+      |                                                        ^~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:183:3: note: in expansion of macro ‘MLD_API_CONCAT_UNDERSCORE’
+  183 |   MLD_API_CONCAT_UNDERSCORE(MLD_CONFIG_API_NAMESPACE_PREFIX, sym)
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native_config.h:75:37: note: in expansion of macro ‘MLD_DEFAULT_NAMESPACE_PREFIX’
+   75 | #define MLD_CONFIG_NAMESPACE_PREFIX MLD_DEFAULT_NAMESPACE_PREFIX
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:162:41: note: in expansion of macro ‘MLD_CONFIG_NAMESPACE_PREFIX’
+  162 | #define MLD_CONFIG_API_NAMESPACE_PREFIX MLD_CONFIG_NAMESPACE_PREFIX
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:183:29: note: in expansion of macro ‘MLD_CONFIG_API_NAMESPACE_PREFIX’
+  183 |   MLD_API_CONCAT_UNDERSCORE(MLD_CONFIG_API_NAMESPACE_PREFIX, sym)
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/csrc/mldsa/lean_mldsa44_ffi.c:42:9: note: in expansion of macro ‘MLD_API_NAMESPACE’
+   42 |   (void)MLD_API_NAMESPACE(keypair_internal)(pk, sk, seed_ptr);
+      |         ^~~~~~~~~~~~~~~~~
+ℹ [25/32] Replayed VCVio/mldsa87_ffi.o
+info: stderr:
+In file included from /home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/csrc/mldsa/lean_mldsa87_ffi.c:13:
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/csrc/mldsa/lean_mldsa87_ffi.c: In function ‘lean_mldsa87_keypair_internal’:
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native_config.h:720:38: warning: ignoring return value of ‘PQCP_MLDSA_NATIVE_MLDSA87_keypair_internal’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  720 | #define MLD_DEFAULT_NAMESPACE_PREFIX PQCP_MLDSA_NATIVE_MLDSA87
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:138:31: note: in definition of macro ‘MLD_API_CONCAT_’
+  138 | #define MLD_API_CONCAT_(x, y) x##y
+      |                               ^
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:140:41: note: in expansion of macro ‘MLD_API_CONCAT’
+  140 | #define MLD_API_CONCAT_UNDERSCORE(x, y) MLD_API_CONCAT(MLD_API_CONCAT(x, _), y)
+      |                                         ^~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:139:30: note: in expansion of macro ‘MLD_API_CONCAT_’
+  139 | #define MLD_API_CONCAT(x, y) MLD_API_CONCAT_(x, y)
+      |                              ^~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:140:56: note: in expansion of macro ‘MLD_API_CONCAT’
+  140 | #define MLD_API_CONCAT_UNDERSCORE(x, y) MLD_API_CONCAT(MLD_API_CONCAT(x, _), y)
+      |                                                        ^~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:183:3: note: in expansion of macro ‘MLD_API_CONCAT_UNDERSCORE’
+  183 |   MLD_API_CONCAT_UNDERSCORE(MLD_CONFIG_API_NAMESPACE_PREFIX, sym)
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native_config.h:75:37: note: in expansion of macro ‘MLD_DEFAULT_NAMESPACE_PREFIX’
+   75 | #define MLD_CONFIG_NAMESPACE_PREFIX MLD_DEFAULT_NAMESPACE_PREFIX
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:162:41: note: in expansion of macro ‘MLD_CONFIG_NAMESPACE_PREFIX’
+  162 | #define MLD_CONFIG_API_NAMESPACE_PREFIX MLD_CONFIG_NAMESPACE_PREFIX
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/third_party/mldsa-native/mldsa/mldsa_native.h:183:29: note: in expansion of macro ‘MLD_CONFIG_API_NAMESPACE_PREFIX’
+  183 |   MLD_API_CONCAT_UNDERSCORE(MLD_CONFIG_API_NAMESPACE_PREFIX, sym)
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/csrc/mldsa/lean_mldsa87_ffi.c:42:9: note: in expansion of macro ‘MLD_API_NAMESPACE’
+   42 |   (void)MLD_API_NAMESPACE(keypair_internal)(pk, sk, seed_ptr);
+      |         ^~~~~~~~~~~~~~~~~
+axiomsweep: 11375 declarations across 437 modules under #[ArkLib]
+  sorryAx-tainted: 312
+  non-standard-axiom-tainted: 0 (axioms: #[])
+axiomsweep: good news — 2 baseline entr(y/ies) no longer tainted; run `lake exe axiomsweep --update-baseline` to shrink the baseline:
+  OutOfDomSmpl.out_of_dom_smpl_1
+  OutOfDomSmpl.out_of_dom_smpl_2
+axiomsweep: check passed (no new axiom/sorry taint).
+
+All requested validation checks passed.
+PASSED_CHECKOUT=141598b4c8e86114fbfe691baa4089364645540b
