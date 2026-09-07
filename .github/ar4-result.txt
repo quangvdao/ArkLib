@@ -1,61 +1,45 @@
-CHECKOUT=9e547b3ca79b3aea646f16a0695946fe9613278f
-RUN=34090060937
+CHECKOUT=6be0c0e8daf5b1ca39811cacbbf201daf9c3dc71
+RUN=34090266346
 FOCUSED=failure
 FULL=skipped
 --- Focused output ---
 Build completed successfully (3032 jobs).
-✔ [2661/2662] Built ArkLib.Interaction.Oracle.Source (2.6s)
-✔ [2662/2662] Built ArkLibTest.Interaction.Oracle.SourceExample (2.0s)
-Build completed successfully (2662 jobs).
-✖ [2662/2663] Building ArkLib.Interaction.Oracle.Resource (2.5s)
-trace: .> LEAN_PATH=/home/runner/work/ArkLib/ArkLib/.lake/packages/cslib/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/batteries/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/Qq/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/aesop/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/proofwidgets/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/importGraph/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/plausible/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/loom2/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/PolyFun/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/MD4Lean/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/BibtexQuery/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/UnicodeBasic/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/Cli/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/leansqlite/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/mathlib/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/doc-gen4/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/checkdecls/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/CompPoly/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/build/lib/lean /home/runner/.elan/toolchains/leanprover--lean4---v4.33.1/bin/lean /home/runner/work/ArkLib/ArkLib/ArkLib/Interaction/Oracle/Resource.lean -o /home/runner/work/ArkLib/ArkLib/.lake/build/lib/lean/ArkLib/Interaction/Oracle/Resource.olean -i /home/runner/work/ArkLib/ArkLib/.lake/build/lib/lean/ArkLib/Interaction/Oracle/Resource.ilean -c /home/runner/work/ArkLib/ArkLib/.lake/build/ir/ArkLib/Interaction/Oracle/Resource.c --setup /home/runner/work/ArkLib/ArkLib/.lake/build/ir/ArkLib/Interaction/Oracle/Resource.setup.json --json
-error: ArkLib/Interaction/Oracle/Resource.lean:273:6: Tactic `rewrite` failed: Did not find an occurrence of the pattern
-  (SourceHom.familyMap ?T ?U ?next ?g).comp (SourceHom.familyMap ?S ?T ?index ?f)
-in the target expression
-  (SourceHom.familyMap (fun x ↦ C.source (S.key x)) (fun y ↦ C.source (U.key y)) (g.comp f).map fun x ↦
-      SourceHom.congrFamily C.source ⋯) =
-    (SourceHom.familyMap (fun x ↦ C.source (T.key x)) (fun y ↦ C.source (U.key y)) g.map fun x ↦
-          SourceHom.congrFamily C.source ⋯).comp
-      (SourceHom.familyMap (fun x ↦ C.source (S.key x)) (fun y ↦ C.source (T.key y)) f.map fun x ↦
-        SourceHom.congrFamily C.source ⋯)
+✔ [2658/2659] Built ArkLib.Interaction.Oracle.Source (2.7s)
+✔ [2659/2659] Built ArkLibTest.Interaction.Oracle.SourceExample (2.1s)
+Build completed successfully (2659 jobs).
+✔ [2662/2663] Built ArkLib.Interaction.Oracle.Resource (2.8s)
+✖ [2663/2663] Building ArkLibTest.Interaction.Oracle.ResourceExample (2.2s)
+trace: .> LEAN_PATH=/home/runner/work/ArkLib/ArkLib/.lake/packages/cslib/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/batteries/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/Qq/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/aesop/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/proofwidgets/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/importGraph/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/plausible/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/loom2/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/PolyFun/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/MD4Lean/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/BibtexQuery/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/UnicodeBasic/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/Cli/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/leansqlite/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/mathlib/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/doc-gen4/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/checkdecls/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/CompPoly/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/build/lib/lean /home/runner/.elan/toolchains/leanprover--lean4---v4.33.1/bin/lean /home/runner/work/ArkLib/ArkLib/ArkLibTest/Interaction/Oracle/ResourceExample.lean -o /home/runner/work/ArkLib/ArkLib/.lake/build/lib/lean/ArkLibTest/Interaction/Oracle/ResourceExample.olean -i /home/runner/work/ArkLib/ArkLib/.lake/build/lib/lean/ArkLibTest/Interaction/Oracle/ResourceExample.ilean -c /home/runner/work/ArkLib/ArkLib/.lake/build/ir/ArkLibTest/Interaction/Oracle/ResourceExample.c --setup /home/runner/work/ArkLib/ArkLib/.lake/build/ir/ArkLibTest/Interaction/Oracle/ResourceExample.setup.json --json
+error: ArkLibTest/Interaction/Oracle/ResourceExample.lean:51:21: Expected type must not contain free variables
+  2 < if pair.key (Sum.inl val✝) = true then 5 else 3
 
-Id : Type i
-S : ResourceSchema Id
-T : ResourceSchema Id
-U : ResourceSchema Id
-Query : Id → Type q
-Object : Id → Type a
-Owner : Type o
-Origin : Type p
-Descriptor : Id → Type d
-g : SchemaHom T U
-f : SchemaHom S T
-C : ResourceCatalog Id Query Object Owner Origin Descriptor
-⊢ (SourceHom.familyMap (fun x ↦ C.source (S.key x)) (fun y ↦ C.source (U.key y)) (g.comp f).map fun x ↦
-      SourceHom.congrFamily C.source ⋯) =
-    (SourceHom.familyMap (fun x ↦ C.source (T.key x)) (fun y ↦ C.source (U.key y)) g.map fun x ↦
-          SourceHom.congrFamily C.source ⋯).comp
-      (SourceHom.familyMap (fun x ↦ C.source (S.key x)) (fun y ↦ C.source (T.key y)) f.map fun x ↦
-        SourceHom.congrFamily C.source ⋯)
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ArkLibTest/Interaction/Oracle/ResourceExample.lean:52:21: Expected type must not contain free variables
+  4 < if pair.key (Sum.inr val✝) = true then 5 else 3
 
-Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
-Full error:
-  Application type mismatch: The argument
-    SourceHom.familyMap (fun x ↦ C.source (S.key x)) (fun y ↦ C.source (U.key y)) (g.comp f).map fun x ↦
-      SourceHom.congrFamily C.source ⋯
-  has type
-    @SourceHom ((x : S.Slot) × Query (S.key x)) ((a : S.Slot) → Object (S.key a)) ((y : U.Slot) × Query (U.key y))
-      ((a : U.Slot) → Object (U.key a)) (SourceCtx.family fun x ↦ C.source (S.key x))
-      (SourceCtx.family fun y ↦ C.source (U.key y))
-  but is expected to have type
-    @SourceHom ((x : S.Slot) × Query (S.key x)) ((x : S.Slot) → Object (S.key x)) ((x : U.Slot) × Query (U.key x))
-      ((x : U.Slot) → Object (U.key x)) (S.asSource C) (U.asSource C)
-  in the application
-    Eq
-      (SourceHom.familyMap (fun x ↦ C.source (S.key x)) (fun y ↦ C.source (U.key y)) (g.comp f).map fun x ↦
-        SourceHom.congrFamily C.source ⋯)
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ArkLibTest/Interaction/Oracle/ResourceExample.lean:74:59: Expected type must not contain free variables
+  2 < if left.key x✝ = true then 5 else 3
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ArkLibTest/Interaction/Oracle/ResourceExample.lean:86:67: failed to synthesize
+  Decidable ¬catalog.meaning false 0 ⟨0, ⋯⟩
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: ArkLibTest/Interaction/Oracle/ResourceExample.lean:152:22: Expected type must not contain free variables
+  2 < if left.key x✝ = true then 5 else 3
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ArkLibTest/Interaction/Oracle/ResourceExample.lean:152:49: Expected type must not contain free variables
+  4 < if right.key x✝ = true then 5 else 3
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
+error: ArkLibTest/Interaction/Oracle/ResourceExample.lean:165:56: Expected type must not contain free variables
+  2 < if left.key x✝ = true then 5 else 3
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
 error: Lean exited with code 1
 Some required targets logged failures:
-- ArkLib.Interaction.Oracle.Resource
+- ArkLibTest.Interaction.Oracle.ResourceExample
 error: build failed
 --- Full gate output (last 160 lines) ---
