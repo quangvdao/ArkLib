@@ -269,7 +269,7 @@ theorem toSourceHom_id (S : ResourceSchema.{i, s} Id)
 theorem toSourceHom_comp (g : SchemaHom T U) (f : SchemaHom S T)
     (C : ResourceCatalog.{i, q, a, e, o, p, d} Id Query Object Owner Origin Descriptor) :
     (g.comp f).toSourceHom C = (g.toSourceHom C).comp (f.toSourceHom C) := by
-  unfold toSourceHom
+  dsimp only [toSourceHom, ResourceSchema.asSource, comp]
   rw [SourceHom.familyMap_comp]
   congr 1
   funext x
