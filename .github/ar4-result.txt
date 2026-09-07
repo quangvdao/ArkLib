@@ -1,0 +1,28 @@
+CHECKOUT=e9ad42497a3d991aca5adf1341e71e88f558f98c
+RUN=34089766089
+FOCUSED=failure
+FULL=skipped
+--- Focused output ---
+Build completed successfully (3032 jobs).
+✔ [2659/2660] Built ArkLib.Interaction.Oracle.Source (2.2s)
+✔ [2660/2660] Built ArkLibTest.Interaction.Oracle.SourceExample (1.5s)
+Build completed successfully (2660 jobs).
+✖ [2662/2663] Building ArkLib.Interaction.Oracle.Resource (1.6s)
+trace: .> LEAN_PATH=/home/runner/work/ArkLib/ArkLib/.lake/packages/cslib/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/batteries/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/Qq/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/aesop/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/proofwidgets/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/importGraph/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/plausible/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/loom2/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/PolyFun/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/MD4Lean/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/BibtexQuery/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/UnicodeBasic/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/Cli/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/leansqlite/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/mathlib/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/VCVio/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/doc-gen4/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/checkdecls/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/packages/CompPoly/.lake/build/lib/lean:/home/runner/work/ArkLib/ArkLib/.lake/build/lib/lean /home/runner/.elan/toolchains/leanprover--lean4---v4.33.1/bin/lean /home/runner/work/ArkLib/ArkLib/ArkLib/Interaction/Oracle/Resource.lean -o /home/runner/work/ArkLib/ArkLib/.lake/build/lib/lean/ArkLib/Interaction/Oracle/Resource.olean -i /home/runner/work/ArkLib/ArkLib/.lake/build/lib/lean/ArkLib/Interaction/Oracle/Resource.ilean -c /home/runner/work/ArkLib/ArkLib/.lake/build/ir/ArkLib/Interaction/Oracle/Resource.c --setup /home/runner/work/ArkLib/ArkLib/.lake/build/ir/ArkLib/Interaction/Oracle/Resource.setup.json --json
+error: ArkLib/Interaction/Oracle/Resource.lean:282:2: Type mismatch
+  SourceHom.fromReindex (S.asSource C) fun query ↦ ⟨view.resolve ?m.33, ?m.34⟩
+has type
+  SourceHom ((S.asSource C).reindex fun query ↦ ⟨view.resolve ?m.33, ?m.34⟩) (S.asSource C)
+but is expected to have type
+  SourceHom (view.asSource C) (S.asSource C)
+error: ArkLib/Interaction/Oracle/Resource.lean:282:67: Invalid projection: Type of
+  query
+is not known; cannot resolve projection `1`
+error: ArkLib/Interaction/Oracle/Resource.lean:282:76: Invalid projection: Type of
+  query
+is not known; cannot resolve projection `2`
+error: Lean exited with code 1
+Some required targets logged failures:
+- ArkLib.Interaction.Oracle.Resource
+error: build failed
+--- Full gate output (last 160 lines) ---
