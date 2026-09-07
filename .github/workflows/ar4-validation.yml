@@ -9,8 +9,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: ar4-isolated-validation
-  cancel-in-progress: true
+  group: ar4-isolated-validation-${{ github.sha }}
+  cancel-in-progress: false
 
 jobs:
   check:
