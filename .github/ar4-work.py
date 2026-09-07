@@ -1,63 +1,69 @@
-"""Reviewed, idempotent AR-4B coherence fix and adversarial acceptance clients."""
+"""Reviewed AR-4B client fixes and a genuine polynomial-guarantee witness."""
 from pathlib import Path
 
-version = 'ar4-resource-clients-v4'
+version = 'ar4-resource-polynomial-v5'
 marker = Path('.github/ar4-applied.txt')
 if marker.read_text().strip() != version:
-    assert marker.read_text().strip() == 'ar4-resource-coherence-v3'
-    path = Path('ArkLib/Interaction/Oracle/Resource.lean')
-    text = path.read_text()
-    old = '  unfold toSourceHom\n  rw [SourceHom.familyMap_comp]'
-    assert old in text
-    text = text.replace(old, '  dsimp only [toSourceHom, ResourceSchema.asSource, comp]\n'
-                             '  rw [SourceHom.familyMap_comp]')
-    path.write_text(text)
+    assert marker.read_text().strip() == 'ar4-resource-clients-v4'
     path = Path('ArkLibTest/Interaction/Oracle/ResourceExample.lean')
     text = path.read_text()
+    text = text.replace('import ArkLib.Interaction.Oracle.Resource',
+        'import ArkLib.Interaction.Oracle.Resource\n'
+        'import Mathlib.Algebra.Polynomial.Degree.Operations\n'
+        'import Mathlib.Algebra.Polynomial.Eval.Defs')
+    text = text.replace('⟨2, by decide⟩', 'smallObject')
+    text = text.replace('⟨4, by decide⟩', 'largeObject')
+    target = '/-- Neither side\'s backing data is constant or interchangeable with the other\'s type. -/'
+    addition = '''/-- A concrete object in the three-valued backing type. -/
+def smallObject : Fin 3 := ⟨2, by decide⟩
+
+/-- A concrete object in the five-valued backing type. -/
+def largeObject : Fin 5 := ⟨4, by decide⟩
+
+'''
+    assert target in text
+    text = text.replace(target, addition + target)
+    old = 'example : ¬ catalog.meaning false 0 (⟨0, by decide⟩ : Fin 3) := by decide'
+    assert old in text
+    text = text.replace(old, '''example : ¬ catalog.meaning false 0 (⟨0, by decide⟩ : Fin 3) := by
+  change ¬ (0 < (0 : Nat))
+  decide''')
     target = 'section Universes\n'
-    addition = '''/-- Tensor forgetting routes both resources to their matching product environments. -/
-example : ((left.asSource catalog).tensor (right.asSource catalog)).eval
-    ((fun _ => ⟨2, by decide⟩), (fun _ => ⟨4, by decide⟩))
-    ((ResourceSchema.tensorSourceEquiv left right separate catalog).toHom.mapProgram readPair) =
-      (3, 4) := rfl
+    addition = '''/-- A reified degree promise is witnessed by the actual polynomial used for evaluation.
 
-/-- Combining views of one allocation is sharing, not a second allocation. -/
-def shared := (ResourceView.full left).share aliases
-
-/-- Different handles and primitive queries still use exactly one backing object. -/
-def readShared : OracleComp (shared.asSource catalog).spec (Nat × Nat) := do
-  let x : Nat ← liftM ((shared.asSource catalog).spec.query ⟨.inl ⟨⟩, true⟩)
-  let y : Nat ← liftM ((shared.asSource catalog).spec.query ⟨.inr true, false⟩)
-  return (x, y)
-
-example : (left.asSource catalog).eval (fun _ => ⟨2, by decide⟩)
-    ((shared.toSourceHom catalog).mapProgram readShared) = (3, 2) := rfl
-
-/-- Both the primitive-query and response types vary with resource identity. -/
-def mixedCatalog : ResourceCatalog Bool (fun r => if r then Fin 2 else Bool)
-    (fun r => Fin (if r then 5 else 3)) Nat Nat (fun _ => Nat) where
-  source := fun r => match r with
-    | false =>
-      { spec := Bool →ₒ Nat
-        impl := fun _ (obj : Fin 3) => obj.val }
-    | true =>
-      { spec := Fin 2 →ₒ Bool
-        impl := fun (query : Fin 2) (obj : Fin 5) => decide (query.val < obj.val) }
-  owner := fun _ => 0
+The polynomial stays in the backing environment; the query interface only exposes evaluation.
+This client uses Mathlib's refined mathematical objects, not an arbitrary function tagged as
+low-degree. -/
+noncomputable def polynomialCatalog : ResourceCatalog Unit (fun _ => Nat)
+    (fun _ => {p : Polynomial Nat // p.natDegree < 2}) Unit Nat (fun _ => Nat) where
+  source := fun _ =>
+    { spec := Nat →ₒ Nat
+      impl := fun query (obj : {p : Polynomial Nat // p.natDegree < 2}) => obj.val.eval query }
+  owner := fun _ => ()
   origin := fun _ => 7
-  promise := fun r => if r then 5 else 3
-  meaning := fun _ bound obj => obj.val < bound
-  promise_holds := fun _ obj => obj.isLt
+  promise := fun _ => 2
+  meaning := fun _ bound obj => obj.val.natDegree < bound
+  promise_holds := fun _ obj => obj.property
 
-/-- After renaming, the false handle has a `Fin 2` query and a `Bool` response. -/
-def readMixed : OracleComp (renamed.asSource mixedCatalog).spec (Bool × Nat) := do
-  let bit : Bool ← liftM ((renamed.asSource mixedCatalog).spec.query
-    ⟨false, (⟨1, by decide⟩ : Fin 2)⟩)
-  let value : Nat ← liftM ((renamed.asSource mixedCatalog).spec.query ⟨true, false⟩)
-  return (bit, value)
+/-- A nonconstant polynomial whose refined type certifies its advertised degree bound. -/
+noncomputable def linearObject : {p : Polynomial Nat // p.natDegree < 2} :=
+  ⟨Polynomial.X, by simp⟩
 
-example : (both.asSource mixedCatalog).eval bothEnv
-    ((inclusion.toSourceHom mixedCatalog).mapProgram readMixed) = (true, 2) := rfl
+example : (polynomialCatalog.source ()).handler linearObject 3 = (3 : Nat) := by
+  change (Polynomial.X : Polynomial Nat).eval 3 = 3
+  simp
+
+example : (polynomialCatalog.source ()).handler linearObject 7 = (7 : Nat) := by
+  change (Polynomial.X : Polynomial Nat).eval 7 = 7
+  simp
+
+example : polynomialCatalog.meaning () (polynomialCatalog.promise ()) linearObject :=
+  polynomialCatalog.promise_holds () linearObject
+
+/-- The descriptor zero cannot be substituted for the actual degree promise. -/
+example : ¬ polynomialCatalog.meaning () 0 linearObject := by
+  change ¬ (Polynomial.X : Polynomial Nat).natDegree < 0
+  exact Nat.not_lt_zero _
 
 '''
     assert target in text
