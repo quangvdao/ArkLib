@@ -1,0 +1,51 @@
+name: AR-4 isolated validation
+
+on:
+  push:
+    branches: [quang/ar4-validation]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ar4-isolated-validation
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/cache@v6
+        with:
+          path: .lake
+          key: ar4-${{ runner.os }}-${{ hashFiles('lake-manifest.json') }}
+      - uses: leanprover/lean-action@v1.6.0
+        with:
+          auto-config: false
+          build: false
+          test: false
+          lint: false
+          use-github-cache: false
+          use-mathlib-cache: false
+      - name: Fetch pinned dependency cache
+        run: lake exe cache get
+      - name: Check baseline and new source modules
+        run: |
+          lake build ArkLib.Interaction.Oracle.Protocol
+          if [ -f ArkLib/Interaction/Oracle/Source.lean ]; then
+            lake build ArkLib.Interaction.Oracle.Source
+            lake env lean ArkLibTest/Interaction/Oracle/SourceExample.lean
+          fi
+          if [ -f ArkLib/Interaction/Oracle/Resource.lean ]; then
+            lake build ArkLib.Interaction.Oracle.Resource
+            lake env lean ArkLibTest/Interaction/Oracle/ResourceExample.lean
+          fi
+      - name: Full repository gate when both slices are present
+        if: ${{ hashFiles('ArkLib/Interaction/Oracle/Resource.lean') != '' }}
+        run: |
+          git -C .lake/packages/VCVio submodule update --init --recursive
+          ./scripts/validate.sh --axioms
