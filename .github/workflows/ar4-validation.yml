@@ -25,8 +25,9 @@ jobs:
           set -euo pipefail
           test "$GITHUB_REF_NAME" = quang/ar4-validation
           if [ -f .github/ar4-work.py ]; then python3 .github/ar4-work.py; fi
+          git add ArkLib/Interaction/Oracle ArkLibTest/Interaction/Oracle
           ./scripts/update-lib.sh
-          git add ArkLib/Interaction/Oracle ArkLibTest/Interaction/Oracle ArkLib.lean
+          git add ArkLib.lean
           if [ -f .github/ar4-applied.txt ]; then git add .github/ar4-applied.txt; fi
           if ! git diff --cached --quiet; then
             git fetch origin quang/ar4-validation
@@ -37,13 +38,13 @@ jobs:
             git push origin HEAD:quang/ar4-validation
           fi
           echo "VALIDATED_CHECKOUT=$(git rev-parse HEAD)"
-      - uses: actions/cache@v6
+      - uses: actions/cache/restore@v6
+        id: cache
         with:
           path: .lake
           key: ar4-${{ runner.os }}-${{ hashFiles('lake-manifest.json') }}-${{ github.run_id }}
           restore-keys: |
             ar4-${{ runner.os }}-${{ hashFiles('lake-manifest.json') }}
-          save-always: true
       - uses: leanprover/lean-action@v1.6.0
         with:
           auto-config: false
@@ -55,7 +56,9 @@ jobs:
       - name: Fetch pinned dependency cache
         run: lake exe cache get
       - name: Check baseline and new source modules
+        id: focused
         run: |
+          exec > >(tee /tmp/ar4-focused.log) 2>&1
           lake build ArkLib.Interaction.Oracle.Protocol
           if [ -f ArkLib/Interaction/Oracle/Source.lean ]; then
             lake build ArkLib.Interaction.Oracle.Source ArkLibTest.Interaction.Oracle.SourceExample
@@ -64,7 +67,36 @@ jobs:
             lake build ArkLib.Interaction.Oracle.Resource ArkLibTest.Interaction.Oracle.ResourceExample
           fi
       - name: Full repository gate
+        id: full
         run: |
+          exec > >(tee /tmp/ar4-full.log) 2>&1
           git -C .lake/packages/VCVio submodule update --init --recursive
           ./scripts/validate.sh --axioms
           echo "PASSED_CHECKOUT=$(git rev-parse HEAD)"
+      - name: Publish validation diagnostics on scratch branch only
+        if: ${{ always() && !cancelled() }}
+        run: |
+          test "$GITHUB_REF_NAME" = quang/ar4-validation
+          {
+            echo "CHECKOUT=$(git rev-parse HEAD)"
+            echo "RUN=$GITHUB_RUN_ID"
+            echo "FOCUSED=${{ steps.focused.outcome }}"
+            echo "FULL=${{ steps.full.outcome }}"
+            echo '--- Focused output ---'
+            if [ -f /tmp/ar4-focused.log ]; then cat /tmp/ar4-focused.log; fi
+            echo '--- Full gate output (last 160 lines) ---'
+            if [ -f /tmp/ar4-full.log ]; then tail -n 160 /tmp/ar4-full.log; fi
+          } > .github/ar4-result.txt
+          git fetch origin quang/ar4-validation
+          if [ "$(git rev-parse FETCH_HEAD)" = "$(git rev-parse HEAD)" ]; then
+            git config user.name 'Quang Dao'
+            git config user.email 'qvd@andrew.cmu.edu'
+            git add .github/ar4-result.txt
+            git commit -m 'ci: record exact-checkout AR-4 validation evidence'
+            git push origin HEAD:quang/ar4-validation
+          fi
+      - uses: actions/cache/save@v6
+        if: ${{ always() && !cancelled() && steps.cache.outcome == 'success' }}
+        with:
+          path: .lake
+          key: ${{ steps.cache.outputs.cache-primary-key }}
