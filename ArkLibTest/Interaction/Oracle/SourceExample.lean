@@ -95,17 +95,17 @@ section Universes
 variable {I : Type u} {E : Type w} {J : Type u'} {F : Type w'}
 
 -- Elaboration contracts, not substitutes for the discriminating examples above.
-example (S : SourceCtx.{u, w, v} I E) (T : SourceCtx.{u', w', v} J F) :
-    SourceCtx.{max u u', max w w', v} (I ⊕ J) (E × F) := S.tensor T
+example (S : SourceCtx.{u, v, w} I E) (T : SourceCtx.{u', v, w'} J F) :
+    SourceCtx.{max u u', v, max w w'} (I ⊕ J) (E × F) := S.tensor T
 
-example (S : SourceCtx.{u, w, v} I E) (T : SourceCtx.{u', w', v'} J F) :
-    SourceCtx.{max u u', max w w', max v v'} (I × J) (E × F) := S.parallel T
+example (S : SourceCtx.{u, v, w} I E) (T : SourceCtx.{u', v', w'} J F) :
+    SourceCtx.{max u u', max v v', max w w'} (I × J) (E × F) := S.parallel T
 
-example (S : SourceCtx.{u, w, v} I E) : SourceCtx.{u, w, max v v'} I E :=
+example (S : SourceCtx.{u, v, w} I E) : SourceCtx.{u, max v v', w} I E :=
   S.liftResponse
 
 /-- Raw routing and its inverse allow genuinely different response universes. -/
-example (S : SourceCtx.{u, w, v} I E) : SourceEquiv S (S.liftResponse.{u, w, v, v'}) :=
+example (S : SourceCtx.{u, v, w} I E) : SourceEquiv S (S.liftResponse.{u, v, w, v'}) :=
   SourceEquiv.liftResponse S
 
 /-- The backward response map unwraps a concretely raised answer. -/
