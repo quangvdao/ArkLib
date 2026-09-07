@@ -19,11 +19,9 @@ universe u v w u' v' w'
 namespace Interaction.Oracle.SourceExample
 
 /-- The two queries have genuinely different response types. -/
-def dependent : SourceCtx.{0, 0, 0} where
-  ι := Bool
+def dependent : SourceCtx Bool (Bool × Fin 3) where
   spec := fun | false => Bool | true => Fin 3
-  Env := Bool × Fin 3
-  impl := fun env => fun | false => env.1 | true => env.2
+  impl := fun | false, env => env.1 | true, env => env.2
 
 /-- Both dependent response branches affect the final scalar. -/
 def observe : OracleComp dependent.spec Nat := do
@@ -35,19 +33,19 @@ example : dependent.eval (true, ⟨2, by decide⟩) observe = 9 := rfl
 example : dependent.eval (false, ⟨1, by decide⟩) observe = 12 := rfl
 
 /-- A private backing tag is not part of the oracle interface. -/
-def tagged : SourceCtx.{0, 0, 0} :=
-  dependent.comapEnv (fun env : dependent.Env × Nat => env.1)
+def tagged : SourceCtx Bool ((Bool × Fin 3) × Nat) :=
+  dependent.comapEnv Prod.fst
 
-example (env : dependent.Env) (p : OracleComp tagged.spec Nat) :
+example (env : Bool × Fin 3) (p : OracleComp tagged.spec Nat) :
     tagged.eval (env, 4) p = tagged.eval (env, 19) p :=
-  tagged.eval_eq_of_impl_eq rfl p
+  tagged.eval_eq_of_handler_eq rfl p
 
-example (env : dependent.Env) : (env, 4 : tagged.Env) ≠ (env, 19) := by
+example (env : Bool × Fin 3) : (env, 4 : (Bool × Fin 3) × Nat) ≠ (env, 19) := by
   intro h
   have htag := congrArg Prod.snd h
   norm_num at htag
 
-/-- A function-backed source used to distinguish route and response-map composition. -/
+/-- A function-backed source distinguishing route and response-map composition. -/
 def numbers := SourceCtx.ofSpec (Bool →ₒ Nat)
 
 /-- Flip the primitive query and then add three to its answer. -/
@@ -63,7 +61,7 @@ def double : SourceHom numbers numbers where
   commutes := fun _ _ => rfl
 
 /-- Distinct primitive answers reject a route that always chooses one branch. -/
-def answers : numbers.Env := fun | false => 2 | true => 5
+def answers : Bool → Nat := fun | false => 2 | true => 5
 
 /-- Preserve both observations, in order, rather than a commutative aggregate. -/
 def twoQueries : OracleComp numbers.spec (Nat × Nat) := do
@@ -82,35 +80,37 @@ example : (numbers.tensor numbers).eval (answers, fun _ => 29)
     ((SourceHom.inl numbers numbers).mapProgram twoQueries) = (2, 5) := rfl
 
 /-- Reindexing can explicitly give two names to the same primitive query. -/
-example : (numbers.reindex (fun _ : Bool => true)).impl answers false = 5 := rfl
+example : (numbers.reindex (fun _ : Bool => true)).handler answers false = 5 := rfl
 
-/-- Parallel queries return both answers, not the sum response of polynomial multiplication. -/
-example : (dependent.parallel numbers).impl ((true, ⟨2, by decide⟩), answers)
+/-- Parallel queries return both answers, not a sum response. -/
+example : (dependent.parallel numbers).handler ((true, ⟨2, by decide⟩), answers)
     (true, false) = (⟨2, by decide⟩, 2) := rfl
 
-/-- Source-family selection retains the component index in the backing environment. -/
-example : (SourceCtx.family (fun _ : Bool => numbers)).impl
+/-- Family selection retains the index in the backing environment. -/
+example : (SourceCtx.family (fun _ : Bool => numbers)).handler
     (fun | false => answers | true => fun _ => 29) ⟨true, false⟩ = 29 := rfl
 
 section Universes
 
--- These are elaboration contracts, not extra mathematical evidence for the routing laws.
-example (S : SourceCtx.{u, v, w}) (T : SourceCtx.{u', v, w'}) :
-    SourceCtx.{max u u', v, max w w'} := S.tensor T
+variable {I : Type u} {E : Type w} {J : Type u'} {F : Type w'}
 
-example (S : SourceCtx.{u, v, w}) (T : SourceCtx.{u', v', w'}) :
-    SourceCtx.{max u u', max v v', max w w'} := S.parallel T
+-- Elaboration contracts, not substitutes for the discriminating examples above.
+example (S : SourceCtx.{u, w, v} I E) (T : SourceCtx.{u', w', v} J F) :
+    SourceCtx.{max u u', max w w', v} (I ⊕ J) (E × F) := S.tensor T
 
-example (S : SourceCtx.{u, v, w}) : SourceCtx.{u, max v v', w} :=
+example (S : SourceCtx.{u, w, v} I E) (T : SourceCtx.{u', w', v'} J F) :
+    SourceCtx.{max u u', max w w', max v v'} (I × J) (E × F) := S.parallel T
+
+example (S : SourceCtx.{u, w, v} I E) : SourceCtx.{u, w, max v v'} I E :=
   S.liftResponse
 
-/-- The raw morphism and its inverse allow genuinely different response universes. -/
-example (S : SourceCtx.{u, v, w}) : SourceEquiv S (S.liftResponse.{u, v, w, v'}) :=
+/-- Raw routing and its inverse allow genuinely different response universes. -/
+example (S : SourceCtx.{u, w, v} I E) : SourceEquiv S (S.liftResponse.{u, w, v, v'}) :=
   SourceEquiv.liftResponse S
 
-/-- A concrete raised response is unwrapped by the backward component of the route. -/
+/-- The backward response map unwraps a concretely raised answer. -/
 example : (SourceHom.toLiftResponse.{0, 0, 0, 2} numbers).pull
-    ((numbers.liftResponse.{0, 0, 0, 2}).impl answers) true = 5 := rfl
+    ((numbers.liftResponse.{0, 0, 0, 2}).handler answers) true = 5 := rfl
 
 end Universes
 
