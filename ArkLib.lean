@@ -265,6 +265,7 @@ import ArkLib.Data.Polynomial.Bivariate
 import ArkLib.Data.Polynomial.BivariateFactorDegrees
 import ArkLib.Data.Polynomial.BivariateMultiplicity
 import ArkLib.Data.Polynomial.ClassicalWronskian
+import ArkLib.Data.Polynomial.EvaluationCoefficient
 import ArkLib.Data.Polynomial.FactorSpecializationDegree
 import ArkLib.Data.Polynomial.FoldedWronskian
 import ArkLib.Data.Polynomial.FoldingPolynomial
@@ -300,6 +301,8 @@ import ArkLib.Data.Polynomial.SymbolicInterpolationSupport
 import ArkLib.Data.Polynomial.SymbolicInterpolationSurplus
 import ArkLib.Data.Polynomial.Trivariate
 import ArkLib.Data.Polynomial.UniversalHenselNumerator
+import ArkLib.Data.Polynomial.UniversalHenselRoot
+import ArkLib.Data.Polynomial.UniversalHenselScaling
 import ArkLib.Data.Probability.Combinatorial
 import ArkLib.Data.Probability.Instances
 import ArkLib.Data.Probability.KoalaBear
