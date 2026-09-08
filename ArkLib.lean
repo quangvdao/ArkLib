@@ -261,6 +261,7 @@ import ArkLib.Data.MvPolynomial.RestrictDegree
 import ArkLib.Data.MvPolynomial.RestrictDegreeVar
 import ArkLib.Data.MvPolynomial.SchwartzZippelCounting
 import ArkLib.Data.Polynomial.Bivariate
+import ArkLib.Data.Polynomial.BivariateFactorDegrees
 import ArkLib.Data.Polynomial.BivariateMultiplicity
 import ArkLib.Data.Polynomial.ClassicalWronskian
 import ArkLib.Data.Polynomial.FoldedWronskian
@@ -270,6 +271,7 @@ import ArkLib.Data.Polynomial.FractionFieldFactorization
 import ArkLib.Data.Polynomial.FractionFieldRoots
 import ArkLib.Data.Polynomial.Indicator
 import ArkLib.Data.Polynomial.Interface
+import ArkLib.Data.Polynomial.InterpolationSpecializationBudget
 import ArkLib.Data.Polynomial.Prelims
 import ArkLib.Data.Polynomial.RationalFunctions
 import ArkLib.Data.Polynomial.RationalFunctions.FunctionField
