@@ -265,6 +265,7 @@ import ArkLib.Data.Polynomial.Bivariate
 import ArkLib.Data.Polynomial.BivariateFactorDegrees
 import ArkLib.Data.Polynomial.BivariateMultiplicity
 import ArkLib.Data.Polynomial.ClassicalWronskian
+import ArkLib.Data.Polynomial.FactorSpecializationDegree
 import ArkLib.Data.Polynomial.FoldedWronskian
 import ArkLib.Data.Polynomial.FoldingPolynomial
 import ArkLib.Data.Polynomial.FractionFieldExpand
@@ -285,6 +286,8 @@ import ArkLib.Data.Polynomial.RationalFunctions.Lifts
 import ArkLib.Data.Polynomial.RationalFunctions.RationalRootVanishing
 import ArkLib.Data.Polynomial.RationalFunctions.Weight
 import ArkLib.Data.Polynomial.ResultantDegree
+import ArkLib.Data.Polynomial.SeparableSpecialization
+import ArkLib.Data.Polynomial.SpecializationExceptions
 import ArkLib.Data.Polynomial.SplitFold
 import ArkLib.Data.Polynomial.SymbolicCurveInterpolation
 import ArkLib.Data.Polynomial.SymbolicCurveSurplus
