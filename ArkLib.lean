@@ -264,6 +264,7 @@ import ArkLib.Data.Polynomial.BivariateMultiplicity
 import ArkLib.Data.Polynomial.ClassicalWronskian
 import ArkLib.Data.Polynomial.FoldedWronskian
 import ArkLib.Data.Polynomial.FoldingPolynomial
+import ArkLib.Data.Polynomial.FractionFieldResultant
 import ArkLib.Data.Polynomial.Indicator
 import ArkLib.Data.Polynomial.Interface
 import ArkLib.Data.Polynomial.Prelims
