@@ -29,6 +29,8 @@ The unit-cofactor argument and obstruction interface are adapted from Remco Bloe
 `e4c8dfbf73ba1cc152e72d67c63435aae1021397`. The simultaneous product follows Jieyi Long's
 `BCHKSUniversalPrimitiveX0Avoidance6399.lean`, PR #72, commit
 `19bc7d3e21b2261257e1961acd720b2c395d87e1`, with all concrete parameters removed.
+The coefficient-span divisibility and bidegree inductions follow `BCHKSPrimitiveEffectiveResultant`
+at the same pinned commit.
 -/
 
 namespace Polynomial
@@ -91,6 +93,82 @@ private theorem map_swap_eq_eval_C
   rw [← Bivariate.evalX_eq_map]
   exact (Bivariate.evalY_eq_evalX_swap x q).symm
 
+private theorem span_map_dvd
+    {F J : Type*} [Field F] (c : J → Polynomial (Polynomial F))
+    (x : F) (a : Polynomial F) (hc : ∀ j, a ∣ (c j).map (evalRingHom x))
+    {p : Polynomial (Polynomial F)} (hp : p ∈ Submodule.span F (Set.range c)) :
+    a ∣ p.map (evalRingHom x) := by
+  induction hp using Submodule.span_induction with
+  | mem p hp =>
+      obtain ⟨j, rfl⟩ := hp
+      exact hc j
+  | zero => simp
+  | add p q hp hq ihp ihq =>
+      simpa using dvd_add ihp ihq
+  | smul b p hp ih =>
+      have heq : (b • p).map (evalRingHom x) = C b * p.map (evalRingHom x) := by
+        ext n
+        simp
+      rw [heq]
+      exact dvd_mul_of_dvd_right ih _
+
+private theorem span_caps
+    {F J : Type*} [Field F] (c : J → Polynomial (Polynomial F)) (DZ DX : ℕ)
+    (hZ : ∀ j, (c j).natDegree ≤ DZ) (hX : ∀ j, Bivariate.degreeX (c j) ≤ DX)
+    {p : Polynomial (Polynomial F)} (hp : p ∈ Submodule.span F (Set.range c)) :
+    p.natDegree ≤ DZ ∧ Bivariate.degreeX p ≤ DX := by
+  induction hp using Submodule.span_induction with
+  | mem p hp =>
+      obtain ⟨j, rfl⟩ := hp
+      exact ⟨hZ j, hX j⟩
+  | zero => simp [Bivariate.degreeX]
+  | add p q hp hq ihp ihq =>
+      constructor
+      · exact (natDegree_add_le p q).trans (max_le ihp.1 ihq.1)
+      · unfold Bivariate.degreeX at *
+        apply Finset.sup_le
+        intro i hi
+        exact (natDegree_add_le _ _).trans
+          (max_le ((Bivariate.coeff_natDegree_le_degreeX p i).trans ihp.2)
+            ((Bivariate.coeff_natDegree_le_degreeX q i).trans ihq.2))
+  | smul b p hp ih =>
+      constructor
+      · exact (natDegree_smul_le b p).trans ih.1
+      · unfold Bivariate.degreeX at *
+        apply Finset.sup_le
+        intro i hi
+        simpa [smul_eq_C_mul] using
+          (natDegree_smul_le b (p.coeff i)).trans
+            ((Bivariate.coeff_natDegree_le_degreeX p i).trans ih.2)
+
+/-- Build an effective primitive-specialization obstruction from two linear combinations in the
+span of the swapped `Y` coefficients. This is the constructor consumed by a future coefficient
+selection argument; the pair-of-coefficients endpoint below is its canonical special case. -/
+noncomputable def primitiveSpecializationObstructionOfCoefficientSpanPair
+    {F : Type*} [Field F] (P : Polynomial (Polynomial (Polynomial F)))
+    (f g : Polynomial (Polynomial F))
+    (hf : f ∈ Submodule.span F (Set.range fun n ↦ Bivariate.swap (P.coeff n)))
+    (hg : g ∈ Submodule.span F (Set.range fun n ↦ Bivariate.swap (P.coeff n)))
+    (hdegree : 0 < f.natDegree + g.natDegree)
+    (hresultant : resultant f g ≠ 0) : PrimitiveSpecializationObstruction F P where
+  polynomial := resultant f g
+  ne_zero := hresultant
+  isPrimitive_of_eval_ne_zero := by
+    intro x hx
+    rw [isPrimitive_iff_isUnit_of_C_dvd]
+    intro a ha
+    have hacoeff : ∀ n : ℕ, a ∣ (Bivariate.swap (P.coeff n)).map (evalRingHom x) := by
+      intro n
+      rw [map_swap_eq_eval_C]
+      simpa using (C_dvd_iff_dvd_coeff a _).mp ha n
+    have hfdiv := span_map_dvd _ x a hacoeff hf
+    have hgdiv := span_map_dvd _ x a hacoeff hg
+    obtain ⟨u, v, huv⟩ := isCoprime_map_of_resultant_ne_zero
+      (evalRingHom x) f g hdegree (by simpa using hx)
+    apply isUnit_iff_dvd_one.mpr
+    rw [← huv]
+    exact dvd_add (dvd_mul_of_dvd_right hfdiv u) (dvd_mul_of_dvd_right hgdiv v)
+
 /-- Build an effective primitive-specialization obstruction from two actual `Y` coefficients.
 After swapping `Z` and `X`, their nonzero resultant certifies that their specializations are
 coprime in `F[Z]`; hence no nonunit polynomial can divide every specialized `Y` coefficient.
@@ -102,28 +180,32 @@ noncomputable def primitiveSpecializationObstructionOfCoefficientPair
     (hdegree : 0 < (Bivariate.swap (P.coeff j)).natDegree +
       (Bivariate.swap (P.coeff k)).natDegree)
     (hresultant : resultant (Bivariate.swap (P.coeff j))
-      (Bivariate.swap (P.coeff k)) ≠ 0) : PrimitiveSpecializationObstruction F P where
-  polynomial := resultant (Bivariate.swap (P.coeff j)) (Bivariate.swap (P.coeff k))
-  ne_zero := hresultant
-  isPrimitive_of_eval_ne_zero := by
-    intro x hx
-    rw [isPrimitive_iff_isUnit_of_C_dvd]
-    intro a ha
-    have hacoeff : ∀ n : ℕ, a ∣ (P.map (evalRingHom (C x))).coeff n :=
-      (C_dvd_iff_dvd_coeff a _).mp ha
-    have hj : a ∣ (Bivariate.swap (P.coeff j)).map (evalRingHom x) := by
-      rw [map_swap_eq_eval_C]
-      simpa using hacoeff j
-    have hk : a ∣ (Bivariate.swap (P.coeff k)).map (evalRingHom x) := by
-      rw [map_swap_eq_eval_C]
-      simpa using hacoeff k
-    have hcoprime := isCoprime_map_of_resultant_ne_zero (evalRingHom x)
-      (Bivariate.swap (P.coeff j)) (Bivariate.swap (P.coeff k)) hdegree (by
-        simpa using hx)
-    obtain ⟨u, v, huv⟩ := hcoprime
-    apply isUnit_iff_dvd_one.mpr
-    rw [← huv]
-    exact dvd_add (dvd_mul_of_dvd_right hj u) (dvd_mul_of_dvd_right hk v)
+      (Bivariate.swap (P.coeff k)) ≠ 0) : PrimitiveSpecializationObstruction F P :=
+  primitiveSpecializationObstructionOfCoefficientSpanPair P _ _
+    (Submodule.subset_span (Set.mem_range_self j))
+    (Submodule.subset_span (Set.mem_range_self k)) hdegree hresultant
+
+/-- Span combinations inherit uniform bidegree caps from the actual swapped coefficients, so
+their resultant obstruction has degree at most `2 * DZ * DX`. -/
+theorem coefficient_span_pair_primitive_obstruction_natDegree_le
+    {F : Type*} [Field F] (P : Polynomial (Polynomial (Polynomial F)))
+    (f g : Polynomial (Polynomial F)) (DZ DX : ℕ)
+    (hZ : ∀ n, (Bivariate.swap (P.coeff n)).natDegree ≤ DZ)
+    (hX : ∀ n, Bivariate.degreeX (Bivariate.swap (P.coeff n)) ≤ DX)
+    (hf : f ∈ Submodule.span F (Set.range fun n ↦ Bivariate.swap (P.coeff n)))
+    (hg : g ∈ Submodule.span F (Set.range fun n ↦ Bivariate.swap (P.coeff n)))
+    (hdegree : 0 < f.natDegree + g.natDegree) (hresultant : resultant f g ≠ 0) :
+    (primitiveSpecializationObstructionOfCoefficientSpanPair P f g hf hg hdegree
+      hresultant).polynomial.natDegree ≤ 2 * DZ * DX := by
+  obtain ⟨hfZ, hfX⟩ := span_caps _ DZ DX hZ hX hf
+  obtain ⟨hgZ, hgX⟩ := span_caps _ DZ DX hZ hX hg
+  change (resultant f g).natDegree ≤ 2 * DZ * DX
+  refine (natDegree_resultant_le_degreeX f g _ _).trans ?_
+  calc
+    g.natDegree * Bivariate.degreeX f + f.natDegree * Bivariate.degreeX g ≤
+        DZ * DX + DZ * DX :=
+      Nat.add_le_add (Nat.mul_le_mul hgZ hfX) (Nat.mul_le_mul hfZ hgX)
+    _ = 2 * DZ * DX := by ring
 
 /-- If both selected swapped coefficients have `Z`-degree at most `DZ` and `X`-degree at most
 `DX`, their effective primitive obstruction has degree at most `2 * DZ * DX`. -/

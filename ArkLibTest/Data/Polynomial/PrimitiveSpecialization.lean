@@ -25,6 +25,26 @@ example {F : Type*} [Field F] (P : Polynomial (Polynomial (Polynomial F))) (j k 
     PrimitiveSpecializationObstruction F P :=
   primitiveSpecializationObstructionOfCoefficientPair P j k hdegree hresultant
 
+example {F : Type*} [Field F] (P : Polynomial (Polynomial (Polynomial F)))
+    (f g : Polynomial (Polynomial F))
+    (hf : f ∈ Submodule.span F (Set.range fun n ↦ Bivariate.swap (P.coeff n)))
+    (hg : g ∈ Submodule.span F (Set.range fun n ↦ Bivariate.swap (P.coeff n)))
+    (hdegree : 0 < f.natDegree + g.natDegree) (hresultant : resultant f g ≠ 0) :
+    PrimitiveSpecializationObstruction F P :=
+  primitiveSpecializationObstructionOfCoefficientSpanPair P f g hf hg hdegree hresultant
+
+example {F : Type*} [Field F] (P : Polynomial (Polynomial (Polynomial F)))
+    (f g : Polynomial (Polynomial F)) (DZ DX : ℕ)
+    (hZ : ∀ n, (Bivariate.swap (P.coeff n)).natDegree ≤ DZ)
+    (hX : ∀ n, Bivariate.degreeX (Bivariate.swap (P.coeff n)) ≤ DX)
+    (hf : f ∈ Submodule.span F (Set.range fun n ↦ Bivariate.swap (P.coeff n)))
+    (hg : g ∈ Submodule.span F (Set.range fun n ↦ Bivariate.swap (P.coeff n)))
+    (hdegree : 0 < f.natDegree + g.natDegree) (hresultant : resultant f g ≠ 0) :
+    (primitiveSpecializationObstructionOfCoefficientSpanPair P f g hf hg hdegree
+      hresultant).polynomial.natDegree ≤ 2 * DZ * DX :=
+  coefficient_span_pair_primitive_obstruction_natDegree_le P f g DZ DX hZ hX hf hg
+    hdegree hresultant
+
 example {F : Type*} [Field F] (P : Polynomial (Polynomial (Polynomial F))) (j k DZ DX : ℕ)
     (hjZ : (Bivariate.swap (P.coeff j)).natDegree ≤ DZ)
     (hkZ : (Bivariate.swap (P.coeff k)).natDegree ≤ DZ)
@@ -52,7 +72,7 @@ private noncomputable def pairCandidateObstruction :
 -- The concrete coefficient pair recovers the required `X`-exception polynomial.
 example : pairCandidateObstruction.polynomial = X := by
   simp [pairCandidateObstruction, primitiveSpecializationObstructionOfCoefficientPair,
-    primitiveCandidate, Bivariate.swap]
+    primitiveSpecializationObstructionOfCoefficientSpanPair, primitiveCandidate, Bivariate.swap]
 
 private noncomputable def candidateObstruction :
     PrimitiveSpecializationObstruction (ZMod 2) primitiveCandidate where
@@ -126,6 +146,8 @@ example : degreeDropCandidate.map (evalRingHom (C (0 : ZMod 2))) ≠ 0 ∧
 #print axioms Polynomial.isUnit_cofactor_of_isPrimitive_of_full_natDegree
 #print axioms Polynomial.exists_unit_cofactor_of_isPrimitive_dvd_full_natDegree
 #print axioms Polynomial.primitiveSpecializationObstructionOfCoefficientPair
+#print axioms Polynomial.primitiveSpecializationObstructionOfCoefficientSpanPair
+#print axioms Polynomial.coefficient_span_pair_primitive_obstruction_natDegree_le
 #print axioms Polynomial.coefficient_pair_primitive_obstruction_natDegree_le
 #print axioms Polynomial.full_degree_separable_obstruction_ne_zero
 #print axioms Polynomial.exists_primitive_full_degree_separable_specialization_of_degree_sum_lt_card
