@@ -11,13 +11,48 @@ import Mathlib.Algebra.Field.ZMod
 
 open Polynomial
 
+noncomputable section
+
 example {A : Type*} [CommSemiring A] {R H Q : A[X]} (hprim : R.IsPrimitive)
     (hfac : R = H * Q) (hQdeg : Q.natDegree = 0) : IsUnit (Q.coeff 0) :=
   hprim.isUnit_constantCoeff_of_eq_mul_of_natDegree_eq_zero hfac hQdeg
 
+example {F : Type*} [Field F] (P : Polynomial (Polynomial (Polynomial F))) (j k : ℕ)
+    (hdegree : 0 < (Bivariate.swap (P.coeff j)).natDegree +
+      (Bivariate.swap (P.coeff k)).natDegree)
+    (hresultant : resultant (Bivariate.swap (P.coeff j))
+      (Bivariate.swap (P.coeff k)) ≠ 0) :
+    PrimitiveSpecializationObstruction F P :=
+  primitiveSpecializationObstructionOfCoefficientPair P j k hdegree hresultant
+
+example {F : Type*} [Field F] (P : Polynomial (Polynomial (Polynomial F))) (j k DZ DX : ℕ)
+    (hjZ : (Bivariate.swap (P.coeff j)).natDegree ≤ DZ)
+    (hkZ : (Bivariate.swap (P.coeff k)).natDegree ≤ DZ)
+    (hjX : Bivariate.degreeX (Bivariate.swap (P.coeff j)) ≤ DX)
+    (hkX : Bivariate.degreeX (Bivariate.swap (P.coeff k)) ≤ DX)
+    (hdegree : 0 < (Bivariate.swap (P.coeff j)).natDegree +
+      (Bivariate.swap (P.coeff k)).natDegree)
+    (hresultant : resultant (Bivariate.swap (P.coeff j))
+      (Bivariate.swap (P.coeff k)) ≠ 0) :
+    (primitiveSpecializationObstructionOfCoefficientPair P j k hdegree
+      hresultant).polynomial.natDegree ≤ 2 * DZ * DX :=
+  coefficient_pair_primitive_obstruction_natDegree_le P j k DZ DX
+    hjZ hkZ hjX hkX hdegree hresultant
+
 private noncomputable def primitiveCandidate :
     Polynomial (Polynomial (Polynomial (ZMod 2))) :=
   C (C X) * X + C X
+
+private noncomputable def pairCandidateObstruction :
+    PrimitiveSpecializationObstruction (ZMod 2) primitiveCandidate :=
+  primitiveSpecializationObstructionOfCoefficientPair primitiveCandidate 0 1
+    (by simp [primitiveCandidate, Bivariate.swap])
+    (by simp [primitiveCandidate, Bivariate.swap])
+
+-- The concrete coefficient pair recovers the required `X`-exception polynomial.
+example : pairCandidateObstruction.polynomial = X := by
+  simp [pairCandidateObstruction, primitiveSpecializationObstructionOfCoefficientPair,
+    primitiveCandidate, Bivariate.swap]
 
 private noncomputable def candidateObstruction :
     PrimitiveSpecializationObstruction (ZMod 2) primitiveCandidate where
@@ -90,5 +125,7 @@ example : degreeDropCandidate.map (evalRingHom (C (0 : ZMod 2))) ≠ 0 ∧
 #print axioms Polynomial.IsPrimitive.isUnit_constantCoeff_of_eq_mul_of_natDegree_eq_zero
 #print axioms Polynomial.isUnit_cofactor_of_isPrimitive_of_full_natDegree
 #print axioms Polynomial.exists_unit_cofactor_of_isPrimitive_dvd_full_natDegree
+#print axioms Polynomial.primitiveSpecializationObstructionOfCoefficientPair
+#print axioms Polynomial.coefficient_pair_primitive_obstruction_natDegree_le
 #print axioms Polynomial.full_degree_separable_obstruction_ne_zero
 #print axioms Polynomial.exists_primitive_full_degree_separable_specialization_of_degree_sum_lt_card
