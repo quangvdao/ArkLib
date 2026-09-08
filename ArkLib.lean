@@ -173,6 +173,7 @@ import ArkLib.Data.CodingTheory.ProximityGap.LineDecoding
 import ArkLib.Data.CodingTheory.ProximityGap.Separation
 import ArkLib.Data.CodingTheory.ProximityGap.SymbolicCurveInterpolation
 import ArkLib.Data.CodingTheory.ProximityGap.SymbolicInterpolation
+import ArkLib.Data.CodingTheory.ProximityGap.SymbolicInterpolationDivisibility
 import ArkLib.Data.CodingTheory.ProximityGenerator.AffineGenerator
 import ArkLib.Data.CodingTheory.ProximityGenerator.Basic
 import ArkLib.Data.CodingTheory.ProximityGenerator.ExceptionalSet

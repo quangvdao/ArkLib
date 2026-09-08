@@ -16,6 +16,18 @@ is explicit because that value uses `none` for the zero polynomial, not an infin
 
 namespace Polynomial.Bivariate
 
+/-- Mapping the coefficient ring commutes with both bivariate shifts. -/
+theorem map_shift {A B : Type*} [CommSemiring A] [CommSemiring B]
+    (f : A →+* B) (Q : Polynomial (Polynomial A)) (x y : A) :
+    (shift Q x y).map (mapRingHom f) =
+      shift (Q.map (mapRingHom f)) (f x) (f y) := by
+  have hhom : (mapRingHom f).comp (compRingHom (Polynomial.X + C x)) =
+      (compRingHom (Polynomial.X + C (f x))).comp (mapRingHom f) := by
+    ext a <;> simp
+  unfold shift
+  rw [map_map, hhom, ← map_map, map_comp]
+  simp
+
 variable {R : Type} [CommRing R] [DecidableEq R]
 
 /-- For a nonzero polynomial, a lower bound on root multiplicity is equivalent to vanishing of
