@@ -5,6 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.Polynomial.SeparableSpecialization
+import ArkLib.Data.Polynomial.ResultantDegree
 
 /-!
 # Primitive and full-degree polynomial specialization
@@ -83,6 +84,72 @@ structure PrimitiveSpecializationObstruction
   ne_zero : polynomial ≠ 0
   isPrimitive_of_eval_ne_zero : ∀ x : F, eval x polynomial ≠ 0 →
     (P.map (evalRingHom (C x))).IsPrimitive
+
+private theorem map_swap_eq_eval_C
+    {F : Type*} [Field F] (q : Polynomial (Polynomial F)) (x : F) :
+    (Bivariate.swap q).map (evalRingHom x) = eval (C x) q := by
+  rw [← Bivariate.evalX_eq_map]
+  exact (Bivariate.evalY_eq_evalX_swap x q).symm
+
+/-- Build an effective primitive-specialization obstruction from two actual `Y` coefficients.
+After swapping `Z` and `X`, their nonzero resultant certifies that their specializations are
+coprime in `F[Z]`; hence no nonunit polynomial can divide every specialized `Y` coefficient.
+
+The positive combined `Z`-degree premise is essential. The fixed `0`-by-`0` resultant is `1` and
+does not certify coprimality of two constant polynomials. -/
+noncomputable def primitiveSpecializationObstructionOfCoefficientPair
+    {F : Type*} [Field F] (P : Polynomial (Polynomial (Polynomial F))) (j k : ℕ)
+    (hdegree : 0 < (Bivariate.swap (P.coeff j)).natDegree +
+      (Bivariate.swap (P.coeff k)).natDegree)
+    (hresultant : resultant (Bivariate.swap (P.coeff j))
+      (Bivariate.swap (P.coeff k)) ≠ 0) : PrimitiveSpecializationObstruction F P where
+  polynomial := resultant (Bivariate.swap (P.coeff j)) (Bivariate.swap (P.coeff k))
+  ne_zero := hresultant
+  isPrimitive_of_eval_ne_zero := by
+    intro x hx
+    rw [isPrimitive_iff_isUnit_of_C_dvd]
+    intro a ha
+    have hacoeff : ∀ n : ℕ, a ∣ (P.map (evalRingHom (C x))).coeff n :=
+      (C_dvd_iff_dvd_coeff a _).mp ha
+    have hj : a ∣ (Bivariate.swap (P.coeff j)).map (evalRingHom x) := by
+      rw [map_swap_eq_eval_C]
+      simpa using hacoeff j
+    have hk : a ∣ (Bivariate.swap (P.coeff k)).map (evalRingHom x) := by
+      rw [map_swap_eq_eval_C]
+      simpa using hacoeff k
+    have hcoprime := isCoprime_map_of_resultant_ne_zero (evalRingHom x)
+      (Bivariate.swap (P.coeff j)) (Bivariate.swap (P.coeff k)) hdegree (by
+        simpa using hx)
+    obtain ⟨u, v, huv⟩ := hcoprime
+    apply isUnit_iff_dvd_one.mpr
+    rw [← huv]
+    exact dvd_add (dvd_mul_of_dvd_right hj u) (dvd_mul_of_dvd_right hk v)
+
+/-- If both selected swapped coefficients have `Z`-degree at most `DZ` and `X`-degree at most
+`DX`, their effective primitive obstruction has degree at most `2 * DZ * DX`. -/
+theorem coefficient_pair_primitive_obstruction_natDegree_le
+    {F : Type*} [Field F] (P : Polynomial (Polynomial (Polynomial F))) (j k DZ DX : ℕ)
+    (hjZ : (Bivariate.swap (P.coeff j)).natDegree ≤ DZ)
+    (hkZ : (Bivariate.swap (P.coeff k)).natDegree ≤ DZ)
+    (hjX : Bivariate.degreeX (Bivariate.swap (P.coeff j)) ≤ DX)
+    (hkX : Bivariate.degreeX (Bivariate.swap (P.coeff k)) ≤ DX)
+    (hdegree : 0 < (Bivariate.swap (P.coeff j)).natDegree +
+      (Bivariate.swap (P.coeff k)).natDegree)
+    (hresultant : resultant (Bivariate.swap (P.coeff j))
+      (Bivariate.swap (P.coeff k)) ≠ 0) :
+    (primitiveSpecializationObstructionOfCoefficientPair P j k hdegree
+      hresultant).polynomial.natDegree ≤ 2 * DZ * DX := by
+  change (resultant (Bivariate.swap (P.coeff j))
+    (Bivariate.swap (P.coeff k))).natDegree ≤ 2 * DZ * DX
+  refine (natDegree_resultant_le_degreeX (Bivariate.swap (P.coeff j))
+    (Bivariate.swap (P.coeff k)) _ _).trans ?_
+  calc
+    (Bivariate.swap (P.coeff k)).natDegree *
+          Bivariate.degreeX (Bivariate.swap (P.coeff j)) +
+        (Bivariate.swap (P.coeff j)).natDegree *
+          Bivariate.degreeX (Bivariate.swap (P.coeff k)) ≤ DZ * DX + DZ * DX :=
+      Nat.add_le_add (Nat.mul_le_mul hkZ hjX) (Nat.mul_le_mul hjZ hkX)
+    _ = 2 * DZ * DX := by ring
 
 /-- Product of the supplied primitive obstruction, the leading coefficient, and the
 derivative resultant. Its nonvanishing certifies all three specialization properties. -/
