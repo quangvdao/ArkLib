@@ -276,6 +276,7 @@ import ArkLib.Data.Polynomial.Indicator
 import ArkLib.Data.Polynomial.Interface
 import ArkLib.Data.Polynomial.InterpolationSpecializationBudget
 import ArkLib.Data.Polynomial.Prelims
+import ArkLib.Data.Polynomial.PrimitiveSpecialization
 import ArkLib.Data.Polynomial.RationalFunctions
 import ArkLib.Data.Polynomial.RationalFunctions.FunctionField
 import ArkLib.Data.Polynomial.RationalFunctions.HenselNumerators.FractionField
