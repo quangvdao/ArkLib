@@ -53,6 +53,10 @@ def run : IO Unit := do
 
 example (P : Polynomial (ZMod 3)) : P ^ 3 ≠ Polynomial.X := pow_ne_X 3 P
 
+example (Q : CBivariate (ZMod 3)) :
+    fromOrdinaryCMv (CBivariate.toOrdinaryCMv Q) = Q :=
+  fromOrdinaryCMv_toOrdinaryCMv Q
+
 example (Q : CBivariate (ZMod 3))
     (hx : CBivariate.partialDerivX Q = 0) (hy : CBivariate.partialDerivY Q = 0) :
     jointRoot 3 id Q = some (jointContract 3 id Q) :=
@@ -74,6 +78,7 @@ example (Q : CBivariate (ZMod 3)) (hs : Squarefree (CBivariate.toPoly Q))
     CBivariate.composeY Q P ≠ 0 := no_graph_of_squarefree_inseparable Q hs hd P
 
 #print axioms fromOrdinaryCMv_graph
+#print axioms fromOrdinaryCMv_toOrdinaryCMv
 #print axioms jointRoot_eq_some
 #print axioms jointRoot_graph_extension_iff
 #print axioms jointRoot_specialize

@@ -66,6 +66,85 @@ theorem fromOrdinaryCMv_graph (Q : CMvPolynomial 2 F) (P : Polynomial F) :
       simp [h, CBivariate.toPolyRingHom, CBivariate.ringEquiv, CBivariate.toPoly_eq_map,
         CPolynomial.C_toPoly, CPolynomial.X_toPoly]
 
+/-- Converting a stored bivariate polynomial to ordinary coordinates and back is exact. -/
+theorem fromOrdinaryCMv_toOrdinaryCMv (T : CBivariate F) :
+    fromOrdinaryCMv (CBivariate.toOrdinaryCMv T) = T := by
+  classical
+  rw [fromOrdinaryCMv, CBivariate.toOrdinaryCMv]
+  rw [CPoly.eval₂_equiv]
+  simp only [CPoly.CMvPolynomial.fromCMvPolynomial_sum,
+    CPoly.CMvPolynomial.fromCMvPolynomial_monomial,
+    CBivariate.toFinsupp_ordinaryMonomial, MvPolynomial.eval₂_sum,
+    MvPolynomial.eval₂_monomial]
+  rw [CPolynomial.eq_iff_coeff]
+  intro j
+  have hprod (i d : ℕ) :
+      (Finsupp.single (0 : Fin 2) i + Finsupp.single (1 : Fin 2) d).prod
+          (fun index exponent =>
+            ![CPolynomial.C (R := CPolynomial F) (CPolynomial.X (R := F)),
+              CPolynomial.X (R := CPolynomial F)] index ^ exponent) =
+        CPolynomial.C (R := CPolynomial F) ((CPolynomial.X (R := F)) ^ i) *
+          (CPolynomial.X (R := CPolynomial F)) ^ d := by
+    rw [Finsupp.prod_add_index]
+    · rw [Finsupp.prod_single_index (by simp), Finsupp.prod_single_index (by simp)]
+      simp only [Matrix.cons_val_zero, Matrix.cons_val_one]
+      congr 1
+      exact (map_pow CPolynomial.CHom (CPolynomial.X (R := F)) i).symm
+    · intro index _
+      simp
+    · intro index _ left right
+      exact pow_add _ left right
+  simp_rw [hprod]
+  have hcoeff (a : F) (i d : ℕ) :
+      CPolynomial.coeff
+          ((CPolynomial.CHom.comp CPolynomial.CHom) a *
+            (CPolynomial.C (R := CPolynomial F) ((CPolynomial.X (R := F)) ^ i) *
+              (CPolynomial.X (R := CPolynomial F)) ^ d)) j =
+        if d = j then CPolynomial.C a * CPolynomial.X ^ i else 0 := by
+    rw [CPolynomial.coeff_toPoly]
+    change ((CPolynomial.C (CPolynomial.C a) *
+      (CPolynomial.C (CPolynomial.X ^ i) * CPolynomial.X ^ d)).toPoly.coeff j) = _
+    rw [CPolynomial.toPoly_mul, CPolynomial.toPoly_mul, CPolynomial.C_toPoly,
+      CPolynomial.C_toPoly, CPolynomial.toPoly_pow, CPolynomial.X_toPoly]
+    rw [← mul_assoc, ← Polynomial.C_mul, Polynomial.coeff_C_mul_X_pow]
+    simp [eq_comm]
+  rw [CPolynomial.coeff_toPoly, CPolynomial.toPoly_sum, Polynomial.finsetSum_coeff]
+  by_cases hj : j ∈ T.supportY
+  · rw [Finset.sum_eq_single j]
+    · rw [CPolynomial.toPoly_sum, Polynomial.finsetSum_coeff]
+      simp_rw [← CPolynomial.coeff_toPoly]
+      simp_rw [hcoeff]
+      simp only [if_pos]
+      apply CPolynomial.toPoly_injective
+      rw [CPolynomial.toPoly_sum]
+      simp_rw [CPolynomial.toPoly_mul, CPolynomial.C_toPoly,
+        CPolynomial.toPoly_pow, CPolynomial.X_toPoly]
+      have hstored : (CPolynomial.coeff T j).toPoly = (T.val.coeff j).toPoly := by
+        rw [← CBivariate.coeff_toPoly_Y]
+        exact (CBivariate.toPoly_coeff T j).symm
+      rw [hstored]
+      rw [Polynomial.as_sum_support (T.val.coeff j).toPoly,
+        ← CPolynomial.support_toPoly]
+      apply Finset.sum_congr rfl
+      intro i hi
+      rw [Polynomial.C_mul_X_pow_eq_monomial]
+      exact congrArg (Polynomial.monomial i)
+        (CPolynomial.coeff_toPoly (T.val.coeff j) i)
+    · intro b hb hbj
+      rw [CPolynomial.toPoly_sum, Polynomial.finsetSum_coeff]
+      apply Finset.sum_eq_zero
+      intro i hi
+      rw [← CPolynomial.coeff_toPoly, hcoeff, if_neg hbj]
+    · exact fun hnot => (hnot hj).elim
+  · rw [Finset.sum_eq_zero]
+    · simpa [eq_comm] using (CPolynomial.mem_support_iff T j).not.mp hj
+    · intro b hb
+      rw [CPolynomial.toPoly_sum, Polynomial.finsetSum_coeff]
+      apply Finset.sum_eq_zero
+      intro i hi
+      rw [← CPolynomial.coeff_toPoly, hcoeff,
+        if_neg (show b ≠ j from fun h => hj (h ▸ hb))]
+
 /-- Check both stored exponent coordinates before attempting a joint root. -/
 def jointExponents (p : ℕ) (Q : CBivariate F) : Bool :=
   (List.range Q.size).all fun j =>
