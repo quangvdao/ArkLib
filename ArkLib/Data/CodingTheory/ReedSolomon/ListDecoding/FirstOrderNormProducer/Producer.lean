@@ -217,15 +217,8 @@ theorem produceComputedBlock_point_complete
     (hdecompose : decomposeComputedBlock p modulus M D block
       (prepare chart received).agreements = .ok decomposition)
     (hdegree : (prepare chart received).chartPolynomials.equation.natDegree < p)
-    (hdenominator : ∀ x y : AlgebraicClosure (Carrier modulus),
-      (retainedTower
-        (thresholdProduct M (blockThreshold A block.component) decomposition)
-        block.component.modulus).Point
-          (algebraMap (Carrier modulus) (AlgebraicClosure (Carrier modulus))) x y →
-      TowerRepresentation.evalNested (prepare chart received).chartPolynomials.separant
-          (algebraMap (Carrier modulus) (AlgebraicClosure (Carrier modulus))) x y ≠ 0 →
-      TowerRepresentation.evalNested (prepare chart received).chartPolynomials.denominator
-          (algebraMap (Carrier modulus) (AlgebraicClosure (Carrier modulus))) x y ≠ 0)
+    (hdenominatorPower : (prepare chart received).chartPolynomials.denominator =
+      (prepare chart received).chartPolynomials.separant ^ (2 * k))
     {K : Type} [Field K] (base : Carrier modulus →+* K) (u v : K)
     (hcomponent : Polynomial.FunctionFieldAlgorithms.ComponentDescent.evalAt
       base u v block.component.modulus = 0)
@@ -297,6 +290,18 @@ theorem produceComputedBlock_point_complete
         (thresholdProduct M (blockThreshold A block.component) decomposition)
         block.component.modulus).Point base u v :=
     ⟨hsupport, hfiberPoint⟩
+  have hdenominator : ∀ x y : AlgebraicClosure (Carrier modulus),
+      (retainedTower
+        (thresholdProduct M (blockThreshold A block.component) decomposition)
+        block.component.modulus).Point
+          (algebraMap (Carrier modulus) (AlgebraicClosure (Carrier modulus))) x y →
+      TowerRepresentation.evalNested (prepare chart received).chartPolynomials.separant
+          (algebraMap (Carrier modulus) (AlgebraicClosure (Carrier modulus))) x y ≠ 0 →
+      TowerRepresentation.evalNested (prepare chart received).chartPolynomials.denominator
+          (algebraMap (Carrier modulus) (AlgebraicClosure (Carrier modulus))) x y ≠ 0 := by
+    intro x y _ hseparant'
+    rw [hdenominatorPower, evalNested_pow]
+    exact pow_ne_zero _ hseparant'
   obtain ⟨candidate, hcandidate, hcandidatePoint, hspecialize⟩ :=
     materializeRetained_point_complete p
       (thresholdProduct M (blockThreshold A block.component) decomposition)
@@ -350,15 +355,8 @@ theorem firstOrderNormCandidates_point_complete_of_decompose
     (hdecompose : decomposeComputedBlock p modulus M D block
       (prepare chart received).agreements = .ok decomposition)
     (hdegree : (prepare chart received).chartPolynomials.equation.natDegree < p)
-    (hdenominator : ∀ x y : AlgebraicClosure (Carrier modulus),
-      (retainedTower
-        (thresholdProduct M (blockThreshold A block.component) decomposition)
-        block.component.modulus).Point
-          (algebraMap (Carrier modulus) (AlgebraicClosure (Carrier modulus))) x y →
-      TowerRepresentation.evalNested (prepare chart received).chartPolynomials.separant
-          (algebraMap (Carrier modulus) (AlgebraicClosure (Carrier modulus))) x y ≠ 0 →
-      TowerRepresentation.evalNested (prepare chart received).chartPolynomials.denominator
-          (algebraMap (Carrier modulus) (AlgebraicClosure (Carrier modulus))) x y ≠ 0)
+    (hdenominatorPower : (prepare chart received).chartPolynomials.denominator =
+      (prepare chart received).chartPolynomials.separant ^ (2 * k))
     {K : Type} [Field K] (base : Carrier modulus →+* K) (u v : K)
     (hcomponent : Polynomial.FunctionFieldAlgorithms.ComponentDescent.evalAt
       base u v block.component.modulus = 0)
@@ -378,7 +376,7 @@ theorem firstOrderNormCandidates_point_complete_of_decompose
   obtain ⟨candidate, hcandidate, hpoint, hspecialize⟩ :=
     produceComputedBlock_point_complete p modulus M D chart received hnormal
       hgenericSquarefree block hblock hk huniversal hkA positions hpositions decomposition
-      hdecompose hdegree hdenominator base u v hcomponent hresidual hseparant
+      hdecompose hdegree hdenominatorPower base u v hcomponent hresidual hseparant
   refine ⟨candidate, ?_, hpoint, hspecialize⟩
   simp only [firstOrderNormCandidates, List.mem_flatMap]
   exact ⟨block, hblock, hcandidate⟩

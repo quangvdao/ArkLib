@@ -65,6 +65,16 @@ theorem componentEvalAt_eq_evalNested {L : Type*} [Field L] (base : E →+* L) (
   rw [Polynomial.eval_map, CBivariate.toPoly_eq_map, Polynomial.eval₂_map]
   rfl
 
+/-- Nested evaluation preserves powers. -/
+theorem evalNested_pow {L : Type*} [Field L] (base : E →+* L) (u v : L)
+    (polynomial : CPolynomial (CPolynomial E)) (n : ℕ) :
+    TowerRepresentation.evalNested (polynomial ^ n) base u v =
+      TowerRepresentation.evalNested polynomial base u v ^ n := by
+  induction n with
+  | zero => simp only [pow_zero, TowerAlgebra.evalNested_one]
+  | succ n ih =>
+      rw [pow_succ, TowerAlgebra.evalNested_mul, ih, pow_succ]
+
 /-- One actual descended component together with its computed nonuniversal norm rows and their
 product. -/
 structure ComputedBlock (E : Type) [Field E] [BEq E] [LawfulBEq E] where
