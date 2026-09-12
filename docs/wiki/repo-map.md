@@ -15,6 +15,7 @@ ArkLib/
   ToMathlib/          local additions not upstreamed to Mathlib
   ToCompPoly/         local additions not upstreamed to CompPoly
   ToVCVio/            local additions not upstreamed to VCV-io
+ArkLibExamples/       maintained concrete applications, built outside the reusable library graph
 blueprint/src/        blueprint sources and references.bib
 docs/kb/             persistent paper, concept, audit, and query knowledge base
 scripts/              repo utilities
@@ -33,12 +34,19 @@ home_page/            site assets and assembled website root
 - `ArkLib/Data/`, `ArkLib/ToMathlib/`, `ArkLib/ToCompPoly/`, and `ArkLib/ToVCVio/` support the
   core with reusable definitions and lemmas.
 - `ArkLib/Commitments/` and `ArkLib/ProofSystem/` build on top of those foundations.
+- `ArkLibExamples/` instantiates stable `ArkLib` interfaces with concrete application parameters.
+  Its small `ArkLibExamples.lean` umbrella is maintained by hand and built by default. Dependencies
+  point from examples to `ArkLib`; reusable library modules never import examples.
 - When changing a protocol subtree, read the local subtree plus one layer of imports toward
   `Data/` or `OracleReduction/` before making architectural edits.
 
 ## Where To Start By Task
 
 - Extending foundational math or coding theory: start in `ArkLib/Data/`.
+- Generic operational machines and their representation/refinement lemmas live in
+  `ArkLib/Data/Computation/`. Reed–Solomon execution consumers stay under `ListDecoding/`;
+  mathematical capacity entry points remain independent of that machinery. The retained lower-level
+  bit operations do not constitute a whole-decoder bit/RAM complexity theorem.
 - Changing typed interaction or dependent reduction foundations: start in `ArkLib/Interaction/`.
 - Changing legacy reduction or security abstractions: start in `ArkLib/OracleReduction/`.
 - Working on protocol statements or proofs: start in `ArkLib/ProofSystem/`.
@@ -50,8 +58,100 @@ home_page/            site assets and assembled website root
   `ArkLib/ToCompPoly/`, or `ArkLib/ToVCVio/`, depending on the upstream project.
 - Updating theory docs, references, or long-form exposition: start in `blueprint/src/`.
 - Updating repository-local paper summaries, audits, or reference context: start in `docs/kb/`.
+- Recording a maintained concrete parameter instantiation: start in `ArkLibExamples/`.
 
 ## Navigation Notes
+
+### Reed–Solomon capacity and its mathematical foundations
+
+The foundational `ReedSolomon.lean` defines the code and stays independent of the capacity,
+MCA, and decoder developments. Under its sibling directory, the mathematical entry points are:
+
+| Result | Module under `ReedSolomon/` |
+| --- | --- |
+| Uniform list capacity and retained gap regimes | `ListDecodability/Capacity` |
+| Uniform order `ceil(exp(3/(2δ)))` list bound | `ListDecodability/Capacity/UniformRate` |
+| Automatic first-order complete lists | `ListDecodability/FirstOrder/Bounds` |
+| Exact line, affine-family, and power-batching MCA | `MutualCorrelatedAgreement/Capacity` |
+| Automatic first-order finite list/MCA bounds | `MutualCorrelatedAgreement/FirstOrder/Bounds` |
+| First-order rate-only and finite-probability bounds | `MutualCorrelatedAgreement/FirstOrder/RateBounds` |
+| All-characteristic Johnson MCA | `MutualCorrelatedAgreement/Johnson/Agreement` |
+| Fixed-rate capacity from shared parameters | `MutualCorrelatedAgreement/Capacity/FixedRateCombined` |
+| Retained exhaustive output and primitive-work accounting | `ListDecoding/CapacityDecoder` |
+
+`MutualCorrelatedAgreement` names the mathematical conclusion. Its `Ordinary` subdirectory
+means an equation without hidden derivative variables; it still proves MCA along a received
+line. General `IsMCA` and `mcaError` definitions remain in `ProximityGenerator/Basic`.
+The complete-list, exceptional-set, finite-probability, and executable interfaces retain their
+separate field assumptions and length conditions. A bit-complexity theorem is not implied by
+the existing primitive-work ledger.
+
+For a first reading, start with the public bounds rather than the decoder implementation.
+The first-order list and MCA entry points display the closed `Λ` and `E` bounds separately;
+optimized real bounds and integer ceilings remain available in the same mathematical layer.
+Their annotations recall the paper formulas and explain each parameter's role. Read
+`HiddenDerivative/Parameters/FirstOrder/AutomaticRecipe` for the finite recipe and
+`HybridConstants` for the stage sums and comparison with the closed bounds.
+
+The uniform-capacity entry point spells out the derivative order, length threshold, and list
+prefactor. The fixed-rate statement retains its positive exponent slack and eventual small-gap
+quantifiers. Johnson MCA uses the maximum-degree ratio `(k-1)/n`, distinct from the physical rate
+`k/n`, and needs no characteristic restriction. Each headline states its field assumptions;
+finite-field probability and executable correctness are separate interfaces.
+
+The supporting modules are grouped by mathematical role:
+
+- `AgreementList` owns complete polynomial lists and elementary finiteness/incidence facts.
+  `ListSpecification` owns the extensional finite-list decoder specification, without execution
+  machinery. `AgreementThreshold` owns the integral threshold and relative-radius arithmetic.
+- `HiddenDerivative/Interpolation/Local` owns contact identities, constraint maps and kernels,
+  and local rank bounds. `Global` assembles global interpolation and multiplicity.
+  `WeightedSupport`, `PartitionSupport`, `RatePartition`, and `FirstOrder` keep the actual
+  constructions separate. `Symbolic` retains the unevaluated challenge.
+- `HiddenDerivative/Parameters/FirstOrder` owns the automatic recipe, finite surplus,
+  challenge-height bounds, stage charges, and closed/optimized numerical bounds.
+  `Parameters/WeightedSupport/Capacity` retains the earlier harmonic capacity choices.
+  `RatePartition`, `Johnson`, and `Lattice` own their respective parameter arguments.
+- `HiddenDerivative/RootFinding` contains mathematical solution bounds and reconstruction.
+  `Regular`, `Taylor`, `Geometry`, `FiniteField`, `Symbolic`, and `FirstOrder` distinguish
+  regularity, rational charts, counting, field transport, symbolic parameters, and order one.
+  `Geometry/SharpCounting` and `DerivativeCounting` are shared fixed-word counts: neither
+  imports the mutual-agreement assembly layer.
+- `HiddenDerivative/Interpolation/FirstOrder/Profile` owns shared finite interpolation profiles.
+  `ListDecodability/FirstOrder/Profile` supplies their list bound;
+  `MutualCorrelatedAgreement/CurveCertificate` supplies their MCA bound.
+- `MutualCorrelatedAgreement/Pairs`, `TaylorChart`, and `PolynomialCurve` own pair/challenge
+  incidence and exact agreement-set reconstruction. `Ordinary/Factors` and `Ordinary/Frobenius`
+  handle factorization and inseparability; public Johnson results live under `Johnson`.
+- `Computation/Interpolation` and `Computation/RootFinding` own the executable component
+  algorithms, with machines, semantics, refinement, and bounds grouped by operation.
+  Generic machine/cost semantics stay in `Data/Computation`.
+- `ListDecoding/{Prepared,SeparateSample,Coordinate,QuadraticExtension,SmallBlock,Output}`
+  assembles those components into exact decoders. The root execution entry points select the
+  uniform, automatic first-order, or supplied rate parameters and retain their original guards.
+- Test-only boundary examples live in matching `ArkLibTest` directories and run through
+  `lake test`. Production definitions do not import these tests.
+- Shared-level binary folding lives in `ProximityGenerator/BinaryTensorFoldAgreement` and
+  `BinaryTensorFoldProbability`; `ReedSolomon/Interleaved/TensorFoldAgreement` supplies the
+  width-independent Reed--Solomon bridge. The recursive binary view is proved equal to the
+  existing tensor generator, with equality of the complete agreement set.
+- Maintained concrete schedules live in `ArkLibExamples/ReedSolomon/ProveKit/`, `ZisK/`, and
+  `LambdaVM/`. ProveKit separates parameters, coding certificates, per-phase arithmetic,
+  application theorems, and expected raw payload. Generic finite-field budgets and the
+  strided-query authentication identity remain in `ArkLib/Data/Probability`. Measured compressed
+  proof sizes and deployed serializer correctness are not Lean theorems.
+- Readers matching the quantitative Reed--Solomon paper to Lean should start with
+  `ArkLib/Data/CodingTheory/ReedSolomon/PaperGuide.lean`. Its concrete table and protocol
+  instantiations are indexed separately in `ArkLibExamples/ReedSolomon/PaperGuide.lean`, preserving
+  the examples-to-library dependency direction.
+- The reusable `ToMathlib/AlgebraicGeometry` development is organized into `Hilbert`,
+  `PrincipalCut`, `PrincipalOpen`, `CutFamily`, `ZeroLocus`, and `Incidence`.
+  These modules do not belong to Reed–Solomon coding theory.
+
+These directories organize imports, not theorem namespaces. Import the specific module needed;
+there are no forwarding modules at the retired paths.
+
+### Other navigation conventions
 
 - `ArkLib.lean` is a generated umbrella import file, not a hand-maintained module index.
 - `ArkLib/ToVCVio/` mirrors VCV-io module structure under the importable Lean prefix
@@ -384,6 +484,24 @@ home_page/            site assets and assembled website root
   `ArkLib/Data/CodingTheory/ReedSolomon.lean`, and the folded/interleaved/multiplicity/multilinear
   variants under `ArkLib/Data/CodingTheory/ReedSolomon/` (see
   [coding-theory-conventions.md](coding-theory-conventions.md)).
+- Mathematical capacity list bounds live in `ReedSolomon/ListDecodability/Capacity.lean`;
+  field-independent bounds are in its `GeometricBound` and `CodewordBound` modules.
+  Capacity MCA is collected in `ReedSolomon/MutualCorrelatedAgreement/Capacity.lean`, with line,
+  affine-family, and power-batching results available through that single import.
+  `ReedSolomon/Agreement.lean` contains the basic agreement sets, without a decoding theorem.
+  Mathematical finite-set specifications live in `ReedSolomon/ListSpecification.lean`;
+  the physical coefficient-list contract is `ListDecoding/ExactOutput.lean`.
+  `ListDecoding/CapacityDecoder.lean` and `CapacityDecoderExecution.lean` retain the exhaustive
+  initial-jet executor, with exact physical output and an observed primitive-work bound.
+  The symbolic route uses `ListDecoding/AgreementRecovery/Decoder.lean` as its shared consumer.
+  `OrdinaryInterpolatedDecoder.lean` composes computed interpolation and Newton lifting under
+  regular-center premises; `SquareSystemDecoder.lean` composes computed square systems and
+  Taylor charts with an explicit isolated-root-complete torus backend. These conditional
+  interfaces do not yet replace the public capacity executor. The mathematical capacity imports
+  remain independent of execution machinery; no bit/RAM bound is claimed.
+- Reusable finite-jet differential equations live in `Data/Polynomial/Differential`.
+  Discrete-simplex cardinality, moments and variance live in
+  `ToMathlib/Combinatorics/DiscreteSimplex`, independently of coding theory.
 - **Two different "folds" coexist and must not be confused.** GR08 *alphabet-enlarging* folding —
   a codeword symbol packs `(f̂(x), f̂(xω), …, f̂(xω^{s-1}))`, the degree bound is unchanged, and the
   code lives in `ι → Fin s → F` — is `ArkLib/Data/CodingTheory/ReedSolomon/Folded.lean`. The

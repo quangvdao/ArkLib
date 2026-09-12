@@ -3,10 +3,11 @@ Copyright (c) 2024-2026 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Alexander Hicks, Aleph
 -/
+module
 
-import ArkLib.Data.CodingTheory.PolishchukSpielman.Degrees
-import ArkLib.Data.Polynomial.ResultantDegree
-import Mathlib.Algebra.Polynomial.OfFn
+public import ArkLib.Data.CodingTheory.PolishchukSpielman.Degrees
+public import ArkLib.Data.Polynomial.ResultantDegree
+public import Mathlib.Algebra.Polynomial.OfFn
 
 /-!
 # Resultants and Sylvester matrices for Polishchuk-Spielman
@@ -28,6 +29,8 @@ of bivariate polynomials, used in the Polishchuk-Spielman lemma [BCIKS20].
 
 -/
 
+@[expose] public section
+
 open Polynomial.Bivariate Polynomial Matrix
 open scoped BigOperators
 
@@ -41,7 +44,7 @@ lemma ps_nat_degree_mul_x_pow_le {F : Type} [Semiring F] [Nontrivial F]
   simpa [Nat.sub_add_cancel hmn] using Nat.add_lt_add_left j.isLt (n - m)
 
 /-- The degree of `resultant(B, A, n, m)` is at most `m · degX(B) + n · degX(A)`. -/
-lemma ps_nat_degree_resultant_le {F : Type} [Field F]
+lemma ps_nat_degree_resultant_le {F : Type*} [CommRing F]
     (A B : F[X][Y]) (m n : ℕ) :
     (resultant B A n m).natDegree ≤
       m * (degreeX B) + n * (degreeX A) :=

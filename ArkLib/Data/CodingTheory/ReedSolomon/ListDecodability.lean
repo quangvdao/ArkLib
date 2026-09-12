@@ -3,10 +3,11 @@ Copyright (c) 2026 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Ilia Vlasov, Aristotle (Harmonic)
 -/
+module
 
-import ArkLib.Data.CodingTheory.ListDecodability
-import ArkLib.Data.CodingTheory.ListDecodability.AgreementBound
-import ArkLib.Data.CodingTheory.ReedSolomon
+public import ArkLib.Data.CodingTheory.ListDecodability
+public import ArkLib.Data.CodingTheory.ListDecodability.AgreementBound
+public import ArkLib.Data.CodingTheory.ReedSolomon
 
 /-!
 # The Johnson-type list-decoding bound for Reed–Solomon codes
@@ -17,12 +18,18 @@ import ArkLib.Data.CodingTheory.ReedSolomon
   in [ACFY24].
   The bound is independent of the size of `F`.
 
+This file is the ACFY24 Johnson-type result, despite its broad module name. For the quantitative
+Johnson-to-capacity theorem map in [DKTZ26], start with `ReedSolomon/PaperGuide`; for the all-rate
+capacity list facade, use `ReedSolomon/ListDecodability/Capacity`.
+
 ## References
 
   * [Arnon, G., Chiesa, A., Fenzi, G., and Yogev, E., *WHIR: Reed–Solomon Proximity Testing
       with Super-Fast Verification*][ACFY24]
 
 -/
+
+@[expose] public section
 
 namespace ReedSolomon
 

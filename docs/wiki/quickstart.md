@@ -50,6 +50,74 @@ including admissions. This is early feedback, not a replacement for `lake test` 
 validation/axiom gate before merging to `main`. The semantic acceptance requirements live in
 [`../design/01c-access-execution-contract.md`](../design/01c-access-execution-contract.md).
 
+### Maintained concrete examples
+
+Place durable, concrete applications under `ArkLibExamples/` and add them to the hand-maintained
+`ArkLibExamples.lean` umbrella. The examples library builds with the default `lake build`, and
+`./scripts/validate.sh` rejects all of its warnings, including admissions. Examples may import
+stable `ArkLib` owner modules; `ArkLib` must not import `ArkLibExamples`.
+
+The Reed–Solomon examples connect finite interpolation certificates to list bounds, mutual
+correlated agreement (MCA), and query/payload arithmetic. Paper readers should start with the
+reusable theorem map in `ArkLib/Data/CodingTheory/ReedSolomon/PaperGuide.lean` and the separate
+application index in `ArkLibExamples/ReedSolomon/PaperGuide.lean`. Then choose the application:
+
+- `ProveKitAffine` gives width-eight MCA bounds for both the 109-query and 108-query profiles,
+  over any positive-dimensional affine space. Its canonical BN254 corollaries discharge the
+  field size and characteristic conditions. `ProveKitQueryTuning` checks the 108-query grinding
+  threshold and conservative additional payload saving; `ProveKitSharpLists` derives the
+  sharper original list bounds. `ProveKitSharpMCA` derives the sharp original BN254 and
+  cubic-Goldilocks width-eight affine bounds. `ProveKitCertifiedBudget` packages those
+  semantic bounds with the sharp width-eight lists and local arithmetic, retaining the
+  affine denominator `q - 1`. `ProveKitExpectedPayload` proves exact intervals for the
+  expected authentication-payload savings, using the finite uniform-query counting theorem
+  in `Data/Probability/UniformQueryBoundary`.
+- `LambdaVM/CPU` is the CPU-table endpoint at 32768 trace rows: 208 queries,
+  two early evaluations of 38 main columns, and 55992 nominal field-and-hash bytes
+  saved. `Parameters` and `Certificates` derive the degree-50 powers and eight
+  fold bounds, plus the separate dimension-`T + 3` candidate list.
+  `Reconstruction` connects all 51 DEEP terms to the main columns; `Folding`
+  transfers exact agreement back through square-paired domains.
+  `Interleaved/AnchoredAgreement` selects a candidate before later randomness,
+  including the case where no candidate is consistent with the early claims.
+  `AirBounds` derives residual and cancellation estimates, and `Budget` sums
+  the local error terms. `Payload` includes both the early-evaluation cost and
+  the deduplicated-response expectation proved in `Data/Probability/DistinctQueries`.
+- `CurveCertificate` turns a checked finite profile into a uniform exceptional set.
+  `ZisK/Parameters`, `ZisK/Interpolation`, and `ZisK/FinalStark` use it for the
+  compressed final STARK: nested powers batching, three folds, and 51 queries with
+  the existing 22-bit query grinding. Each phase meets its own 128-bit target;
+  the payload model saves 11760 bytes. `NestedPowerAgreement` supplies the generic
+  composition theorem, including singleton groups with no exceptions.
+- `CurveMigration` supplies optimized-hybrid-or-squarefree semantic recovery for all 15 ProveKit,
+  eight ZisK, and nine LambdaVM application curves. `AppendixCurveMCA` retains two artifact-only
+  512-word BN254 certificates whose exact parameters are absent from the current paper sources.
+- `Fields` supplies canonical mathematical models and proved cardinalities/characteristics
+  for BN254 and cubic Goldilocks.
+
+Read the generic development in this order:
+
+1. `FirstOrder/Basic` and `Counting`: monomial support and its exact dimension sum.
+2. `FirstOrder/Interpolation`, `SymbolicRank`, and `CurveRank`: actual matrix rank bounds.
+3. `ToMathlib/LinearAlgebra/ColumnDegreeKernel`, `Symbolic/ColumnHeight`, and
+   `Symbolic/CurveColumnHeight`: column-sensitive kernel construction.
+4. `FirstOrder/FiniteCertificate` and `CurveFinite`: executable height tests constructing one
+   primitive equation before all extension fields, challenges, and close candidates.
+5. `FirstOrder/SharpListBound`: list counting that retains the first-derivative cap.
+6. `PolynomialCurve/SharpRegularEquation` and `SharpTupleCounting`, together with
+   `ToMathlib/AlgebraicGeometry/Incidence/SharpExcluded`: mixed-degree geometric counting
+   and the sharp incidence bounds.
+7. `MutualCorrelatedAgreement/FirstOrderCurve`: the complete finite curve theorem, from the height
+   inequality through the actual separant chain to a uniform base-field exceptional set.
+8. `Interleaved/AgreementBounds` and `AffineAgreementBounds`: width-preserving list and MCA
+   transfer, followed by the affine-space consequence.
+
+The application endpoints construct exceptional sets and derive their cardinality bounds; they
+do not assume the final MCA counts. The ZisK endpoint preserves the two independent powers
+challenges and constructs one exceptional set before the candidate polynomial is chosen.
+These examples prove mathematical specializations and explicit payload-model identities; they
+do not formalize a complete deployed transcript or its serializer.
+
 ### Lean source-policy checks
 
 ```bash
@@ -57,14 +125,33 @@ lake exe lint-style
 ```
 
 `./scripts/validate.sh` runs this gate by default. The Lean executable scans every module imported
-by `ArkLib.lean` and every tracked `ArkLibTest` module, parses import headers with Lean itself, and has no exception file. It allows
+by `ArkLib.lean` or `ArkLibExamples.lean` and every tracked `ArkLibTest` module, parses import
+headers with Lean itself, and has no exception file. It allows
 project-specific mathematical Unicode notation, while rejecting invisible controls, bidirectional
 controls, and nonstandard space characters that can conceal source changes. It also rejects
 blanket package-root imports. The normal `lake build` loads ArkLib's Lean syntax-tree plugin, which
 rejects source-level linter suppressions in their actual parsed context.
 
+The header policy understands the Lean module system, so `module`, `public import`, `meta import`
+and `import all` all parse, and it pins the canonical header order every file under `ArkLib/`
+follows. See [`module-system.md`](module-system.md).
+
 If the task is specifically Lean warning cleanup, follow
 [`../skills/fix-lean-warnings.md`](../skills/fix-lean-warnings.md).
+
+### RS mathematical import boundary
+
+`./scripts/validate.sh` checks that the mathematical RS entry points do not transitively import
+execution, machine, cost, semantics, or refinement modules under the current naming conventions.
+Run the source-level check alone with:
+
+```bash
+python3 scripts/check-rs-math-imports.py
+```
+
+This is a dependency regression check, not a proof of semantic purity. The
+[repository map](repo-map.md) describes current ownership; the
+[RS separation record](../design/rs-algebraic-machine-plan.md) preserves its development history.
 
 ### Filling a `sorry`, or work that must stay axiom-clean
 
@@ -75,7 +162,7 @@ If the task is specifically Lean warning cleanup, follow
 This first runs `./scripts/test-axiomsweep.sh` — the executable fixture matrix under
 `scripts/AxiomSweepTestFixtures/` that certifies the sweep tool itself (gate directions,
 the native-trust floor, and the exit-code contract) — and then
-`lake exe axiomsweep --check`: a kernel-level sweep of every `ArkLib.*`
+`lake exe axiomsweep --check`: a kernel-level sweep of every `ArkLib.*` and `ArkLibExamples.*`
 declaration's axiom dependencies (the `#print axioms` information, library-wide) diffed
 against the committed baseline `scripts/axiom_baseline.json`. It fails on *new* `sorryAx`
 or non-standard-axiom taint, while reporting closed gaps without blocking cleanup. If you
@@ -93,7 +180,8 @@ a zero-debt rule: no baseline edit can green it, and `--update-baseline` refuses
 while such taint is present — remove the dependency instead.
 
 CI enforces both the fixture matrix and the library regression check (see `ci.yml`).
-It also runs `scripts/source-trust-audit.py` over every tracked Lean file under `ArkLib/` and `ArkLibTest/`.
+It also runs `scripts/source-trust-audit.py` over every tracked Lean file under `ArkLib/`,
+`ArkLibExamples/`, and `ArkLibTest/`.
 That deterministic, comment/string-aware inventory reports source-only constructs that an
 environment sweep cannot see reliably: admissions in examples or defaults/autoparams and
 constructs in files outside the imported roots. Source inventory changes are review evidence,
@@ -121,8 +209,10 @@ python3 -m pip install leanblueprint
 ## Important Notes
 
 - `./scripts/validate.sh` is the recommended convenience wrapper for routine local validation.
-- By default it runs `lake build`, rejects non-`sorry` warnings anywhere under `ArkLib/`, runs the
-  Lean-native source-policy gate, runs the compiled `toyproblem-runtime` and `hachi-runtime`
+- By default it runs `lake build`, rejects non-`sorry` warnings anywhere under `ArkLib/`, rejects
+  every warning under `ArkLibExamples/`, runs the Lean-native source-policy gate, and runs the
+  compiled `toyproblem-runtime`, `hachi-runtime`, `regular-lift-runtime`, and
+  `agreement-recovery-runtime`
   checks, checks generated imports and documentation integrity, and lints knowledge-base inputs.
 - The lower-level scripts remain valid when you only want one specific check.
 - `docs/kb/_generated/**` freshness is handled by generated-files PRs from the main-branch KB
@@ -165,6 +255,8 @@ it gives the expected answer — are checked by compiled executables under `scri
 | --- | --- | --- |
 | `toyproblem-runtime` | `scripts/ToyProblemRuntime.lean` | the toy-problem launch cone |
 | `hachi-runtime` | `scripts/HachiRuntime.lean` | the nonrecursive Hachi honest-prover path |
+| `regular-lift-runtime` | `scripts/RegularLiftRuntime.lean` | concrete regular-lifting acceptance, rejection, and partial-counter vectors; not a complexity theorem |
+| `agreement-recovery-runtime` | `scripts/AgreementRecoveryRuntime.lean` | finite-representation gcd recovery, extension-only roots, filtering, and comparison with position-subset decoding |
 
 **Put them here, not under `ArkLib/`.** A file under `ArkLib/` is picked up by the generated
 library root, so a `#eval` in one is paid on every build by everyone; and `#eval` runs in the
@@ -191,6 +283,8 @@ You can still run the underlying pieces directly when debugging a specific issue
 lake build
 lake exe toyproblem-runtime
 lake exe hachi-runtime
+lake exe regular-lift-runtime
+lake exe agreement-recovery-runtime
 ./scripts/check-imports.sh
 python3 ./scripts/check-docs-integrity.py
 python3 ./scripts/kb/lint.py

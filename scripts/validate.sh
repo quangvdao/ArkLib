@@ -17,11 +17,14 @@ Usage: ./scripts/validate.sh [--lint] [--docs] [--site] [--axioms]
 
 Default checks:
   - lake build
+  - ArkLibExamples (maintained concrete examples, included in the default build)
   - lake test (ArkLibTest compile-time acceptance clients)
   - lake exe lint-style
   - ./scripts/test-lint-plugin.sh
   - lake exe toyproblem-runtime
   - lake exe hachi-runtime
+  - lake exe regular-lift-runtime
+  - lake exe agreement-recovery-runtime
   - fail on non-`sorry` warnings under ArkLib/
   - ./scripts/check-imports.sh
   - ./scripts/test-build-timing-report.sh
@@ -83,6 +86,13 @@ python3 ./scripts/check-warning-log.py "$build_log" \
   --label "ArkLibTest warnings (including admissions)"
 
 echo ""
+echo "# Checking ArkLibExamples warning budget"
+python3 ./scripts/check-warning-log.py "$build_log" \
+  --path-prefix ArkLibExamples.lean \
+  --path-prefix ArkLibExamples/ \
+  --label "ArkLibExamples warnings (including admissions)"
+
+echo ""
 echo "# Checking ArkLib warning budget"
 python3 ./scripts/check-warning-log.py "$build_log" \
   --path-prefix ArkLib/ \
@@ -112,8 +122,20 @@ echo "# Running nonrecursive-Hachi compiled runtime checks"
 lake exe hachi-runtime
 
 echo ""
+echo "# Running regular-lifting compiled runtime checks"
+lake exe regular-lift-runtime
+
+echo ""
+echo "# Running finite-representation recovery runtime checks"
+lake exe agreement-recovery-runtime
+
+echo ""
 echo "# Checking umbrella imports"
 ./scripts/check-imports.sh
+
+echo ""
+echo "# Checking RS mathematical import boundary"
+python3 ./scripts/check-rs-math-imports.py
 
 echo ""
 echo "# Testing build timing report fixtures"

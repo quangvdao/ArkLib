@@ -9,7 +9,8 @@ Start with [`README.md`](README.md) for project overview.
 
 1. For a convenient routine check, start with `./scripts/validate.sh`.
    Before committing or pushing, run it in full; it enforces repository-wide non-`sorry` warnings
-   and the Lean-native source-policy gate across `ArkLib/` and `ArkLibTest/`. It also runs `lake test` and rejects all test warnings.
+   and the Lean-native source-policy gate across `ArkLib/`, `ArkLibExamples/`, and `ArkLibTest/`.
+   It also runs `lake test` and rejects all example and test warnings.
 2. On a cold clone, run `lake exe cache get` first.
 3. If you add, rename, or delete files under `ArkLib/`, `git add` new paths before validation.
 4. For docstring or docs work, `./scripts/validate.sh --docs` is a convenient add-on check.
@@ -25,6 +26,8 @@ Start with [`README.md`](README.md) for project overview.
 ## Where To Work
 
 - `ArkLib/Data/` - reusable math, coding theory, polynomials, and supporting definitions.
+- `ArkLibExamples/` - maintained concrete applications; built by default but excluded from the
+  reusable `ArkLib` import graph.
 - `ArkLibTest/` - compile-time acceptance examples and regression tests; run `lake test`.
 - `ArkLib/Interaction/` - typed interactions and dependent reduction foundations.
 - `ArkLib/OracleReduction/` - legacy IOR abstractions and security theory.
@@ -40,6 +43,11 @@ Start with [`README.md`](README.md) for project overview.
 - Source-policy exceptions and linter suppressions are not supported. Fix the source or improve the
   linter with a repository-wide, tested policy change.
 - `ArkLib.lean` is generated; do not hand-edit it.
+- Every file under `ArkLib/` uses Lean's module system (issue #795): `module`, `public import`,
+  `@[expose] public section`. A new file must follow the same shape — `lake build` rejects a
+  classic file, since the generated root imports all of them as a module. `ArkLibTest/` stays
+  classic on purpose. The conventions and an error-to-fix table are in
+  [`docs/wiki/module-system.md`](docs/wiki/module-system.md).
 - Edit source, not derived output such as `.lake/`, `blueprint/web/`, `blueprint/print/`,
   `dependency_graphs/`, or `home_page/docs/`.
 - Pre-existing `sorry` blocks exist in active formalizations; distinguish existing gaps from new

@@ -35,11 +35,26 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# `ArkLib.lean` is itself a module, so it re-exports its contents with `public import`.
+# See docs/wiki/module-system.md.
+printf 'module\n\n' > "$tmp_file"
+
 git ls-files -- 'ArkLib/*.lean' \
   | LC_ALL=C sort \
-  | sed 's/\.lean//;s,/,.,g;s/^/import /' > "$tmp_file"
+  | sed 's/\.lean//;s,/,.,g' \
+  | awk '{
+      line = "public import " $0
+      if (length(line) <= 100) {
+        print line
+      } else {
+        print "public import"
+        print $0
+      }
+    }' >> "$tmp_file"
+
+import_count="$(grep -c '^public import' "$tmp_file")"
 
 mv "$tmp_file" ArkLib.lean
 trap - EXIT
 
-echo "✓ ArkLib.lean updated with $(wc -l < ArkLib.lean) imports"
+echo "✓ ArkLib.lean updated with ${import_count} imports"
