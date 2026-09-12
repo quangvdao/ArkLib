@@ -322,8 +322,11 @@ private theorem labelIntersections_factorProduct
         routedRecursiveContribution p recursive routed := by
   induction routed generalizing mixed with
   | nil =>
-      simp [labelIntersections, factorProduct, routedRecursiveContribution] at hmixed ⊢
-      exact hmixed ▸ rfl
+      change some [] = some mixed at hmixed
+      have : mixed = [] := Option.some.inj hmixed.symm
+      subst mixed
+      simp only [factorProduct, routedRecursiveContribution, List.map_nil,
+        List.prod_nil, one_mul]
   | cons z rest ih =>
       simp only [labelIntersections, List.mapM_cons] at hmixed
       cases hlabel : destinationLabel? recursive z.2.1 with
@@ -451,16 +454,16 @@ private theorem routeTagged_label_positive
     intro z hz
     rcases List.mem_append.mp hz with hz | hz
     · apply ihl _ (fun a ha => ?_) (fun a ha => ?_) z hz
-      obtain ⟨b, hb, rfl⟩ := List.mem_map.mp ha
-      exact gcdFactor_monic ((toPoly_eq_zero_iff b.2).not.mp
-        ((monic_toPoly_iff b.2).mp (hmprune b hb)).ne_zero)
-      obtain ⟨b, hb, rfl⟩ := List.mem_map.mp ha
-      exact hprune b hb
+      · obtain ⟨b, hb, rfl⟩ := List.mem_map.mp ha
+        exact gcdFactor_monic ((toPoly_eq_zero_iff b.2).not.mp
+          ((monic_toPoly_iff b.2).mp (hmprune b hb)).ne_zero)
+      · obtain ⟨b, hb, rfl⟩ := List.mem_map.mp ha
+        exact hprune b hb
     · apply ihr _ (fun a ha => ?_) (fun a ha => ?_) z hz
-      obtain ⟨b, hb, rfl⟩ := List.mem_map.mp ha
-      exact gcdComplement_monic (hmprune b hb)
-      obtain ⟨b, hb, rfl⟩ := List.mem_map.mp ha
-      exact hprune b hb
+      · obtain ⟨b, hb, rfl⟩ := List.mem_map.mp ha
+        exact gcdComplement_monic (hmprune b hb)
+      · obtain ⟨b, hb, rfl⟩ := List.mem_map.mp ha
+        exact hprune b hb
 
 private theorem routeTagged_piece_nonunit
     (M : MulContext F) (D : ModContext F) (t : BatchRemainder.Tree F)
@@ -665,8 +668,11 @@ private theorem recursiveOnly_factorProduct
       (factorProduct recursive) ^ p := by
   induction recursive generalizing only with
   | nil =>
-      simp [recursiveOnly, factorProduct, recursiveIntersectionContribution] at honly ⊢
-      exact honly ▸ rfl
+      change some [] = some only at honly
+      have : only = [] := Option.some.inj honly.symm
+      subst only
+      simp only [factorProduct, recursiveIntersectionContribution, List.map_nil,
+        List.prod_nil, one_mul, one_pow]
   | cons z rest ih =>
       simp only [recursiveOnly, List.mapM_cons] at honly
       let selected := (routed.filter fun t => t.2.1 == z.2).map fun t => t.2.2
@@ -1143,7 +1149,8 @@ theorem refineFactors_reconstruct
     factorProduct factors = factorProduct strata * factorProduct recursive ^ p := by
   by_cases hrecursive : recursive = []
   · subst recursive
-    simp [refineFactors] at hresult
+    change some (groupFactors strata) = some factors at hresult
+    have : factors = groupFactors strata := Option.some.inj hresult.symm
     subst factors
     rw [factorProduct_groupFactors]
     simp [factorProduct]
@@ -1227,7 +1234,8 @@ theorem refineFactors_support_squarefree
     Squarefree ((factors.map Prod.snd).prod).toPoly := by
   by_cases hrecursive : recursive = []
   · subst recursive
-    simp [refineFactors] at hresult
+    change some (groupFactors strata) = some factors at hresult
+    have : factors = groupFactors strata := Option.some.inj hresult.symm
     subst factors
     rw [supportProduct_groupFactors]
     exact hstrataSquarefree
@@ -1336,7 +1344,8 @@ theorem refineFactors_positive_monic
     ∀ z ∈ factors, 0 < z.1 ∧ z.2.monic ∧ z.2 ≠ 1 := by
   by_cases hrecursiveEmpty : recursive = []
   · subst recursive
-    simp [refineFactors] at hresult
+    change some (groupFactors strata) = some factors at hresult
+    have : factors = groupFactors strata := Option.some.inj hresult.symm
     subst factors
     exact groupFactors_positive_monic_nonunit strata hstrata
   · have hnotempty : recursive.isEmpty ≠ true := by
