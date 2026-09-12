@@ -75,6 +75,14 @@ and are rejected by `candidateLabelLists` below. -/
 def edgeLabels {n : ℕ} (edges : List (Fin n × Fin n)) : List (Fin n) :=
   edges.flatMap fun edge ↦ [edge.1, edge.2]
 
+@[simp] theorem edgeLabels_nil {n : ℕ} : edgeLabels ([] : List (Fin n × Fin n)) = [] := by
+  simp [edgeLabels]
+
+@[simp] theorem edgeLabels_cons {n : ℕ} (edge : Fin n × Fin n)
+    (edges : List (Fin n × Fin n)) :
+    edgeLabels (edge :: edges) = edge.1 :: edge.2 :: edgeLabels edges := by
+  simp [edgeLabels]
+
 @[simp] theorem edgeLabels_length {n : ℕ} (edges : List (Fin n × Fin n)) :
     (edgeLabels edges).length = 2 * edges.length := by
   induction edges with
@@ -114,6 +122,17 @@ def fixedGapSystems {P : Type*} [DecidableEq P] {n r : ℕ} (hn : 0 < n) (power 
   (fixedGapSelections n hn r power).attach.map fun selected ↦
     squareSystemRows hypersurface agreements
       (rowSubsetEmbedding selected.1 (fixedGapSelections_card selected.2))
+
+/-- Materializing any emitted selection gives a member of the executed system list. -/
+theorem squareSystemRows_mem_fixedGapSystems {P : Type*} [DecidableEq P]
+    {n r power : ℕ} {hn : 0 < n} (hypersurface : P) (agreements : Fin n → P)
+    {selected : Finset (Fin n)} (hselected : selected ∈ fixedGapSelections n hn r power) :
+    squareSystemRows hypersurface agreements
+        (rowSubsetEmbedding selected (fixedGapSelections_card hselected)) ∈
+      fixedGapSystems hn power hypersurface agreements := by
+  simp only [fixedGapSystems, List.mem_map]
+  refine ⟨⟨selected, hselected⟩, List.mem_attach _ _, ?_⟩
+  rfl
 
 /-- Every graph-selected system also occurs in the exhaustive direct family. -/
 theorem mem_directSystems_of_mem_fixedGapSystems {P : Type*} [DecidableEq P]
