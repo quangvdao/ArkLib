@@ -931,6 +931,7 @@ theorem initialSeparant_semantics {r : ℕ} (center : E) (T : CMvPolynomial (r +
   SquareSystems.fromCMvPolynomial_computableInitialJetSeparant center T
 
 /-- Initial specialization commutes with evaluation into every coefficient algebra. -/
+omit [BEq E] [LawfulBEq E] in
 theorem eval₂_initialEquation {r : ℕ} {A : Type*} [CommRing A]
     (f : E →+* A) (jet : Fin (r + 1) → A) (center : E) (T : CMvPolynomial (r + 2) E) :
     CMvPolynomial.eval₂ f jet (initialEquation center T) =
@@ -1258,6 +1259,7 @@ theorem nonlinearNewton_exists_of_component {r : ℕ} (N p k : ℕ) [Fact (0 < N
   exact ⟨Y, hY⟩
 
 set_option maxHeartbeats 800000 in
+-- Unfolding the dependent constructor trace needs more than the project default.
 /-- Valid regular-component input makes the entire executable one-chart constructor succeed. -/
 theorem construct?_success_of_component (p r k Bjet : ℕ) [CharP E p] (center : E)
     (T : CMvPolynomial (r + 2) E) (component : CMvPolynomial (r + 1) E)
