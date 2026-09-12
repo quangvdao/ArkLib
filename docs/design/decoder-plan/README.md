@@ -92,7 +92,7 @@ The next targets are intentionally larger than individual helper lemmas:
   with higher-order component arithmetic and descent as supporting work.
 - Personal 3: construct general extensions and the higher-order isolated-root/selection
   producers, keeping toric and spectral obligations explicit until proved.
-- Personal 4: finish the arbitrary-field zeroth-order decoder, then construct the full
+- Personal 4: close the public quadratic-branch runtime evidence, then construct the full
   Taylor candidate cover and compose the positive-order public decoder.
 
 Publish independently reviewed and fully validated checkpoints along the way. A checkpoint

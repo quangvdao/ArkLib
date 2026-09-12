@@ -38,7 +38,7 @@ their original restrictions. No bit-complexity formalization is part of this tas
 | --- | --- | --- |
 | Personal 1 | Saturated Radical/SeparablePart; global graph retention, degree bounds; obstruction | Full generic capstone `6d4c45aff0fda14bc9e992538ec8ded6d57cc531` collected; instantiate its explicit coefficient inverse law |
 | Personal 3 | Supplied-field inverse Frobenius; coordinate prefixes; both quadratic branches | Complete supplied-field producers `fe907e828739188bbc01fd89cb410f51dd7f0f63` collected, including inverse Frobenius and binary/odd centers |
-| Personal 4 | Ordinary Newton/recovery adapters and exact executed composition | Reviewed `RegularFiber` and `SuppliedAdapter` compose normalization, obstruction selection, supplied base prefixes, the odd base branch, ordinary recovery, and the exact `k = 1` branch; final application composition remains conditional, but its upstream normalization/field producers are now available |
+| Personal 4 | Ordinary Newton/recovery adapters and exact executed composition | `PublicDecoder.run?` composes actual interpolation, certified normalization, all supplied-center branches and ordinary recovery; `run?_exists_exact` proves unconditional success and exactness under `Valid` |
 
 Adopt only reviewed immutable commits. Record each SHA with a compiled producer and
 consumer client at the same integration head. Current worker source and historical
