@@ -426,7 +426,7 @@ def advance (i : ℕ) (e : CBivariate F) (blocks : List (Block F)) : List (Block
   (blocks.map (step i e)).flatMap StepOutput.blocks
 
 theorem advance_before (i : ℕ) (e : CBivariate F) (blocks : List (Block F))
-  (hb : ∀ b ∈ blocks, Before b i) :
+    (hb : ∀ b ∈ blocks, Before b i) :
     ∀ c ∈ advance i e blocks, Before c (i + 1) := by
   intro c hc
   obtain ⟨b, hbb, hbc⟩ : ∃ b ∈ blocks, c ∈ (step i e b).blocks := by
