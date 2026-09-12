@@ -110,5 +110,6 @@ def run : IO Unit := do
 #print axioms SearchResult.finrank
 #print axioms SearchResult.inverseSquare_sq
 #print axioms run_extension_payload
+#print axioms run_ne_searchFailure
 
 end ExtensionSearchTests

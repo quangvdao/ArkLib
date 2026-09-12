@@ -655,34 +655,43 @@ def run {E : Type*} [Field E] [BEq E] [LawfulBEq E]
   if hbase : requested ≤ index.cardinality then .base hbase
   else
     let degree := leastDegree index.cardinality requested
-    have hdegree := (leastDegree_spec (B := requested) index.one_lt_cardinality).1
-    let p := firstIrreducible index degree hdegree
-    have hp := firstIrreducible_sound index degree hdegree
-    .extension {
-      requested := requested
-      baseCardinality := index.cardinality
-      degree := degree
-      modulus := p
-      monic := hp.1
-      irreducible := hp.2.2
-      degree_eq := hp.2.1
-      sufficient := (leastDegree_spec index.one_lt_cardinality).2.1
-      least := (leastDegree_spec index.one_lt_cardinality).2.2 }
+    match hsearch : firstIrreducible? index degree with
+    | none => .searchFailure degree
+    | some p =>
+        have hp := firstIrreducible?_sound index hsearch
+        .extension {
+          requested := requested
+          baseCardinality := index.cardinality
+          degree := degree
+          modulus := p
+          monic := hp.1
+          irreducible := hp.2.2
+          degree_eq := hp.2.1
+          sufficient := (leastDegree_spec index.one_lt_cardinality).2.1
+          least := (leastDegree_spec index.one_lt_cardinality).2.2 }
 
 theorem run_base_iff {E : Type*} [Field E] [BEq E] [LawfulBEq E]
     (index : FiniteIndex E) (requested : Nat) :
     (run index requested).branch = .base ↔ requested ≤ index.cardinality := by
   by_cases hbase : requested ≤ index.cardinality
   · simp [run, hbase, ExtensionSearchResult.branch]
-  · simp [run, hbase, ExtensionSearchResult.branch]
+  · simp only [run, hbase, ↓reduceDIte]
+    split <;> simp [ExtensionSearchResult.branch]
 
 theorem run_extension_iff {E : Type*} [Field E] [BEq E] [LawfulBEq E]
     (index : FiniteIndex E) (requested : Nat) :
     (run index requested).branch = .extension ↔ index.cardinality < requested := by
   by_cases hbase : requested ≤ index.cardinality
   · simp [run, hbase, ExtensionSearchResult.branch]
-  · have : index.cardinality < requested := by omega
-    simp [run, hbase, ExtensionSearchResult.branch, this]
+  · have hlt : index.cardinality < requested := by omega
+    have hdegree : 0 < leastDegree index.cardinality requested :=
+      (leastDegree_spec index.one_lt_cardinality).1
+    have hsuccess := firstIrreducible?_ne_none index hdegree
+    simp only [run, hbase, ↓reduceDIte]
+    split
+    · rename_i hsearch
+      exact (hsuccess hsearch).elim
+    · simp [ExtensionSearchResult.branch, hlt]
 
 /-- Every extension payload returned by `run` records the original request,
 the supplied base cardinality, and the computed least degree literally. -/
@@ -692,11 +701,17 @@ theorem run_extension_payload {E : Type*} [Field E] [BEq E] [LawfulBEq E]
     result.requested = requested ∧
       result.baseCardinality = index.cardinality ∧
       result.degree = leastDegree index.cardinality requested := by
-  unfold run at h
-  split at h
-  · contradiction
-  · cases h
-    exact ⟨rfl, rfl, rfl⟩
+  by_cases hbase : requested ≤ index.cardinality
+  · simp [run, hbase] at h
+  · have hdegree : 0 < leastDegree index.cardinality requested :=
+      (leastDegree_spec index.one_lt_cardinality).1
+    have hsuccess := firstIrreducible?_ne_none index hdegree
+    simp only [run, hbase, ↓reduceDIte] at h
+    split at h
+    · rename_i hsearch
+      exact (hsuccess hsearch).elim
+    · cases h
+      exact ⟨rfl, rfl, rfl⟩
 
 /-- The proof-only finite-field existence theorem certifies that the explicit
 failure constructor is unreachable. -/
@@ -705,7 +720,14 @@ theorem run_ne_searchFailure {E : Type*} [Field E] [BEq E] [LawfulBEq E]
     run index requested ≠ .searchFailure degree := by
   by_cases hbase : requested ≤ index.cardinality
   · simp [run, hbase]
-  · simp [run, hbase]
+  · have hdegree : 0 < leastDegree index.cardinality requested :=
+      (leastDegree_spec index.one_lt_cardinality).1
+    have hsuccess := firstIrreducible?_ne_none index hdegree
+    simp only [run, hbase, ↓reduceDIte]
+    split
+    · rename_i hsearch
+      exact (hsuccess hsearch).elim
+    · simp
 
 theorem run_searchFailure_ne {E : Type*} [Field E] [BEq E] [LawfulBEq E]
     (index : FiniteIndex E) (requested : Nat) :
