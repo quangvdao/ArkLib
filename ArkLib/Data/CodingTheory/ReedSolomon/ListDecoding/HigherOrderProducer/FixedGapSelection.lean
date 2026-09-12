@@ -70,6 +70,32 @@ def poweredEdges (n : ℕ) (hn : 0 < n) (t : ℕ) : List (Fin n × Fin n) := by
   letI : NeZero (ceilSqrt n) := ⟨(ceilSqrt_pos hn).ne'⟩
   exact (poweredDarts (ceilSqrt n) t).filterMap decodeDart?
 
+/-- Any powered walk between two real padded vertices survives dummy-endpoint filtering. -/
+theorem mem_poweredEdges_of_walk {n : ℕ} (hn : 0 < n) (t : ℕ) (i j : Fin n)
+    (word : List Label) (hword : word ∈ labelWords t)
+    (hwalk : walk word (paddedEmbedding n hn i) = paddedEmbedding n hn j) :
+    (i, j) ∈ poweredEdges n hn t := by
+  let _ : NeZero (ceilSqrt n) := ⟨(ceilSqrt_pos hn).ne'⟩
+  rw [show poweredEdges n hn t =
+      (poweredDarts (ceilSqrt n) t).filterMap decodeDart? by rfl,
+    List.mem_filterMap]
+  let dart : PoweredDart (ceilSqrt n) :=
+    ⟨paddedEmbedding n hn i, word, walk word (paddedEmbedding n hn i), rfl⟩
+  refine ⟨dart, ?_, ?_⟩
+  · unfold poweredDarts
+    simp only [List.mem_flatMap, List.mem_map]
+    refine ⟨paddedEmbedding n hn i, ?_, word, hword, ?_⟩
+    · rw [List.mem_ofFn]
+      exact ⟨(squareVertexEquiv (ceilSqrt n)).symm (paddedEmbedding n hn i),
+        (squareVertexEquiv (ceilSqrt n)).apply_symm_apply _⟩
+    · rfl
+  · change (do
+      let i' ← unpad? (n := n) (paddedEmbedding n hn i)
+      let j' ← unpad? (n := n) (walk word (paddedEmbedding n hn i))
+      return (i', j')) = some (i, j)
+    rw [hwalk]
+    simp [paddedEmbedding]
+
 /-- Flatten endpoints from a tuple of powered darts. Loops intentionally yield duplicate labels
 and are rejected by `candidateLabelLists` below. -/
 def edgeLabels {n : ℕ} (edges : List (Fin n × Fin n)) : List (Fin n) :=

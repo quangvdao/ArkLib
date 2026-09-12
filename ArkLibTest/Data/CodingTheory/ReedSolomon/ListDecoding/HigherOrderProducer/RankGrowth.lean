@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 import
-  ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.CotangentMixing
+  ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.CotangentClasses
 
 /-! Compile-time regressions for powered-edge rank growth and cotangent-to-Jacobian capture. -/
 
@@ -29,5 +29,13 @@ example {F V : Type*} [Field F] [AddCommGroup V] [Module F V]
       (selected : Set (Fin n))) :
     Function.Injective (selectedCoordinateMap map (rowSubsetEmbedding selected hcard)) :=
   selectedCoordinateMap_injective_of_independent map selected hcard hdim hindependent
+
+example {F V : Type*} [Field F] [AddCommGroup V] [Module F V]
+    [FiniteDimensional F V] {n k : ℕ} (agreeing : Finset (Fin n))
+    (map : V →ₗ[F] (Fin n → F))
+    (hbound : ProperSubspaceAgreementBound (F := F) agreeing
+      (coordinateFunctional map) k)
+    (hk : k ≤ agreeing.card) : Function.Injective map :=
+  coordinateMap_injective_of_original_hypotheses agreeing map hbound hk
 
 end ReedSolomon.ListDecoding.HigherOrderProducerTest

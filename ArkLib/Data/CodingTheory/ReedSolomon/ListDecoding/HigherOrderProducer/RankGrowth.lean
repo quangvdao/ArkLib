@@ -64,6 +64,7 @@ theorem exists_independent_edge_tuple {n pairs q : ℕ} (graphEdges : List (Fin 
     (pool : Fin n → V)
     (haugment : ∀ selected : Finset (Fin n),
       LinearIndepOn F pool (selected : Set (Fin n)) → selected.card < 2 * pairs →
+      Even selected.card →
       ∃ edge ∈ graphEdges, EscapesPair (F := F) pool selected edge)
     (hq : q ≤ pairs) :
     ∃ edges ∈ tuples q graphEdges,
@@ -85,6 +86,7 @@ theorem exists_independent_edge_tuple {n pairs q : ℕ} (graphEdges : List (Fin 
         omega
       have hlt : selected.card < 2 * pairs := by omega
       obtain ⟨edge, hedge, hescape⟩ := haugment selected hindependent hlt
+        (by use q; omega)
       have hfirst : edge.1 ∉ selected := first_not_mem_of_escapesPair hescape
       have hsecond : edge.2 ∉ insert edge.1 selected :=
         second_not_mem_insert_of_escapesPair hescape
@@ -112,6 +114,7 @@ theorem independent_even_selection_mem {n pairs power : ℕ} (hn : 0 < n)
     (pool : Fin n → V)
     (haugment : ∀ selected : Finset (Fin n),
       LinearIndepOn F pool (selected : Set (Fin n)) → selected.card < 2 * pairs →
+      Even selected.card →
       ∃ edge ∈ poweredEdges n hn power, EscapesPair (F := F) pool selected edge) :
     ∃ selected ∈ fixedGapSelections n hn (2 * pairs) power,
       LinearIndepOn F pool (selected : Set (Fin n)) := by
@@ -137,6 +140,7 @@ theorem independent_odd_selection_mem {n pairs power : ℕ} (hn : 0 < n)
     (pool : Fin n → V)
     (haugment : ∀ selected : Finset (Fin n),
       LinearIndepOn F pool (selected : Set (Fin n)) → selected.card < 2 * pairs →
+      Even selected.card →
       ∃ edge ∈ poweredEdges n hn power, EscapesPair (F := F) pool selected edge)
     (hodd : ∀ selected : Finset (Fin n),
       LinearIndepOn F pool (selected : Set (Fin n)) → selected.card = 2 * pairs →
@@ -275,6 +279,7 @@ theorem fixedGapSelections_contains_even_capture
     (haugment : ∀ selected : Finset (Fin n),
       LinearIndepOn F (coordinateFunctional (pool.comp normal.ker.subtype))
         (selected : Set (Fin n)) → selected.card < 2 * pairs →
+      Even selected.card →
       ∃ edge ∈ poweredEdges n hn power,
         EscapesPair (F := F) (coordinateFunctional (pool.comp normal.ker.subtype))
           selected edge) :
@@ -306,6 +311,7 @@ theorem fixedGapSelections_contains_odd_capture
     (haugment : ∀ selected : Finset (Fin n),
       LinearIndepOn F (coordinateFunctional (pool.comp normal.ker.subtype))
         (selected : Set (Fin n)) → selected.card < 2 * pairs →
+      Even selected.card →
       ∃ edge ∈ poweredEdges n hn power,
         EscapesPair (F := F) (coordinateFunctional (pool.comp normal.ker.subtype))
           selected edge)

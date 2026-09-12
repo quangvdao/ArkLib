@@ -121,4 +121,25 @@ theorem adjacencyLinear_pow_apply {m : ℕ} {R : Type*} [Semiring R]
         _ = adjacency (adjacencyPower t f) := congrArg adjacency ih
         _ = adjacencyPower (t + 1) f := rfl
 
+/-- A length-`t` adjacency power multiplies a constant function by `8^t`. -/
+theorem adjacencyPower_const {m : ℕ} {R : Type*} [Semiring R]
+    (t : ℕ) (c : R) : adjacencyPower t (fun _ : Vertex m ↦ c) =
+      fun _ ↦ (8 : R) ^ t * c := by
+  induction t with
+  | zero => simp
+  | succ t ih =>
+      rw [adjacencyPower_succ, ih]
+      funext v
+      rw [adjacency_const]
+      simp only [pow_succ']
+      ac_rfl
+
+/-- Adjacency powers commute with subtraction. -/
+theorem adjacencyPower_sub {m : ℕ} {R : Type*} [Ring R]
+    (t : ℕ) (f g : Vertex m → R) :
+    adjacencyPower t (f - g) = adjacencyPower t f - adjacencyPower t g := by
+  rw [← adjacencyLinear_pow_apply, ← adjacencyLinear_pow_apply,
+    ← adjacencyLinear_pow_apply]
+  exact LinearMap.map_sub _ _ _
+
 end GabberGalil

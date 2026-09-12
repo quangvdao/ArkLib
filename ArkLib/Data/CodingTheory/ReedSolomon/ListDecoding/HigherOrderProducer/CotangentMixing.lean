@@ -7,6 +7,7 @@ module
 
 public import
   ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.RankGrowth
+public import ArkLib.Data.Graph.GabberGalilConstruction.SpectralMixing
 
 /-!
 # Cotangent separation and powered-edge mixing
@@ -47,6 +48,45 @@ theorem exists_escaping_edge_of_large_separated {n threshold : ℕ}
   obtain ⟨edge, hedge, hfirst, hsecond⟩ := hmixing I J hseparated.1 hI hJ
   exact ⟨edge, hedge, hseparated.2 edge.1 hfirst edge.2 hsecond⟩
 
+/-- The powered padded graph connects all real label sets above a threshold once the normalized
+energy contraction is smaller than the squared threshold density. -/
+theorem connectsLargeSets_poweredEdges {n power threshold : ℕ} [NeZero (ceilSqrt n)]
+    (hn : 0 < n)
+    (hGG : ExactEnergyEstimate (ceilSqrt n)) (hthreshold : 0 < threshold)
+    (hnumeric : ((25 : ℝ) / 32) ^ power * (paddedSize n : ℝ) ^ 2 <
+      (threshold : ℝ) ^ 2) :
+    ConnectsLargeSets (poweredEdges n hn power) threshold := by
+  intro I J _hdisjoint hI hJ
+  let embed := paddedEmbedding n hn
+  let paddedI := I.map embed
+  let paddedJ := J.map embed
+  have hIcard : paddedI.card = I.card := by simp [paddedI]
+  have hJcard : paddedJ.card = J.card := by simp [paddedJ]
+  have hJnonempty : paddedJ.Nonempty := by
+    rw [Finset.nonempty_iff_ne_empty]
+    intro hempty
+    have : paddedJ.card = 0 := by rw [hempty]; simp
+    omega
+  have hvertexCard : Fintype.card (Vertex (ceilSqrt n)) = paddedSize n := by
+    simp [paddedSize, pow_two]
+  have hIreal : (threshold : ℝ) ≤ I.card := by exact_mod_cast hI
+  have hJreal : (threshold : ℝ) ≤ J.card := by exact_mod_cast hJ
+  have hproduct : (threshold : ℝ) ^ 2 ≤ (I.card : ℝ) * J.card := by
+    nlinarith [show (0 : ℝ) ≤ I.card by positivity,
+      show (0 : ℝ) ≤ J.card by positivity]
+  have hpaddedNumeric :
+      ((25 : ℝ) / 32) ^ power *
+          (Fintype.card (Vertex (ceilSqrt n)) : ℝ) ^ 2 <
+        (paddedI.card : ℝ) * paddedJ.card := by
+    rw [hvertexCard, hIcard, hJcard]
+    exact hnumeric.trans_le hproduct
+  obtain ⟨start, hstart, word, hword, hfinish⟩ :=
+    hasPoweredEdge_of_normalized_product hGG paddedI paddedJ hJnonempty hpaddedNumeric
+  obtain ⟨i, hi, rfl⟩ := Finset.mem_map.mp hstart
+  obtain ⟨j, hj, hwalk⟩ := Finset.mem_map.mp hfinish
+  refine ⟨(i, j), mem_poweredEdges_of_walk hn power i j word hword ?_, hi, hj⟩
+  exact hwalk.symm
+
 /-- A separated-set witness at every intermediate rank discharges the pair-augmentation contract
 used by the executable rank-growth theorem. -/
 theorem pair_augmentation_of_cotangent_separation {n pairs threshold : ℕ}
@@ -54,14 +94,16 @@ theorem pair_augmentation_of_cotangent_separation {n pairs threshold : ℕ}
     (hmixing : ConnectsLargeSets edges threshold)
     (hseparate : ∀ selected : Finset (Fin n),
       LinearIndepOn F pool (selected : Set (Fin n)) → selected.card < 2 * pairs →
+      Even selected.card →
       ∃ I J : Finset (Fin n),
         CotangentSeparated (F := F) pool selected I J ∧
         threshold ≤ I.card ∧ threshold ≤ J.card) :
     ∀ selected : Finset (Fin n),
       LinearIndepOn F pool (selected : Set (Fin n)) → selected.card < 2 * pairs →
+      Even selected.card →
       ∃ edge ∈ edges, EscapesPair (F := F) pool selected edge := by
-  intro selected hindependent hcard
-  obtain ⟨I, J, hseparated, hI, hJ⟩ := hseparate selected hindependent hcard
+  intro selected hindependent hcard heven
+  obtain ⟨I, J, hseparated, hI, hJ⟩ := hseparate selected hindependent hcard heven
   exact exists_escaping_edge_of_large_separated hmixing selected I J hseparated hI hJ
 
 /-- Even-rank graph selection captures a nonsingular square differential once cotangent
@@ -75,6 +117,7 @@ theorem fixedGapSelections_contains_even_capture_of_mixing
     (hseparate : ∀ selected : Finset (Fin n),
       LinearIndepOn F (coordinateFunctional (pool.comp normal.ker.subtype))
         (selected : Set (Fin n)) → selected.card < 2 * pairs →
+      Even selected.card →
       ∃ I J : Finset (Fin n),
         CotangentSeparated (F := F)
           (coordinateFunctional (pool.comp normal.ker.subtype)) selected I J ∧
@@ -97,6 +140,7 @@ theorem fixedGapSelections_contains_odd_capture_of_mixing
     (hseparate : ∀ selected : Finset (Fin n),
       LinearIndepOn F (coordinateFunctional (pool.comp normal.ker.subtype))
         (selected : Set (Fin n)) → selected.card < 2 * pairs →
+      Even selected.card →
       ∃ I J : Finset (Fin n),
         CotangentSeparated (F := F)
           (coordinateFunctional (pool.comp normal.ker.subtype)) selected I J ∧
