@@ -44,6 +44,13 @@ decoder systems while retaining the actual sparse supports as computed data.
 Its stored determinant is presently only the Macaulay resultant multiple;
 removal of the classical extraneous factor and the geometric factor theorem
 remain explicit proof obligations.
+
+The dense quotient convention is fixed more precisely by J. F. Canny,
+*Generalized Characteristic Polynomials*, UCB/CSD-88-440 (1988), Section 2,
+equations (1)--(5).  Canny uses the same critical degree and assigns a row to
+the smallest index whose paired power divides its monomial.  The extraneous
+factor is the principal minor on row and column monomials that are not reduced,
+meaning that at least two paired powers divide them.
 -/
 
 @[expose] public section
