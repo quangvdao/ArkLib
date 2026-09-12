@@ -930,8 +930,8 @@ theorem initialSeparant_semantics {r : ℕ} (center : E) (T : CMvPolynomial (r +
     fromCMvPolynomial (initialSeparant center T) = initialJetSeparant center (semanticEquation T) :=
   SquareSystems.fromCMvPolynomial_computableInitialJetSeparant center T
 
-/-- Initial specialization commutes with evaluation into every coefficient algebra. -/
 omit [BEq E] [LawfulBEq E] in
+/-- Initial specialization commutes with evaluation into every coefficient algebra. -/
 theorem eval₂_initialEquation {r : ℕ} {A : Type*} [CommRing A]
     (f : E →+* A) (jet : Fin (r + 1) → A) (center : E) (T : CMvPolynomial (r + 2) E) :
     CMvPolynomial.eval₂ f jet (initialEquation center T) =
