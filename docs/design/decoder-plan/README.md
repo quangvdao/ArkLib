@@ -61,7 +61,8 @@ The [normalization checkpoint](normalization-checkpoint.md) records the earlier 
 The [three-track collection](three-track-checkpoint.md) adds full generic normalization
 correctness, supplied-field arithmetic/centers and the completed one-chart Taylor contract.
 The [public zeroth-order checkpoint](public-zeroth-checkpoint.md) records their executed
-composition. The [Personal 3 checkpoint](personal-3-checkpoint.md) records the six collected slices and their
+composition. The [fixed-order Taylor coverage checkpoint](positive-coverage-checkpoint.md)
+records the next positive-order assembly boundary. The [Personal 3 checkpoint](personal-3-checkpoint.md) records the six collected slices and their
 remaining obligations. Personal 4 remains the sole core integration owner.
 
 | ID | Work | State | First action |
@@ -69,9 +70,9 @@ remaining obligations. Personal 4 remains the sole core integration owner.
 | I0 | Shared Lean interface freeze | Personal 4; one-chart contract proved | Freeze all-chart coverage and candidate interfaces |
 | G01 | Function-field algebra and normalization | Personal 1; generic ordinary normalization complete | Higher-order component arithmetic and global descent |
 | G02 | Full squarefree decomposition | Personal 1; residue/Frobenius/tree slices collected | Full labelled recursive driver and threshold bridge |
-| G03 | Taylor geometry | Personal 4; one-chart geometry complete | Computed component family and all-chart coverage |
-| G04 | Taylor local algebra and lifting | Personal 4; one-chart lifting/success complete | Consume proved local solver in the global family |
-| G05 | Taylor reconstruction | Personal 4; one-chart global agreement complete | Prove coverage of all wanted regular solutions |
+| G03 | Taylor geometry | Personal 4; executable fixed-order stage/chart family | Add varying-order adapter and concrete component producer |
+| G04 | Taylor local algebra and lifting | Personal 4; one-chart lifting/success consumed by family | Preserve solver contracts through later dispatch |
+| G05 | Taylor reconstruction | Personal 4; conditional top-active candidate coverage | Discharge producer coverage for every qualifying solution |
 | G06 | First-order norms | Personal 1; norm/universal-scan slices collected | Chart count, multiplicity product and candidate coverage |
 | G07 | Explicit fields | Personal 3; supplied-field producers complete | General extension construction for positive-order algorithms |
 | G08 | Rojas producer | Personal 3; univariate factorization collected | General toric construction, specialization and isolated-root coverage |
