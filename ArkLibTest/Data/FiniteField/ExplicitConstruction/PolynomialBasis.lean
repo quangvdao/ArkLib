@@ -125,6 +125,5 @@ def run : IO Unit := do
   unless (canonical linearModulus X : Carrier linearModulus) == 0 do
     throw <| IO.userError "degree-one theta is not zero"
 
-#eval run
 
 end ArkLibTest.FiniteField.ExplicitConstruction.PolynomialBasis
