@@ -7,7 +7,7 @@ module
 
 public import ArkLib.Data.Polynomial.NilpotentInverse
 public import Mathlib.Data.Nat.Log
-public import Mathlib.Tactic.Ring
+public import Mathlib.Tactic.Abel
 
 /-!
 # Executable Newton inverse doubling
@@ -21,7 +21,11 @@ The initial approximate inverse and its residual certificate remain caller input
 
 namespace Polynomial.NewtonInverse
 
-variable {R : Type*} [CommRing R]
+variable {R : Type*}
+
+section Ring
+
+variable [Ring R]
 
 /-- One Newton update, using multiplication and subtraction only. -/
 def step (a b : R) : R := b * (2 - a * b)
@@ -33,8 +37,8 @@ def iterate : ℕ → R → R → R
 
 /-- The multiplicative error squares in one update, in every characteristic. -/
 theorem residual_step (a b : R) : 1 - a * step a b = (1 - a * b) ^ 2 := by
-  unfold step
-  ring
+  simp only [step, mul_sub, mul_two, mul_add, pow_two, sub_mul, mul_one, one_mul, mul_assoc]
+  abel
 
 /-- After the executed rounds, the original residual has exponent `2^rounds`. -/
 theorem residual_iterate (rounds : ℕ) (a b : R) :
@@ -77,6 +81,12 @@ theorem right_inverse (N : ℕ) (a b : R) (h : (1 - a * b) ^ N = 0) :
   rw [← residual_correct] at hz
   exact (sub_eq_zero.mp hz).symm
 
+end Ring
+
+section CommRing
+
+variable [CommRing R]
+
 /-- The computed result is also a left inverse over the commutative coefficient ring. -/
 theorem left_inverse (N : ℕ) (a b : R) (h : (1 - a * b) ^ N = 0) :
     correct N a b * a = 1 := by
@@ -93,5 +103,7 @@ def unit (N : ℕ) (a b : R) (h : (1 - a * b) ^ N = 0) : Rˣ where
 theorem precision_pos [Nontrivial R] (N : ℕ) (a b : R)
     (h : (1 - a * b) ^ N = 0) : 0 < N :=
   NilpotentInverse.precision_pos N a b h
+
+end CommRing
 
 end Polynomial.NewtonInverse

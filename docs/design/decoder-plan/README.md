@@ -5,7 +5,7 @@ This is the current coordination hub for the Reed–Solomon paper decoder on
 It replaces the completed A–E worker assignments and earlier decoder sprint notes.
 
 The verified source baseline is
-[`3c67cb3fa669985b2add6c5d080a3060c4728789`](https://github.com/quangvdao/ArkLib/commit/3c67cb3fa669985b2add6c5d080a3060c4728789).
+[`e065bd441a1ab3cce5cc11d569d23fa9cf1c65a8`](https://github.com/quangvdao/ArkLib/commit/e065bd441a1ab3cce5cc11d569d23fa9cf1c65a8).
 The finite-tower foundation milestone is complete. The full symbolic decoder is not:
 `HiddenDerivativeDecoder.symbolicDecode` still returns `symbolicBackendUnavailable`.
 
@@ -37,11 +37,20 @@ At launch the coordinator supplies an immutable paper revision or accessible exc
 inaccessible sources; do not invent paper details. The ArkLib plan records implementation status,
 while the paper defines the mathematical target.
 
+## Adopted zeroth-order specification
+
+The revised zeroth-order paper pin is `b1be8b89069542faacac40a7e92068857b43e97a`.
+See [the split delivery plan](zeroth-supplied-field.md). This is a new supplied-field
+composition obligation, separate from the positive-order chart milestone below.
+The latter retains prime-field dispatch and characteristic-certified differential guards.
+No continuation integration has been published. Earlier conditional recovery is useful
+infrastructure and does not establish either completed deliverable.
+
 ## Current task board
 
 Personal 4 coordinates integration and owns G03–G05 and G10. Personal 1 owns G01/G02/G06.
-Personal 3 owns G07–G09. All three teams returned their checkpoints; no unattended work is
-running. Personal 2 is unavailable. The ownership below applies when each team resumes.
+Personal 3 owns G07–G09. All three teams returned their first checkpoints; the next Taylor wave is active below.
+Personal 2 is unavailable.
 The [Personal 1 checkpoint](personal-1-checkpoint.md) records seven algebra/decomposition/norm
 slices. The [Personal 3 checkpoint](personal-3-checkpoint.md) records the six collected slices and their
 remaining obligations. Personal 4 remains the sole core integration owner.
@@ -58,12 +67,33 @@ remaining obligations. Personal 4 remains the sole core integration owner.
 | G07 | Explicit fields | Personal 3; quotient/center slices collected | General-extension constructor and field/prefix adapter |
 | G08 | Rojas producer | Personal 3; linear/resultant slices collected | General input-dependent perturbation and isolated-root coverage |
 | G09 | Higher-order selection | Personal 3; graph/direct slices collected | Chart differential adapter, spectral certificate and powering |
-| G10 | Dedicated zeroth-order decoder | Personal 4; batched-center conditional slice | Obstruction construction, normalization and interpolation correspondence |
+| G10 | Supplied-field zeroth-order decoder | Personal 4; conditional ordinary lifting/recovery | Compose saturated normalization, supplied-field centers, and exact recovery |
 | I1 | Integration and independent review | Personal 4 | Accept compiled slices; maintain this board and obligation ledger |
 
 At each launch record the lead, exact branch/base, owned files, first deliverable and acceptance
 check here or in the corresponding group section. Record explicit dependency commit SHAs as they land.
 Do not substitute a moving branch name for an agreed interface revision.
+
+## Active one-chart Taylor wave
+
+Resume base: `e065bd441a1ab3cce5cc11d569d23fa9cf1c65a8`. Personal 4 leads the
+one-chart constructor on `quang/decoder-fast-taylor-constructor`, retaining shared interfaces,
+application adapters and core integration. Three bounded workers own new files and matching tests:
+
+| Branch | Deliverable | Acceptance |
+| --- | --- | --- |
+| `quang/decoder-taylor-projection` | Computed direction, monic projection, weighted reduction | Exact degree and reduction bounds; nonidentity runtime case |
+| `quang/decoder-taylor-precision-doubling` | Stored series and actual Newton/fundamental-matrix solver | Derived integration units, separate residual precision, nonlinear/coupled runtime cases |
+| `quang/decoder-taylor-global-normal-forms` | Denominator clearing and global recovery | Nonreduced ring identities, degree-bounded provenance and exact recovery |
+
+Each uses private package and build outputs and runs the full axiom validation gate. The lead
+adds resultant-based confluent sampling, constructor validity, compiled adapter clients, combined
+runtime registration and full validation. Publication requires a fresh nonauthor review of the
+complete diff. `Geometry/Monic.lean` is the approved short filename for `MonicProjection`.
+
+The milestone excludes full all-chart coverage and decoder assembly. Personal 1's new normalization
+and obstruction, and Personal 3's new field dispatchers, require exact accepted revisions before
+application adoption. Generic regular-component production remains a separate upstream obligation.
 
 ## Parallel organization
 

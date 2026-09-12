@@ -658,9 +658,22 @@ public import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DegreeBounds.SpecializationDegree
 public import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.ChartData
 public import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.ConfluentSample
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Constructor
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Geometry.Direction
+public import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Geometry.Matrix
 public import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Geometry.Monic
+public import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Geometry.Projection
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Global.Provenance
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Global.Residual
+public import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Validity
 public import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.Counting
 public import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FiniteField.Extension
@@ -1602,8 +1615,11 @@ public import ArkLib.Data.MvPolynomial.SeparantChainBounds
 public import ArkLib.Data.MvPolynomial.SeparantChainMachine
 public import ArkLib.Data.MvPolynomial.SeparantChainMachineCanary
 public import ArkLib.Data.MvPolynomial.TaylorReconstruction.AffineShift
+public import ArkLib.Data.MvPolynomial.TaylorReconstruction.ClearedCoefficients
+public import ArkLib.Data.MvPolynomial.TaylorReconstruction.GlobalNormalForm
 public import ArkLib.Data.MvPolynomial.TaylorReconstruction.LocalEquation
 public import ArkLib.Data.MvPolynomial.TaylorReconstruction.UnivariateView
+public import ArkLib.Data.MvPolynomial.TaylorReconstruction.WeightedMonicReduction
 public import ArkLib.Data.MvPolynomial.WeightedDegree
 public import ArkLib.Data.Polynomial.AffinePowerTruncationMachine
 public import ArkLib.Data.Polynomial.AffinePowerTruncationMachineCanary
@@ -1615,9 +1631,11 @@ public import ArkLib.Data.Polynomial.ClassicalWronskian
 public import ArkLib.Data.Polynomial.CoefficientList
 public import ArkLib.Data.Polynomial.CoefficientUpdateMachine
 public import ArkLib.Data.Polynomial.CoefficientUpdateMachineCanary
+public import ArkLib.Data.Polynomial.ConfluentAlgebra.FundamentalMatrix
 public import ArkLib.Data.Polynomial.ConfluentAlgebra.Inverse
 public import ArkLib.Data.Polynomial.ConfluentAlgebra.MonicArithmetic
 public import ArkLib.Data.Polynomial.ConfluentAlgebra.ParameterKernel
+public import ArkLib.Data.Polynomial.ConfluentAlgebra.SeriesNewton
 public import ArkLib.Data.Polynomial.ConfluentAlgebra.Structure
 public import ArkLib.Data.Polynomial.DegreeTruncationMachine
 public import ArkLib.Data.Polynomial.DegreeTruncationMachineCanary
@@ -1633,7 +1651,12 @@ public import ArkLib.Data.Polynomial.FractionFieldRoots
 public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.Frobenius
 public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.Residues
 public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.TreeRefinement
+public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.BivariateReducedSupport
+public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.CanonicalRepresentative
+public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.ClearDenominators
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.Euclidean
+public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.OrdinaryNormalization
+public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.RegularCenterObstruction
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.StoredField
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.StoredFraction
 public import ArkLib.Data.Polynomial.GCDSplit
@@ -1682,6 +1705,7 @@ public import ArkLib.Data.Polynomial.SymbolicInterpolationParameters
 public import ArkLib.Data.Polynomial.SymbolicInterpolationSupport
 public import ArkLib.Data.Polynomial.SymbolicInterpolationSurplus
 public import ArkLib.Data.Polynomial.Trivariate
+public import ArkLib.Data.Polynomial.TruncatedSeries.Basic
 public import ArkLib.Data.Polynomial.UnivariateRepresentation.AffineTranslation
 public import ArkLib.Data.Polynomial.UnivariateRepresentation.Basic
 public import ArkLib.Data.Polynomial.UnivariateRepresentation.FromRaw

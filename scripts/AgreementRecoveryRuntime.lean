@@ -4,7 +4,31 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Geometry.Direction
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Geometry.Monic
+import
+ArkLibTest.Data.MvPolynomial.TaylorReconstruction.WeightedMonicReduction
+import
+ArkLibTest.Data.MvPolynomial.TaylorReconstruction.ClearedCoefficients
+import
+ArkLibTest.Data.MvPolynomial.TaylorReconstruction.GlobalNormalForm
+import
+ArkLibTest.Data.Polynomial.TruncatedSeries.Basic
+import
+ArkLibTest.Data.Polynomial.ConfluentAlgebra.SeriesNewton
+import
+ArkLibTest.Data.Polynomial.ConfluentAlgebra.FundamentalMatrix
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Constructor
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CanonicalRepresentative
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.ClearDenominators
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.RegularCenterObstruction
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.BivariateReducedSupport
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.OrdinaryNormalization
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.AgreementRecovery.Decoder
+import ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.Ordinary
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.PositionSubsetDecoder
 import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Ordinary.QuotientLift.Materialize
@@ -65,6 +89,9 @@ import ArkLibTest.Data.MvPolynomial.NonvanishingGrid
 import ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.BatchedCenter
 import ArkLibTest.Data.Polynomial.ConfluentAlgebra.ParameterKernel
 import ArkLibTest.Data.MvPolynomial.TaylorReconstruction.UnivariateView
+import
+  ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.ConfluentSample
+import ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Validity
 import Mathlib.Algebra.Field.ZMod
 
 /-!
@@ -123,6 +150,11 @@ private def linearFixtureBackend :
 /-- Exercise nonlinear blocks, extension-only roots, repeated images, final filtering,
 corrupted received values, and the zero-width reference branch. -/
 def run : IO Unit := do
+  CanonicalRepresentativeTests.run
+  ClearDenominatorsTests.run
+  RegularCenterObstructionTests.run
+  BivariateReducedSupportTests.run
+  OrdinaryNormalizationTests.run
   FunctionFieldAlgorithmsTests.run
   FunctionFieldEuclidTests.run
   FullSquarefreeResidueTests.run
@@ -151,6 +183,17 @@ def run : IO Unit := do
   FastTaylorChartDataTests.run
   FastTaylorLinearSubstitutionTests.run
   ZerothOrderCenterSearchTests.run
+  ConfluentSampleTests.run
+  FastTaylorValidityTests.run
+  DirectionTests.run
+  MonicProjectionTests.run
+  WeightedMonicReductionTests.run
+  ClearedCoefficientsTests.run
+  GlobalNormalFormTests.run
+  TruncatedSeriesTests.run
+  SeriesNewtonTests.run
+  FundamentalMatrixTests.run
+  FastTaylorConstructorTests.run
   ConfluentInverseTests.run
   ProjectionMatrixTests.run
   LocalEquationTests.run
@@ -160,6 +203,7 @@ def run : IO Unit := do
   NonvanishingGridTests.run
   UnivariateViewTests.run
   ZerothOrderBatchedCenterTests.run
+  ZerothOrderOrdinaryTests.run
   check "constant-message balanced frequency map" <|
     ConstantDecoder.decode compare 3 ([4, 2, 4, 4, 2, 7] : List Nat) == [[4]]
   let x : CPolynomial (ZMod 5) := CPolynomial.X
