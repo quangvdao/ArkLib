@@ -151,6 +151,28 @@ theorem preparedBlock_component_mem {k : ℕ} (chart : ChartData E 1 k)
     (mem_prepare_blocks_iff chart received out).mp hout
   exact hblock
 
+/-- Every root of the converted chart equation lies on an actual prepared component, over every
+coefficient-field extension.  This remains valid on denominator-zero, ramified, and component-
+meeting fibers; the returned block need not be unique. -/
+theorem exists_preparedBlock_of_equation_root [DecidableEq E]
+    {k b L : ℕ} (chart : ChartData E 1 k) (received : List (E × E))
+    (hnormal : chart.NormalForms b L)
+    {K : Type*} [Field K] (base : E →+* K) (u v : K)
+    (hroot : ComponentDescent.evalAt base u v
+      (prepare chart received).chartPolynomials.equation = 0) :
+    ∃ block ∈ (prepare chart received).blocks,
+      ComponentDescent.evalAt base u v block.component.modulus = 0 := by
+  have hequationMonic : (prepare chart received).chartPolynomials.equation.monic :=
+    ChartPolynomials.equation_monic_of_normalForms chart hnormal
+  obtain ⟨component, hcomponent, hpoint⟩ := ComponentDescent.run_allFiber_coverage
+    base u v (prepare chart received).chartPolynomials.equation
+    (prepare chart received).agreements hequationMonic hroot
+  refine ⟨computeBlock (prepare chart received).agreements component, ?_, hpoint⟩
+  rw [prepare_blocks]
+  exact List.mem_map.mpr ⟨component, by
+    simpa only [prepare_descent, prepare_chartPolynomials, prepare_agreements] using hcomponent,
+    rfl⟩
+
 /-- Monicity of the converted chart equation propagates through the actual descent to every
 prepared block. -/
 theorem preparedBlock_monic [DecidableEq E] {k b L : ℕ} (chart : ChartData E 1 k)

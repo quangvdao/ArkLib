@@ -69,6 +69,7 @@ def run : IO Unit := do
 
 #print axioms evalNested_bivariatePolynomial
 #print axioms componentEvalAt_eq_evalNested
+#print axioms exists_preparedBlock_of_equation_root
 #print axioms preparedBlock_natDegree_le_equation
 #print axioms threshold_le_card_nonuniversalPositions
 #print axioms produceComputedBlock_point_complete
