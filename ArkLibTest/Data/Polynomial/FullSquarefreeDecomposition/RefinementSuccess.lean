@@ -21,4 +21,14 @@ example {F : Type*} [Field F] [BEq F] [LawfulBEq F]
       factorProduct pieces :=
   routeTagged_factorProduct_exact M D t pieces hm
 
+example {F : Type*} [Field F] [BEq F] [LawfulBEq F]
+    (p : ℕ) (M : MulContext F) (D : ModContext F)
+    (strata recursive : List (ℕ × CPolynomial F))
+    (hstrataMonic : ∀ z ∈ strata, z.2.monic)
+    (hstrataSquarefree : Squarefree ((strata.map Prod.snd).prod).toPoly)
+    (hrecursiveMonic : ∀ z ∈ recursive, z.2.monic) :
+    ∃ factors, refineFactors p M D strata recursive = some factors :=
+  refineFactors_succeeds p M D strata recursive hstrataMonic
+    hstrataSquarefree hrecursiveMonic
+
 end FullSquarefreeRefinementSuccessTests
