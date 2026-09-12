@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.Data.Polynomial.NormProducts.MultiplicationMatrix
+import ArkLib.Data.Polynomial.NormProducts.DeterminantDegree
 
 /-! Executed polynomial-valued norms, including ramified and intersecting fibers. -/
 
@@ -44,3 +44,5 @@ def run : IO Unit := do
     throw (IO.userError "rank-zero quotient determinant policy is incorrect")
 
 end NormProductsTests
+
+#print axioms CompPoly.CPolynomial.NormProducts.natDegree_polynomialNorm_le
