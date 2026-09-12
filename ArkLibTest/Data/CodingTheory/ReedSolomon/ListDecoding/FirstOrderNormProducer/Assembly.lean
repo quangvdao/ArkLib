@@ -78,6 +78,28 @@ example (out : TowerRepresentation (F := E)) (hout : out ∈ candidates) : out.W
     U_monic U_squarefree (by simpa [linearFiber] using V_monic)
     (by simpa [linearFiber] using V_degree) out (by simpa [candidates] using hout)
 
+/-- A geometric point selected by the retained norm support reaches an actual materialized
+candidate, including through the preprocessing membership proof. -/
+example : ∃ out ∈ candidates, out.Point (RingHom.id E) 0 0 := by
+  obtain ⟨out, hout, hpoint, _⟩ := materializeRetained_point_complete 5 U linearFiber
+    (1 : CPolynomial (CPolynomial E)) (1 : CPolynomial (CPolynomial E))
+    (fun j : Fin 2 => if j.val = 0 then 1 else 0)
+    U_monic U_squarefree (by simpa [linearFiber] using V_monic)
+    (by simpa [linearFiber] using V_degree)
+    (by
+      intro u v _ _
+      simpa only [TowerAlgebra.evalNested_one] using (one_ne_zero : (1 : AlgebraicClosure E) ≠ 0))
+    (RingHom.id E) 0 0
+    (by
+      constructor
+      · simp [retainedTower, U, CPolynomial.X_toPoly]
+      · simp [retainedTower, linearFiber, V, TowerRepresentation.evalNested,
+          FirstOrderNormDecoder.D5.specializeFiberCPolynomial,
+          FirstOrderNormDecoder.D5.coefficientEval, CPolynomial.X_toPoly])
+    (by
+      simpa only [TowerAlgebra.evalNested_one] using (one_ne_zero : (1 : E) ≠ 0))
+  exact ⟨out, by simpa [candidates] using hout, hpoint⟩
+
 /-- Runtime entrypoint for integration into the shared decoder suite. -/
 def run : IO Unit := do
   unless (ofChart chart).equation == fiber do
