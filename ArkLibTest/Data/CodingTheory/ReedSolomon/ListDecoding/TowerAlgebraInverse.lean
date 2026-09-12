@@ -29,7 +29,9 @@ private def splitBase : Base := U * (U - 1)
 private def extensionOnlyBase : Base := U ^ 2 + 1
 
 /-- A scalar unit is inverted constructively in the full nested quotient. -/
-example : inverseRepresentative? extensionOnlyBase V (2 : Nested) = some (1 / 2 : Nested) := by
+example :
+    inverseRepresentative? extensionOnlyBase V (2 : Nested) =
+      some (liftBase (CPolynomial.C (1 / 2 : ℚ))) := by
   decide +kernel
 
 /-- A genuine zero divisor on the two-component base is rejected explicitly. -/
