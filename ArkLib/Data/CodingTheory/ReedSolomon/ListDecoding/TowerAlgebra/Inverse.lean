@@ -108,11 +108,15 @@ theorem inverseRepresentative?_mul_eq_one
     TowerRepresentation.reduceElement G h (u * v) =
       TowerRepresentation.reduceElement G h 1 := by
   unfold inverseRepresentative? at hv
-  split at hv <;> simp_all only [Option.none.injEq, Bool.false_eq_true, Option.some.injEq]
   split at hv
-  · have hverify := (verifiesInverse_eq_true_iff G h u (cramerCandidate G h u)).mp ‹_›
-    simpa [hv] using hverify.1
   · simp at hv
+  · split at hv
+    · have hverify :=
+        (verifiesInverse_eq_true_iff G h u (cramerCandidate G h u)).mp ‹_›
+      simp at hv
+      subst v
+      exact hverify.1
+    · simp at hv
 
 /-- Every successful result is a right inverse modulo the full tower ideal. -/
 theorem inverseRepresentative?_mul_eq_one_right
@@ -121,11 +125,15 @@ theorem inverseRepresentative?_mul_eq_one_right
     TowerRepresentation.reduceElement G h (v * u) =
       TowerRepresentation.reduceElement G h 1 := by
   unfold inverseRepresentative? at hv
-  split at hv <;> simp_all only [Option.none.injEq, Bool.false_eq_true, Option.some.injEq]
   split at hv
-  · have hverify := (verifiesInverse_eq_true_iff G h u (cramerCandidate G h u)).mp ‹_›
-    simpa [hv] using hverify.2
   · simp at hv
+  · split at hv
+    · have hverify :=
+        (verifiesInverse_eq_true_iff G h u (cramerCandidate G h u)).mp ‹_›
+      simp at hv
+      subst v
+      exact hverify.2
+    · simp at hv
 
 /-- Successful inversion always returns a representative in the canonical bounded tower slice. -/
 theorem inverseRepresentative?_elementReduced
@@ -134,10 +142,12 @@ theorem inverseRepresentative?_elementReduced
     (hv : inverseRepresentative? G h u = some v) :
     TowerRepresentation.ElementReduced G h v := by
   unfold inverseRepresentative? at hv
-  split at hv <;> simp_all only [Option.none.injEq, Bool.false_eq_true, Option.some.injEq]
   split at hv
-  · subst v
-    exact TowerRepresentation.elementReduced_reduceElement hG hh hhpos _
   · simp at hv
+  · split at hv
+    · simp at hv
+      subst v
+      exact TowerRepresentation.elementReduced_reduceElement hG hh hhpos _
+    · simp at hv
 
 end ReedSolomon.ListDecoding.TowerAlgebra
