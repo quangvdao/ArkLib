@@ -6,6 +6,7 @@ Authors: Quang Dao
 
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.PublicDecoder
 import ArkLibTest.Data.FiniteField.ExplicitConstruction.PolynomialBasisFrobenius
+import CompPoly.Data.Polynomial.Rabin
 
 /-! Public order-zero decoder checks over supplied binary and odd-characteristic fields. -/
 
@@ -136,6 +137,162 @@ private def params : GSInterpParams where
 
 end NearCapacity
 
+namespace QuadraticCenters
+
+namespace Odd
+
+private instance : Fact (Nat.Prime 11) := ⟨by decide⟩
+
+private def index : FiniteIndex (ZMod 11) where
+  cardinality := 11
+  one_lt_cardinality := by decide
+  decode i := i.val
+  encode a := ⟨a.val, a.val_lt⟩
+  decode_encode a := ZMod.natCast_zmod_val a
+  encode_decode i := by
+    apply Fin.ext
+    exact ZMod.val_natCast_of_lt i.isLt
+
+private abbrev modulus : CPolynomial (ZMod 11) := CPolynomial.X
+
+private instance : Fact modulus.monic := ⟨by
+  rw [CPolynomial.monic_toPoly_iff, CPolynomial.X_toPoly]
+  exact Polynomial.monic_X⟩
+
+private instance : Fact (Irreducible modulus.toPoly) := ⟨by
+  rw [CPolynomial.X_toPoly]
+  exact Polynomial.irreducible_X⟩
+
+private theorem modulus_degree : modulus.natDegree = 1 := by
+  rw [CPolynomial.natDegree_toPoly, CPolynomial.X_toPoly, Polynomial.natDegree_X]
+
+private def domain : Fin 11 ↪ Carrier modulus where
+  toFun i := suppliedIndex 11 modulus ⟨i.val, by rw [modulus_degree]; omega⟩
+  inj' := by
+    intro i j h
+    have h' := (suppliedIndex 11 modulus).injective h
+    apply Fin.ext
+    simpa using congrArg Fin.val h'
+
+private def alphabet : List (Carrier modulus) :=
+  polynomialBasisPrefix modulus index 11
+
+/-- The nonzero suffix was found by a fixed 64-seed recurrence search. -/
+private def received (i : Fin 11) : Carrier modulus :=
+  if i.val < 5 then 0
+  else alphabet.getD (#[9, 1, 3, 8, 8, 10].getD (i.val - 5) 0) 0
+
+private def params : GSInterpParams where
+  messageDegree := 2
+  multiplicity := 1
+  weightedDegreeBound := 4
+
+end Odd
+
+namespace Binary
+
+private instance : Fact (Nat.Prime 2) := ⟨by decide⟩
+
+private abbrev modulus : CPolynomial (ZMod 2) :=
+  CPolynomial.X ^ 4 + CPolynomial.X + CPolynomial.C 1
+
+private instance : Fact modulus.monic := ⟨by
+  rw [CPolynomial.monic_toPoly_iff]
+  simp only [modulus, CPolynomial.toPoly_add, CPolynomial.toPoly_pow,
+    CPolynomial.X_toPoly, CPolynomial.C_toPoly]
+  convert Polynomial.monic_X_pow_add (n := 4)
+    (p := Polynomial.X + Polynomial.C (1 : ZMod 2))
+    (by rw [Polynomial.degree_X_add_C]; decide) using 1
+  ring⟩
+
+private noncomputable abbrev polynomial : Polynomial (ZMod 2) :=
+  X ^ 4 + (X + C 1)
+
+private theorem modulus_toPoly : modulus.toPoly = polynomial := by
+  simp only [modulus, polynomial, CPolynomial.toPoly_add, CPolynomial.toPoly_pow,
+    CPolynomial.X_toPoly, CPolynomial.C_toPoly]
+  ring
+
+private theorem polynomial_degree : polynomial.natDegree = 4 := by
+  rw [polynomial, natDegree_add_eq_left_of_natDegree_lt]
+  · exact natDegree_X_pow 4
+  · rw [natDegree_X_add_C, natDegree_X_pow]
+    decide
+
+private theorem polynomial_irreducible : Irreducible polynomial := by
+  apply Polynomial.irreducible_of_rabin (d := 4)
+  · exact polynomial_degree
+  · decide
+  · rw [show Fintype.card (ZMod 2) = 2 by decide]
+    refine ⟨X ^ 12 + X ^ 9 + X ^ 8 + X ^ 6 + X ^ 4 + X ^ 3 + X ^ 2 + X, ?_⟩
+    have htwo : (2 : Polynomial (ZMod 2)) = 0 := CharP.cast_eq_zero _ _
+    dsimp [polynomial]
+    ring_nf
+    rw [htwo]
+    simp
+    ring_nf
+    rw [htwo]
+    ring_nf
+    have hneg : (-1 : Polynomial (ZMod 2)) = 1 := by
+      linear_combination -htwo
+    calc
+      -X = (-1 : Polynomial (ZMod 2)) * X := by ring
+      _ = 1 * X := by rw [hneg]
+      _ = X := one_mul X
+  · intro ell hell
+    have hp : ell.Prime := Nat.prime_of_mem_primeFactors hell
+    have hd : ell ∣ 4 := Nat.dvd_of_mem_primeFactors hell
+    have hle : ell ≤ 4 := Nat.le_of_dvd (by decide) hd
+    have : ell = 2 := by
+      interval_cases ell
+      case «0» => exact False.elim ((by decide : ¬ Nat.Prime 0) hp)
+      case «1» => exact False.elim ((by decide : ¬ Nat.Prime 1) hp)
+      case «2» => rfl
+      case «3» => exact False.elim ((by decide : ¬ 3 ∣ 4) hd)
+      case «4» => exact False.elim ((by decide : ¬ Nat.Prime 4) hp)
+    subst ell
+    rw [show Fintype.card (ZMod 2) = 2 by decide]
+    norm_num
+    refine ⟨1, 1, ?_⟩
+    have htwo : (2 : Polynomial (ZMod 2)) = 0 := CharP.cast_eq_zero _ _
+    dsimp [polynomial]
+    ring_nf
+    rw [htwo]
+    simp
+
+private instance : Fact (Irreducible modulus.toPoly) := ⟨by
+  rw [modulus_toPoly]
+  exact polynomial_irreducible⟩
+
+private theorem modulus_degree : modulus.natDegree = 4 := by
+  rw [CPolynomial.natDegree_toPoly, modulus_toPoly]
+  exact polynomial_degree
+
+private def domain : Fin 16 ↪ Carrier modulus where
+  toFun i := suppliedIndex 2 modulus ⟨i.val, by rw [modulus_degree]; omega⟩
+  inj' := by
+    intro i j h
+    have h' := (suppliedIndex 2 modulus).injective h
+    apply Fin.ext
+    simpa using congrArg Fin.val h'
+
+private def alphabet : List (Carrier modulus) :=
+  polynomialBasisPrefix modulus PolynomialBasisFrobeniusTests.Binary.index 16
+
+/-- This suffix is the seed-one word from the fixed 64-seed quadratic probe. -/
+private def received (i : Fin 16) : Carrier modulus :=
+  if i.val < 6 then 0
+  else alphabet.getD (#[7, 6, 7, 10, 15, 6, 15, 10, 7, 6].getD (i.val - 6) 0) 0
+
+private def params : GSInterpParams where
+  messageDegree := 2
+  multiplicity := 1
+  weightedDegreeBound := 5
+
+end Binary
+
+end QuadraticCenters
+
 private theorem valid : Valid 2 modulus domain received 3 3 params := by
   constructor
   · omega
@@ -189,6 +346,23 @@ def run : IO Unit := do
   | some output =>
       check "large F4 public decoder missed the quadratic message" <|
         output.contains [1, 0, 1]
+  check "F11 public normalization did not select the odd-quadratic center" <|
+    selectedCenter? 11 QuadraticCenters.Odd.modulus QuadraticCenters.Odd.domain
+      QuadraticCenters.Odd.received QuadraticCenters.Odd.params == some (13, .oddQuadratic)
+  match run? 11 QuadraticCenters.Odd.modulus QuadraticCenters.Odd.domain
+      QuadraticCenters.Odd.received 2 5 QuadraticCenters.Odd.params with
+  | none => throw (IO.userError "odd-quadratic public decoder failed")
+  | some output =>
+      check "odd-quadratic public decoder returned no messages" <| !output.isEmpty
+  check "F16 public normalization did not select the binary-quadratic center" <|
+    selectedCenter? 2 QuadraticCenters.Binary.modulus QuadraticCenters.Binary.domain
+      QuadraticCenters.Binary.received QuadraticCenters.Binary.params ==
+        some (21, .binaryQuadratic)
+  match run? 2 QuadraticCenters.Binary.modulus QuadraticCenters.Binary.domain
+      QuadraticCenters.Binary.received 2 6 QuadraticCenters.Binary.params with
+  | none => throw (IO.userError "binary-quadratic public decoder failed")
+  | some output =>
+      check "binary-quadratic public decoder returned no messages" <| !output.isEmpty
   check "F8 near-capacity normalization changed count or center branch" <|
     selectedCenter? 2 NearCapacity.binaryModulus NearCapacity.binaryDomain
       (NearCapacity.received NearCapacity.binaryDomain) NearCapacity.params == some (7, .base)
