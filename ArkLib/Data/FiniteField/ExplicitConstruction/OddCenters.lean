@@ -196,4 +196,26 @@ theorem run_parameter (q count : ℕ) (index : Fin q ≃ F) (hodd : ringChar F �
       · contradiction
     · contradiction
 
+/-- Execute the odd branch directly from a supplied prime and monic irreducible modulus.
+The field, coordinate index and actual cardinality are derived from this presentation. -/
+def suppliedRun (p : ℕ) [Fact p.Prime] (f : CompPoly.CPolynomial (ZMod p))
+    [Fact f.monic] [Fact (Irreducible f.toPoly)] (count : ℕ) (hodd : p ≠ 2) :
+    Result (Carrier f) (p ^ f.natDegree) count :=
+  run (p ^ f.natDegree) count (suppliedIndex p f) (by
+    rw [suppliedCharacteristic p f]
+    exact hodd)
+
+theorem suppliedRun_base_iff (p : ℕ) [Fact p.Prime]
+    (f : CompPoly.CPolynomial (ZMod p)) [Fact f.monic] [Fact (Irreducible f.toPoly)]
+    (count : ℕ) (hodd : p ≠ 2) :
+    (suppliedRun p f count hodd).branch = .base ↔ count ≤ p ^ f.natDegree :=
+  run_base_iff _ _ _ _
+
+theorem suppliedRun_quadratic_iff (p : ℕ) [Fact p.Prime]
+    (f : CompPoly.CPolynomial (ZMod p)) [Fact f.monic] [Fact (Irreducible f.toPoly)]
+    (count : ℕ) (hodd : p ≠ 2) :
+    (suppliedRun p f count hodd).branch = .quadratic ↔
+      p ^ f.natDegree < count ∧ count ≤ (p ^ f.natDegree) ^ 2 :=
+  run_quadratic_iff _ _ _ _
+
 end ArkLib.FiniteField.ExplicitConstruction.OddCenters

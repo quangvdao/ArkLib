@@ -6,6 +6,7 @@ Authors: Quang Dao
 
 import ArkLib.Data.FiniteField.ExplicitConstruction.SuppliedField
 import ArkLib.Data.FiniteField.ExplicitConstruction.CenterDispatcher
+import ArkLibTest.Data.FiniteField.ExplicitConstruction.PolynomialBasis
 
 /-! Runtime checks for prefix boundaries and the low-digit convention of quadratic coordinates. -/
 
@@ -15,6 +16,26 @@ open ArkLib.FiniteField.ExplicitConstruction
 private instance : Fact (Nat.Prime 3) := ⟨by decide⟩
 
 def run : IO Unit := do
+  let supplied := ArkLibTest.FiniteField.ExplicitConstruction.PolynomialBasis.modulus
+  have hdegree : supplied.natDegree = 2 :=
+    ArkLibTest.FiniteField.ExplicitConstruction.PolynomialBasis.modulus_degree
+  let values4 := suppliedCenterPrefix 3 supplied 4 (by rw [hdegree]; decide)
+  unless values4.map (fun a => a.val.coeff 0) == [0, 1, 2, 0] &&
+      values4.map (fun a => a.val.coeff 1) == [0, 0, 0, 1] && decide values4.Nodup do
+    throw (IO.userError "supplied F9 prefix did not cross its prime subfield")
+  let full := suppliedCenterPrefix 3 supplied 9 (by rw [hdegree]; decide)
+  unless full.length == 9 && decide full.Nodup do
+    throw (IO.userError "supplied F9 full prefix failed")
+  let linear := ArkLibTest.FiniteField.ExplicitConstruction.PolynomialBasis.linearModulus
+  have hlinear : linear.natDegree = 1 := by
+    rw [CompPoly.CPolynomial.natDegree_toPoly]
+    change (CompPoly.CPolynomial.X : CompPoly.CPolynomial (ZMod 3)).toPoly.natDegree = 1
+    rw [CompPoly.CPolynomial.X_toPoly]
+    exact Polynomial.natDegree_X
+  let linearPrefix := suppliedCenterPrefix 3 linear 3 (by rw [hlinear]; decide)
+  unless linearPrefix.map (fun a => a.val.coeff 0) == [0, 1, 2] &&
+      (canonical linear CompPoly.CPolynomial.X : Carrier linear) == 0 do
+    throw (IO.userError "degree-one theta-zero supplied prefix failed")
   let index := primeCenterIndex 3
   unless indexedPrefix index 0 (by decide) == [] &&
       indexedPrefix index 1 (by decide) == [0] &&
