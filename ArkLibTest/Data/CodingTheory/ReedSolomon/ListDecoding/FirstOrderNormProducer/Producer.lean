@@ -47,6 +47,25 @@ private def prepared : Prepared F 1 := prepare chart received
 private def candidates : List (TowerRepresentation (F := F)) :=
   firstOrderNormCandidates 5 modulus M D 2 chart received
 
+/-- Two components meet at `U=V=0`.  The first residual is nonuniversal on both components,
+while the second is universal on exactly one, so the component thresholds are respectively two
+and three.  Their aggregate multiplicity reaches three, but neither component reaches its own
+threshold. -/
+private def meetingChart : ChartData F 1 2 :=
+  { center := 0
+    projection := 1
+    inverseProjection := 1
+    equation := CMvPolynomial.X 1 ^ 2 - CMvPolynomial.X 0 ^ 2
+    separant := 1
+    denominator := 1
+    numerators := fun j =>
+      if j.val = 0 then CMvPolynomial.X 1 else -CMvPolynomial.X 0 }
+
+private def meetingReceived : List (F × F) := [(0, 0), (1, 0)]
+private def meetingPrepared : Prepared F 2 := prepare meetingChart meetingReceived
+private def meetingCandidates : List (TowerRepresentation (F := F)) :=
+  firstOrderNormCandidates 5 modulus M D 3 meetingChart meetingReceived
+
 /-- This explicitly observes successful decomposition of the computed block before checking the
 candidate emitted by the public producer.  It also rejects the wrong projected point `U=1`. -/
 def run : IO Unit := do
@@ -66,10 +85,15 @@ def run : IO Unit := do
       candidate.modulus.eval 0 == 0 && candidate.modulus.eval 1 != 0 &&
         candidate.coefficients.length == 1 do
     throw <| IO.userError "materialized candidate has the wrong support or coefficient count"
+  unless meetingPrepared.blocks.map (fun block => block.component.universal.length) == [1, 0] do
+    throw <| IO.userError "public producer meeting chart lost its varied universal counts"
+  unless meetingCandidates.isEmpty do
+    throw <| IO.userError "public producer combined multiplicities across meeting components"
 
 #print axioms evalNested_bivariatePolynomial
 #print axioms componentEvalAt_eq_evalNested
 #print axioms evalNested_pow
+#print axioms prepare_denominator_eq_pow_of_chart
 #print axioms exists_preparedBlock_of_equation_root
 #print axioms preparedBlock_natDegree_le_equation
 #print axioms threshold_le_card_nonuniversalPositions

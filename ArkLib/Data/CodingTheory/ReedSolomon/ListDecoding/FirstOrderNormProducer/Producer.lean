@@ -217,8 +217,7 @@ theorem produceComputedBlock_point_complete
     (hdecompose : decomposeComputedBlock p modulus M D block
       (prepare chart received).agreements = .ok decomposition)
     (hdegree : (prepare chart received).chartPolynomials.equation.natDegree < p)
-    (hdenominatorPower : (prepare chart received).chartPolynomials.denominator =
-      (prepare chart received).chartPolynomials.separant ^ (2 * k))
+    (hdenominatorPower : chart.denominator = chart.separant ^ (2 * k))
     {K : Type} [Field K] (base : Carrier modulus →+* K) (u v : K)
     (hcomponent : Polynomial.FunctionFieldAlgorithms.ComponentDescent.evalAt
       base u v block.component.modulus = 0)
@@ -300,7 +299,8 @@ theorem produceComputedBlock_point_complete
       TowerRepresentation.evalNested (prepare chart received).chartPolynomials.denominator
           (algebraMap (Carrier modulus) (AlgebraicClosure (Carrier modulus))) x y ≠ 0 := by
     intro x y _ hseparant'
-    rw [hdenominatorPower, evalNested_pow]
+    rw [prepare_denominator_eq_pow_of_chart chart received hdenominatorPower,
+      evalNested_pow]
     exact pow_ne_zero _ hseparant'
   obtain ⟨candidate, hcandidate, hcandidatePoint, hspecialize⟩ :=
     materializeRetained_point_complete p
@@ -355,8 +355,7 @@ theorem firstOrderNormCandidates_point_complete_of_decompose
     (hdecompose : decomposeComputedBlock p modulus M D block
       (prepare chart received).agreements = .ok decomposition)
     (hdegree : (prepare chart received).chartPolynomials.equation.natDegree < p)
-    (hdenominatorPower : (prepare chart received).chartPolynomials.denominator =
-      (prepare chart received).chartPolynomials.separant ^ (2 * k))
+    (hdenominatorPower : chart.denominator = chart.separant ^ (2 * k))
     {K : Type} [Field K] (base : Carrier modulus →+* K) (u v : K)
     (hcomponent : Polynomial.FunctionFieldAlgorithms.ComponentDescent.evalAt
       base u v block.component.modulus = 0)

@@ -130,6 +130,15 @@ def prepare {k : ℕ} (chart : ChartData E 1 k) (received : List (E × E)) : Pre
     (prepare chart received).agreements =
       received.map fun row => ChartPolynomials.agreement chart row.1 row.2 := rfl
 
+/-- The chart's denominator-power identity is preserved by the executable bivariate conversion. -/
+theorem prepare_denominator_eq_pow_of_chart {k n : ℕ} (chart : ChartData E 1 k)
+    (received : List (E × E))
+    (hpower : chart.denominator = chart.separant ^ n) :
+    (prepare chart received).chartPolynomials.denominator =
+      (prepare chart received).chartPolynomials.separant ^ n := by
+  simp only [prepare_chartPolynomials, ChartPolynomials.ofChart]
+  rw [hpower, map_pow]
+
 @[simp] theorem prepare_descent {k : ℕ} (chart : ChartData E 1 k)
     (received : List (E × E)) :
     (prepare chart received).descent =
