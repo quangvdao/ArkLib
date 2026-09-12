@@ -5,6 +5,7 @@ Authors: Quang Dao
 -/
 import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.Driver
 import Mathlib.Algebra.Field.ZMod
+import Mathlib.Algebra.Polynomial.SpecificDegree
 
 /-! Execute mixed integer multiplicities, repeated contraction and actual-label thresholding. -/
 namespace FullSquarefreeDriverTests
@@ -45,5 +46,84 @@ def run : IO Unit := do
   match decomposePrime 5 M D (0 : CPolynomial F) with
   | .error .zeroInput => pure ()
   | _ => throw (IO.userError "zero input did not receive the explicit zero policy")
+  -- `X² + 2` has no F5 root. Its labelled factor therefore checks that the residue
+  -- and refinement stages do not classify only roots visible in the base field.
+  let quadratic := x ^ 2 + C (2 : F)
+  let extensionOnly := quadratic ^ 3 * (x - 1) ^ 5
+  let .ok extensionOut := decomposePrime 5 M D extensionOnly
+    | throw (IO.userError "extension-only factor decomposition failed")
+  unless extensionOut.factors.contains (3, quadratic) &&
+      extensionOut.factors.contains (5, x - 1) do
+    throw (IO.userError "extension-only roots lost their integer multiplicity")
+
+namespace BinaryExtension
+
+private instance : Fact (Nat.Prime 2) := ⟨by decide⟩
+private abbrev Base := ZMod 2
+
+/-- `X² + X + 1` supplies the concrete polynomial-basis presentation of F4. -/
+private abbrev modulus : CPolynomial Base := X ^ 2 + X + C 1
+
+private instance : Fact modulus.monic := ⟨by
+  rw [CPolynomial.monic_toPoly_iff]
+  simp only [modulus, CPolynomial.toPoly_add, CPolynomial.toPoly_pow,
+    CPolynomial.X_toPoly, CPolynomial.C_toPoly]
+  convert Polynomial.monic_X_pow_add (n := 2)
+    (p := Polynomial.X + Polynomial.C (1 : Base))
+    (by rw [Polynomial.degree_X_add_C]; decide) using 1
+  ring⟩
+
+private theorem modulus_degree : modulus.natDegree = 2 := by
+  rw [CPolynomial.natDegree_toPoly]
+  simp only [modulus, CPolynomial.toPoly_add, CPolynomial.toPoly_pow,
+    CPolynomial.X_toPoly, CPolynomial.C_toPoly]
+  simpa using (Polynomial.natDegree_quadratic (R := Base)
+    (a := 1) (b := 1) (c := 1) one_ne_zero)
+
+private theorem modulus_irreducible : Irreducible modulus.toPoly := by
+  rw [Polynomial.irreducible_iff_roots_eq_zero_of_degree_le_three]
+  · apply Multiset.eq_zero_of_forall_notMem
+    intro a ha
+    have hroot := (Polynomial.mem_roots' (p := modulus.toPoly)).mp ha
+    have heval : a ^ 2 + a + 1 = 0 := by
+      simpa [modulus, CPolynomial.toPoly_add, CPolynomial.toPoly_pow,
+        CPolynomial.X_toPoly, CPolynomial.C_toPoly, Polynomial.IsRoot] using hroot.2
+    have haval : a = (a.val : Base) := (ZMod.natCast_zmod_val a).symm
+    have halt := a.val_lt
+    interval_cases h : a.val
+    all_goals rw [haval] at heval
+    case «0» => exact (show (0 : Base) ^ 2 + 0 + 1 ≠ 0 by decide) heval
+    case «1» => exact (show (1 : Base) ^ 2 + 1 + 1 ≠ 0 by decide) heval
+  · rw [← CPolynomial.natDegree_toPoly]
+    rw [modulus_degree]
+  · rw [← CPolynomial.natDegree_toPoly]
+    rw [modulus_degree]
+    decide
+
+private instance : Fact (Irreducible modulus.toPoly) := ⟨modulus_irreducible⟩
+
+open ArkLib.FiniteField.ExplicitConstruction
+private abbrev F4 := Carrier modulus
+
+/-- The supplied F4 path takes two derivative-zero contractions and its inverse Frobenius
+changes the polynomial-basis generator. -/
+def run : IO Unit := do
+  let x : CPolynomial F4 := X
+  let theta : F4 := frobeniusTheta 2 modulus
+  unless inverseFrobenius 2 modulus theta != theta do
+    throw (IO.userError "F4 inverse Frobenius unexpectedly acted as the identity")
+  let f := (x - C theta) ^ 4 * (x - C (theta + 1)) ^ 3
+  let M := MulContext.naive (R := F4)
+  let D := ModContext.naive (R := F4)
+  let .ok out := decomposeSupplied 2 modulus M D f
+    | throw (IO.userError "supplied F4 decomposition failed")
+  unless out.factors.contains (4, x - C theta) &&
+      out.factors.contains (3, x - C (theta + 1)) do
+    throw (IO.userError "supplied F4 labels do not match integer multiplicities")
+  unless out.stages.map Stage.inputDegree == [7, 3, 1] &&
+      out.stages.map Stage.contractedDegree == [3, 1, 0] do
+    throw (IO.userError "supplied F4 path skipped a Frobenius recursion level")
+
+end BinaryExtension
 
 end FullSquarefreeDriverTests
