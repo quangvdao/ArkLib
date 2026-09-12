@@ -30,15 +30,13 @@ capacity bound.
 The focused cache-disabled build and central compiled runtime include the public decoder and
 transport suites. Runtime checks cover the frequency, empty, bounded and large branches; nonempty
 F4 recovery with `n > p` and `k > p`; F8 and F9 near-capacity recovery; and direct transport over
-base, odd-quadratic and binary-quadratic centers. The F4-to-F16 transport case exercises binary
-extension recovery without a small-characteristic fallback.
+base, odd-quadratic and binary-quadratic centers. Deterministic valid F11 and F16 inputs also drive
+the full public interpolation, normalization and recovery path through `.oddQuadratic` and
+`.binaryQuadratic`, with nonempty outputs. The F4-to-F16 transport case separately exercises
+binary extension recovery without a small-characteristic fallback.
 
-Independent review found no implementation-correctness defect. It identified one remaining
-acceptance-evidence gap: every full public interpolation-and-normalization fixture currently
-selects the base-center branch. The odd and binary quadratic branches are executed by the checked
-transport producer and covered by the public generic proof, but a full public fixture selecting
-each branch has not yet been established. The checkpoint must report that distinction until those
-fixtures are added or their reachability under the public parameter contract is resolved.
+Independent implementation and integration reviews found no correctness defect. The exact final
+tree is accepted only after its combined cache-disabled validation and axiom gate passes.
 
 ## Separate positive-order status
 

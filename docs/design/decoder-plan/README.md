@@ -76,7 +76,7 @@ remaining obligations. Personal 4 remains the sole core integration owner.
 | G07 | Explicit fields | Personal 3; supplied-field producers complete | General extension construction for positive-order algorithms |
 | G08 | Rojas producer | Personal 3; univariate factorization collected | General toric construction, specialization and isolated-root coverage |
 | G09 | Higher-order selection | Personal 3; actual direct-Jacobian bridge collected | Spectral certificate, powering and complete candidate selection |
-| G10 | Supplied-field zeroth-order decoder | Personal 4; executable exact composition implemented and under final acceptance | Close end-to-end quadratic-branch runtime evidence |
+| G10 | Supplied-field zeroth-order decoder | Personal 4; executable exact composition and all center branches complete | Maintain public exactness while integrating later tracks |
 | I1 | Integration and independent review | Personal 4 | Accept compiled slices; maintain this board and obligation ledger |
 
 At each launch record the lead, exact branch/base, owned files, first deliverable and acceptance
@@ -92,8 +92,8 @@ The next targets are intentionally larger than individual helper lemmas:
   with higher-order component arithmetic and descent as supporting work.
 - Personal 3: construct general extensions and the higher-order isolated-root/selection
   producers, keeping toric and spectral obligations explicit until proved.
-- Personal 4: close the public quadratic-branch runtime evidence, then construct the full
-  Taylor candidate cover and compose the positive-order public decoder.
+- Personal 4: construct the full Taylor candidate cover and compose the positive-order public
+  decoder while preserving the completed zeroth-order interface.
 
 Publish independently reviewed and fully validated checkpoints along the way. A checkpoint
 records progress; it does not close a larger target whose completeness obligations remain.

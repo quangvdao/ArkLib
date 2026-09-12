@@ -55,11 +55,10 @@ center, inverse, candidate or coverage callback. The `k = 1` frequency branch re
 the large ordinary branch has no differential `k <= p` guard.
 
 The compiled runtime covers all preliminary branches and nonempty F4 recovery with `n > p` and
-`k > p`. F8 and F9 near-capacity calls also recover nonempty outputs. These end-to-end public
-fixtures currently select base centers. The lower `SuppliedTransport` suite executes both actual
-odd and binary quadratic branches, including F4 to F16. A public interpolation/normalization
-fixture selecting each quadratic branch remains an acceptance-test obligation; it is not a gap in
-the generic exactness proof.
+`k > p`. F8 and F9 near-capacity calls also recover nonempty outputs. Deterministic valid F11 and
+F16 inputs drive actual public interpolation and normalization through the odd-quadratic and
+binary-quadratic center branches, respectively, and both recover nonempty outputs. The lower
+`SuppliedTransport` suite separately executes all three mappings, including F4 to F16.
 
 ## Positive-order chart: separate acceptance
 
