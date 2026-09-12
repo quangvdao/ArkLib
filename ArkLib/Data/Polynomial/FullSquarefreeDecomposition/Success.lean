@@ -708,4 +708,42 @@ theorem prepare_succeeds [PerfectField F]
   refine ⟨⟨pruneTagged residues.strata, contractWith p inverse repeated⟩, ?_⟩
   simp [prepare, hr, hresidual, hdivide, hderivative]
 
+/-- A successful preparation of a nonconstant monic input passes the recursive degree guard. -/
+theorem prepare_contracted_natDegree_lt
+    (p : ℕ) [Fact p.Prime] [CharP F p]
+    (inverse : F → F) (hinverse : ∀ a, inverse a ^ p = a)
+    (M : MulContext F) (f : CPolynomial F) (out : Preparation F)
+    (hf : f.monic) (hfunit : f ≠ 1) (hout : prepare p inverse M f = .ok out) :
+    out.contracted.natDegree < f.natDegree := by
+  have hmonic := prepare_monic p inverse hinverse M f out hf hout
+  have hcontracted0 : out.contracted.toPoly ≠ 0 :=
+    ((monic_toPoly_iff out.contracted).mp hmonic.2).ne_zero
+  have heq := congrArg CPolynomial.toPoly
+    (prepare_reconstruct p inverse hinverse M f out hout)
+  rw [toPoly_mul, toPoly_pow] at heq
+  have hweighted0 : (weightedProduct M out.strata).toPoly ≠ 0 := by
+    intro hz
+    have hfzero : f.toPoly = 0 := by
+      rw [← heq, hz]
+      ring
+    exact ((monic_toPoly_iff f).mp hf).ne_zero hfzero
+  have hdegree := congrArg Polynomial.natDegree heq
+  rw [Polynomial.natDegree_mul hweighted0 (pow_ne_zero p hcontracted0),
+    Polynomial.natDegree_pow, ← natDegree_toPoly, ← natDegree_toPoly] at hdegree
+  have hfdegree : 0 < f.natDegree := by
+    by_contra hz
+    have hz' : f.natDegree = 0 := Nat.eq_zero_of_not_pos hz
+    have hfconst := Polynomial.eq_one_of_monic_natDegree_zero
+      ((monic_toPoly_iff f).mp hf) (by simpa [← natDegree_toPoly] using hz')
+    exact hfunit (toPoly_injective (by simpa [toPoly_one] using hfconst))
+  by_cases hc : out.contracted.natDegree = 0
+  · simpa [hc] using hfdegree
+  · have hpTwo : 2 ≤ p := (Fact.out : Nat.Prime p).two_le
+    calc
+      out.contracted.natDegree < 2 * out.contracted.natDegree := by omega
+      _ ≤ p * out.contracted.natDegree := Nat.mul_le_mul_right _ hpTwo
+      _ ≤ (weightedProduct M out.strata).natDegree +
+          p * out.contracted.natDegree := Nat.le_add_left _ _
+      _ = f.natDegree := by simpa [natDegree_toPoly] using hdegree
+
 end CompPoly.CPolynomial.FullSquarefreeDecomposition.Driver
