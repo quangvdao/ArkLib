@@ -57,10 +57,12 @@ Raw arithmetic helpers remain conditional on the hypotheses of their correctness
 The actual constructor executes projection, weighted monic reduction, sample search,
 local quotient inversion, nonlinear lifting, clearing and recovery. Nonlinear precision,
 initial-jet invariants, literal numerator provenance from actual solver output, and
-bounded recovered degrees compile. Public returned-chart geometry and normal-form
-contracts compile. Input-to-success composition and final integrated validation remain. Stored solution precision is `k`; the
-positive-order residual precision is `k-r`. All-chart tangent/coverage production
-and global dispatch remain later obligations.
+bounded recovered degrees compile. Public returned-chart geometry, normal-form and
+input-to-success contracts compile. The global contract identifies the actual cleared
+numerators and denominator after arbitrary coefficient-field embeddings and proves the
+regular-locus agreement identity. Final integrated validation remains. Stored solution
+precision is `k`; the positive-order residual precision is `k-r`. All-chart tangent/coverage
+production and global dispatch remain later obligations.
 
 Use “candidate cover” for one-way inclusion of wanted messages. It can include
 extraneous Taylor truncations and extension points. Final recovery and agreement
