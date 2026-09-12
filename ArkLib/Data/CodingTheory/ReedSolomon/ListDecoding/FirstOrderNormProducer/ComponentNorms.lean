@@ -7,7 +7,7 @@ module
 
 public import
   ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.Assembly
-public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.ComponentDescent
+public import ArkLib.Data.Polynomial.NormProducts.ComponentNorms
 
 /-!
 # Concrete component and norm preparation
@@ -22,11 +22,48 @@ component.  The resulting blocks are output artifacts; callers do not supply the
 
 namespace ReedSolomon.ListDecoding.FirstOrderNormProducer
 
-open CompPoly CPolynomial
+open CompPoly CPolynomial Polynomial CPoly
 open ReedSolomon.HiddenDerivative.FastTaylor
+open TowerAlgebra
 open Polynomial.FunctionFieldAlgorithms
+open CPolynomial.NormProducts.ComponentNorms
 
 variable {E : Type} [Field E] [BEq E] [LawfulBEq E]
+
+/-- Nested evaluation of the executable chart conversion is exactly evaluation in chart variable
+order `[U,V]`. -/
+theorem evalNested_bivariatePolynomial {L : Type*} [Field L] (base : E →+* L) (u v : L)
+    (p : CMvPolynomial 2 E) :
+    TowerRepresentation.evalNested (ChartPolynomials.bivariatePolynomial p) base u v =
+      CMvPolynomial.eval₂ base ![u, v] p := by
+  unfold TowerRepresentation.evalNested
+  unfold FirstOrderNormDecoder.D5.specializeFiberCPolynomial
+  rw [Polynomial.eval_map]
+  unfold ChartPolynomials.bivariatePolynomial
+  rw [CMvPolynomial.eval₂Hom_apply, CPoly.eval₂_equiv,
+    ← CPolynomial.toPolyRingHom_apply, MvPolynomial.eval₂_comp_left, CPoly.eval₂_equiv]
+  change (Polynomial.eval₂RingHom (FirstOrderNormDecoder.D5.coefficientEval base u) v)
+    (MvPolynomial.eval₂ (CPolynomial.toPolyRingHom.comp
+      (CPolynomial.CHom.comp CPolynomial.CHom))
+      (CPolynomial.toPolyRingHom ∘ ![CPolynomial.C CPolynomial.X, CPolynomial.X])
+      (CPoly.fromCMvPolynomial p)) = _
+  rw [MvPolynomial.eval₂_comp_left]
+  congr 1
+  · ext a
+    simp [FirstOrderNormDecoder.D5.coefficientEval, CPolynomial.C_toPoly]
+  · funext i
+    fin_cases i <;> simp [FirstOrderNormDecoder.D5.coefficientEval,
+      CPolynomial.C_toPoly, CPolynomial.X_toPoly]
+
+/-- The component-descent point predicate and tower evaluation use the same nested polynomial
+semantics. -/
+theorem componentEvalAt_eq_evalNested {L : Type*} [Field L] (base : E →+* L) (u v : L)
+    (h : CPolynomial (CPolynomial E)) :
+    ComponentDescent.evalAt base u v h = TowerRepresentation.evalNested h base u v := by
+  unfold ComponentDescent.evalAt TowerRepresentation.evalNested
+  unfold FirstOrderNormDecoder.D5.specializeFiberCPolynomial
+  rw [Polynomial.eval_map, CBivariate.toPoly_eq_map, Polynomial.eval₂_map]
+  rfl
 
 /-- One actual descended component together with its computed nonuniversal norm rows and their
 product. -/
@@ -39,8 +76,9 @@ structure ComputedBlock (E : Type) [Field E] [BEq E] [LawfulBEq E] where
 def computeBlock (agreements : List (CPolynomial (CPolynomial E)))
     (block : ComponentDescent.Block E) : ComputedBlock E :=
   { component := block
-    norms := blockNorms block.modulus agreements block.universal
-    normProduct := blockNormProduct block.modulus agreements block.universal }
+    norms := CompPoly.CPolynomial.NormProducts.ComponentNorms.componentNorms block agreements
+    normProduct :=
+      CompPoly.CPolynomial.NormProducts.ComponentNorms.blockNormProduct block agreements }
 
 @[simp] theorem computeBlock_component (agreements : List (CPolynomial (CPolynomial E)))
     (block : ComponentDescent.Block E) :
@@ -49,7 +87,7 @@ def computeBlock (agreements : List (CPolynomial (CPolynomial E)))
 @[simp] theorem computeBlock_norms (agreements : List (CPolynomial (CPolynomial E)))
     (block : ComponentDescent.Block E) :
     (computeBlock agreements block).norms =
-      blockNorms block.modulus agreements block.universal := rfl
+      CompPoly.CPolynomial.NormProducts.ComponentNorms.componentNorms block agreements := rfl
 
 @[simp] theorem computeBlock_normProduct (agreements : List (CPolynomial (CPolynomial E)))
     (block : ComponentDescent.Block E) :
@@ -103,6 +141,16 @@ theorem mem_prepare_blocks_iff {k : ℕ} (chart : ChartData E 1 k)
         computeBlock (prepare chart received).agreements block = out := by
   simp only [prepare_blocks, List.mem_map]
 
+/-- The component stored in a prepared block is one of the blocks returned by the concrete
+descent execution. -/
+theorem preparedBlock_component_mem {k : ℕ} (chart : ChartData E 1 k)
+    (received : List (E × E)) (out : ComputedBlock E)
+    (hout : out ∈ (prepare chart received).blocks) :
+    out.component ∈ (prepare chart received).descent.blocks := by
+  obtain ⟨block, hblock, rfl⟩ :=
+    (mem_prepare_blocks_iff chart received out).mp hout
+  exact hblock
+
 /-- Monicity of the converted chart equation propagates through the actual descent to every
 prepared block. -/
 theorem preparedBlock_monic [DecidableEq E] {k b L : ℕ} (chart : ChartData E 1 k)
@@ -116,6 +164,42 @@ theorem preparedBlock_monic [DecidableEq E] {k b L : ℕ} (chart : ChartData E 1
     (prepare chart received).agreements
     (ChartPolynomials.equation_monic_of_normalForms chart hnormal)
     block (by simpa using hblock)
+
+/-- Every prepared component has fiber degree at most the original chart equation.  This turns
+the chart's published fiber-degree bound into the bound required by finite-fiber preprocessing. -/
+theorem preparedBlock_natDegree_le_equation [DecidableEq E] {k b L : ℕ}
+    (chart : ChartData E 1 k) (received : List (E × E))
+    (hnormal : chart.NormalForms b L) (out : ComputedBlock E)
+    (hout : out ∈ (prepare chart received).blocks) :
+    out.component.modulus.natDegree ≤ (ChartPolynomials.ofChart chart).equation.natDegree := by
+  obtain ⟨block, hblock, rfl⟩ :=
+    (mem_prepare_blocks_iff chart received out).mp hout
+  let equation := (ChartPolynomials.ofChart chart).equation
+  let residuals := (prepare chart received).agreements
+  have hequationMonic : equation.monic :=
+    ChartPolynomials.equation_monic_of_normalForms chart hnormal
+  have hfactor : block.modulus ∈
+      ((ComponentDescent.run equation residuals).blocks.map ComponentDescent.Block.modulus) :=
+    List.mem_map.mpr ⟨block, by simpa [equation, residuals] using hblock, rfl⟩
+  have hdvd : block.modulus ∣ equation := by
+    have := List.dvd_prod hfactor
+    rwa [ComponentDescent.run_product equation residuals hequationMonic] at this
+  have hdvdPoly : CBivariate.toPoly block.modulus ∣ CBivariate.toPoly equation := by
+    obtain ⟨q, hq⟩ := hdvd
+    refine ⟨CBivariate.toPoly q, ?_⟩
+    rw [← CBivariate.toPoly_mul, hq]
+  have hdegree (q : CPolynomial (CPolynomial E)) :
+      (CBivariate.toPoly q).natDegree = q.natDegree := by
+    rw [CBivariate.toPoly_eq_map,
+      Polynomial.natDegree_map_eq_of_injective CPolynomial.ringEquiv.injective,
+      ← CPolynomial.natDegree_toPoly]
+  change block.modulus.natDegree ≤ equation.natDegree
+  rw [← hdegree block.modulus, ← hdegree equation]
+  exact Polynomial.natDegree_le_of_dvd hdvdPoly
+    (by
+      rw [CBivariate.toPoly_eq_map]
+      exact (Polynomial.map_ne_zero_iff CPolynomial.ringEquiv.injective).mpr
+        ((CPolynomial.monic_toPoly_iff equation).mp hequationMonic).ne_zero)
 
 /-- Prepared universal labels are valid received-word positions. -/
 theorem preparedBlock_labels_lt {k : ℕ} (chart : ChartData E 1 k)
