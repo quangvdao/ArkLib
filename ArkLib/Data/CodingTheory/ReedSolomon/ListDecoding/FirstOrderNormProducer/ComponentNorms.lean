@@ -242,6 +242,33 @@ theorem preparedBlock_natDegree_le_equation [DecidableEq E] {k b L : ℕ}
       exact (Polynomial.map_ne_zero_iff CPolynomial.ringEquiv.injective).mpr
         ((CPolynomial.monic_toPoly_iff equation).mp hequationMonic).ne_zero)
 
+/-- Producer-facing degree bound for the component-local retained norm candidate.  The left-hand
+threshold is the actual `A - |U_b|` used by `firstOrderNormCandidates`; the right-hand side is a
+closed sum of determinant budgets computed from the returned component and chart agreements. -/
+theorem preparedBlock_retainedNorm_degree_bound [Fintype E] [DecidableEq E]
+    (p A : ℕ) [Fact p.Prime] [CharP E p]
+    {k b L : ℕ} (chart : ChartData E 1 k) (received : List (E × E))
+    (hnormal : chart.NormalForms b L)
+    (hgenericSquarefree : Squarefree
+      (ClearDenominators.valueGlobal (prepare chart received).chartPolynomials.equation))
+    (block : ComputedBlock E) (hblock : block ∈ (prepare chart received).blocks)
+    (hthreshold : 0 < blockThreshold A block.component) :
+    blockThreshold A block.component *
+        (blockRetainedNormProduct p A block.component
+          (prepare chart received).agreements).natDegree ≤
+      blockNormDegreeBudget block.component (prepare chart received).agreements := by
+  have hequationMonic : (prepare chart received).chartPolynomials.equation.monic :=
+    ChartPolynomials.equation_monic_of_normalForms chart hnormal
+  have hcomponentMem : block.component ∈
+      (ComponentDescent.run (prepare chart received).chartPolynomials.equation
+        (prepare chart received).agreements).blocks := by
+    simpa only [prepare_descent, prepare_chartPolynomials, prepare_agreements] using
+      preparedBlock_component_mem chart received block hblock
+  exact run_threshold_mul_natDegree_blockRetainedNormProduct_le_degreeBudget
+    p A (prepare chart received).chartPolynomials.equation
+      (prepare chart received).agreements hequationMonic hgenericSquarefree
+      block.component hcomponentMem hthreshold
+
 /-- Prepared universal labels are valid received-word positions. -/
 theorem preparedBlock_labels_lt {k : ℕ} (chart : ChartData E 1 k)
     (received : List (E × E)) (out : ComputedBlock E)
