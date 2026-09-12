@@ -661,6 +661,7 @@ public import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.ConfluentSample
 public import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Constructor
+public import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Contract
 public import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Geometry.Direction
 public import
@@ -951,6 +952,7 @@ public import
 ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HiddenDerivativeDecoder.Explainer.Support
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HiddenDerivativeDecoder.Input
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HiddenDerivativeDecoder.Run
+public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.DirectJacobian
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.DirectSelection
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.NormSieve.MultiplicitySupport
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.NormSieve.ProductFilter
@@ -1036,6 +1038,7 @@ public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.TowerRepresentat
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.UniformRateExecution
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.BatchedCenter
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.CenterSearch
+public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.RegularFiber
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListSpecification
 public import ArkLib.Data.CodingTheory.ReedSolomon.Multilinear
 public import ArkLib.Data.CodingTheory.ReedSolomon.Multiplicity
@@ -1469,8 +1472,12 @@ public import ArkLib.Data.Fin.Tuple.Lemmas
 public import ArkLib.Data.Fin.Tuple.Notation
 public import ArkLib.Data.Fin.Tuple.TakeDrop
 public import ArkLib.Data.FiniteField.Candidates
+public import ArkLib.Data.FiniteField.ExplicitConstruction.CenterDispatcher
 public import ArkLib.Data.FiniteField.ExplicitConstruction.Centers
+public import ArkLib.Data.FiniteField.ExplicitConstruction.OddCenters
+public import ArkLib.Data.FiniteField.ExplicitConstruction.PolynomialBasis
 public import ArkLib.Data.FiniteField.ExplicitConstruction.Quotient
+public import ArkLib.Data.FiniteField.ExplicitConstruction.SuppliedField
 public import ArkLib.Data.Finset.PickSubset
 public import ArkLib.Data.Graph.GabberGalilConstruction.Basic
 public import ArkLib.Data.GroupTheory.PrimeOrder
@@ -1696,6 +1703,8 @@ public import ArkLib.Data.Polynomial.Rojas.HyperplaneAvoidance
 public import ArkLib.Data.Polynomial.Rojas.PerturbationCoefficient
 public import ArkLib.Data.Polynomial.Rojas.Producer.Linear
 public import ArkLib.Data.Polynomial.Rojas.Producer.Univariate
+public import ArkLib.Data.Polynomial.Rojas.Producer.UnivariateFactorization
+public import ArkLib.Data.Polynomial.Rojas.Producer.UnivariatePerturbation
 public import ArkLib.Data.Polynomial.Rojas.SpecializationCorrectness
 public import ArkLib.Data.Polynomial.Rojas.SpecializationFamily
 public import ArkLib.Data.Polynomial.SampledCoefficients

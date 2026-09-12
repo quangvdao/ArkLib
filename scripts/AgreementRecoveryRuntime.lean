@@ -22,6 +22,15 @@ import
 ArkLibTest.Data.Polynomial.ConfluentAlgebra.FundamentalMatrix
 import
 ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Constructor
+import ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.RegularFiber
+import ArkLibTest.Data.FiniteField.ExplicitConstruction.CenterDispatcher
+import ArkLibTest.Data.FiniteField.ExplicitConstruction.OddCenters
+import ArkLibTest.Data.FiniteField.ExplicitConstruction.PolynomialBasis
+import ArkLibTest.Data.FiniteField.ExplicitConstruction.SuppliedField
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.DirectJacobian
+import ArkLibTest.Data.Polynomial.Rojas.Producer.UnivariateFactorization
+import ArkLibTest.Data.Polynomial.Rojas.Producer.UnivariatePerturbation
 import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CanonicalRepresentative
 import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.ClearDenominators
 import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.RegularCenterObstruction
@@ -150,6 +159,14 @@ private def linearFixtureBackend :
 /-- Exercise nonlinear blocks, extension-only roots, repeated images, final filtering,
 corrupted received values, and the zero-width reference branch. -/
 def run : IO Unit := do
+  RegularFiberTests.run
+  CenterDispatcherTests.run
+  OddCenterTests.run
+  ArkLibTest.FiniteField.ExplicitConstruction.PolynomialBasis.run
+  SuppliedFieldTests.run
+  ArkLibTest.DirectJacobian.run
+  RojasUnivariateFactorizationTests.run
+  RojasUnivariatePerturbationTests.run
   CanonicalRepresentativeTests.run
   ClearDenominatorsTests.run
   RegularCenterObstructionTests.run

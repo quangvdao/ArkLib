@@ -930,6 +930,78 @@ theorem initialSeparant_semantics {r : ℕ} (center : E) (T : CMvPolynomial (r +
     fromCMvPolynomial (initialSeparant center T) = initialJetSeparant center (semanticEquation T) :=
   SquareSystems.fromCMvPolynomial_computableInitialJetSeparant center T
 
+/-- Initial specialization commutes with evaluation into every coefficient algebra. -/
+theorem eval₂_initialEquation {r : ℕ} {A : Type*} [CommRing A]
+    (f : E →+* A) (jet : Fin (r + 1) → A) (center : E) (T : CMvPolynomial (r + 2) E) :
+    CMvPolynomial.eval₂ f jet (initialEquation center T) =
+      CMvPolynomial.eval₂ f (Fin.cases (f center) jet) T := by
+  rw [eval₂_equiv, initialEquation_semantics, eval₂_equiv]
+  unfold initialJetEquation semanticEquation
+  calc
+    _ = MvPolynomial.eval₂ ((MvPolynomial.eval₂Hom f jet).comp MvPolynomial.C)
+        (fun i : Option (Fin (r + 1)) => MvPolynomial.eval₂ f jet
+          (i.elim (MvPolynomial.C center) MvPolynomial.X))
+        (MvPolynomial.rename (finToJetVariable r) (fromCMvPolynomial T)) :=
+      MvPolynomial.map_aeval _ (MvPolynomial.eval₂Hom f jet) _
+    _ = _ := by
+      rw [MvPolynomial.eval₂_rename, MvPolynomial.eval₂Hom_comp_C]
+      congr 1
+      funext i
+      refine Fin.cases ?_ (fun j => ?_) i <;> simp [finToJetVariable]
+
+/-- Evaluation of the computed separant is evaluation of the actual highest partial. -/
+theorem eval₂_initialSeparant {r : ℕ} {A : Type*} [CommRing A]
+    (f : E →+* A) (jet : Fin (r + 1) → A) (center : E) (T : CMvPolynomial (r + 2) E) :
+    CMvPolynomial.eval₂ f jet (initialSeparant center T) =
+      CMvPolynomial.eval₂ f (Fin.cases (f center) jet)
+      (CMvPolynomial.partialDerivative (Fin.last (r + 1)) T) := by
+  rw [eval₂_equiv, initialSeparant_semantics, eval₂_equiv,
+    CMvPolynomial.fromCMvPolynomial_partialDerivative]
+  unfold initialJetSeparant semanticEquation PolynomialDifferential.separant
+  rw [← SquareSystems.finToJetVariable_last r,
+    MvPolynomial.pderiv_rename (SquareSystems.finToJetVariable_injective r)]
+  calc
+    _ = MvPolynomial.eval₂ ((MvPolynomial.eval₂Hom f jet).comp MvPolynomial.C)
+        (fun i : Option (Fin (r + 1)) => MvPolynomial.eval₂ f jet
+          (i.elim (MvPolynomial.C center) MvPolynomial.X))
+        (MvPolynomial.rename (finToJetVariable r)
+          (MvPolynomial.pderiv (Fin.last (r + 1)) (fromCMvPolynomial T))) :=
+      MvPolynomial.map_aeval _ (MvPolynomial.eval₂Hom f jet) _
+    _ = _ := by
+      rw [MvPolynomial.eval₂_rename, MvPolynomial.eval₂Hom_comp_C]
+      congr 1
+      funext i
+      refine Fin.cases ?_ (fun j => ?_) i <;> simp [finToJetVariable]
+
+/-- The inverse computed at the selected sample supplies the actual highest-partial unit. -/
+theorem local_highest_partial_unit_of_inverseAt {r : ℕ} (N k : ℕ) [Fact (0 < N)]
+    (hk : 0 < k) (equation separant : CMvPolynomial (r + 1) E)
+    [Fact (splitLast equation).monic]
+    [Fact (0 < (splitLast equation).toPoly.degree)] (a : Fin r → E)
+    (M : Matrix (Fin (r + 1)) (Fin (r + 1)) E) (center : E)
+    (T : CMvPolynomial (r + 2) E)
+    (hseparant : separant = Geometry.projectPolynomial M (initialSeparant center T))
+    (b : Representative (localEquation N a equation))
+    (hb : ConfluentSample.inverseAt? N equation separant a = some b) :
+    (SeriesNewton.jetPartial (localEquation N a equation) k r center T
+      (FundamentalMatrix.initialPolynomial (localEquation N a equation) r
+        (localInitialJet N equation a M)) (Fin.last r)).coeff 0 * b = 1 := by
+  have hinv := (ConfluentSample.inverseAt?_sound N equation separant a b hb).1
+  have hp :
+      (SeriesNewton.jetPartial (localEquation N a equation) k r center T
+        (FundamentalMatrix.initialPolynomial (localEquation N a equation) r
+          (localInitialJet N equation a M)) (Fin.last r)).coeff 0 =
+        ConfluentSample.localSeparant N equation separant a := by
+    rw [FundamentalMatrix.jetPartial_initialPolynomial_coeff_zero _ _ _ hk]
+    rw [hseparant, ConfluentSample.localSeparant, local_project_eq_eval]
+    rw [← eval₂_equiv]
+    have hj : (⟨(Fin.last r).val + 1, by omega⟩ : Fin (r + 2)) = Fin.last (r + 1) := by
+      ext
+      simp [Fin.last]
+    rw [hj]
+    rw [← eval₂_initialSeparant]
+  rwa [hp]
+
 /-- Canonical local reduction is the specialization of the actual global monic remainder. -/
 theorem localHom_val {r : ℕ} (N : ℕ) [Fact (0 < N)]
     (equation : CMvPolynomial (r + 1) E) [Fact (splitLast equation).monic] (a : Fin r → E)
@@ -1141,6 +1213,92 @@ theorem local_component_multiple_zero {r : ℕ} (N : ℕ) [Fact (0 < N)]
   obtain ⟨Q, rfl⟩ := hdvd
   change ψ (component * Q) = 0
   rw [_root_.map_mul, hcomponent, zero_mul]
+
+/-- Component divisibility supplies the actual initial root checked by the nonlinear solver. -/
+theorem local_initial_root_of_component_dvd {r : ℕ} (N k : ℕ) [Fact (0 < N)] (hk : 0 < k)
+    (component : CMvPolynomial (r + 1) E) (values : List E)
+    (g : Geometry.MonicProjection.Data r E)
+    (hg : Geometry.MonicProjection.construct? component values = some g)
+    [Fact (splitLast g.polynomial).monic]
+    [Fact (0 < (splitLast g.polynomial).toPoly.degree)] (a : Fin r → E)
+    (center : E) (T : CMvPolynomial (r + 2) E)
+    (hdvd : component ∣ initialEquation center T) :
+    (SeriesNewton.jetEval (localEquation N a g.polynomial) k r center T
+      (FundamentalMatrix.initialPolynomial (localEquation N a g.polynomial) r
+        (localInitialJet N g.polynomial a g.forward))).coeff 0 = 0 := by
+  rw [FundamentalMatrix.jetEval_initialPolynomial_coeff_zero _ _ _ hk]
+  rw [← eval₂_initialEquation]
+  rw [eval₂_equiv, ← local_project_eq_eval]
+  exact local_component_multiple_zero N component (initialEquation center T) values g hg a hdvd
+
+/-- Component divisibility and the computed inverse make the actual nonlinear solver succeed. -/
+theorem nonlinearNewton_exists_of_component {r : ℕ} (N p k : ℕ) [Fact (0 < N)]
+    [CharP E p] (component : CMvPolynomial (r + 1) E) (values : List E)
+    (g : Geometry.MonicProjection.Data r E)
+    (hg : Geometry.MonicProjection.construct? component values = some g)
+    [Fact (splitLast g.polynomial).monic]
+    [Fact (0 < (splitLast g.polynomial).toPoly.degree)] (a : Fin r → E)
+    (center : E) (T : CMvPolynomial (r + 2) E) (hr : 0 < r) (hrk : r < k)
+    (hkp : k ≤ p) (hdvd : component ∣ initialEquation center T)
+    (b : Representative (localEquation N a g.polynomial))
+    (hb : ConfluentSample.inverseAt? N g.polynomial
+      (Geometry.projectPolynomial g.forward (initialSeparant center T)) a = some b) :
+    ∃ Y, FundamentalMatrix.nonlinearNewton? (localEquation N a g.polynomial)
+      p k r center T (localInitialJet N g.polynomial a g.forward) = some Y := by
+  have hk : 0 < k := hr.trans hrk
+  have hroot := local_initial_root_of_component_dvd N k hk component values g hg a center T hdvd
+  have hunit : ∃ b, (SeriesNewton.jetPartial (localEquation N a g.polynomial) k r center T
+      (FundamentalMatrix.initialPolynomial (localEquation N a g.polynomial) r
+        (localInitialJet N g.polynomial a g.forward)) (Fin.last r)).coeff 0 * b = 1 :=
+    ⟨b, local_highest_partial_unit_of_inverseAt N k hk g.polynomial
+      (Geometry.projectPolynomial g.forward (initialSeparant center T)) a g.forward center T
+      rfl b hb⟩
+  obtain ⟨Y, hY, _, _, _⟩ := Lifting.newton_positive (localEquation N a g.polynomial)
+    p k r center T (localInitialJet N g.polynomial a g.forward) hr hrk hkp hroot hunit
+  exact ⟨Y, hY⟩
+
+set_option maxHeartbeats 800000 in
+/-- Valid regular-component input makes the entire executable one-chart constructor succeed. -/
+theorem construct?_success_of_component (p r k Bjet : ℕ) [CharP E p] (center : E)
+    (T : CMvPolynomial (r + 2) E) (component : CMvPolynomial (r + 1) E)
+    (values : List E) (hguard : 0 < r ∧ r < k ∧ k ≤ p ∧ Bjet < p)
+    (hcomponent : component ≠ 0) (hdegree : 0 < component.totalDegree)
+    (hvalues : values.Nodup) (hgeometry : component.totalDegree < values.length)
+    (hdvd : component ∣ initialEquation center T)
+    (hregular : ∀ g, Geometry.MonicProjection.construct? component values = some g →
+      ConfluentSample.obstruction g.polynomial
+        (Geometry.projectPolynomial g.forward (initialSeparant center T)) ≠ 0)
+    (hsample : ∀ g, Geometry.MonicProjection.construct? component values = some g →
+      (fromCMvPolynomial (ConfluentSample.obstruction g.polynomial
+        (Geometry.projectPolynomial g.forward (initialSeparant center T)))).totalDegree <
+          values.length) :
+    ∃ chart, construct? p r k Bjet center T component values = some chart := by
+  obtain ⟨g, hg⟩ := Geometry.MonicProjection.construct?_exists component values
+    hcomponent hdegree hvalues hgeometry
+  obtain ⟨_, _, _, _, hm, hnatDegree, _⟩ :=
+    Geometry.MonicProjection.construct?_sound component values g hg
+  have hb : 0 < (splitLast g.polynomial).natDegree := hnatDegree.symm ▸ hdegree
+  let : Fact (splitLast g.polynomial).monic := ⟨hm⟩
+  let : Fact (0 < (splitLast g.polynomial).toPoly.degree) := ⟨by
+    apply Polynomial.natDegree_pos_iff_degree_pos.mp
+    simpa only [CPolynomial.natDegree_toPoly] using hb⟩
+  let N := parameterPrecision k Bjet
+  let : Fact (0 < N) := ⟨parameterPrecision_pos k Bjet⟩
+  let separant := Geometry.projectPolynomial g.forward (initialSeparant center T)
+  obtain ⟨a, ha⟩ := ConfluentSample.select?_exists g.polynomial separant values
+    (hregular g hg) hvalues (hsample g hg)
+  obtain ⟨b, hbInverse⟩ :=
+    ConfluentSample.inverseAt?_exists N g.polynomial separant values a ha hb
+  obtain ⟨Y, hY⟩ := nonlinearNewton_exists_of_component N p k component values g hg a center T
+    hguard.1 hguard.2.1 hguard.2.2.1 hdvd b hbInverse
+  let global := GlobalNormalForm.recoverCleared (localEquation N a g.polynomial) a
+    (ConfluentSample.localSeparant N g.polynomial separant a)
+    (fun j : Fin k => Y.coeff j.val)
+  let chart : ChartData E r k :=
+    ⟨center, g.forward, g.inverse, g.polynomial, separant, global.1, global.2⟩
+  refine ⟨chart, ?_⟩
+  simp only [construct?, if_pos hguard, hg, Option.bind_some, dif_pos hm, dif_pos hb,
+    ha, hbInverse, hY, Option.map_some, chart, global, separant, N]
 
 /-- Bounded recovery equals the computed global remainder, coefficient for coefficient. -/
 theorem recover_local_eq {r : ℕ} (N L : ℕ) [Fact (0 < N)] (hLN : L < N)
