@@ -26,9 +26,16 @@ contract. This is not all-chart coverage. The supplied center dispatcher constru
 when the requested count is at most q squared; the application must derive that capacity bound
 from its interpolation/obstruction parameters.
 
-## Still open
+## Subsequent zeroth-order composition
 
-- The dedicated arbitrary-field decoder must execute normalization and center construction,
+Personal 4 has now implemented the public supplied-field decoder described in
+[the public zeroth-order checkpoint](public-zeroth-checkpoint.md). It constructs the interpolant,
+normalizes it, derives center capacity, dispatches through the supplied-field center producer,
+and performs ordinary recovery. This supersedes the first item in the historical list below.
+
+## Historical open list at collection time
+
+- The dedicated arbitrary-field decoder had to execute normalization and center construction,
   map into either quadratic branch, discharge conversion/coverage hypotheses and prove final
   q >= n success/exactness. A nonempty full binary-extension recovery test remains required.
 - Positive-order construction still needs all-chart coverage, complete first-order norm

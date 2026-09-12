@@ -8,10 +8,10 @@ The revised zeroth-order specification is paper commit
 `appendices/decoder-separable.tex` and `core/decoding.tex`.
 The positive-order work preserves its original Taylor specification and checkpoints.
 
-## Dedicated entrypoint: planned contract
+## Dedicated entrypoint
 
-`ZerothOrderDecode` is the planned application entrypoint, not yet a completed Lean
-producer. Its input supplies the existing polynomial-basis field presentation,
+`PublicDecoder.run?` is the implemented application entrypoint. Its input supplies the existing
+polynomial-basis field presentation,
 primality and irreducibility promises, a positive modulus degree, distinct evaluation
 points, `q >= n`, and valid decoding parameters. It does not construct `F_q` from `q`.
 Reuse existing executable field dictionaries and embeddings at accepted peer commits.
@@ -44,15 +44,22 @@ Adopt only reviewed immutable commits. Record each SHA with a compiled producer 
 consumer client at the same integration head. Current worker source and historical
 published soundness slices do not imply completion of the revised producers.
 
-## Remaining application work after producer collection
+## Completed application composition
 
-Normalization completeness and the concrete field producers are now available in one tree.
-Discharge their actual consumer interfaces, the nested-to-sparse degree equality and quadratic
-coefficient mapping. Construct the actual normalization result rather than asking callers to
-supply its successful branch. Handle zero/nonzero/constant outcomes using the new certificates.
-Then prove sufficient center capacity from the paper bounds, instantiate both quadratic branches,
-and expose the final q >= n entrypoint with exact output for the executed program.
-The F4 inverse-to-normalizer integration test is not the required full binary decoder recovery.
+`PublicDecoder.run?` builds the actual interpolant and certified normalization result. Its branches
+handle impossible zero/failure outcomes, constant regular parts, supplied-field center dispatch,
+ordinary lifting and exact recovery. `normalized_capacity` derives the required obstruction bound
+from the interpolation witness and normalization degree bounds. `run?_exists_exact` proves that
+every `Valid` input returns a list satisfying `ExactOutput`; callers supply no normalization,
+center, inverse, candidate or coverage callback. The `k = 1` frequency branch remains first, and
+the large ordinary branch has no differential `k <= p` guard.
+
+The compiled runtime covers all preliminary branches and nonempty F4 recovery with `n > p` and
+`k > p`. F8 and F9 near-capacity calls also recover nonempty outputs. These end-to-end public
+fixtures currently select base centers. The lower `SuppliedTransport` suite executes both actual
+odd and binary quadratic branches, including F4 to F16. A public interpolation/normalization
+fixture selecting each quadratic branch remains an acceptance-test obligation; it is not a gap in
+the generic exactness proof.
 
 ## Positive-order chart: separate acceptance
 

@@ -6,8 +6,8 @@ It replaces the completed A–E worker assignments and earlier decoder sprint no
 
 The original foundation source baseline is
 [`3c67cb3fa669985b2add6c5d080a3060c4728789`](https://github.com/quangvdao/ArkLib/commit/3c67cb3fa669985b2add6c5d080a3060c4728789).
-The current accepted integration is
-[`700a44b7473c41d0c98e311b37bad474d7ea7a0c`](https://github.com/quangvdao/ArkLib/commit/700a44b7473c41d0c98e311b37bad474d7ea7a0c).
+The current accepted integration base is
+[`b626a599817381cfb84155f8b74d9cf6ff0c18a4`](https://github.com/quangvdao/ArkLib/commit/b626a599817381cfb84155f8b74d9cf6ff0c18a4).
 The finite-tower foundation milestone is complete. The full symbolic decoder is not:
 `HiddenDerivativeDecoder.symbolicDecode` still returns `symbolicBackendUnavailable`.
 
@@ -59,7 +59,9 @@ review and validation before becoming integration dependencies.
 The [Personal 1 checkpoint](personal-1-checkpoint.md) records the earlier seven slices.
 The [normalization checkpoint](normalization-checkpoint.md) records the earlier executable slice.
 The [three-track collection](three-track-checkpoint.md) adds full generic normalization
-correctness, supplied-field arithmetic/centers and the completed one-chart Taylor contract. The [Personal 3 checkpoint](personal-3-checkpoint.md) records the six collected slices and their
+correctness, supplied-field arithmetic/centers and the completed one-chart Taylor contract.
+The [public zeroth-order checkpoint](public-zeroth-checkpoint.md) records their executed
+composition. The [Personal 3 checkpoint](personal-3-checkpoint.md) records the six collected slices and their
 remaining obligations. Personal 4 remains the sole core integration owner.
 
 | ID | Work | State | First action |
@@ -74,7 +76,7 @@ remaining obligations. Personal 4 remains the sole core integration owner.
 | G07 | Explicit fields | Personal 3; supplied-field producers complete | General extension construction for positive-order algorithms |
 | G08 | Rojas producer | Personal 3; univariate factorization collected | General toric construction, specialization and isolated-root coverage |
 | G09 | Higher-order selection | Personal 3; actual direct-Jacobian bridge collected | Spectral certificate, powering and complete candidate selection |
-| G10 | Supplied-field zeroth-order decoder | Personal 4; conditional ordinary lifting/recovery | Compose saturated normalization, supplied-field centers, and exact recovery |
+| G10 | Supplied-field zeroth-order decoder | Personal 4; executable exact composition implemented and under final acceptance | Close end-to-end quadratic-branch runtime evidence |
 | I1 | Integration and independent review | Personal 4 | Accept compiled slices; maintain this board and obligation ledger |
 
 At each launch record the lead, exact branch/base, owned files, first deliverable and acceptance

@@ -13,6 +13,10 @@ import ArkLibTest.Data.FiniteField.ExplicitConstruction.SuppliedCenters
 import
 ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.SuppliedNormalization
 import
+ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.SuppliedTransport
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.PublicDecoder
+import
 ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Geometry.Direction
 import
 ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Geometry.Monic
@@ -175,6 +179,8 @@ def run : IO Unit := do
   ArtinSchreierCenterTests.run
   SuppliedCenterTests.run
   SuppliedNormalizationTests.run
+  SuppliedTransportTests.run
+  PublicDecoderTests.run
   RegularFiberTests.run
   SuppliedAdapterTests.run
   CenterDispatcherTests.run
