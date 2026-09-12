@@ -118,4 +118,8 @@ def run : IO Unit := do
   unless candidates.length == 1 do
     throw <| IO.userError "tower preprocessing/materialization did not execute"
 
+#print axioms preprocessRetained_modulus_natDegree_le
+#print axioms materializeCoefficients?_modulus_eq
+#print axioms materializeRetained_modulus_natDegree_le
+
 end ReedSolomon.ListDecoding.FirstOrderNormProducerTests
