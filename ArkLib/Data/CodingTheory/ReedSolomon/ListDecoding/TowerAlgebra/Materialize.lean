@@ -95,17 +95,16 @@ private theorem evalNested_one
   simp [TowerRepresentation.evalNested,
     FirstOrderNormDecoder.D5.specializeFiberCPolynomial, CPolynomial.toPoly_one]
 
-/-- A computed tower inverse is nonzero at every geometric point of a well-formed tower.  This is
-the direct unit-to-nonvanishing direction of the geometric unit criterion. -/
-theorem inverseRepresentative?_nonvanishing
+/-- Quotient unitness implies nonvanishing at every geometric point of a well-formed tower. -/
+theorem isTowerUnit_nonvanishing
     (r : TowerRepresentation (F := F)) {width : ℕ} (hr : r.WellFormed width)
-    (denominator inverse : CPolynomial (CPolynomial F))
-    (hinverse : inverseRepresentative? r.modulus r.fiber denominator = some inverse)
+    (denominator : CPolynomial (CPolynomial F))
+    (hunit : IsTowerUnit r.modulus r.fiber denominator)
     {K : Type*} [Field K] (phi : F →+* K) (u v : K) (hpoint : r.Point phi u v) :
     TowerRepresentation.evalNested denominator phi u v ≠ 0 := by
-  have hred := inverseRepresentative?_mul_eq_one r.modulus r.fiber denominator inverse hinverse
+  obtain ⟨inverse, hleft, _hright⟩ := hunit
   have heval := congrArg (fun p : CPolynomial (CPolynomial F) ↦
-    TowerRepresentation.evalNested p phi u v) hred
+    TowerRepresentation.evalNested p phi u v) hleft
   rw [TowerRepresentation.evalNested_reduceElement phi u v hr.1 hpoint.1
       hr.2.2.2.1 hpoint.2 (denominator * inverse),
     TowerRepresentation.evalNested_reduceElement phi u v hr.1 hpoint.1
@@ -114,6 +113,17 @@ theorem inverseRepresentative?_nonvanishing
   intro hzero
   rw [hzero, zero_mul] at heval
   exact zero_ne_one heval
+
+/-- A computed tower inverse is nonzero at every geometric point of a well-formed tower. -/
+theorem inverseRepresentative?_nonvanishing
+    (r : TowerRepresentation (F := F)) {width : ℕ} (hr : r.WellFormed width)
+    (denominator inverse : CPolynomial (CPolynomial F))
+    (hinverse : inverseRepresentative? r.modulus r.fiber denominator = some inverse)
+    {K : Type*} [Field K] (phi : F →+* K) (u v : K) (hpoint : r.Point phi u v) :
+    TowerRepresentation.evalNested denominator phi u v ≠ 0 := by
+  exact isTowerUnit_nonvanishing r hr denominator
+    (isTowerUnit_of_inverseRepresentative?_eq_some r.modulus r.fiber denominator inverse hinverse)
+    phi u v hpoint
 
 /-- At a retained geometric point, a materialized numerator satisfies the defining rational
 identity: denominator times materialized coefficient equals the original numerator. -/
