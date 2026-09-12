@@ -154,14 +154,41 @@ theorem gcdComplement_rootMultiplicity_cast_ne_zero
   have hp := (Polynomial.rootMultiplicity_pos hv0).mpr hx
   omega
 
-theorem residue_run_stratum_eval₂_eq_rootMultiplicity [PerfectField F]
+theorem gcdComplement_rootMultiplicity_eq_one
+    {K : Type*} [Field K] (phi : F →+* K)
+    (f : CPolynomial F) (hf : f.monic) (x : K)
+    (hx : (f.toPoly.map phi).IsRoot x)
+    (hm : ((f.toPoly.map phi).rootMultiplicity x : K) ≠ 0) :
+    ((gcdComplement f f.derivative).toPoly.map phi).rootMultiplicity x = 1 := by
+  let : DecidableEq F := instDecidableEqOfLawfulBEq
+  let : DecidableEq K := Classical.decEq K
+  have hfn : f ≠ 0 :=
+    (toPoly_eq_zero_iff f).not.mp ((monic_toPoly_iff f).mp hf).ne_zero
+  have hf0 : f.toPoly.map phi ≠ 0 :=
+    (Polynomial.map_ne_zero_iff phi.injective).mpr
+      ((monic_toPoly_iff f).mp hf).ne_zero
+  have hbase := congrArg CPolynomial.toPoly
+    (gcdFactor_mul_gcdComplement (h := f) (e := f.derivative) hfn)
+  have hmapped := congrArg (Polynomial.map phi) hbase
+  simp only [toPoly_mul, Polynomial.map_mul] at hmapped
+  rw [map_gcdFactor_eq_polynomial_gcd] at hmapped
+  have hfactor :
+      gcd (f.toPoly.map phi) (f.toPoly.map phi).derivative *
+        (gcdComplement f f.derivative).toPoly.map phi = f.toPoly.map phi := by
+    rw [Polynomial.derivative_map, ← derivative_toPoly]
+    exact hmapped
+  exact Multiplicity.derivative_quotient_rootMultiplicity
+    (f.toPoly.map phi) ((gcdComplement f f.derivative).toPoly.map phi)
+    hf0 x hx hm hfactor
+
+theorem residue_run_stratum_label_eq_rootMultiplicity_mod [PerfectField F]
     (p : ℕ) [Fact p.Prime] [CharP F p]
     {K : Type*} [Field K] (phi : F →+* K) (x : K)
     (f : CPolynomial F) (hf : f.monic) (out : ResidueOutput F)
     (hout : FullSquarefreeDecomposition.run p f = some out)
     (z : ℕ × CPolynomial F) (hz : z ∈ out.strata)
     (hx : z.2.toPoly.eval₂ phi x = 0) :
-    z.1 ≤ (f.toPoly.map phi).rootMultiplicity x := by
+    z.1 = (f.toPoly.map phi).rootMultiplicity x % p := by
   have hzBounds := residue_run_label_bounds p f out hout z hz
   have hfn : f ≠ 0 :=
     (toPoly_eq_zero_iff f).not.mp ((monic_toPoly_iff f).mp hf).ne_zero
@@ -186,7 +213,18 @@ theorem residue_run_stratum_eval₂_eq_rootMultiplicity [PerfectField F]
     have hmod : z.1 % p = (f.toPoly.map phi).rootMultiplicity x % p :=
       (CharP.cast_eq_iff_mod_eq K p).mp hr
     rw [Nat.mod_eq_of_lt hzBounds.2.1] at hmod
-    exact hmod.trans_le (Nat.mod_le _ _)
+    exact hmod
+
+theorem residue_run_stratum_label_le_rootMultiplicity [PerfectField F]
+    (p : ℕ) [Fact p.Prime] [CharP F p]
+    {K : Type*} [Field K] (phi : F →+* K) (x : K)
+    (f : CPolynomial F) (hf : f.monic) (out : ResidueOutput F)
+    (hout : FullSquarefreeDecomposition.run p f = some out)
+    (z : ℕ × CPolynomial F) (hz : z ∈ out.strata)
+    (hx : z.2.toPoly.eval₂ phi x = 0) :
+    z.1 ≤ (f.toPoly.map phi).rootMultiplicity x :=
+  (residue_run_stratum_label_eq_rootMultiplicity_mod
+    p phi x f hf out hout z hz hx).trans_le (Nat.mod_le _ _)
 
 theorem residue_run_strata_monic_squarefree
     (p : ℕ) (f : CPolynomial F) (hf : f.monic) (out : ResidueOutput F)
@@ -249,7 +287,7 @@ theorem residue_run_stratum_pow_dvd [PerfectField F]
   apply pow_dvd_of_geometric_rootMultiplicity z.2 f hshape.1 hshape.2
     ((monic_toPoly_iff f).mp hf).ne_zero z.1
   intro x hx
-  apply residue_run_stratum_eval₂_eq_rootMultiplicity
+  apply residue_run_stratum_label_le_rootMultiplicity
     p (algebraMap F (AlgebraicClosure F)) x f hf out hout z hz
   simpa [Polynomial.IsRoot, Polynomial.eval_map] using hx
 
@@ -328,11 +366,11 @@ theorem residue_run_residual_eq_one [PerfectField F]
     congr 1
     omega
 
-theorem residue_run_strata_product_squarefree [PerfectField F]
+theorem residue_run_strata_product_eq_gcdComplement [PerfectField F]
     (p : ℕ) [Fact p.Prime] [CharP F p]
     (f : CPolynomial F) (hf : f.monic) (out : ResidueOutput F)
     (hout : FullSquarefreeDecomposition.run p f = some out) :
-    Squarefree ((out.strata.map Prod.snd).prod).toPoly := by
+    (out.strata.map Prod.snd).prod = gcdComplement f f.derivative := by
   have hres := residue_run_residual_eq_one p f hf out hout
   have hfn : f ≠ 0 :=
     (toPoly_eq_zero_iff f).not.mp ((monic_toPoly_iff f).mp hf).ne_zero
@@ -345,12 +383,17 @@ theorem residue_run_strata_product_squarefree [PerfectField F]
     let v := (derivativeParts f).2.1
     have hvMonic : v.monic := gcdComplement_monic hf
     have hexact := residueLoop_exact (min (p - 1) f.natDegree) 1 v q hvMonic
-    have heq : ((residueLoop (min (p - 1) f.natDegree) 1 v q).strata.map
-        Prod.snd).prod = v := by
-      rw [hres, mul_one] at hexact
-      exact hexact
-    rw [heq]
-    exact gcdDerivativeComplement_squarefree f hfn
+    rw [hres, mul_one] at hexact
+    exact hexact
+
+theorem residue_run_strata_product_squarefree [PerfectField F]
+    (p : ℕ) [Fact p.Prime] [CharP F p]
+    (f : CPolynomial F) (hf : f.monic) (out : ResidueOutput F)
+    (hout : FullSquarefreeDecomposition.run p f = some out) :
+    Squarefree ((out.strata.map Prod.snd).prod).toPoly := by
+  rw [residue_run_strata_product_eq_gcdComplement p f hf out hout]
+  exact gcdDerivativeComplement_squarefree f
+    ((toPoly_eq_zero_iff f).not.mp ((monic_toPoly_iff f).mp hf).ne_zero)
 
 private theorem isCoprime_factorProduct_left
     (z : ℕ × CPolynomial F) (factors : List (ℕ × CPolynomial F))
@@ -431,5 +474,238 @@ theorem residue_run_exactDivide_exists [PerfectField F]
   rw [mul_comm]
   exact EuclideanDomain.mul_div_cancel'
     ((toPoly_eq_zero_iff divisor).not.mpr hdivisor) hdvd
+
+private theorem derivative_eq_zero_of_geometric_rootMultiplicity_mod_eq_zero
+    (p : ℕ) [Fact p.Prime] [CharP F p]
+    (g : CPolynomial F) (hg0 : g.toPoly ≠ 0)
+    (hroot : ∀ x : AlgebraicClosure F,
+      (g.toPoly.map (algebraMap F (AlgebraicClosure F))).rootMultiplicity x % p = 0) :
+    g.derivative = 0 := by
+  apply toPoly_injective
+  rw [toPoly_zero, derivative_toPoly]
+  by_contra hderiv
+  let K := AlgebraicClosure F
+  let phi : F →+* K := algebraMap F K
+  let : DecidableEq K := Classical.decEq K
+  have hgmap0 : g.toPoly.map phi ≠ 0 :=
+    (Polynomial.map_ne_zero_iff phi.injective).mpr hg0
+  have hderivMap : (g.toPoly.map phi).derivative ≠ 0 := by
+    rw [Polynomial.derivative_map]
+    exact (Polynomial.map_ne_zero_iff phi.injective).mpr hderiv
+  have hdvd : g.toPoly.map phi ∣ (g.toPoly.map phi).derivative := by
+    apply (IsAlgClosed.dvd_iff_roots_le_roots hgmap0 hderivMap).mpr
+    rw [Multiset.le_iff_count]
+    intro x
+    rw [Polynomial.count_roots, Polynomial.count_roots]
+    by_cases hx : (g.toPoly.map phi).IsRoot x
+    · obtain ⟨A, hA, _⟩ := (g.toPoly.map phi).exists_eq_pow_rootMultiplicity_mul_and_not_dvd
+        hgmap0 x
+      have hcast : ((g.toPoly.map phi).rootMultiplicity x : K) = 0 := by
+        let _ : CharP K p := charP_of_injective_ringHom phi.injective p
+        rw [CharP.cast_eq_mod K p, hroot x]
+        simp
+      have hpow : (Polynomial.X - Polynomial.C x) ^
+          (g.toPoly.map phi).rootMultiplicity x ∣ (g.toPoly.map phi).derivative := by
+        refine ⟨A.derivative, ?_⟩
+        conv_lhs => rw [hA, Polynomial.derivative_mul,
+          Polynomial.derivative_X_sub_C_pow]
+        simp [hcast]
+      exact (Polynomial.le_rootMultiplicity_iff hderivMap).mpr hpow
+    · rw [Polynomial.rootMultiplicity_eq_zero hx]
+      exact Nat.zero_le _
+  have hdegree := Polynomial.natDegree_le_of_dvd hdvd hderivMap
+  exact (not_lt_of_ge hdegree) (Polynomial.natDegree_derivative_lt
+    (by intro hzero; exact hderivMap (Polynomial.derivative_of_natDegree_zero hzero)))
+
+private theorem rootMultiplicity_pow
+    {K : Type*} [Field K] (a : Polynomial K) (ha : a ≠ 0) (x : K) (n : ℕ) :
+    (a ^ n).rootMultiplicity x = n * a.rootMultiplicity x := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [pow_succ, Polynomial.rootMultiplicity_mul
+      (mul_ne_zero (pow_ne_zero n ha) ha), ih, Nat.succ_mul]
+
+private theorem factorProduct_ne_zero_of_monic
+    (factors : List (ℕ × CPolynomial F))
+    (hmonic : ∀ z ∈ factors, z.2.monic) :
+    factorProduct factors ≠ 0 := by
+  apply (toPoly_eq_zero_iff _).not.mp
+  induction factors with
+  | nil => simp [factorProduct, toPoly_one]
+  | cons z rest ih =>
+    change (z.2 ^ z.1 * factorProduct rest).toPoly ≠ 0
+    rw [toPoly_mul, toPoly_pow]
+    exact mul_ne_zero
+      (pow_ne_zero _ ((monic_toPoly_iff z.2).mp (hmonic z (by simp))).ne_zero)
+      (ih (fun a ha => hmonic a (by simp [ha])))
+
+private theorem supportProduct_ne_zero_of_monic
+    (factors : List (ℕ × CPolynomial F))
+    (hmonic : ∀ z ∈ factors, z.2.monic) :
+    (factors.map Prod.snd).prod ≠ 0 := by
+  apply (toPoly_eq_zero_iff _).not.mp
+  induction factors with
+  | nil => simp [toPoly_one]
+  | cons z rest ih =>
+    change (z.2 * (rest.map Prod.snd).prod).toPoly ≠ 0
+    rw [toPoly_mul]
+    exact mul_ne_zero
+      ((monic_toPoly_iff z.2).mp (hmonic z (by simp))).ne_zero
+      (ih (fun a ha => hmonic a (by simp [ha])))
+
+private theorem factorProduct_rootMultiplicity_eq_mul
+    {K : Type*} [Field K] (phi : F →+* K) (x : K)
+    (factors : List (ℕ × CPolynomial F))
+    (hmonic : ∀ z ∈ factors, z.2.monic) (n : ℕ)
+    (hlabel : ∀ z ∈ factors, (z.2.toPoly.map phi).IsRoot x → z.1 = n) :
+    ((factorProduct factors).toPoly.map phi).rootMultiplicity x =
+      n * (((factors.map Prod.snd).prod).toPoly.map phi).rootMultiplicity x := by
+  induction factors with
+  | nil =>
+    rw [factorProduct, List.map_nil, List.prod_nil, toPoly_one,
+      Polynomial.map_one, List.map_nil, List.prod_nil, toPoly_one,
+      Polynomial.map_one]
+    simp [Polynomial.rootMultiplicity_eq_zero]
+  | cons z rest ih =>
+    have hz0 : z.2.toPoly.map phi ≠ 0 :=
+      (Polynomial.map_ne_zero_iff phi.injective).mpr
+        ((monic_toPoly_iff z.2).mp (hmonic z (by simp))).ne_zero
+    have hrestMonic : ∀ a ∈ rest, a.2.monic :=
+      fun a ha => hmonic a (by simp [ha])
+    have hrest0 : ((factorProduct rest).toPoly.map phi) ≠ 0 := by
+      exact (Polynomial.map_ne_zero_iff phi.injective).mpr
+        ((toPoly_eq_zero_iff _).not.mpr
+          (factorProduct_ne_zero_of_monic rest hrestMonic))
+    have hrestSupport0 : (((rest.map Prod.snd).prod).toPoly.map phi) ≠ 0 := by
+      exact (Polynomial.map_ne_zero_iff phi.injective).mpr
+        ((toPoly_eq_zero_iff _).not.mpr
+          (supportProduct_ne_zero_of_monic rest hrestMonic))
+    have hzterm :
+        z.1 * (z.2.toPoly.map phi).rootMultiplicity x =
+          n * (z.2.toPoly.map phi).rootMultiplicity x := by
+      by_cases hx : (z.2.toPoly.map phi).IsRoot x
+      · rw [hlabel z (by simp) hx]
+      · rw [Polynomial.rootMultiplicity_eq_zero hx]
+        simp
+    change (((z.2 ^ z.1) * factorProduct rest).toPoly.map phi).rootMultiplicity x =
+      n * ((z.2 * (rest.map Prod.snd).prod).toPoly.map phi).rootMultiplicity x
+    rw [toPoly_mul, Polynomial.map_mul, toPoly_pow, Polynomial.map_pow,
+      Polynomial.rootMultiplicity_mul (mul_ne_zero (pow_ne_zero z.1 hz0) hrest0),
+      rootMultiplicity_pow _ hz0, toPoly_mul, Polynomial.map_mul,
+      Polynomial.rootMultiplicity_mul (mul_ne_zero hz0 hrestSupport0),
+      ih hrestMonic (fun a ha => hlabel a (by simp [ha]))]
+    rw [Nat.mul_add, hzterm]
+
+theorem residue_run_factorProduct_rootMultiplicity_eq_mod [PerfectField F]
+    (p : ℕ) [Fact p.Prime] [CharP F p]
+    {K : Type*} [Field K] (phi : F →+* K) (x : K)
+    (f : CPolynomial F) (hf : f.monic) (out : ResidueOutput F)
+    (hout : FullSquarefreeDecomposition.run p f = some out) :
+    ((factorProduct out.strata).toPoly.map phi).rootMultiplicity x =
+      (f.toPoly.map phi).rootMultiplicity x % p := by
+  let m := (f.toPoly.map phi).rootMultiplicity x
+  have hshape := residue_run_strata_monic_squarefree p f hf out hout
+  have hmul := factorProduct_rootMultiplicity_eq_mul phi x out.strata
+    (fun z hz => (hshape z hz).1) (m % p)
+    (fun z hz hzx => residue_run_stratum_label_eq_rootMultiplicity_mod
+      p phi x f hf out hout z hz
+        (by simpa [Polynomial.IsRoot, Polynomial.eval_map] using hzx))
+  have hsupport := congrArg (fun a : CPolynomial F => a.toPoly.map phi)
+    (residue_run_strata_product_eq_gcdComplement p f hf out hout)
+  rw [hsupport] at hmul
+  by_cases hresidue : m % p = 0
+  · have hmul0 := hmul
+    rw [hresidue] at hmul0
+    have hwzero : ((factorProduct out.strata).toPoly.map phi).rootMultiplicity x = 0 := by
+      simpa only [Nat.zero_mul] using hmul0
+    change ((factorProduct out.strata).toPoly.map phi).rootMultiplicity x = m % p
+    rw [hresidue]
+    exact hwzero
+  · have hfmap0 : f.toPoly.map phi ≠ 0 :=
+      (Polynomial.map_ne_zero_iff phi.injective).mpr
+        ((monic_toPoly_iff f).mp hf).ne_zero
+    have hmpos : 0 < m := by
+      by_contra hm
+      have : m = 0 := Nat.eq_zero_of_not_pos hm
+      exact hresidue (by simp [this])
+    have hx : (f.toPoly.map phi).IsRoot x :=
+      (Polynomial.rootMultiplicity_pos hfmap0).mp hmpos
+    let _ : CharP K p := charP_of_injective_ringHom phi.injective p
+    have hmcast : (m : K) ≠ 0 := by
+      intro hzero
+      apply hresidue
+      have hcastResidue : ((m % p : ℕ) : K) = 0 := by
+        rw [← CharP.cast_eq_mod K p m]
+        exact hzero
+      exact Nat.eq_zero_of_dvd_of_lt
+        ((CharP.cast_eq_zero_iff K p (m % p)).mp hcastResidue)
+        (Nat.mod_lt m (Fact.out : Nat.Prime p).pos)
+    have hv := gcdComplement_rootMultiplicity_eq_one phi f hf x hx (by simpa [m] using hmcast)
+    simpa [hv] using hmul
+
+theorem residue_run_repeated_derivative_eq_zero [PerfectField F]
+    (p : ℕ) [Fact p.Prime] [CharP F p]
+    (M : MulContext F) (f : CPolynomial F) (hf : f.monic)
+    (out : ResidueOutput F) (hout : FullSquarefreeDecomposition.run p f = some out)
+    (repeated : CPolynomial F)
+    (hdivide : exactDivide f (weightedProduct M (pruneTagged out.strata)) =
+      some repeated) :
+    repeated.derivative = 0 := by
+  have hshape := residue_run_strata_monic_squarefree p f hf out hout
+  have hmonic : ∀ z ∈ pruneTagged out.strata, z.2.monic := by
+    intro z hz
+    exact (hshape z (List.mem_filter.mp hz).1).1
+  have hproduct :
+      weightedProduct M (pruneTagged out.strata) = factorProduct out.strata := by
+    rw [weightedProduct_eq M _ hmonic, ← factorProduct]
+    exact factorProduct_pruneTagged out.strata
+  have hexact := (exactDivide_eq_some_iff _ _ _).mp hdivide
+  have hrep0 : repeated.toPoly ≠ 0 := by
+    intro hz
+    have hfzero := congrArg CPolynomial.toPoly hexact.2
+    rw [toPoly_mul, hz] at hfzero
+    have hzeroMul : (0 : Polynomial F) *
+        (weightedProduct M (pruneTagged out.strata)).toPoly = 0 := by ring
+    have : f.toPoly = 0 := hfzero.symm.trans hzeroMul
+    exact ((monic_toPoly_iff f).mp hf).ne_zero this
+  apply derivative_eq_zero_of_geometric_rootMultiplicity_mod_eq_zero p repeated hrep0
+  intro x
+  let K := AlgebraicClosure F
+  let phi : F →+* K := algebraMap F K
+  have hfactor := congrArg (fun a : CPolynomial F => a.toPoly.map phi) hexact.2
+  rw [toPoly_mul, Polynomial.map_mul, hproduct] at hfactor
+  have hrepMap0 : repeated.toPoly.map phi ≠ 0 :=
+    (Polynomial.map_ne_zero_iff phi.injective).mpr hrep0
+  have hproductMap0 : (factorProduct out.strata).toPoly.map phi ≠ 0 := by
+    have hdivisor0 : weightedProduct M (pruneTagged out.strata) ≠ 0 := hexact.1
+    apply (Polynomial.map_ne_zero_iff phi.injective).mpr
+    apply (toPoly_eq_zero_iff _).not.mpr
+    simpa [hproduct] using hdivisor0
+  have hadd := Polynomial.rootMultiplicity_mul
+    (x := x) (mul_ne_zero hrepMap0 hproductMap0)
+  rw [hfactor,
+    residue_run_factorProduct_rootMultiplicity_eq_mod p phi x f hf out hout] at hadd
+  have hrepeated :
+      (repeated.toPoly.map phi).rootMultiplicity x =
+        (f.toPoly.map phi).rootMultiplicity x -
+          (f.toPoly.map phi).rootMultiplicity x % p := by
+    omega
+  rw [hrepeated]
+  apply Nat.sub_mod_eq_zero_of_mod_eq
+  rw [Nat.mod_mod]
+
+/-- Every checked preparation branch succeeds on monic input over a perfect field. -/
+theorem prepare_succeeds [PerfectField F]
+    (p : ℕ) [Fact p.Prime] [CharP F p]
+    (inverse : F → F) (M : MulContext F) (f : CPolynomial F) (hf : f.monic) :
+    ∃ out, prepare p inverse M f = .ok out := by
+  obtain ⟨residues, hr, _⟩ := run_exists_exact_of_perfect p hf
+  have hresidual := residue_run_residual_eq_one p f hf residues hr
+  obtain ⟨repeated, hdivide⟩ := residue_run_exactDivide_exists p M f hf residues hr
+  have hderivative :=
+    residue_run_repeated_derivative_eq_zero p M f hf residues hr repeated hdivide
+  refine ⟨⟨pruneTagged residues.strata, contractWith p inverse repeated⟩, ?_⟩
+  simp [prepare, hr, hresidual, hdivide, hderivative]
 
 end CompPoly.CPolynomial.FullSquarefreeDecomposition.Driver
