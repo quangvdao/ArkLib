@@ -36,7 +36,7 @@ open Polynomial.FunctionFieldAlgorithms
 open ReedSolomon.HiddenDerivative.Ordinary.QuotientLift
 open ReedSolomon.ListDecoding.ZerothOrderDecoder
 
-variable {F E : Type*} [Field F] [DecidableEq F] [BEq F] [LawfulBEq F]
+variable {F E : Type*} [Field F] [BEq F] [LawfulBEq F]
   [Field E] [BEq E] [LawfulBEq E]
 
 /-- Executable coefficient transport for a stored bivariate polynomial. -/
@@ -54,6 +54,7 @@ def mapObstruction (embedding : F →+* E) (obstruction : CPolynomial F) : CPoly
 /-- The ordinary `[X,Y]` conversion preserves the stored outer (`Y`) degree. -/
 theorem degreeOf_one_toOrdinaryCMv (T : CBivariate F) :
     (CBivariate.toOrdinaryCMv T).degreeOf 1 = T.natDegree := by
+  classical
   have hdegree := congrFun (CPoly.degreeOf_equiv (S := F)
     (p := CBivariate.toOrdinaryCMv T)) (1 : Fin 2)
   rw [hdegree, MvPolynomial.degreeOf_eq_sup]
@@ -254,6 +255,8 @@ theorem mapObstruction_ne_zero (embedding : F →+* E) {obstruction : CPolynomia
   simpa only [mapObstruction, toPoly_mapCoefficients, CPolynomial.toPoly_zero,
     Polynomial.map_zero] using hpoly
 
+variable [DecidableEq F]
+
 /-- Search the supplied centers, then run ordinary lifting and base-field agreement recovery. -/
 def runOver {n : ℕ} (embedding : F →+* E) (T : CBivariate F)
     (obstruction : CPolynomial F) (centers : List E) (domain : Fin n ↪ F)
@@ -279,7 +282,7 @@ theorem runOver_exact {n : ℕ} (embedding : F →+* E) (T : CBivariate F)
         (CPoly.fromCMvPolynomial (CBivariate.toOrdinaryCMv T)) = 0) :
     ∃ output, runOver embedding T obstruction centers domain received k A = some output ∧
       ExactOutput domain received k A output := by
-  letI : DecidableEq E := instDecidableEqOfLawfulBEq
+  let _ : DecidableEq E := instDecidableEqOfLawfulBEq
   have hdegree : (mapObstruction embedding obstruction).natDegree < centers.length := by
     rw [natDegree_mapObstruction, hlength]
     omega

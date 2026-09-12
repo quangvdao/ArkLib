@@ -40,6 +40,15 @@ private def binaryDomain : Fin 2 ↪ Carrier ArtinSchreierCenterTests.Fixtures.f
     apply Fin.ext
     simpa using congrArg Fin.val hij
 
+private def binaryLargeDomain : Fin 4 ↪ Carrier ArtinSchreierCenterTests.Fixtures.f4 where
+  toFun i := suppliedIndex 2 ArtinSchreierCenterTests.Fixtures.f4
+    ⟨i.val, by rw [ArtinSchreierCenterTests.Fixtures.f4_degree]; omega⟩
+  inj' := by
+    intro i j h
+    have hij := (suppliedIndex 2 ArtinSchreierCenterTests.Fixtures.f4).injective h
+    apply Fin.ext
+    simpa using congrArg Fin.val hij
+
 private def oddDomain : Fin 2 ↪
     Carrier ArkLibTest.FiniteField.ExplicitConstruction.PolynomialBasis.modulus where
   toFun i := suppliedIndex 3
@@ -70,7 +79,15 @@ def run : IO Unit := do
   check "binary quadratic transport failed base-coefficient recovery" <|
     run? 2 f2 binaryEquation binaryObstruction binaryDomain binaryDomain
       2 2 == some [[1, 0]]
-
+  let f4 := ArtinSchreierCenterTests.Fixtures.f4
+  let binaryLargeEquation : CBivariate (Carrier f4) := scaledGraph 2
+  let binaryLargeObstruction := RegularCenterObstruction.obstruction binaryLargeEquation
+  check "large binary transport did not choose the Artin-Schreier branch" <|
+    (SuppliedCenters.suppliedRun 2 f4
+      (binaryLargeObstruction.natDegree + 1)).branch == .binaryQuadratic
+  check "large binary transport failed with n > p and k > p" <|
+    run? 2 f4 binaryLargeEquation binaryLargeObstruction binaryLargeDomain binaryLargeDomain
+      3 3 == some [[0, 1, 0]]
   let f9 := ArkLibTest.FiniteField.ExplicitConstruction.PolynomialBasis.modulus
   let oddEquation : CBivariate (Carrier f9) := scaledGraph 5
   let oddObstruction := RegularCenterObstruction.obstruction oddEquation
@@ -81,7 +98,6 @@ def run : IO Unit := do
   check "odd quadratic transport failed base-coefficient recovery" <|
     run? 3 f9 oddEquation oddObstruction oddDomain oddDomain 2 2 ==
       some [[1, 0]]
-
   let baseEquation : CBivariate (Carrier f9) := scaledGraph 0
   let baseObstruction := RegularCenterObstruction.obstruction baseEquation
   check "base transport unexpectedly requested an extension" <|
