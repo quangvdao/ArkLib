@@ -87,6 +87,14 @@ private theorem verifiesInverse_eq_true_iff
           TowerRepresentation.reduceElement G h 1 := by
   simp [verifiesInverse]
 
+/-- Quotient-level unitness stated independently of the inversion algorithm. -/
+def IsTowerUnit (G : CPolynomial F) (h u : CPolynomial (CPolynomial F)) : Prop :=
+  ∃ v : CPolynomial (CPolynomial F),
+    TowerRepresentation.reduceElement G h (u * v) =
+        TowerRepresentation.reduceElement G h 1 ∧
+      TowerRepresentation.reduceElement G h (v * u) =
+        TowerRepresentation.reduceElement G h 1
+
 /-- Compute a two-sided inverse representative in `(F[U]/G)[V]/h`.
 
 `none` is an explicit failure signal.  A zero multiplication determinant is rejected immediately;
@@ -134,6 +142,13 @@ theorem inverseRepresentative?_mul_eq_one_right
       subst v
       exact hverify.2
     · simp at hv
+
+/-- Successful computation proves unitness in the independently stated quotient sense. -/
+theorem isTowerUnit_of_inverseRepresentative?_eq_some
+    (G : CPolynomial F) (h u v : CPolynomial (CPolynomial F))
+    (hv : inverseRepresentative? G h u = some v) : IsTowerUnit G h u := by
+  exact ⟨v, inverseRepresentative?_mul_eq_one G h u v hv,
+    inverseRepresentative?_mul_eq_one_right G h u v hv⟩
 
 /-- Successful inversion always returns a representative in the canonical bounded tower slice. -/
 theorem inverseRepresentative?_elementReduced
