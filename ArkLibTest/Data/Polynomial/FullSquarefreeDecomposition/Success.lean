@@ -28,4 +28,19 @@ example {F : Type*} [Field F] [BEq F] [LawfulBEq F] [PerfectField F]
       some repeated :=
   residue_run_exactDivide_exists p M f hf out hout
 
+example {F : Type*} [Field F] [BEq F] [LawfulBEq F] [PerfectField F]
+    (p : ℕ) [Fact p.Prime] [CharP F p]
+    (M : MulContext F) (f : CPolynomial F) (hf : f.monic) (out : ResidueOutput F)
+    (hout : run p f = some out) (repeated : CPolynomial F)
+    (hdivide : exactDivide f (weightedProduct M (pruneTagged out.strata)) =
+      some repeated) :
+    repeated.derivative = 0 :=
+  residue_run_repeated_derivative_eq_zero p M f hf out hout repeated hdivide
+
+example {F : Type*} [Field F] [BEq F] [LawfulBEq F] [PerfectField F]
+    (p : ℕ) [Fact p.Prime] [CharP F p]
+    (inverse : F → F) (M : MulContext F) (f : CPolynomial F) (hf : f.monic) :
+    ∃ out, prepare p inverse M f = .ok out :=
+  prepare_succeeds p inverse M f hf
+
 end FullSquarefreeSuccessTests
