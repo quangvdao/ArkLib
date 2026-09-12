@@ -269,6 +269,33 @@ theorem preparedBlock_retainedNorm_degree_bound [Fintype E] [DecidableEq E]
       (prepare chart received).agreements hequationMonic hgenericSquarefree
       block.component hcomponentMem hthreshold
 
+/-- A prepared block's recomputed norm product is nonzero under the chart's generic
+squarefreeness premise.  This is the input fact needed to invoke unconditional G02 totality
+inside the public producer coverage theorem. -/
+theorem preparedBlock_normProduct_ne_zero [DecidableEq E]
+    {k b L : ℕ} (chart : ChartData E 1 k) (received : List (E × E))
+    (hnormal : chart.NormalForms b L)
+    (hgenericSquarefree : Squarefree
+      (ClearDenominators.valueGlobal (prepare chart received).chartPolynomials.equation))
+    (block : ComputedBlock E) (hblock : block ∈ (prepare chart received).blocks) :
+    CompPoly.CPolynomial.NormProducts.ComponentNorms.blockNormProduct
+      block.component (prepare chart received).agreements ≠ 0 := by
+  have hequationMonic : (prepare chart received).chartPolynomials.equation.monic :=
+    ChartPolynomials.equation_monic_of_normalForms chart hnormal
+  have hcomponentMem : block.component ∈
+      (ComponentDescent.run (prepare chart received).chartPolynomials.equation
+        (prepare chart received).agreements).blocks := by
+    simpa only [prepare_descent, prepare_chartPolynomials, prepare_agreements] using
+      preparedBlock_component_mem chart received block hblock
+  apply CompPoly.CPolynomial.NormProducts.ComponentNorms.blockNormProduct_ne_zero
+    block.component (prepare chart received).agreements
+    (ComponentDescent.run_monic _ _ hequationMonic block.component hcomponentMem)
+  intro n residual hresidual
+  exact ComponentDescent.run_genericClassified
+    (prepare chart received).chartPolynomials.equation
+    (prepare chart received).agreements hequationMonic hgenericSquarefree
+    n residual hresidual block.component hcomponentMem
+
 /-- Prepared universal labels are valid received-word positions. -/
 theorem preparedBlock_labels_lt {k : ℕ} (chart : ChartData E 1 k)
     (received : List (E × E)) (out : ComputedBlock E)
