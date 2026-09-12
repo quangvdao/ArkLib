@@ -4,8 +4,10 @@ This is the current coordination hub for the Reed–Solomon paper decoder on
 `quang/rs-capacity-and-correlated-agreement` in `quangvdao/ArkLib`.
 It replaces the completed A–E worker assignments and earlier decoder sprint notes.
 
-The verified source baseline is
-[`e065bd441a1ab3cce5cc11d569d23fa9cf1c65a8`](https://github.com/quangvdao/ArkLib/commit/e065bd441a1ab3cce5cc11d569d23fa9cf1c65a8).
+The original foundation source baseline is
+[`3c67cb3fa669985b2add6c5d080a3060c4728789`](https://github.com/quangvdao/ArkLib/commit/3c67cb3fa669985b2add6c5d080a3060c4728789).
+The current accepted integration is
+[`700a44b7473c41d0c98e311b37bad474d7ea7a0c`](https://github.com/quangvdao/ArkLib/commit/700a44b7473c41d0c98e311b37bad474d7ea7a0c).
 The finite-tower foundation milestone is complete. The full symbolic decoder is not:
 `HiddenDerivativeDecoder.symbolicDecode` still returns `symbolicBackendUnavailable`.
 
@@ -43,28 +45,32 @@ The revised zeroth-order paper pin is `b1be8b89069542faacac40a7e92068857b43e97a`
 See [the split delivery plan](zeroth-supplied-field.md). This is a new supplied-field
 composition obligation, separate from the positive-order chart milestone below.
 The latter retains prime-field dispatch and characteristic-certified differential guards.
-No continuation integration has been published. Earlier conditional recovery is useful
-infrastructure and does not establish either completed deliverable.
+It accepts supplied polynomial-basis F_q with q >= n,
+without a characteristic or extension-degree bound. Constructing a field from q alone is not
+required. Positive-order algorithms retain their prime-field scope. Large binary extensions
+must use the dedicated ordinary path, not the old small-characteristic fallback argument.
 
 ## Current task board
 
 Personal 4 coordinates integration and owns G03–G05 and G10. Personal 1 owns G01/G02/G06.
-Personal 3 owns G07–G09. All three teams returned their first checkpoints; the next Taylor wave is active below.
-Personal 2 is unavailable.
-The [Personal 1 checkpoint](personal-1-checkpoint.md) records seven algebra/decomposition/norm
-slices. The [Personal 3 checkpoint](personal-3-checkpoint.md) records the six collected slices and their
+Personal 3 owns G07–G09. All three teams have resumed under the revised zeroth-order
+specification. Personal 2 is unavailable. New worker checkpoints require separate collection
+review and validation before becoming integration dependencies.
+The [Personal 1 checkpoint](personal-1-checkpoint.md) records the earlier seven slices.
+The [normalization checkpoint](normalization-checkpoint.md) adds saturated execution and
+support-relative output guarantees; full radical and original-input coverage remain open. The [Personal 3 checkpoint](personal-3-checkpoint.md) records the six collected slices and their
 remaining obligations. Personal 4 remains the sole core integration owner.
 
 | ID | Work | State | First action |
 | --- | --- | --- | --- |
 | I0 | Shared Lean interface freeze | Personal 4; payload slice implemented | Full geometry/local/global validity contracts remain open |
-| G01 | Function-field algebra and multivariate gcd | Personal 1; field/Euclid slices collected | Canonical extraction, multivariate gcd, normalization and descent |
+| G01 | Function-field algebra and normalization | Personal 1; saturated normalization slice collected | Full radical correctness, no-failure and original-input graph/degree guarantees |
 | G02 | Full squarefree decomposition | Personal 1; residue/Frobenius/tree slices collected | Full labelled recursive driver and threshold bridge |
 | G03 | Taylor geometry | Personal 4; grid and inverse matrices implemented | Direction, monic coefficient bounds and good-fiber producer |
 | G04 | Taylor local algebra and lifting | Personal 4; computed quotient inverse | Implement differential Newton and fundamental matrices |
 | G05 | Taylor reconstruction | Personal 4; shift and local-equation bridges | Weighted reduction, clearing and global coverage |
 | G06 | First-order norms | Personal 1; norm/universal-scan slices collected | Chart count, multiplicity product and candidate coverage |
-| G07 | Explicit fields | Personal 3; quotient/center slices collected | General-extension constructor and field/prefix adapter |
+| G07 | Explicit fields | Personal 3; supplied-field revision active | Polynomial-basis inverse Frobenius, prefixes and both quadratic branches |
 | G08 | Rojas producer | Personal 3; linear/resultant slices collected | General input-dependent perturbation and isolated-root coverage |
 | G09 | Higher-order selection | Personal 3; graph/direct slices collected | Chart differential adapter, spectral certificate and powering |
 | G10 | Supplied-field zeroth-order decoder | Personal 4; conditional ordinary lifting/recovery | Compose saturated normalization, supplied-field centers, and exact recovery |
