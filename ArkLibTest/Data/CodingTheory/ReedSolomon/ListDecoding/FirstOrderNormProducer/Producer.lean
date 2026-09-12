@@ -99,8 +99,10 @@ def run : IO Unit := do
 #print axioms preparedBlock_retainedNorm_degree_bound
 #print axioms preparedBlock_normProduct_ne_zero
 #print axioms threshold_le_card_nonuniversalPositions
+#print axioms decomposeComputedBlock_succeeds
 #print axioms produceComputedBlock_point_complete
-#print axioms firstOrderNormCandidates_point_complete_of_decompose
+#print axioms firstOrderNormCandidates_point_complete_of_block
+#print axioms firstOrderNormCandidates_point_complete
 #print axioms firstOrderNormCandidates_wellFormed
 
 end ReedSolomon.ListDecoding.FirstOrderNormProducer.ProducerTests

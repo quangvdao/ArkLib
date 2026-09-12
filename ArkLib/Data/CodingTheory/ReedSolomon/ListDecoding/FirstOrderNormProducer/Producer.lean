@@ -7,7 +7,7 @@ module
 
 public import
   ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.ComponentNorms
-public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.Driver
+public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.Totality
 
 /-!
 # Concrete first-order norm candidate producer
@@ -116,6 +116,23 @@ def decomposeComputedBlock
     Except Failure (Output (Carrier modulus)) :=
   decomposeSuppliedBlockNormProduct p modulus M D block.component residuals
 
+/-- The concrete supplied-field decomposition succeeds on every nonzero recomputed component
+norm product.  The producer obtains nonzeroness from its prepared chart certificate. -/
+theorem decomposeComputedBlock_succeeds
+    (p : ℕ) [Fact p.Prime]
+    (modulus : CPolynomial (ZMod p)) [Fact modulus.monic]
+    [Fact (Irreducible modulus.toPoly)]
+    (M : MulContext (Carrier modulus)) (D : ModContext (Carrier modulus))
+    (block : ComputedBlock (Carrier modulus))
+    (residuals : List (CBivariate (Carrier modulus)))
+    (hinput : CompPoly.CPolynomial.NormProducts.ComponentNorms.blockNormProduct
+      block.component residuals ≠ 0) :
+    ∃ out, decomposeComputedBlock p modulus M D block residuals = .ok out := by
+  simpa [decomposeComputedBlock, decomposeSuppliedBlockNormProduct] using
+    decomposeSupplied_succeeds p modulus M D
+      (CompPoly.CPolynomial.NormProducts.ComponentNorms.blockNormProduct
+        block.component residuals) hinput
+
 /-- The actual supplied-field threshold output is monic. -/
 theorem decomposeComputedBlock_threshold_monic
     (p : ℕ) [Fact p.Prime]
@@ -213,9 +230,6 @@ theorem produceComputedBlock_point_complete
     (hkA : k ≤ A)
     (positions : Finset (Fin (prepare chart received).agreements.length))
     (hpositions : A ≤ positions.card)
-    (decomposition : Output (Carrier modulus))
-    (hdecompose : decomposeComputedBlock p modulus M D block
-      (prepare chart received).agreements = .ok decomposition)
     (hdegree : (prepare chart received).chartPolynomials.equation.natDegree < p)
     (hdenominatorPower : chart.denominator = chart.separant ^ (2 * k))
     {K : Type} [Field K] (base : Carrier modulus →+* K) (u v : K)
@@ -235,6 +249,9 @@ theorem produceComputedBlock_point_complete
               fun numerator => TowerRepresentation.evalNested numerator base u v /
                 TowerRepresentation.evalNested
                   (prepare chart received).chartPolynomials.denominator base u v) := by
+  obtain ⟨decomposition, hdecompose⟩ := decomposeComputedBlock_succeeds
+    p modulus M D block (prepare chart received).agreements
+      (preparedBlock_normProduct_ne_zero chart received hnormal hgenericSquarefree block hblock)
   let nonuniversal :=
     nonuniversalPositions block.component.universal positions
   have hnonuniversal : ∀ i ∈ nonuniversal,
@@ -331,9 +348,9 @@ theorem produceComputedBlock_point_complete
     subst actual
     exact hcandidate
 
-/-- The same qualifying point occurs in the public producer output, whose computation starts
-from the chart and received word rather than from a caller-supplied component or norm product. -/
-theorem firstOrderNormCandidates_point_complete_of_decompose
+/-- A qualifying point on a selected actual prepared block occurs in the public producer output.
+The block remains an explicit geometric witness, while decomposition success is derived inside. -/
+theorem firstOrderNormCandidates_point_complete_of_block
     (p : ℕ) [Fact p.Prime]
     (modulus : CPolynomial (ZMod p)) [Fact modulus.monic]
     [Fact (Irreducible modulus.toPoly)]
@@ -351,9 +368,6 @@ theorem firstOrderNormCandidates_point_complete_of_decompose
     (hkA : k ≤ A)
     (positions : Finset (Fin (prepare chart received).agreements.length))
     (hpositions : A ≤ positions.card)
-    (decomposition : Output (Carrier modulus))
-    (hdecompose : decomposeComputedBlock p modulus M D block
-      (prepare chart received).agreements = .ok decomposition)
     (hdegree : (prepare chart received).chartPolynomials.equation.natDegree < p)
     (hdenominatorPower : chart.denominator = chart.separant ^ (2 * k))
     {K : Type} [Field K] (base : Carrier modulus →+* K) (u v : K)
@@ -374,11 +388,58 @@ theorem firstOrderNormCandidates_point_complete_of_decompose
                   (prepare chart received).chartPolynomials.denominator base u v) := by
   obtain ⟨candidate, hcandidate, hpoint, hspecialize⟩ :=
     produceComputedBlock_point_complete p modulus M D chart received hnormal
-      hgenericSquarefree block hblock hk huniversal hkA positions hpositions decomposition
-      hdecompose hdegree hdenominatorPower base u v hcomponent hresidual hseparant
+      hgenericSquarefree block hblock hk huniversal hkA positions hpositions
+      hdegree hdenominatorPower base u v hcomponent hresidual hseparant
   refine ⟨candidate, ?_, hpoint, hspecialize⟩
   simp only [firstOrderNormCandidates, List.mem_flatMap]
   exact ⟨block, hblock, hcandidate⟩
+
+/-- Every qualifying root of the converted chart equation is covered by the public producer.
+The actual all-fiber component scan supplies the block witness, including on ramified and meeting
+fibers.  The remaining universal-label bound is quantified over the blocks returned by that scan,
+so neither a block nor a successful decomposition is caller supplied. -/
+theorem firstOrderNormCandidates_point_complete
+    (p : ℕ) [Fact p.Prime]
+    (modulus : CPolynomial (ZMod p)) [Fact modulus.monic]
+    [Fact (Irreducible modulus.toPoly)]
+    (M : MulContext (Carrier modulus)) (D : ModContext (Carrier modulus))
+    {k b L A : ℕ}
+    (chart : ReedSolomon.HiddenDerivative.FastTaylor.ChartData (Carrier modulus) 1 k)
+    (received : List (Carrier modulus × Carrier modulus))
+    (hnormal : chart.NormalForms b L)
+    (hgenericSquarefree : Squarefree
+      (Polynomial.FunctionFieldAlgorithms.ClearDenominators.valueGlobal
+        (prepare chart received).chartPolynomials.equation))
+    (hk : 0 < k)
+    (huniversal : ∀ block ∈ (prepare chart received).blocks,
+      block.component.universal.length ≤ k - 1)
+    (hkA : k ≤ A)
+    (positions : Finset (Fin (prepare chart received).agreements.length))
+    (hpositions : A ≤ positions.card)
+    (hdegree : (prepare chart received).chartPolynomials.equation.natDegree < p)
+    (hdenominatorPower : chart.denominator = chart.separant ^ (2 * k))
+    {K : Type} [Field K] (base : Carrier modulus →+* K) (u v : K)
+    (hequation : Polynomial.FunctionFieldAlgorithms.ComponentDescent.evalAt
+      base u v (prepare chart received).chartPolynomials.equation = 0)
+    (hresidual : ∀ i ∈ positions,
+      Polynomial.FunctionFieldAlgorithms.ComponentDescent.evalAt base u v
+        (prepare chart received).agreements[i] = 0)
+    (hseparant : TowerRepresentation.evalNested
+      (prepare chart received).chartPolynomials.separant base u v ≠ 0) :
+    ∃ candidate ∈ firstOrderNormCandidates p modulus M D A chart received,
+      candidate.Point base u v ∧
+        candidate.specialize base u v =
+          Polynomial.JetHornerMachine.coefficientPolynomial
+            ((List.ofFn (prepare chart received).chartPolynomials.numerators).map
+              fun numerator => TowerRepresentation.evalNested numerator base u v /
+                TowerRepresentation.evalNested
+                  (prepare chart received).chartPolynomials.denominator base u v) := by
+  obtain ⟨block, hblock, hcomponent⟩ :=
+    exists_preparedBlock_of_equation_root chart received hnormal base u v hequation
+  exact firstOrderNormCandidates_point_complete_of_block
+    p modulus M D chart received hnormal hgenericSquarefree block hblock hk
+      (huniversal block hblock) hkA positions hpositions hdegree hdenominatorPower
+      base u v hcomponent hresidual hseparant
 
 /-- Every candidate emitted by the complete producer satisfies the common tower contract.  The
 only numerical input beyond chart normal forms is the chart equation's published fiber-degree
