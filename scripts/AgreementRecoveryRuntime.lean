@@ -23,6 +23,7 @@ ArkLibTest.Data.Polynomial.ConfluentAlgebra.FundamentalMatrix
 import
 ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Constructor
 import ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.RegularFiber
+import ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.SuppliedAdapter
 import ArkLibTest.Data.FiniteField.ExplicitConstruction.CenterDispatcher
 import ArkLibTest.Data.FiniteField.ExplicitConstruction.OddCenters
 import ArkLibTest.Data.FiniteField.ExplicitConstruction.PolynomialBasis
@@ -160,6 +161,7 @@ private def linearFixtureBackend :
 corrupted received values, and the zero-width reference branch. -/
 def run : IO Unit := do
   RegularFiberTests.run
+  SuppliedAdapterTests.run
   CenterDispatcherTests.run
   OddCenterTests.run
   ArkLibTest.FiniteField.ExplicitConstruction.PolynomialBasis.run

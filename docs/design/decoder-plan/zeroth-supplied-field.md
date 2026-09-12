@@ -1,7 +1,8 @@
 # Supplied-field zeroth-order decoder and positive-order Taylor
 
 This plan records the user-adopted split for implementers and integration reviewers.
-The accepted source remains `e065bd441a1ab3cce5cc11d569d23fa9cf1c65a8`.
+The accepted core is `700a44b7473c41d0c98e311b37bad474d7ea7a0c`; it was merged into the
+preserved Personal 4 continuation rather than used as a reset.
 The revised zeroth-order specification is paper commit
 `b1be8b89069542faacac40a7e92068857b43e97a`, particularly
 `appendices/decoder-separable.tex` and `core/decoding.tex`.
@@ -36,8 +37,8 @@ their original restrictions. No bit-complexity formalization is part of this tas
 | Owner | Required checked producer | Adoption state |
 | --- | --- | --- |
 | Personal 1 | Saturated Radical/SeparablePart; global graph retention, degree bounds; obstruction | Reviewed conditional checkpoint `672739e2a9c2bcb870d6afc13bdc44e925772eda` adopted locally; original-input success/graph/degree capstone open |
-| Personal 3 | Supplied-field inverse Frobenius; coordinate prefixes; both quadratic branches | Revised producer not yet accepted |
-| Personal 4 | Ordinary Newton/recovery adapters and exact executed composition | RegularFiber adapter in development; earlier conditional BatchedCenter slice available |
+| Personal 3 | Supplied-field inverse Frobenius; coordinate prefixes; both quadratic branches | Polynomial-basis prefixes and odd base/quadratic producer collected; binary branch and normalization inverse callback remain unavailable |
+| Personal 4 | Ordinary Newton/recovery adapters and exact executed composition | Reviewed `RegularFiber` and `SuppliedAdapter` compose normalization, obstruction selection, supplied base prefixes, the odd base branch, ordinary recovery, and the exact `k = 1` branch; final producer success remains conditional |
 
 Adopt only reviewed immutable commits. Record each SHA with a compiled producer and
 consumer client at the same integration head. Current worker source and historical
@@ -49,9 +50,9 @@ The positive-order dispatcher remains prime-field specific. The checked differen
 APIs require the coefficient field's actual characteristic, not an unrelated numeric
 bound. Worker 2 repaired `fundamental?` and `nonlinearNewton?` to require
 `CharP E p`. The exact reviewed solver checkpoint is `ff8b3aab2e9dd770816eadbf857baa1d77710b2d`.
-Its full private gate and native characteristic/second-order tests passed. The parent
-combined runtime, including the actual ramified chart, passed. Final combined full
-validation and full integration review remain required before publication.
+Its full private gate and native characteristic/second-order tests passed. The one-chart
+integration was independently accepted and passed the full combined gate at published
+checkpoint `0c54212998b62ee34214493fab5995a43906f8d1`.
 Raw arithmetic helpers remain conditional on the hypotheses of their correctness lemmas.
 
 The actual constructor executes projection, weighted monic reduction, sample search,
@@ -60,7 +61,7 @@ initial-jet invariants, literal numerator provenance from actual solver output, 
 bounded recovered degrees compile. Public returned-chart geometry, normal-form and
 input-to-success contracts compile. The global contract identifies the actual cleared
 numerators and denominator after arbitrary coefficient-field embeddings and proves the
-regular-locus agreement identity. Final integrated validation remains. Stored solution
+regular-locus agreement identity. Stored solution
 precision is `k`; the positive-order residual precision is `k-r`. All-chart tangent/coverage
 production and global dispatch remain later obligations.
 
