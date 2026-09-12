@@ -35,7 +35,7 @@ def run : IO Unit := do
   unless prepared.blocks.length == 2 do
     throw <| IO.userError "concrete component preparation did not split the chart"
   unless prepared.blocks.any fun block => block.component.universal == [0] &&
-      block.norms.isEmpty && block.normProduct == 1 do
+      block.norms == [1] && block.normProduct == 1 do
     throw <| IO.userError "universal component contributed a norm row"
   unless prepared.blocks.any fun block => block.component.universal.isEmpty &&
       block.norms.length == 1 && block.normProduct.coeff 0 == 0 &&
