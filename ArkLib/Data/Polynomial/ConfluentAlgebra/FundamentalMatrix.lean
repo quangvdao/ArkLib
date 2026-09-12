@@ -597,6 +597,59 @@ def initialPolynomial (d : ℕ) (jet : Fin (d + 1) → Representative h) :
     CPolynomial (Representative h) :=
   ofCoeffs (d + 1) (fun i => if hi : i < d + 1 then jet ⟨i, hi⟩ else 0)
 
+omit [Fact (0 < h.toPoly.degree)] in
+/-- The initial polynomial stores exactly the supplied Hasse jet. -/
+@[simp] theorem initialPolynomial_coeff (d : ℕ)
+    (jet : Fin (d + 1) → Representative h) (j : Fin (d + 1)) :
+    (initialPolynomial h d jet).coeff j.val = jet j := by
+  simp only [initialPolynomial, coeff_ofCoeffs, if_pos j.isLt, dif_pos j.isLt]
+
+/-- At positive precision, the constant jet point is the supplied initial data. -/
+theorem jetPoint_initialPolynomial_coeff_zero (k d : ℕ) (hk : 0 < k) (c : E)
+    (jet : Fin (d + 1) → Representative h) (i : Fin (d + 2)) :
+    (SeriesNewton.jetPoint h k d c (initialPolynomial h d jet) i).coeff 0 =
+      Fin.cases (SeriesNewton.scalarHom h c) jet i := by
+  refine Fin.cases ?_ (fun j => ?_) i
+  · have hx : (CPolynomial.X : CPolynomial (Representative h)).coeff 0 = 0 := by
+      rw [CPolynomial.coeff_toPoly, CPolynomial.X_toPoly]
+      simp
+    simp [SeriesNewton.jetPoint, SeriesNewton.seriesScalarHom, CPolynomial.coeff_add,
+      CPolynomial.coeff_C, hx]
+  · simp [SeriesNewton.jetPoint, coeff_hasse, hk, initialPolynomial_coeff]
+
+/-- Constant-coefficient evaluation recovers the geometric initial-jet equation.
+No characteristic or integration bound is required. -/
+theorem jetEval_initialPolynomial_coeff_zero (k d : ℕ) (hk : 0 < k) (c : E)
+    (T : CPoly.CMvPolynomial (d + 2) E) (jet : Fin (d + 1) → Representative h) :
+    (SeriesNewton.jetEval h k d c T (initialPolynomial h d jet)).coeff 0 =
+      CPoly.CMvPolynomial.eval₂ (SeriesNewton.scalarHom h)
+        (Fin.cases (SeriesNewton.scalarHom h c) jet) T := by
+  let φ : CPolynomial (Representative h) →+* Representative h :=
+    Polynomial.constantCoeff.comp CPolynomial.ringEquiv.toRingHom
+  have hφ (q : CPolynomial (Representative h)) : φ q = q.coeff 0 := by
+    simpa [φ, CPolynomial.ringEquiv_apply] using (CPolynomial.coeff_toPoly q 0).symm
+  have hc : φ.comp (SeriesNewton.seriesScalarHom h) = SeriesNewton.scalarHom h := by
+    apply RingHom.ext
+    intro a
+    change φ (SeriesNewton.seriesScalarHom h a) = _
+    rw [hφ]
+    simp [SeriesNewton.seriesScalarHom, CPolynomial.coeff_C]
+  simp only [SeriesNewton.jetEval, CPoly.eval₂_equiv]
+  rw [← hφ, MvPolynomial.hom_eval₂, hc]
+  congr 1
+  funext i
+  exact (hφ _).trans (jetPoint_initialPolynomial_coeff_zero h k d hk c jet i)
+
+/-- The same specialization bridge applies to every stored jet partial, including the highest. -/
+theorem jetPartial_initialPolynomial_coeff_zero (k d : ℕ) (hk : 0 < k) (c : E)
+    (T : CPoly.CMvPolynomial (d + 2) E) (jet : Fin (d + 1) → Representative h)
+    (j : Fin (d + 1)) :
+    (SeriesNewton.jetPartial h k d c T (initialPolynomial h d jet) j).coeff 0 =
+      CPoly.CMvPolynomial.eval₂ (SeriesNewton.scalarHom h)
+        (Fin.cases (SeriesNewton.scalarHom h c) jet)
+        (CPoly.CMvPolynomial.partialDerivative ⟨j.val + 1, by omega⟩ T) :=
+  jetEval_initialPolynomial_coeff_zero h k d hk c _ jet
+
 /-- Full guarded nonlinear series producer from initial jet data.
 
 The solution is stored through `k`; the differential residual target is separately `k-d`.

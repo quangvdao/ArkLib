@@ -45,6 +45,24 @@ example : ¬ CharP (ZMod 2) 7 := by
 example : fundamental? 2 3 (RingHom.id (ZMod 2)) (1 : Mat (A := ZMod 2) 1) = none := by
   simp [fundamental?]
 
+/-- Initial evaluation works even when the precision is smaller than the jet length. -/
+example (T : CPoly.CMvPolynomial 4 (ZMod 7)) (jet : Fin 3 → B) :
+    (SeriesNewton.jetEval equation 1 2 3 T (initialPolynomial equation 2 jet)).coeff 0 =
+      CPoly.CMvPolynomial.eval₂ (SeriesNewton.scalarHom equation)
+        (Fin.cases (SeriesNewton.scalarHom equation 3) jet) T :=
+  jetEval_initialPolynomial_coeff_zero equation 1 2 (by decide) 3 T jet
+
+/-- The highest stored partial uses the last jet variable, with no integration hypotheses. -/
+example (T : CPoly.CMvPolynomial 4 (ZMod 7)) (jet : Fin 3 → B) :
+    (SeriesNewton.jetPartial equation 1 2 3 T (initialPolynomial equation 2 jet) 2).coeff 0 =
+      CPoly.CMvPolynomial.eval₂ (SeriesNewton.scalarHom equation)
+        (Fin.cases (SeriesNewton.scalarHom equation 3) jet)
+        (CPoly.CMvPolynomial.partialDerivative 3 T) :=
+  jetPartial_initialPolynomial_coeff_zero equation 1 2 (by decide) 3 T jet 2
+
+#print axioms jetEval_initialPolynomial_coeff_zero
+#print axioms jetPartial_initialPolynomial_coeff_zero
+
 /-- Execute both precision-doubling branches and reject unsupported characteristic inputs. -/
 def run : IO Unit := do
   let P₁values := matrixData (step 6 ι system 1)
