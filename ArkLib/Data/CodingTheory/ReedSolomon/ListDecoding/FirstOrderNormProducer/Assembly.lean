@@ -166,4 +166,73 @@ theorem materializeRetained_wellFormed [DecidableEq E]
     (List.ofFn numerators) out hout
   simpa using hwell
 
+/-- Materialization changes only the coefficient payload, so it preserves every geometric
+tower point exactly. -/
+theorem materializeCoefficients?_point_iff [DecidableEq E]
+    (tower : TowerRepresentation (F := E))
+    (denominator : CPolynomial (CPolynomial E))
+    (numerators : List (CPolynomial (CPolynomial E)))
+    (out : TowerRepresentation (F := E))
+    (hout : materializeCoefficients? tower denominator numerators = some out)
+    {L : Type*} [Field L] (base : E →+* L) (u v : L) :
+    out.Point base u v ↔ tower.Point base u v := by
+  unfold materializeCoefficients? at hout
+  cases hinverse : inverseElimination? tower.modulus tower.fiber denominator with
+  | none => simp [hinverse] at hout
+  | some inverse =>
+      simp only [hinverse, Option.some.injEq] at hout
+      subst out
+      rfl
+
+/-- A retained root with nonzero separant survives the actual D5 preprocessing and actual
+denominator inversion.  The resulting specialization is the chart's rational coefficient list.
+This is the candidate-membership bridge consumed by the per-chart coverage theorem. -/
+theorem materializeRetained_point_complete [DecidableEq E]
+    (p : ℕ) [Fact p.Prime] [CharP E p]
+    {k : ℕ} (support : CPolynomial E)
+    (fiber separant denominator : CPolynomial (CPolynomial E))
+    (numerators : Fin k → CPolynomial (CPolynomial E))
+    (hsupport : support.monic) (hsquarefree : Squarefree support.toPoly)
+    (hfiber : fiber.monic) (hdegree : fiber.natDegree < p)
+    (hdenominator : ∀ u v : AlgebraicClosure E,
+      (retainedTower support fiber).Point (algebraMap E (AlgebraicClosure E)) u v →
+      TowerRepresentation.evalNested separant
+        (algebraMap E (AlgebraicClosure E)) u v ≠ 0 →
+      TowerRepresentation.evalNested denominator
+        (algebraMap E (AlgebraicClosure E)) u v ≠ 0)
+    {L : Type} [Field L] (base : E →+* L) (u v : L)
+    (hpoint : (retainedTower support fiber).Point base u v)
+    (hseparant : TowerRepresentation.evalNested separant base u v ≠ 0) :
+    ∃ out ∈ materializeRetained support fiber separant denominator numerators
+        hsupport hsquarefree hfiber,
+      out.Point base u v ∧
+        out.specialize base u v =
+          Polynomial.JetHornerMachine.coefficientPolynomial
+            ((List.ofFn numerators).map fun numerator =>
+              TowerRepresentation.evalNested numerator base u v /
+                TowerRepresentation.evalNested denominator base u v) := by
+  let input := retainedTower support fiber
+  let hinput : Preprocessable input :=
+    retainedTower_preprocessable support fiber hsupport hsquarefree hfiber
+  obtain ⟨tower, htower, htowerPoint⟩ :=
+    preprocessFiber_point_complete p input separant hinput hdegree base u v hpoint hseparant
+  have htowerWell : tower.WellFormed 0 :=
+    preprocessFiber_wellFormed p input separant hinput hdegree tower htower
+  have hnonzero : ∀ x y : AlgebraicClosure E,
+      tower.Point (algebraMap E (AlgebraicClosure E)) x y →
+        TowerRepresentation.evalNested denominator
+          (algebraMap E (AlgebraicClosure E)) x y ≠ 0 := by
+    intro x y hxy
+    have hretained := preprocessFiber_point_sound p input separant hinput hdegree tower htower
+      (algebraMap E (AlgebraicClosure E)) x y hxy
+    exact hdenominator x y hretained.1 hretained.2
+  obtain ⟨out, hout, _houtWell⟩ := materializeCoefficients?_exists_of_geometric_nonvanishing
+    tower htowerWell denominator (List.ofFn numerators) hnonzero
+  refine ⟨out, (mem_materializeRetained_iff support fiber separant denominator numerators
+    hsupport hsquarefree hfiber out).mpr ⟨tower, htower, hout⟩, ?_, ?_⟩
+  · exact (materializeCoefficients?_point_iff tower denominator (List.ofFn numerators)
+      out hout base u v).mpr htowerPoint
+  · exact materializeCoefficients?_specialize tower htowerWell denominator
+      (List.ofFn numerators) out hout base u v htowerPoint
+
 end ReedSolomon.ListDecoding.FirstOrderNormProducer
