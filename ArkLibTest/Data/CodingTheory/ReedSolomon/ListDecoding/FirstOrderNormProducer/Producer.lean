@@ -105,6 +105,8 @@ def run : IO Unit := do
 #print axioms firstOrderNormCandidates_point_complete
 #print axioms produceComputedBlock_candidate_modulus_natDegree_le
 #print axioms firstOrderNormCandidates_candidate_modulus_natDegree_le
+#print axioms produceComputedBlock_candidate_modulus_degree_budget
+#print axioms firstOrderNormCandidates_candidate_modulus_degree_budget
 #print axioms firstOrderNormCandidates_wellFormed
 
 end ReedSolomon.ListDecoding.FirstOrderNormProducer.ProducerTests

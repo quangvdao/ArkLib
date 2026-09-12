@@ -7,6 +7,7 @@ module
 
 public import
   ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.ComponentNorms
+public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.Degree
 public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.Totality
 
 /-!
@@ -500,6 +501,74 @@ theorem firstOrderNormCandidates_candidate_modulus_natDegree_le
       p modulus M D A (prepare chart received).chartPolynomials
         (prepare chart received).agreements block candidate hcandidate
   exact ⟨block, hblock, decomposition, hdecompose, hdegree⟩
+
+/-- The component threshold times an emitted candidate's modulus degree is bounded first by the
+actual recomputed determinant-norm product and then by its structural degree budget. -/
+theorem produceComputedBlock_candidate_modulus_degree_budget
+    (p : ℕ) [Fact p.Prime]
+    (modulus : CPolynomial (ZMod p)) [Fact modulus.monic]
+    [Fact (Irreducible modulus.toPoly)]
+    (M : MulContext (Carrier modulus)) (D : ModContext (Carrier modulus))
+    {k : ℕ} (A : ℕ) (data : ChartPolynomials.Data (Carrier modulus) k)
+    (residuals : List (CBivariate (Carrier modulus)))
+    (block : ComputedBlock (Carrier modulus))
+    (hmonic : block.component.modulus.monic)
+    (candidate : TowerRepresentation (F := Carrier modulus))
+    (hcandidate : candidate ∈
+      produceComputedBlock p modulus M D A data residuals block) :
+    blockThreshold A block.component * candidate.modulus.natDegree ≤
+        (CompPoly.CPolynomial.NormProducts.ComponentNorms.blockNormProduct
+          block.component residuals).natDegree ∧
+      blockThreshold A block.component * candidate.modulus.natDegree ≤
+        blockNormDegreeBudget block.component residuals := by
+  obtain ⟨decomposition, hdecompose, hcandidateDegree⟩ :=
+    produceComputedBlock_candidate_modulus_natDegree_le
+      p modulus M D A data residuals block candidate hcandidate
+  have hdecomposeSupplied :
+      decomposeSupplied p modulus M D
+          (CompPoly.CPolynomial.NormProducts.ComponentNorms.blockNormProduct
+            block.component residuals) = .ok decomposition := by
+    simpa [decomposeComputedBlock, decomposeSuppliedBlockNormProduct] using hdecompose
+  have hthresholdDegree := decomposeSupplied_thresholdProduct_degree_le
+    p modulus M D (blockThreshold A block.component)
+      (CompPoly.CPolynomial.NormProducts.ComponentNorms.blockNormProduct
+        block.component residuals) decomposition hdecomposeSupplied
+  have hcandidateProduct :
+      blockThreshold A block.component * candidate.modulus.natDegree ≤
+        blockThreshold A block.component *
+          (thresholdProduct M (blockThreshold A block.component) decomposition).natDegree :=
+    Nat.mul_le_mul_left _ hcandidateDegree
+  have hproductDegree := hcandidateProduct.trans hthresholdDegree
+  exact ⟨hproductDegree, hproductDegree.trans
+    (CompPoly.CPolynomial.NormProducts.ComponentNorms.natDegree_blockNormProduct_le_degreeBudget
+      block.component residuals hmonic)⟩
+
+/-- Public producer membership exposes the actual prepared component whose recomputed norm
+product and structural budget bound the emitted candidate's modulus degree. -/
+theorem firstOrderNormCandidates_candidate_modulus_degree_budget
+    (p : ℕ) [Fact p.Prime]
+    (modulus : CPolynomial (ZMod p)) [Fact modulus.monic]
+    [Fact (Irreducible modulus.toPoly)]
+    (M : MulContext (Carrier modulus)) (D : ModContext (Carrier modulus))
+    {k b L : ℕ} (A : ℕ)
+    (chart : ReedSolomon.HiddenDerivative.FastTaylor.ChartData (Carrier modulus) 1 k)
+    (received : List (Carrier modulus × Carrier modulus))
+    (hnormal : chart.NormalForms b L)
+    (candidate : TowerRepresentation (F := Carrier modulus))
+    (hcandidate : candidate ∈ firstOrderNormCandidates p modulus M D A chart received) :
+    ∃ block ∈ (prepare chart received).blocks,
+      blockThreshold A block.component * candidate.modulus.natDegree ≤
+          (CompPoly.CPolynomial.NormProducts.ComponentNorms.blockNormProduct
+            block.component (prepare chart received).agreements).natDegree ∧
+        blockThreshold A block.component * candidate.modulus.natDegree ≤
+          blockNormDegreeBudget block.component (prepare chart received).agreements := by
+  simp only [firstOrderNormCandidates, List.mem_flatMap] at hcandidate
+  obtain ⟨block, hblock, hcandidate⟩ := hcandidate
+  refine ⟨block, hblock, ?_⟩
+  exact produceComputedBlock_candidate_modulus_degree_budget
+    p modulus M D A (prepare chart received).chartPolynomials
+      (prepare chart received).agreements block
+      (preparedBlock_monic chart received hnormal block hblock) candidate hcandidate
 
 /-- Every candidate emitted by the complete producer satisfies the common tower contract.  The
 only numerical input beyond chart normal forms is the chart equation's published fiber-degree
