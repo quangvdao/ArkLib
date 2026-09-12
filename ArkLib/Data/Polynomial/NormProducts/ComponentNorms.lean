@@ -6,7 +6,7 @@ Authors: Quang Dao
 module
 
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.ComponentDescent
-public import ArkLib.Data.Polynomial.NormProducts.MultiplicationMatrix
+public import ArkLib.Data.Polynomial.NormProducts.DeterminantDegree
 public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.NormSieveBridge
 
 /-!
@@ -370,6 +370,12 @@ residual contributes its computed determinant once. -/
 def blockNormProduct (b : Block F) (residuals : List (CBivariate F)) : CPolynomial F :=
   (componentNorms b residuals).prod
 
+/-- Sum of the closed determinant-degree budgets for one component.  Universal positions are
+harmless units; retaining their budgets keeps this chart-facing bound independent of labels. -/
+noncomputable def blockNormDegreeBudget (b : Block F)
+    (residuals : List (CBivariate F)) : ℕ :=
+  (residuals.map fun e => determinantDegreeBudget b.modulus e).sum
+
 /-- The paper's component-local threshold `A - |U_b|`. -/
 def blockThreshold (A : ℕ) (b : Block F) : ℕ := A - b.universal.length
 
@@ -398,6 +404,72 @@ theorem natDegree_blockNormProduct_eq_sum (b : Block F)
     (blockNormProduct b residuals).natDegree =
       ((componentNorms b residuals).map CPolynomial.natDegree).sum := by
   exact natDegree_list_prod_eq_sum _ hn
+
+omit [Fintype F] in
+/-- Each actual determinant factor obeys the closed bidegree budget of its component modulus and
+residual. -/
+theorem natDegree_determinantFactor_le (b : Block F) (i : ℕ) (e : CBivariate F)
+    (hb : b.modulus.monic) :
+    (determinantFactor b i e).natDegree ≤ determinantDegreeBudget b.modulus e := by
+  unfold determinantFactor
+  split
+  · rw [CPolynomial.natDegree_toPoly, CPolynomial.toPoly_one,
+      Polynomial.natDegree_one]
+    exact Nat.zero_le _
+  · exact natDegree_polynomialNorm_le b.modulus e hb
+
+omit [Fintype F] in
+private theorem sum_componentNormsFrom_natDegree_le_budget (i : ℕ) (b : Block F)
+    (residuals : List (CBivariate F)) (hb : b.modulus.monic) :
+    ((componentNormsFrom i b residuals).map CPolynomial.natDegree).sum ≤
+      (residuals.map fun e => determinantDegreeBudget b.modulus e).sum := by
+  induction residuals generalizing i with
+  | nil => simp [componentNormsFrom]
+  | cons e es ih =>
+      simp only [componentNormsFrom, List.map_cons, List.sum_cons]
+      exact Nat.add_le_add (natDegree_determinantFactor_le b i e hb) (ih (i + 1))
+
+omit [Fintype F] in
+private theorem natDegree_cPolynomial_list_prod_le_sum
+    (factors : List (CPolynomial F)) :
+    factors.prod.natDegree ≤ (factors.map CPolynomial.natDegree).sum := by
+  induction factors with
+  | nil =>
+      rw [List.prod_nil, List.map_nil, List.sum_nil,
+        CPolynomial.natDegree_toPoly, CPolynomial.toPoly_one,
+        Polynomial.natDegree_one]
+  | cons q qs ih =>
+      rw [List.prod_cons, List.map_cons, List.sum_cons,
+        CPolynomial.natDegree_toPoly, CPolynomial.toPoly_mul]
+      calc
+        (q.toPoly * qs.prod.toPoly).natDegree ≤
+            q.toPoly.natDegree + qs.prod.toPoly.natDegree :=
+          Polynomial.natDegree_mul_le
+        _ = q.natDegree + qs.prod.natDegree := by
+          rw [CPolynomial.natDegree_toPoly q, CPolynomial.natDegree_toPoly qs.prod]
+        _ ≤ q.natDegree + (qs.map CPolynomial.natDegree).sum :=
+          Nat.add_le_add_left ih _
+
+omit [Fintype F] in
+/-- One component's actual determinant product is bounded solely by the component and residual
+bidegrees.  No generic squarefreeness or nonvanishing premise is needed for this upper bound. -/
+theorem natDegree_blockNormProduct_le_degreeBudget (b : Block F)
+    (residuals : List (CBivariate F)) (hb : b.modulus.monic) :
+    (blockNormProduct b residuals).natDegree ≤ blockNormDegreeBudget b residuals := by
+  exact (natDegree_cPolynomial_list_prod_le_sum (componentNorms b residuals)).trans
+    (by
+      unfold componentNorms blockNormDegreeBudget
+      exact sum_componentNormsFrom_natDegree_le_budget 0 b residuals hb)
+
+omit [Fintype F] in
+/-- Chart-facing form of the component product bound for every block returned by the actual
+descent scan. -/
+theorem run_natDegree_blockNormProduct_le_degreeBudget
+    (h : CBivariate F) (residuals : List (CBivariate F)) (hh : h.monic)
+    (b : Block F) (hb : b ∈ (ComponentDescent.run h residuals).blocks) :
+    (blockNormProduct b residuals).natDegree ≤ blockNormDegreeBudget b residuals :=
+  natDegree_blockNormProduct_le_degreeBudget b residuals
+    (ComponentDescent.run_monic h residuals hh b hb)
 
 omit [Fintype F] in
 theorem rootMultiplicity_blockNormProduct_map (b : Block F)
@@ -526,6 +598,35 @@ theorem threshold_mul_natDegree_blockRetainedNormProduct_le
   rw [← natDegree_blockNormProduct_eq_sum b residuals hn]
   exact threshold_mul_natDegree_retainedMultiplicitySupport_le p (blockThreshold A b)
     (cPolynomial_list_prod_ne_zero _ hn) hT
+
+/-- Combining determinant arithmetic with threshold compression gives a closed per-component
+candidate-degree bound in the chart and residual bidegrees. -/
+theorem threshold_mul_natDegree_blockRetainedNormProduct_le_degreeBudget
+    (p A : ℕ) [Fact p.Prime] [CharP F p]
+    (b : Block F) (residuals : List (CBivariate F))
+    (hb : b.modulus.monic)
+    (hn : ∀ q ∈ componentNorms b residuals, q ≠ 0)
+    (hT : 0 < blockThreshold A b) :
+    blockThreshold A b * (blockRetainedNormProduct p A b residuals).natDegree ≤
+      blockNormDegreeBudget b residuals := by
+  exact (threshold_mul_natDegree_blockRetainedNormProduct_le
+    p A b residuals hn hT).trans
+      (by
+        unfold componentNorms blockNormDegreeBudget
+        exact sum_componentNormsFrom_natDegree_le_budget 0 b residuals hb)
+
+/-- Chart-facing retained-product degree bound for a certified returned component. -/
+theorem run_threshold_mul_natDegree_blockRetainedNormProduct_le_degreeBudget
+    (p A : ℕ) [Fact p.Prime] [CharP F p]
+    (h : CBivariate F) (residuals : List (CBivariate F))
+    (hh : h.monic) (hs : Squarefree (ClearDenominators.valueGlobal h))
+    (b : Block F) (hb : b ∈ (ComponentDescent.run h residuals).blocks)
+    (hT : 0 < blockThreshold A b) :
+    blockThreshold A b * (blockRetainedNormProduct p A b residuals).natDegree ≤
+      blockNormDegreeBudget b residuals :=
+  threshold_mul_natDegree_blockRetainedNormProduct_le_degreeBudget
+    p A b residuals (ComponentDescent.run_monic h residuals hh b hb)
+      (run_componentNorms_ne_zero h residuals hh hs b hb) hT
 
 /-- Run G02 on one component-local norm product. -/
 def decomposeBlockNormProduct (p : ℕ) (inverse : F → F)

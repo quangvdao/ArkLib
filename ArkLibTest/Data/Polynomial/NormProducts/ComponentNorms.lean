@@ -97,6 +97,9 @@ end SuppliedLinear
 #print axioms runAggregateNormList_ne_zero
 #print axioms runAggregateNormProduct_ne_zero
 #print axioms natDegree_blockNormProduct_eq_sum
+#print axioms natDegree_determinantFactor_le
+#print axioms natDegree_blockNormProduct_le_degreeBudget
+#print axioms run_natDegree_blockNormProduct_le_degreeBudget
 #print axioms rootMultiplicity_blockNormProduct_map
 #print axioms card_le_rootMultiplicity_blockNormProduct_map_of_points
 #print axioms eval₂_blockRetainedNormProduct_eq_zero_iff_sum_rootMultiplicity
@@ -104,6 +107,8 @@ end SuppliedLinear
 #print axioms blockRetainedNormProduct_squarefree
 #print axioms run_blockRetainedNormProduct_eval₂_eq_zero_of_card_le_points
 #print axioms threshold_mul_natDegree_blockRetainedNormProduct_le
+#print axioms threshold_mul_natDegree_blockRetainedNormProduct_le_degreeBudget
+#print axioms run_threshold_mul_natDegree_blockRetainedNormProduct_le_degreeBudget
 #print axioms fastBlockRetainedNormProduct_eq_ok
 #print axioms fastSuppliedBlockRetainedNormProduct_eq_ok
 #print axioms thresholdProduct_eval₂_eq_zero_iff_blockRetainedNormProduct
