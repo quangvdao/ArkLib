@@ -10,6 +10,7 @@ public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.Frobenius
 public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.TreeRefinement
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.StoredFraction
 public import ArkLib.Data.FiniteField.ExplicitConstruction.PolynomialBasisFrobenius
+public import ArkLib.ToMathlib.Polynomial.HasseTaylor.Shift
 
 /-!
 # Recursive multiplicity-labelled decomposition
@@ -768,6 +769,52 @@ theorem gcd_residue_eq_rootMultiplicity (f v w q : Polynomial K) (hf : f ≠ 0) 
     (by intro hz; exact hcn (dvd_iff_isRoot.mpr hz)) hq
   simpa only [Nat.sub_add_cancel hmpos] using he
 
+omit [DecidableEq K] in
+/-- A squarefree derivative quotient and its two exact common-factor identities are enough to
+identify the logarithmic residue over any coefficient field. -/
+theorem factor_residue_eq_rootMultiplicity
+    (f u v w q : Polynomial K) (hf : f ≠ 0) (hu : u ≠ 0) (hv : v ≠ 0) (x : K)
+    (hfv : u * v = f) (hfw : u * w = f.derivative)
+    (hsep : v.Separable) (hx : v.IsRoot x)
+    (hq : q.eval x * v.derivative.eval x = w.eval x) :
+    q.eval x = (f.rootMultiplicity x : K) := by
+  have hfx : f.IsRoot x := by
+    rw [← hfv, Polynomial.IsRoot, Polynomial.eval_mul]
+    simp [show v.eval x = 0 from hx]
+  have hmpos : 0 < f.rootMultiplicity x := (Polynomial.rootMultiplicity_pos hf).mpr hfx
+  have hvm : v.rootMultiplicity x = 1 := by
+    apply le_antisymm (Polynomial.rootMultiplicity_le_one_of_separable hsep x)
+    exact (Polynomial.rootMultiplicity_pos hv).mpr hx
+  have hprod : u * v ≠ 0 := mul_ne_zero hu hv
+  have hadd := Polynomial.rootMultiplicity_mul (x := x) hprod
+  rw [hfv, hvm] at hadd
+  have hum : u.rootMultiplicity x = f.rootMultiplicity x - 1 := by omega
+  obtain ⟨A, hA, _⟩ := f.exists_eq_pow_rootMultiplicity_mul_and_not_dvd hf x
+  obtain ⟨B, hB, hBn⟩ := u.exists_eq_pow_rootMultiplicity_mul_and_not_dvd hu x
+  obtain ⟨c, hc, hcn⟩ := v.exists_eq_pow_rootMultiplicity_mul_and_not_dvd hv x
+  rw [hum] at hB
+  rw [hvm, pow_one] at hc
+  have hAc : A = B * c := by
+    apply mul_left_cancel₀
+      (pow_ne_zero (f.rootMultiplicity x) (Polynomial.monic_X_sub_C x).ne_zero)
+    calc
+      _ = f := hA.symm
+      _ = ((Polynomial.X - Polynomial.C x) ^ (f.rootMultiplicity x - 1) * B) *
+          ((Polynomial.X - Polynomial.C x) * c) := by rw [← hB, ← hc, hfv]
+      _ = (Polynomial.X - Polynomial.C x) ^ (f.rootMultiplicity x - 1 + 1) *
+          (B * c) := by ring
+      _ = _ := by rw [Nat.sub_add_cancel hmpos]
+  have hder : Polynomial.derivative
+        ((Polynomial.X - Polynomial.C x) ^ (f.rootMultiplicity x - 1 + 1) * A) =
+      (Polynomial.X - Polynomial.C x) ^ (f.rootMultiplicity x - 1) * (B * w) := by
+    rw [Nat.sub_add_cancel hmpos, ← hA, ← hfw, hB]
+    ring
+  have he := local_residue_eq_multiplicity x (f.rootMultiplicity x - 1)
+    A B w v q c hder hAc hc
+    (by intro hz; exact hBn (Polynomial.dvd_iff_isRoot.mpr hz))
+    (by intro hz; exact hcn (Polynomial.dvd_iff_isRoot.mpr hz)) hq
+  simpa only [Nat.sub_add_cancel hmpos] using he
+
 end Multiplicity
 
 /-- The executable monic gcd refines the normalized polynomial gcd. -/
@@ -815,6 +862,220 @@ theorem residuePolynomial?_eval_eq_rootMultiplicity (f q : CPolynomial F)
   · exact hx
   · simpa only [Polynomial.eval₂_id, derivative_toPoly, derivativeParts,
       gcdComplement] using hi
+
+/-- The residue identity classifies every root after an arbitrary coefficient-field extension,
+including irreducible factors with no root in the base field. -/
+theorem residuePolynomial?_eval₂_eq_rootMultiplicity [PerfectField F]
+    {K : Type*} [Field K] (phi : F →+* K)
+    (f q : CPolynomial F) (hf : f.monic) (x : K)
+    (hx : ((gcdComplement f f.derivative).toPoly.map phi).IsRoot x)
+    (hq : residuePolynomial? f = some q) :
+    q.toPoly.eval₂ phi x = ((f.toPoly.map phi).rootMultiplicity x : K) := by
+  let : DecidableEq F := instDecidableEqOfLawfulBEq
+  let : DecidableEq K := Classical.decEq K
+  have hfn : f ≠ 0 :=
+    (toPoly_eq_zero_iff f).not.mp ((monic_toPoly_iff f).mp hf).ne_zero
+  have hfv0 := congrArg CPolynomial.toPoly (derivativeParts_exact hfn)
+  have hfvBase : (gcdFactor f f.derivative).toPoly *
+      (gcdComplement f f.derivative).toPoly = f.toPoly := by
+    simpa only [derivativeParts, gcdComplement, toPoly_mul,
+      derivative_toPoly] using hfv0
+  have hfv := congrArg (Polynomial.map phi) hfvBase
+  rw [Polynomial.map_mul] at hfv
+  have hfw0 : (gcdFactor f f.derivative).toPoly *
+      (f.derivative.divByMonic (gcdFactor f f.derivative)).toPoly = f.derivative.toPoly := by
+    rw [divByMonic_toPoly_eq_divByMonic _ _ (gcdFactor_monic hfn)]
+    have hm := Polynomial.modByMonic_eq_zero_iff_dvd
+      ((monic_toPoly_iff _).mp (gcdFactor_monic hfn)) |>.mpr
+        (gcdFactor_dvd_right f f.derivative)
+    simpa only [hm, zero_add] using
+      Polynomial.modByMonic_add_div f.derivative.toPoly (gcdFactor f f.derivative).toPoly
+  have hfw := congrArg (Polynomial.map phi) hfw0
+  rw [Polynomial.map_mul, derivative_toPoly,
+    ← Polynomial.derivative_map f.toPoly phi] at hfw
+  have hi := residuePolynomial?_root_identity phi x
+    (gcdComplement_monic hf)
+    (by simpa only [derivativeParts, gcdComplement, Polynomial.eval_map,
+      Polynomial.IsRoot] using hx) hq
+  have hi' : q.toPoly.eval₂ phi x *
+      (gcdComplement f f.derivative).derivative.toPoly.eval₂ phi x =
+      (f.derivative.divByMonic (gcdFactor f f.derivative)).toPoly.eval₂ phi x := by
+    simpa only [derivativeParts, gcdComplement] using hi
+  rw [← Polynomial.eval_map phi x]
+  apply Multiplicity.factor_residue_eq_rootMultiplicity (f.toPoly.map phi)
+    ((gcdFactor f f.derivative).toPoly.map phi)
+    ((gcdComplement f f.derivative).toPoly.map phi)
+    ((f.derivative.divByMonic (gcdFactor f f.derivative)).toPoly.map phi)
+    (q.toPoly.map phi)
+    ((Polynomial.map_ne_zero_iff phi.injective).mpr
+      ((monic_toPoly_iff f).mp hf).ne_zero)
+    ((Polynomial.map_ne_zero_iff phi.injective).mpr
+      ((monic_toPoly_iff _).mp (gcdFactor_monic hfn)).ne_zero)
+    ((Polynomial.map_ne_zero_iff phi.injective).mpr
+      ((monic_toPoly_iff _).mp (gcdComplement_monic hf)).ne_zero) x
+  · exact hfv
+  · exact hfw
+  · exact ((PerfectField.separable_iff_squarefree.mpr
+      (gcdDerivativeComplement_squarefree f hfn))).map
+  · exact hx
+  · simpa [Polynomial.eval_map, Polynomial.derivative_map, derivative_toPoly] using hi'
+
+private theorem rootMultiplicity_pow_of_ne {K : Type*} [Field K]
+    (a : Polynomial K) (ha : a ≠ 0) (x : K) (n : ℕ) :
+    (a ^ n).rootMultiplicity x = n * a.rootMultiplicity x := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [pow_succ, Polynomial.rootMultiplicity_mul
+      (mul_ne_zero (pow_ne_zero n ha) ha), ih, Nat.succ_mul]
+
+/-- A geometric root of one returned factor has exactly that factor's integer label as its
+multiplicity in the original polynomial. This includes roots that exist only after extending the
+coefficient field. -/
+theorem decompose_factor_rootMultiplicity
+    [PerfectField F] {K : Type*} [Field K] (phi : F →+* K) (x : K)
+    (p : ℕ) (inverse : F → F) (M : MulContext F) (D : ModContext F)
+    (f : CPolynomial F) (out : Output F)
+    (hout : decompose p inverse M D f = .ok out)
+    (z : ℕ × CPolynomial F) (hz : z ∈ out.factors)
+    (hx : (z.2.toPoly.map phi).IsRoot x) :
+    (f.toPoly.map phi).rootMultiplicity x = z.1 := by
+  obtain ⟨q, heq, hc⟩ := decompose_factor_cofactor p inverse M D f out hout z hz
+  have hshape := (decompose_sound p inverse M D f out hout).2.1 z hz
+  have hz0 : z.2.toPoly ≠ 0 := ((monic_toPoly_iff z.2).mp hshape.2.1).ne_zero
+  have hq0 : q ≠ 0 := by
+    intro hq
+    subst q
+    exact decompose_input_ne_zero p inverse M D f out hout
+      ((toPoly_eq_zero_iff f).mp (by simpa using heq))
+  have hzmap0 : z.2.toPoly.map phi ≠ 0 :=
+    (Polynomial.map_ne_zero_iff phi.injective).mpr hz0
+  have hqmap0 : q.map phi ≠ 0 :=
+    (Polynomial.map_ne_zero_iff phi.injective).mpr hq0
+  have hsep : (z.2.toPoly.map phi).Separable :=
+    (PerfectField.separable_iff_squarefree.mpr hshape.2.2.2).map
+  have hrootMultiplicity : (z.2.toPoly.map phi).rootMultiplicity x = 1 := by
+    apply le_antisymm (Polynomial.rootMultiplicity_le_one_of_separable hsep x)
+    exact (Polynomial.rootMultiplicity_pos hzmap0).mpr hx
+  have hqNotRoot : ¬(q.map phi).IsRoot x := by
+    intro hqRoot
+    have hcmap := hc.map (Polynomial.mapRingHom phi)
+    have hunit := hcmap.isUnit_of_dvd'
+      (Polynomial.dvd_iff_isRoot.mpr hx) (Polynomial.dvd_iff_isRoot.mpr hqRoot)
+    exact (Polynomial.not_isUnit_X_sub_C x) hunit
+  have hmap := congrArg (Polynomial.map phi) heq
+  rw [Polynomial.map_mul, Polynomial.map_pow] at hmap
+  rw [hmap, Polynomial.rootMultiplicity_mul
+    (mul_ne_zero (pow_ne_zero z.1 hzmap0) hqmap0),
+    rootMultiplicity_pow_of_ne _ hzmap0,
+    hrootMultiplicity, Polynomial.rootMultiplicity_eq_zero hqNotRoot]
+  omega
+
+private theorem eval₂_factorProduct_eq_zero_iff
+    {K : Type*} [Field K] (phi : F →+* K) (x : K)
+    (factors : List (ℕ × CPolynomial F))
+    (hpos : ∀ z ∈ factors, 0 < z.1) :
+    (factorProduct factors).toPoly.eval₂ phi x = 0 ↔
+      ∃ z ∈ factors, z.2.toPoly.eval₂ phi x = 0 := by
+  induction factors with
+  | nil => simp [factorProduct, toPoly_one]
+  | cons z rest ih =>
+    have hzpos := hpos z (by simp)
+    change (z.2 ^ z.1 * factorProduct rest).toPoly.eval₂ phi x = 0 ↔ _
+    rw [toPoly_mul, Polynomial.eval₂_mul, mul_eq_zero, toPoly_pow,
+      Polynomial.eval₂_pow, pow_eq_zero_iff (Nat.ne_of_gt hzpos),
+      ih (fun a ha => hpos a (by simp [ha]))]
+    simp
+
+private theorem eval₂_factor_prod_eq_zero_iff
+    {K : Type*} [Field K] (phi : F →+* K) (x : K)
+    (factors : List (ℕ × CPolynomial F)) :
+    ((factors.map Prod.snd).prod).toPoly.eval₂ phi x = 0 ↔
+      ∃ z ∈ factors, z.2.toPoly.eval₂ phi x = 0 := by
+  induction factors with
+  | nil => simp [toPoly_one]
+  | cons z rest ih =>
+    simp only [List.map_cons, List.prod_cons, toPoly_mul, Polynomial.eval₂_mul,
+      mul_eq_zero, ih, List.mem_cons]
+    aesop
+
+/-- Every geometric root of the input belongs to one of the actual returned factors. -/
+theorem decompose_root_mem_factor
+    {K : Type*} [Field K] (phi : F →+* K) (x : K)
+    (p : ℕ) (inverse : F → F) (M : MulContext F) (D : ModContext F)
+    (f : CPolynomial F) (out : Output F)
+    (hout : decompose p inverse M D f = .ok out)
+    (hx : (f.toPoly.map phi).IsRoot x) :
+    ∃ z ∈ out.factors, (z.2.toPoly.map phi).IsRoot x := by
+  have hs := decompose_sound p inverse M D f out hout
+  have hx' : f.toPoly.eval₂ phi x = 0 := by
+    simpa [Polynomial.IsRoot, Polynomial.eval_map] using hx
+  have heq := congrArg (fun q : Polynomial F => q.eval₂ phi x)
+    (congrArg CPolynomial.toPoly hs.2.2.2)
+  rw [toPoly_mul, C_toPoly, Polynomial.eval₂_mul, Polynomial.eval₂_C, hx'] at heq
+  have hscalar : phi out.scalar ≠ 0 := by
+    simpa using phi.injective.ne hs.1
+  have hproduct : (factorProduct out.factors).toPoly.eval₂ phi x = 0 :=
+    (mul_eq_zero.mp heq).resolve_left hscalar
+  obtain ⟨z, hz, hzx⟩ := (eval₂_factorProduct_eq_zero_iff phi x out.factors
+    (fun z hz => (hs.2.1 z hz).1)).mp hproduct
+  exact ⟨z, hz, by simpa [Polynomial.IsRoot, Polynomial.eval_map] using hzx⟩
+
+/-- Threshold extraction has the exact extension-field root semantics of integer
+root multiplicity, including characteristic-divisible multiplicities. -/
+theorem thresholdProduct_eval₂_eq_zero_iff_le_rootMultiplicity
+    [PerfectField F] {K : Type*} [Field K] (phi : F →+* K) (x : K)
+    (p : ℕ) (inverse : F → F) (M : MulContext F) (D : ModContext F)
+    (threshold : ℕ) (hthreshold : 0 < threshold)
+    (f : CPolynomial F) (out : Output F)
+    (hout : decompose p inverse M D f = .ok out) :
+    (thresholdProduct M threshold out).toPoly.eval₂ phi x = 0 ↔
+      threshold ≤ (f.toPoly.map phi).rootMultiplicity x := by
+  have hs := decompose_sound p inverse M D f out hout
+  have hthresholdProduct := thresholdProduct_eq M threshold out
+    (fun z hz => (hs.2.1 z hz).2.1)
+  constructor
+  · intro hx
+    rw [hthresholdProduct] at hx
+    obtain ⟨z, hz, hzx⟩ := (eval₂_factor_prod_eq_zero_iff phi x
+      (out.factors.filter fun z => threshold ≤ z.1)).mp hx
+    have hzmem := List.mem_filter.mp hz
+    have hm := decompose_factor_rootMultiplicity phi x p inverse M D f out hout z
+      hzmem.1 (by simpa [Polynomial.IsRoot, Polynomial.eval_map] using hzx)
+    simpa [hm] using hzmem.2
+  · intro hm
+    have hf0 : f.toPoly.map phi ≠ 0 :=
+      (Polynomial.map_ne_zero_iff phi.injective).mpr
+        ((toPoly_eq_zero_iff f).not.mpr
+          (decompose_input_ne_zero p inverse M D f out hout))
+    have hx : (f.toPoly.map phi).IsRoot x :=
+      (Polynomial.rootMultiplicity_pos hf0).mp (hthreshold.trans_le hm)
+    obtain ⟨z, hz, hzx⟩ := decompose_root_mem_factor phi x p inverse M D f out hout hx
+    have hzm := decompose_factor_rootMultiplicity phi x p inverse M D f out hout z hz hzx
+    rw [hthresholdProduct]
+    apply (eval₂_factor_prod_eq_zero_iff phi x
+      (out.factors.filter fun z => threshold ≤ z.1)).mpr
+    refine ⟨z, List.mem_filter.mpr ⟨hz, ?_⟩, ?_⟩
+    · simpa [hzm] using hm
+    · simpa [Polynomial.IsRoot, Polynomial.eval_map] using hzx
+
+/-- The labelled threshold product and the Hasse-derivative threshold specification cut out
+the same geometric roots. -/
+theorem thresholdProduct_eval₂_eq_zero_iff_hasseDeriv
+    [PerfectField F] {K : Type*} [Field K] (phi : F →+* K) (x : K)
+    (p : ℕ) (inverse : F → F) (M : MulContext F) (D : ModContext F)
+    (threshold : ℕ) (hthreshold : 0 < threshold)
+    (f : CPolynomial F) (out : Output F)
+    (hout : decompose p inverse M D f = .ok out) :
+    (thresholdProduct M threshold out).toPoly.eval₂ phi x = 0 ↔
+      ∀ j < threshold, (Polynomial.hasseDeriv j (f.toPoly.map phi)).eval x = 0 := by
+  have hf0 : f.toPoly.map phi ≠ 0 :=
+    (Polynomial.map_ne_zero_iff phi.injective).mpr
+      ((toPoly_eq_zero_iff f).not.mpr
+        (decompose_input_ne_zero p inverse M D f out hout))
+  rw [thresholdProduct_eval₂_eq_zero_iff_le_rootMultiplicity phi x p inverse M D
+    threshold hthreshold f out hout,
+    ← Polynomial.hasseDeriv_eval_eq_zero_iff_le_rootMultiplicity hf0 x threshold]
 
 /-! ## Concrete supplied-field entrypoint -/
 
