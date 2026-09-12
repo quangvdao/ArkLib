@@ -43,4 +43,12 @@ example {F : Type*} [Field F] [BEq F] [LawfulBEq F] [PerfectField F]
     ∃ out, prepare p inverse M f = .ok out :=
   prepare_succeeds p inverse M f hf
 
+example {F : Type*} [Field F] [BEq F] [LawfulBEq F]
+    (p : ℕ) [Fact p.Prime] [CharP F p]
+    (inverse : F → F) (hinverse : ∀ a, inverse a ^ p = a)
+    (M : MulContext F) (f : CPolynomial F) (out : Preparation F)
+    (hf : f.monic) (hfunit : f ≠ 1) (hout : prepare p inverse M f = .ok out) :
+    out.contracted.natDegree < f.natDegree :=
+  prepare_contracted_natDegree_lt p inverse hinverse M f out hf hfunit hout
+
 end FullSquarefreeSuccessTests
