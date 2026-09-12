@@ -3,6 +3,12 @@
 Use this procedure for one group or one bounded subtask from [workstreams](workstreams.md).
 The coordinator maintains the [task board](README.md#current-task-board).
 
+## Agent model selection
+
+The user's current preference is GPT-5.6 Sol with high reasoning for each main agent and
+subagent. Apply it to subsequent launches and resumptions; record the selected model in
+handoffs. Keep bounded tasks, separate writable worktrees and independent nonauthor review.
+
 ## Before launch
 
 Read repository `AGENTS.md`, [verified status](status.md), and [shared contracts](contracts.md).

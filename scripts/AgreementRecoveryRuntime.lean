@@ -4,6 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CanonicalRepresentative
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.ClearDenominators
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.RegularCenterObstruction
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.BivariateReducedSupport
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.OrdinaryNormalization
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.AgreementRecovery.Decoder
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.PositionSubsetDecoder
 import
@@ -123,6 +128,11 @@ private def linearFixtureBackend :
 /-- Exercise nonlinear blocks, extension-only roots, repeated images, final filtering,
 corrupted received values, and the zero-width reference branch. -/
 def run : IO Unit := do
+  CanonicalRepresentativeTests.run
+  ClearDenominatorsTests.run
+  RegularCenterObstructionTests.run
+  BivariateReducedSupportTests.run
+  OrdinaryNormalizationTests.run
   FunctionFieldAlgorithmsTests.run
   FunctionFieldEuclidTests.run
   FullSquarefreeResidueTests.run

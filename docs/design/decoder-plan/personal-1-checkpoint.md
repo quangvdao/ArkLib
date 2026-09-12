@@ -26,7 +26,14 @@ The shared runtime registers `FunctionFieldAlgorithmsTests.run`, `FunctionFieldE
 `FullSquarefreeTreeTests.run`, `NormProductsTests.run`, and `UniversalAgreementTests.run`.
 The umbrella is regenerated from tracked source instead of copying worker validation-only edits.
 
-## Remaining obligations and next assignment
+## Subsequent normalization collection
+
+The [saturated normalization checkpoint](normalization-checkpoint.md) supersedes the canonical
+extraction and denominator-clearing gaps below and adds the computed regular-center obstruction.
+Its next priority is full radical correctness/no-failure and original-input graph/degree
+contracts. The earlier seven-slice inventory and its acceptance history remain unchanged.
+
+## Remaining obligations at the earlier collection
 
 G01 still needs executable canonical representative extraction and denominator clearing,
 multivariate gcd, normalization and all-fiber factor descent. The immediate consumer milestone

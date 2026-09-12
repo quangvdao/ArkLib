@@ -1633,7 +1633,12 @@ public import ArkLib.Data.Polynomial.FractionFieldRoots
 public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.Frobenius
 public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.Residues
 public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.TreeRefinement
+public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.BivariateReducedSupport
+public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.CanonicalRepresentative
+public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.ClearDenominators
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.Euclidean
+public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.OrdinaryNormalization
+public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.RegularCenterObstruction
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.StoredField
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.StoredFraction
 public import ArkLib.Data.Polynomial.GCDSplit

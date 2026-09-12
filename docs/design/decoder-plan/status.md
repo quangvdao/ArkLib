@@ -1,6 +1,6 @@
 # Verified decoder status
 
-Source checkpoint: `3c67cb3fa669985b2add6c5d080a3060c4728789`, validated on 2026-09-11.
+Foundation source checkpoint: `3c67cb3fa669985b2add6c5d080a3060c4728789`, validated on 2026-09-11.
 Use the [current task board](README.md#current-task-board) for subsequent assignments and revisions.
 The [Taylor checkpoint](taylor-checkpoint.md) records the newer bounded projection, nilpotence,
 computed quotient inversion, exact local-equation conversion, shift, chart-payload and batched-center
@@ -8,7 +8,16 @@ slices. The foundation inventory below
 describes the pinned source checkpoint, not completion of the remaining producers.
 All source paths below are relative to `ArkLib/Data/CodingTheory/ReedSolomon/` unless stated otherwise.
 
-## Implemented and proved
+## Subsequent normalization and specification revision
+
+The [normalization collection](normalization-checkpoint.md) adds source `672739e2a` over
+combined base `e065bd441a`. It establishes successful-output normalization and obstruction
+facts; full radical correctness, original-input coverage and unconditional success remain open.
+The dedicated zeroth-order target now accepts supplied arbitrary finite fields at paper revision
+`b1be8b89069542faacac40a7e92068857b43e97a`. The characteristic-two fallback observations below
+refer to the older prime-field dispatcher, not this new dedicated target.
+
+## Implemented and proved at the foundation checkpoint
 
 | Component | Source owners | Established boundary |
 | --- | --- | --- |
