@@ -121,6 +121,50 @@ def preprocessRetained (support : CPolynomial E) (fiber separant : CPolynomial (
   preprocessFiber (retainedTower support fiber) separant
     (retainedTower_preprocessable support fiber hsupport hsquarefree hfiber)
 
+/-- Every preprocessed branch uses a base factor of the retained support, so its base degree is
+at most the degree of that support.  This follows from the exact degree accounting of both D5
+factor towers. -/
+theorem preprocessRetained_modulus_natDegree_le
+    (support : CPolynomial E) (fiber separant : CPolynomial (CPolynomial E))
+    (hsupport : support.monic) (hsquarefree : Squarefree support.toPoly)
+    (hfiber : fiber.monic) (out : TowerRepresentation (F := E))
+    (hout : out ∈ preprocessRetained support fiber separant hsupport hsquarefree hfiber) :
+    out.modulus.natDegree ≤ support.natDegree := by
+  let input := retainedTower support fiber
+  let hinput := retainedTower_preprocessable support fiber hsupport hsquarefree hfiber
+  obtain ⟨radicalTerminal, hradical, separantTerminal, hseparant, hpackage⟩ :=
+    (mem_preprocessFiber_iff input separant hinput out).mp
+      (by simpa [preprocessRetained] using hout)
+  obtain ⟨_, rfl⟩ := (packagePreprocessed_eq_some_iff input
+    (FirstOrderNormDecoder.D5.makePreprocessedBranch radicalTerminal separantTerminal
+      (FirstOrderNormDecoder.D5.separantState
+        (preprocessState input hinput) radicalTerminal hradical
+          (FirstOrderNormDecoder.D5.FiberPolynomial.ofCPolynomial separant))) _).mp hpackage
+  have hseparantDegree : separantTerminal.modulus.natDegree ≤
+      radicalTerminal.modulus.natDegree := by
+    let state := FirstOrderNormDecoder.D5.separantState
+      (preprocessState input hinput) radicalTerminal hradical
+        (FirstOrderNormDecoder.D5.FiberPolynomial.ofCPolynomial separant)
+    calc
+      separantTerminal.modulus.natDegree ≤
+          ((FirstOrderNormDecoder.D5.factorTower state).map
+            fun terminal => terminal.modulus.natDegree).sum :=
+        List.le_sum_of_mem (List.mem_map.mpr ⟨separantTerminal, hseparant, rfl⟩)
+      _ = state.modulus.natDegree :=
+        FirstOrderNormDecoder.D5.factorTower_natDegree_sum state
+      _ = radicalTerminal.modulus.natDegree := rfl
+  have hradicalDegree : radicalTerminal.modulus.natDegree ≤ support.natDegree := by
+    let state := preprocessState input hinput
+    calc
+      radicalTerminal.modulus.natDegree ≤
+          ((FirstOrderNormDecoder.D5.factorTower state).map
+            fun terminal => terminal.modulus.natDegree).sum :=
+        List.le_sum_of_mem (List.mem_map.mpr ⟨radicalTerminal, hradical, rfl⟩)
+      _ = state.modulus.natDegree :=
+        FirstOrderNormDecoder.D5.factorTower_natDegree_sum state
+      _ = support.natDegree := rfl
+  exact hseparantDegree.trans hradicalDegree
+
 /-- Materialize all `k` Taylor coefficients on every retained preprocessed tower.  A failed
 denominator inversion is represented by omission here; the theorem layer below proves that no
 output is malformed, while the chart regularity theorem will prove that no wanted point is lost. -/
@@ -144,6 +188,41 @@ theorem mem_materializeRetained_iff [DecidableEq E] {k : ℕ} (support : CPolyno
       ∃ tower ∈ preprocessRetained support fiber separant hsupport hsquarefree hfiber,
         materializeCoefficients? tower denominator (List.ofFn numerators) = some out := by
   simp [materializeRetained]
+
+/-- Coefficient materialization changes only the coefficient payload. -/
+theorem materializeCoefficients?_modulus_eq [DecidableEq E]
+    (tower : TowerRepresentation (F := E))
+    (denominator : CPolynomial (CPolynomial E))
+    (numerators : List (CPolynomial (CPolynomial E)))
+    (out : TowerRepresentation (F := E))
+    (hout : materializeCoefficients? tower denominator numerators = some out) :
+    out.modulus = tower.modulus := by
+  unfold materializeCoefficients? at hout
+  cases hinverse : inverseElimination? tower.modulus tower.fiber denominator with
+  | none => simp [hinverse] at hout
+  | some inverse =>
+      simp only [hinverse, Option.some.injEq] at hout
+      subst out
+      rfl
+
+/-- Every materialized candidate's base modulus has degree at most the retained support that
+entered D5 preprocessing. -/
+theorem materializeRetained_modulus_natDegree_le [DecidableEq E] {k : ℕ}
+    (support : CPolynomial E)
+    (fiber separant denominator : CPolynomial (CPolynomial E))
+    (numerators : Fin k → CPolynomial (CPolynomial E))
+    (hsupport : support.monic) (hsquarefree : Squarefree support.toPoly)
+    (hfiber : fiber.monic) (out : TowerRepresentation (F := E))
+    (hout : out ∈ materializeRetained support fiber separant denominator numerators
+      hsupport hsquarefree hfiber) :
+    out.modulus.natDegree ≤ support.natDegree := by
+  obtain ⟨tower, htower, hmaterialize⟩ :=
+    (mem_materializeRetained_iff support fiber separant denominator numerators
+      hsupport hsquarefree hfiber out).mp hout
+  rw [materializeCoefficients?_modulus_eq tower denominator (List.ofFn numerators)
+    out hmaterialize]
+  exact preprocessRetained_modulus_natDegree_le support fiber separant
+    hsupport hsquarefree hfiber tower htower
 
 /-- Every emitted candidate satisfies the common tower contract, including canonical reduction
 of the base, fiber and all `k` materialized message coefficients. -/

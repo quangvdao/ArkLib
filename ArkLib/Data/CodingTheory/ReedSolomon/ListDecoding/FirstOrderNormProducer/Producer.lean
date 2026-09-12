@@ -441,6 +441,66 @@ theorem firstOrderNormCandidates_point_complete
       (huniversal block hblock) hkA positions hpositions hdegree hdenominatorPower
       base u v hcomponent hresidual hseparant
 
+/-- Membership in one component's executable output exposes the successful G02 branch whose
+actual threshold product bounds the emitted candidate's base-modulus degree. -/
+theorem produceComputedBlock_candidate_modulus_natDegree_le
+    (p : ℕ) [Fact p.Prime]
+    (modulus : CPolynomial (ZMod p)) [Fact modulus.monic]
+    [Fact (Irreducible modulus.toPoly)]
+    (M : MulContext (Carrier modulus)) (D : ModContext (Carrier modulus))
+    {k : ℕ} (A : ℕ) (data : ChartPolynomials.Data (Carrier modulus) k)
+    (residuals : List (CBivariate (Carrier modulus)))
+    (block : ComputedBlock (Carrier modulus))
+    (candidate : TowerRepresentation (F := Carrier modulus))
+    (hcandidate : candidate ∈
+      produceComputedBlock p modulus M D A data residuals block) :
+    ∃ decomposition : Output (Carrier modulus),
+      decomposeComputedBlock p modulus M D block residuals = .ok decomposition ∧
+        candidate.modulus.natDegree ≤
+          (thresholdProduct M (blockThreshold A block.component) decomposition).natDegree := by
+  unfold produceComputedBlock at hcandidate
+  split at hcandidate
+  · rename_i hfiber
+    split at hcandidate
+    · simp at hcandidate
+    · rename_i decomposition hdecompose
+      refine ⟨decomposition, hdecompose, ?_⟩
+      exact materializeRetained_modulus_natDegree_le
+        (thresholdProduct M (blockThreshold A block.component) decomposition)
+        block.component.modulus data.separant data.denominator data.numerators
+        (decomposeComputedBlock_threshold_monic p modulus M D
+          (blockThreshold A block.component) block residuals decomposition hdecompose)
+        (decomposeComputedBlock_threshold_squarefree p modulus M D
+          (blockThreshold A block.component) block residuals decomposition hdecompose)
+        hfiber candidate hcandidate
+  · simp at hcandidate
+
+/-- Every candidate returned by the public producer is degree-bounded by the actual threshold
+product of the actual prepared block and successful G02 branch that produced it. -/
+theorem firstOrderNormCandidates_candidate_modulus_natDegree_le
+    (p : ℕ) [Fact p.Prime]
+    (modulus : CPolynomial (ZMod p)) [Fact modulus.monic]
+    [Fact (Irreducible modulus.toPoly)]
+    (M : MulContext (Carrier modulus)) (D : ModContext (Carrier modulus))
+    {k : ℕ} (A : ℕ)
+    (chart : ReedSolomon.HiddenDerivative.FastTaylor.ChartData (Carrier modulus) 1 k)
+    (received : List (Carrier modulus × Carrier modulus))
+    (candidate : TowerRepresentation (F := Carrier modulus))
+    (hcandidate : candidate ∈ firstOrderNormCandidates p modulus M D A chart received) :
+    ∃ block ∈ (prepare chart received).blocks,
+      ∃ decomposition : Output (Carrier modulus),
+        decomposeComputedBlock p modulus M D block
+            (prepare chart received).agreements = .ok decomposition ∧
+          candidate.modulus.natDegree ≤
+            (thresholdProduct M (blockThreshold A block.component) decomposition).natDegree := by
+  simp only [firstOrderNormCandidates, List.mem_flatMap] at hcandidate
+  obtain ⟨block, hblock, hcandidate⟩ := hcandidate
+  obtain ⟨decomposition, hdecompose, hdegree⟩ :=
+    produceComputedBlock_candidate_modulus_natDegree_le
+      p modulus M D A (prepare chart received).chartPolynomials
+        (prepare chart received).agreements block candidate hcandidate
+  exact ⟨block, hblock, decomposition, hdecompose, hdegree⟩
+
 /-- Every candidate emitted by the complete producer satisfies the common tower contract.  The
 only numerical input beyond chart normal forms is the chart equation's published fiber-degree
 bound; component descent can only decrease that degree. -/
