@@ -9,6 +9,7 @@ public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.Residues
 public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.Frobenius
 public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.TreeRefinement
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.StoredFraction
+public import ArkLib.Data.FiniteField.ExplicitConstruction.PolynomialBasisFrobenius
 
 /-!
 # Recursive multiplicity-labelled decomposition
@@ -600,5 +601,245 @@ theorem prepare_monic (p : ℕ) [Fact p.Prime] [CharP F p]
   rw [Polynomial.leadingCoeff_pow, hrep.leadingCoeff] at hl
   apply frobenius_inj F p
   simpa only [frobenius_def, map_one] using hl
+
+namespace Multiplicity
+
+open Polynomial
+variable {K : Type*} [Field K]
+
+/-- Local logarithmic derivative coefficient after cancelling the root power. -/
+theorem local_derivative_residue (x : K) (n : ℕ) (A B w : Polynomial K)
+    (h : Polynomial.derivative ((Polynomial.X - Polynomial.C x) ^ (n + 1) * A) =
+      (Polynomial.X - Polynomial.C x) ^ n * (B * w)) :
+    B.eval x * w.eval x = ((n + 1 : ℕ) : K) * A.eval x := by
+  have he : (Polynomial.X - Polynomial.C x) ^ n *
+      (Polynomial.C ((n + 1 : ℕ) : K) * A +
+        (Polynomial.X - Polynomial.C x) * Polynomial.derivative A) =
+      (Polynomial.X - Polynomial.C x) ^ n * (B * w) := by
+    rw [← h, Polynomial.derivative_mul, Polynomial.derivative_X_sub_C_pow]
+    simp only [Nat.add_sub_cancel]
+    ring
+  have hc := mul_left_cancel₀ (pow_ne_zero n (monic_X_sub_C x).ne_zero) he
+  have hv := congrArg (fun q : Polynomial K => q.eval x) hc
+  simpa using hv.symm
+
+/-- The computed residue equals the integer multiplicity at a simple quotient root. -/
+theorem local_residue_eq_multiplicity (x : K) (n : ℕ) (A B w v q c : Polynomial K)
+    (hder : Polynomial.derivative ((Polynomial.X - Polynomial.C x) ^ (n + 1) * A) =
+      (Polynomial.X - Polynomial.C x) ^ n * (B * w))
+    (hA : A = B * c) (hv : v = (Polynomial.X - Polynomial.C x) * c)
+    (hB : B.eval x ≠ 0) (hc : c.eval x ≠ 0)
+    (hq : q.eval x * v.derivative.eval x = w.eval x) :
+    q.eval x = ((n + 1 : ℕ) : K) := by
+  have hd := local_derivative_residue x n A B w hder
+  have hvd : v.derivative.eval x = c.eval x := by
+    simp [hv, Polynomial.derivative_mul]
+  rw [hA, Polynomial.eval_mul] at hd
+  rw [hvd] at hq
+  apply mul_right_cancel₀ hc
+  rw [hq]
+  apply mul_left_cancel₀ hB
+  calc
+    B.eval x * w.eval x = ((n + 1 : ℕ) : K) * (B.eval x * c.eval x) := hd
+    _ = B.eval x * (((n + 1 : ℕ) : K) * c.eval x) := by ring
+
+variable [DecidableEq K]
+
+theorem rootMultiplicity_gcd_of_nonzero (f g : Polynomial K) (hf : f ≠ 0) (hg : g ≠ 0)
+    (x : K) : (gcd f g).rootMultiplicity x =
+      min (f.rootMultiplicity x) (g.rootMultiplicity x) := by
+  have hfg : gcd f g ≠ 0 := by
+    intro h
+    exact hf ((gcd_eq_zero_iff f g).mp h).1
+  apply le_antisymm
+  · exact le_min (rootMultiplicity_le_rootMultiplicity_of_dvd hf (gcd_dvd_left f g) x)
+      (rootMultiplicity_le_rootMultiplicity_of_dvd hg (gcd_dvd_right f g) x)
+  · apply (le_rootMultiplicity_iff hfg).mpr
+    exact dvd_gcd
+      ((pow_dvd_pow _ (min_le_left _ _)).trans (f.pow_rootMultiplicity_dvd x))
+      ((pow_dvd_pow _ (min_le_right _ _)).trans (g.pow_rootMultiplicity_dvd x))
+
+theorem rootMultiplicity_derivative_gcd (f : Polynomial K) (hf : f ≠ 0) (x : K)
+    (hx : f.IsRoot x) (hm : (f.rootMultiplicity x : K) ≠ 0) :
+    (gcd f f.derivative).rootMultiplicity x = f.rootMultiplicity x - 1 := by
+  have hd := derivative_rootMultiplicity_of_root_of_mem_nonZeroDivisors hx
+    (mem_nonZeroDivisors_iff_ne_zero.mpr hm)
+  have hdn : f.derivative ≠ 0 := by
+    intro hz
+    have hdiv : (Polynomial.X - Polynomial.C x) ^ f.rootMultiplicity x ∣
+        f.derivative := by simp [hz]
+    obtain ⟨A, hA, hAn⟩ := f.exists_eq_pow_rootMultiplicity_mul_and_not_dvd hf x
+    have hpos : 0 < f.rootMultiplicity x := (rootMultiplicity_pos hf).mpr hx
+    have he := congrArg (fun q : Polynomial K => q.derivative) hA
+    rw [hz, Polynomial.derivative_mul, Polynomial.derivative_X_sub_C_pow] at he
+    have hcancel : Polynomial.C (f.rootMultiplicity x : K) * A +
+        (Polynomial.X - Polynomial.C x) * A.derivative = 0 := by
+      apply (mul_eq_zero.mp (show (Polynomial.X - Polynomial.C x)^(f.rootMultiplicity x - 1) *
+          (Polynomial.C (f.rootMultiplicity x : K) * A +
+            (Polynomial.X - Polynomial.C x) * A.derivative) = 0 from ?_)).resolve_left
+        (pow_ne_zero _ (monic_X_sub_C x).ne_zero)
+      calc
+        _ = Polynomial.C (f.rootMultiplicity x : K) *
+              (Polynomial.X - Polynomial.C x)^(f.rootMultiplicity x - 1) * A +
+            (Polynomial.X - Polynomial.C x)^(f.rootMultiplicity x - 1 + 1) * A.derivative := by
+              ring
+        _ = 0 := by rw [Nat.sub_add_cancel hpos]; exact he.symm
+    have hev := congrArg (fun q : Polynomial K => q.eval x) hcancel
+    have : A.eval x = 0 := (mul_eq_zero.mp (by simpa using hev)).resolve_left hm
+    exact hAn (dvd_iff_isRoot.mpr this)
+  rw [rootMultiplicity_gcd_of_nonzero f f.derivative hf hdn x, hd]
+  exact min_eq_right (Nat.sub_le _ _)
+
+/-- The derivative quotient has a simple root whenever its multiplicity is nonzero in the field. -/
+theorem derivative_quotient_rootMultiplicity (f v : Polynomial K) (hf : f ≠ 0) (x : K)
+    (hx : f.IsRoot x) (hm : (f.rootMultiplicity x : K) ≠ 0)
+    (hfv : gcd f f.derivative * v = f) : v.rootMultiplicity x = 1 := by
+  have hg := rootMultiplicity_derivative_gcd f hf x hx hm
+  have hprod : gcd f f.derivative * v ≠ 0 := by rwa [hfv]
+  have hadd := rootMultiplicity_mul (x := x) hprod
+  rw [hfv, hg] at hadd
+  have hpos := (rootMultiplicity_pos hf).mpr hx
+  omega
+
+/-- Roots whose multiplicity vanishes in the coefficient field are absent from the
+derivative quotient. -/
+theorem derivative_quotient_rootMultiplicity_zero (f v : Polynomial K) (hf : f ≠ 0) (x : K)
+    (hm : (f.rootMultiplicity x : K) = 0)
+    (hfv : gcd f f.derivative * v = f) : v.rootMultiplicity x = 0 := by
+  obtain ⟨A, hA, _⟩ := f.exists_eq_pow_rootMultiplicity_mul_and_not_dvd hf x
+  have hd : (Polynomial.X - Polynomial.C x) ^ f.rootMultiplicity x ∣ f.derivative := by
+    refine ⟨A.derivative, ?_⟩
+    conv_lhs => rw [hA, Polynomial.derivative_mul, Polynomial.derivative_X_sub_C_pow]
+    simp [hm]
+  have hgn : gcd f f.derivative ≠ 0 := by
+    intro hz
+    exact hf ((gcd_eq_zero_iff f f.derivative).mp hz).1
+  have hge := (le_rootMultiplicity_iff hgn).mpr
+    (dvd_gcd (f.pow_rootMultiplicity_dvd x) hd)
+  have hle := rootMultiplicity_le_rootMultiplicity_of_dvd hf (gcd_dvd_left f f.derivative) x
+  have hprod : gcd f f.derivative * v ≠ 0 := by rwa [hfv]
+  have hadd := rootMultiplicity_mul (x := x) hprod
+  rw [hfv] at hadd
+  omega
+
+/-- The derivative-gcd residue is the true integer multiplicity at each quotient root. -/
+theorem gcd_residue_eq_rootMultiplicity (f v w q : Polynomial K) (hf : f ≠ 0) (x : K)
+    (hfv : gcd f f.derivative * v = f)
+    (hfw : gcd f f.derivative * w = f.derivative)
+    (hx : v.IsRoot x) (hq : q.eval x * v.derivative.eval x = w.eval x) :
+    q.eval x = (f.rootMultiplicity x : K) := by
+  have hu : gcd f f.derivative ≠ 0 := by
+    intro hz
+    exact hf ((gcd_eq_zero_iff f f.derivative).mp hz).1
+  have hv : v ≠ 0 := by intro hz; simp [hz] at hfv; exact hf hfv.symm
+  have hfx : f.IsRoot x := by
+    rw [← hfv, IsRoot, Polynomial.eval_mul]
+    simp [show v.eval x = 0 from hx]
+  have hmpos : 0 < f.rootMultiplicity x := (rootMultiplicity_pos hf).mpr hfx
+  have hm : (f.rootMultiplicity x : K) ≠ 0 := by
+    intro hz
+    have hzero := derivative_quotient_rootMultiplicity_zero f v hf x hz hfv
+    have hpos := (rootMultiplicity_pos hv).mpr hx
+    omega
+  have hum := rootMultiplicity_derivative_gcd f hf x hfx hm
+  have hvm := derivative_quotient_rootMultiplicity f v hf x hfx hm hfv
+  obtain ⟨A, hA, _⟩ := f.exists_eq_pow_rootMultiplicity_mul_and_not_dvd hf x
+  obtain ⟨B, hB, hBn⟩ :=
+    (gcd f f.derivative).exists_eq_pow_rootMultiplicity_mul_and_not_dvd hu x
+  obtain ⟨c, hc, hcn⟩ := v.exists_eq_pow_rootMultiplicity_mul_and_not_dvd hv x
+  rw [hum] at hB
+  rw [hvm, pow_one] at hc
+  have hAc : A = B * c := by
+    apply mul_left_cancel₀ (pow_ne_zero (f.rootMultiplicity x) (monic_X_sub_C x).ne_zero)
+    calc
+      _ = f := hA.symm
+      _ = ((Polynomial.X - Polynomial.C x)^(f.rootMultiplicity x - 1) * B) *
+          ((Polynomial.X - Polynomial.C x) * c) := by rw [← hB, ← hc, hfv]
+      _ = (Polynomial.X - Polynomial.C x)^(f.rootMultiplicity x - 1 + 1) *
+          (B * c) := by ring
+      _ = _ := by rw [Nat.sub_add_cancel hmpos]
+  have hder : Polynomial.derivative
+        ((Polynomial.X - Polynomial.C x)^(f.rootMultiplicity x - 1 + 1) * A) =
+      (Polynomial.X - Polynomial.C x)^(f.rootMultiplicity x - 1) * (B * w) := by
+    rw [Nat.sub_add_cancel hmpos, ← hA, ← hfw, hB]
+    ring
+  have he := local_residue_eq_multiplicity x (f.rootMultiplicity x - 1) A B w v q c
+    hder hAc hc (by intro hz; exact hBn (dvd_iff_isRoot.mpr hz))
+    (by intro hz; exact hcn (dvd_iff_isRoot.mpr hz)) hq
+  simpa only [Nat.sub_add_cancel hmpos] using he
+
+end Multiplicity
+
+/-- The executable monic gcd refines the normalized polynomial gcd. -/
+private theorem gcdFactor_eq_polynomial_gcd [DecidableEq F] (f g : CPolynomial F) :
+    (gcdFactor f g).toPoly = gcd f.toPoly g.toPoly := by
+  rw [gcdFactor_toPoly]
+  have hass : Associated (EuclideanDomain.gcd f.toPoly g.toPoly) (gcd f.toPoly g.toPoly) :=
+    associated_of_dvd_dvd
+      (dvd_gcd (EuclideanDomain.gcd_dvd_left _ _) (EuclideanDomain.gcd_dvd_right _ _))
+      (EuclideanDomain.dvd_gcd (gcd_dvd_left _ _) (gcd_dvd_right _ _))
+  calc
+    _ = normalize (gcd f.toPoly g.toPoly) := normalize_eq_normalize_iff_associated.mpr hass
+    _ = _ := StrongNormalizedGCDMonoid.normalize_gcd _ _
+
+/-- At every derivative-quotient root, the actual residue output is the true integer
+multiplicity. -/
+theorem residuePolynomial?_eval_eq_rootMultiplicity (f q : CPolynomial F)
+    (hf : f.monic) (x : F)
+    (hx : (gcdComplement f f.derivative).toPoly.IsRoot x)
+    (hq : residuePolynomial? f = some q) :
+    q.toPoly.eval x = (f.toPoly.rootMultiplicity x : F) := by
+  let : DecidableEq F := instDecidableEqOfLawfulBEq
+  have hfn : f ≠ 0 :=
+    (toPoly_eq_zero_iff f).not.mp ((monic_toPoly_iff f).mp hf).ne_zero
+  have hfv := congrArg CPolynomial.toPoly (derivativeParts_exact hfn)
+  have hfw : (gcdFactor f f.derivative).toPoly *
+      (f.derivative.divByMonic (gcdFactor f f.derivative)).toPoly = f.derivative.toPoly := by
+    rw [divByMonic_toPoly_eq_divByMonic _ _ (gcdFactor_monic hfn)]
+    have hm := Polynomial.modByMonic_eq_zero_iff_dvd
+      ((monic_toPoly_iff _).mp (gcdFactor_monic hfn)) |>.mpr
+        (gcdFactor_dvd_right f f.derivative)
+    simpa only [hm, zero_add] using
+      Polynomial.modByMonic_add_div f.derivative.toPoly (gcdFactor f f.derivative).toPoly
+  have hi := residuePolynomial?_root_identity (RingHom.id F) x
+    (gcdComplement_monic hf)
+    (by simpa only [derivativeParts, gcdComplement, Polynomial.eval₂_id,
+      Polynomial.IsRoot] using hx) hq
+  apply Multiplicity.gcd_residue_eq_rootMultiplicity f.toPoly
+    (gcdComplement f f.derivative).toPoly
+    (f.derivative.divByMonic (gcdFactor f f.derivative)).toPoly q.toPoly
+    ((monic_toPoly_iff f).mp hf).ne_zero x
+  · simpa only [derivativeParts, gcdComplement, toPoly_mul,
+      gcdFactor_eq_polynomial_gcd, derivative_toPoly] using hfv
+  · simpa only [gcdFactor_eq_polynomial_gcd, derivative_toPoly] using hfw
+  · exact hx
+  · simpa only [Polynomial.eval₂_id, derivative_toPoly, derivativeParts,
+      gcdComplement] using hi
+
+/-! ## Concrete supplied-field entrypoint -/
+
+/-- Execute the full decomposition over a supplied polynomial-basis finite field.
+The inverse-Frobenius callback is the concrete gcd/regrouping implementation owned by the
+explicit-field layer; callers supply neither an inverse oracle nor its correctness proof. -/
+def decomposeSupplied (p : ℕ) [Fact p.Prime]
+    (modulus : CPolynomial (ZMod p)) [Fact modulus.monic]
+    [Fact (Irreducible modulus.toPoly)]
+    (M : MulContext (ArkLib.FiniteField.ExplicitConstruction.Carrier modulus))
+    (D : ModContext (ArkLib.FiniteField.ExplicitConstruction.Carrier modulus))
+    (f : CPolynomial (ArkLib.FiniteField.ExplicitConstruction.Carrier modulus)) :
+    Except Failure (Output (ArkLib.FiniteField.ExplicitConstruction.Carrier modulus)) :=
+  decompose p (ArkLib.FiniteField.ExplicitConstruction.inverseFrobenius p modulus) M D f
+
+/-- Every returned supplied-field result has the full labelled-decomposition certificate. -/
+theorem decomposeSupplied_sound (p : ℕ) [Fact p.Prime]
+    (modulus : CPolynomial (ZMod p)) [Fact modulus.monic]
+    [Fact (Irreducible modulus.toPoly)]
+    (M : MulContext (ArkLib.FiniteField.ExplicitConstruction.Carrier modulus))
+    (D : ModContext (ArkLib.FiniteField.ExplicitConstruction.Carrier modulus))
+    (f : CPolynomial (ArkLib.FiniteField.ExplicitConstruction.Carrier modulus))
+    (out : Output (ArkLib.FiniteField.ExplicitConstruction.Carrier modulus))
+    (hout : decomposeSupplied p modulus M D f = .ok out) : IsDecomposition f out :=
+  decompose_sound p
+    (ArkLib.FiniteField.ExplicitConstruction.inverseFrobenius p modulus) M D f out hout
 
 end CompPoly.CPolynomial.FullSquarefreeDecomposition.Driver
