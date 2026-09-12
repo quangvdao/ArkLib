@@ -23,7 +23,7 @@ open CompPoly CPoly CPoly.TaylorReconstruction
 #check mem_constructFamily_iff
 #check constructFamily_agreement_at_regular
 #check constructFamily_covers_source
-#check ComponentProducer.CoversRegularSolutions
+#check ComponentProducer.CoversTopActiveSolutions
 #check ChartEntry.covers_solution
 #check constructFamily_candidate_coverage
 #check constructFromEquation_candidate_coverage

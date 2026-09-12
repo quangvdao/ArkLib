@@ -247,11 +247,11 @@ def ChartSource.CoversSolution {r : ℕ} (source : ChartSource E r)
     jetEvaluation (separant (semanticEquation source.equation) (Fin.last r))
       source.center (polynomialJet source.center P) ≠ 0
 
-/-- Exact missing producer contract for all-chart regular coverage.  It requires the concrete
-stage scan and center schedule to expose a top-active stage and a produced component containing
-each qualifying solution, with all one-chart construction conditions discharged.  No such
-component producer is currently available from the imported APIs. -/
-def ComponentProducer.CoversRegularSolutions {r : ℕ} (components : ComponentProducer E r)
+/-- Conditional producer contract for solutions that remain at the fixed top active order.
+It requires the concrete stage scan and center schedule to expose a top-active stage and a
+produced component containing each qualifying solution, with all one-chart construction
+conditions discharged. Lower-active stages require a separate varying-order adapter. -/
+def ComponentProducer.CoversTopActiveSolutions {r : ℕ} (components : ComponentProducer E r)
     (fuel : ℕ) (root : CMvPolynomial (r + 2) E) (centers values : List E) : Prop :=
   ∀ P : Polynomial E,
     differentialSpecialization (semanticEquation root) P = 0 →
@@ -264,7 +264,7 @@ def ComponentProducer.CoversRegularSolutions {r : ℕ} (components : ComponentPr
 theorem mem_assembleSources_of_producer_coverage {r : ℕ}
     (components : ComponentProducer E r) (fuel : ℕ)
     (root : CMvPolynomial (r + 2) E) (centers values : List E)
-    (hcoverage : components.CoversRegularSolutions fuel root centers values)
+    (hcoverage : components.CoversTopActiveSolutions fuel root centers values)
     (P : Polynomial E) (hP : differentialSpecialization (semanticEquation root) P = 0) :
     ∃ source ∈ assembleSources fuel root centers components,
       source.Constructible values ∧ source.CoversSolution P := by
@@ -409,14 +409,14 @@ theorem constructFamily_candidate_coverage (p r k Bjet : ℕ) [CharP E p]
     entry.covers_solution values entry.source hrun (hv entry.source hmem)
       (hB entry.source hmem) P hsolution⟩
 
-/-- End-to-end regular-locus coverage for the executable equation-to-family assembly, conditional
-only on the precise component/center producer contract above.  Singular solutions remain assigned
-to later stages by that contract; this theorem does not manufacture or assume their exclusion. -/
+/-- Coverage for the executable fixed-order equation-to-family assembly, conditional on the
+top-active component/center producer contract above. This theorem does not cover stages whose
+active jet has dropped below `Fin.last r`; a later varying-order family must handle them. -/
 theorem constructFromEquation_candidate_coverage (p r k Bjet fuel : ℕ) [CharP E p]
     (root : CMvPolynomial (r + 2) E) (centers values : List E)
     (components : ComponentProducer E r)
     (hguard : 0 < r ∧ r < k ∧ k ≤ p ∧ Bjet < p)
-    (hproducer : components.CoversRegularSolutions fuel root centers values)
+    (hproducer : components.CoversTopActiveSolutions fuel root centers values)
     (hv : ∀ source ∈ assembleSources fuel root centers components,
       0 < (semanticEquation source.equation).weightedTotalDegree
         (fun i => i.elim 0 (fun _ => 1)))

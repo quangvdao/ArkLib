@@ -34,6 +34,8 @@ import
 ArkLibTest.Data.Polynomial.ConfluentAlgebra.FundamentalMatrix
 import
 ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Constructor
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Coverage
 import ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.RegularFiber
 import ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.SuppliedAdapter
 import ArkLibTest.Data.FiniteField.ExplicitConstruction.CenterDispatcher
@@ -234,6 +236,7 @@ def run : IO Unit := do
   SeriesNewtonTests.run
   FundamentalMatrixTests.run
   FastTaylorConstructorTests.run
+  FastTaylorCoverageTests.run
   ConfluentInverseTests.run
   ProjectionMatrixTests.run
   LocalEquationTests.run
