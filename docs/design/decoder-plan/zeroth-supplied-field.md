@@ -36,13 +36,23 @@ their original restrictions. No bit-complexity formalization is part of this tas
 
 | Owner | Required checked producer | Adoption state |
 | --- | --- | --- |
-| Personal 1 | Saturated Radical/SeparablePart; global graph retention, degree bounds; obstruction | Reviewed conditional checkpoint `672739e2a9c2bcb870d6afc13bdc44e925772eda` adopted locally; original-input success/graph/degree capstone open |
-| Personal 3 | Supplied-field inverse Frobenius; coordinate prefixes; both quadratic branches | Polynomial-basis prefixes and odd base/quadratic producer collected; binary branch and normalization inverse callback remain unavailable |
-| Personal 4 | Ordinary Newton/recovery adapters and exact executed composition | Reviewed `RegularFiber` and `SuppliedAdapter` compose normalization, obstruction selection, supplied base prefixes, the odd base branch, ordinary recovery, and the exact `k = 1` branch; final producer success remains conditional |
+| Personal 1 | Saturated Radical/SeparablePart; global graph retention, degree bounds; obstruction | Full generic capstone `6d4c45aff0fda14bc9e992538ec8ded6d57cc531` collected; instantiate its explicit coefficient inverse law |
+| Personal 3 | Supplied-field inverse Frobenius; coordinate prefixes; both quadratic branches | Complete supplied-field producers `fe907e828739188bbc01fd89cb410f51dd7f0f63` collected, including inverse Frobenius and binary/odd centers |
+| Personal 4 | Ordinary Newton/recovery adapters and exact executed composition | Reviewed `RegularFiber` and `SuppliedAdapter` compose normalization, obstruction selection, supplied base prefixes, the odd base branch, ordinary recovery, and the exact `k = 1` branch; final application composition remains conditional, but its upstream normalization/field producers are now available |
 
 Adopt only reviewed immutable commits. Record each SHA with a compiled producer and
 consumer client at the same integration head. Current worker source and historical
 published soundness slices do not imply completion of the revised producers.
+
+## Remaining application work after producer collection
+
+Normalization completeness and the concrete field producers are now available in one tree.
+Discharge their actual consumer interfaces, the nested-to-sparse degree equality and quadratic
+coefficient mapping. Construct the actual normalization result rather than asking callers to
+supply its successful branch. Handle zero/nonzero/constant outcomes using the new certificates.
+Then prove sufficient center capacity from the paper bounds, instantiate both quadratic branches,
+and expose the final q >= n entrypoint with exact output for the executed program.
+The F4 inverse-to-normalizer integration test is not the required full binary decoder recovery.
 
 ## Positive-order chart: separate acceptance
 

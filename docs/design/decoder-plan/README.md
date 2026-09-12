@@ -57,22 +57,23 @@ Personal 3 owns G07–G09. All three teams have resumed under the revised zeroth
 specification. Personal 2 is unavailable. New worker checkpoints require separate collection
 review and validation before becoming integration dependencies.
 The [Personal 1 checkpoint](personal-1-checkpoint.md) records the earlier seven slices.
-The [normalization checkpoint](normalization-checkpoint.md) adds saturated execution and
-support-relative output guarantees; full radical and original-input coverage remain open. The [Personal 3 checkpoint](personal-3-checkpoint.md) records the six collected slices and their
+The [normalization checkpoint](normalization-checkpoint.md) records the earlier executable slice.
+The [three-track collection](three-track-checkpoint.md) adds full generic normalization
+correctness, supplied-field arithmetic/centers and the completed one-chart Taylor contract. The [Personal 3 checkpoint](personal-3-checkpoint.md) records the six collected slices and their
 remaining obligations. Personal 4 remains the sole core integration owner.
 
 | ID | Work | State | First action |
 | --- | --- | --- | --- |
-| I0 | Shared Lean interface freeze | Personal 4; payload slice implemented | Full geometry/local/global validity contracts remain open |
-| G01 | Function-field algebra and normalization | Personal 1; saturated normalization slice collected | Full radical correctness, no-failure and original-input graph/degree guarantees |
+| I0 | Shared Lean interface freeze | Personal 4; one-chart contract proved | Freeze all-chart coverage and candidate interfaces |
+| G01 | Function-field algebra and normalization | Personal 1; generic ordinary normalization complete | Higher-order component arithmetic and global descent |
 | G02 | Full squarefree decomposition | Personal 1; residue/Frobenius/tree slices collected | Full labelled recursive driver and threshold bridge |
-| G03 | Taylor geometry | Personal 4; grid and inverse matrices implemented | Direction, monic coefficient bounds and good-fiber producer |
-| G04 | Taylor local algebra and lifting | Personal 4; computed quotient inverse | Implement differential Newton and fundamental matrices |
-| G05 | Taylor reconstruction | Personal 4; shift and local-equation bridges | Weighted reduction, clearing and global coverage |
+| G03 | Taylor geometry | Personal 4; one-chart geometry complete | Computed component family and all-chart coverage |
+| G04 | Taylor local algebra and lifting | Personal 4; one-chart lifting/success complete | Consume proved local solver in the global family |
+| G05 | Taylor reconstruction | Personal 4; one-chart global agreement complete | Prove coverage of all wanted regular solutions |
 | G06 | First-order norms | Personal 1; norm/universal-scan slices collected | Chart count, multiplicity product and candidate coverage |
-| G07 | Explicit fields | Personal 3; supplied-field revision active | Polynomial-basis inverse Frobenius, prefixes and both quadratic branches |
-| G08 | Rojas producer | Personal 3; linear/resultant slices collected | General input-dependent perturbation and isolated-root coverage |
-| G09 | Higher-order selection | Personal 3; graph/direct slices collected | Chart differential adapter, spectral certificate and powering |
+| G07 | Explicit fields | Personal 3; supplied-field producers complete | General extension construction for positive-order algorithms |
+| G08 | Rojas producer | Personal 3; univariate factorization collected | General toric construction, specialization and isolated-root coverage |
+| G09 | Higher-order selection | Personal 3; actual direct-Jacobian bridge collected | Spectral certificate, powering and complete candidate selection |
 | G10 | Supplied-field zeroth-order decoder | Personal 4; conditional ordinary lifting/recovery | Compose saturated normalization, supplied-field centers, and exact recovery |
 | I1 | Integration and independent review | Personal 4 | Accept compiled slices; maintain this board and obligation ledger |
 
@@ -80,26 +81,22 @@ At each launch record the lead, exact branch/base, owned files, first deliverabl
 check here or in the corresponding group section. Record explicit dependency commit SHAs as they land.
 Do not substitute a moving branch name for an agreed interface revision.
 
-## Active one-chart Taylor wave
+## Next substantial delivery wave
 
-Resume base: `e065bd441a1ab3cce5cc11d569d23fa9cf1c65a8`. Personal 4 leads the
-one-chart constructor on `quang/decoder-fast-taylor-constructor`, retaining shared interfaces,
-application adapters and core integration. Three bounded workers own new files and matching tests:
+All three returned checkpoints are collected in [the current integration](three-track-checkpoint.md).
+The next targets are intentionally larger than individual helper lemmas:
 
-| Branch | Deliverable | Acceptance |
-| --- | --- | --- |
-| `quang/decoder-taylor-projection` | Computed direction, monic projection, weighted reduction | Exact degree and reduction bounds; nonidentity runtime case |
-| `quang/decoder-taylor-precision-doubling` | Stored series and actual Newton/fundamental-matrix solver | Derived integration units, separate residual precision, nonlinear/coupled runtime cases |
-| `quang/decoder-taylor-global-normal-forms` | Denominator clearing and global recovery | Nonreduced ring identities, degree-bounded provenance and exact recovery |
+- Personal 1: close the labelled decomposition and first-order norm-candidate pipeline,
+  with higher-order component arithmetic and descent as supporting work.
+- Personal 3: construct general extensions and the higher-order isolated-root/selection
+  producers, keeping toric and spectral obligations explicit until proved.
+- Personal 4: finish the arbitrary-field zeroth-order decoder, then construct the full
+  Taylor candidate cover and compose the positive-order public decoder.
 
-Each uses private package and build outputs and runs the full axiom validation gate. The lead
-adds resultant-based confluent sampling, constructor validity, compiled adapter clients, combined
-runtime registration and full validation. Publication requires a fresh nonauthor review of the
-complete diff. `Geometry/Monic.lean` is the approved short filename for `MonicProjection`.
-
-The milestone excludes full all-chart coverage and decoder assembly. Personal 1's new normalization
-and obstruction, and Personal 3's new field dispatchers, require exact accepted revisions before
-application adoption. Generic regular-component production remains a separate upstream obligation.
+Publish independently reviewed and fully validated checkpoints along the way. A checkpoint
+records progress; it does not close a larger target whose completeness obligations remain.
+All leads and subagents use GPT-5.6 Sol High. Preserve disjoint source/build ownership and
+use a nonauthor reviewer for substantial mathematical and integration changes.
 
 ## Parallel organization
 

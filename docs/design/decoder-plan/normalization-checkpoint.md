@@ -45,7 +45,15 @@ Consequently the bounds and graph guarantees are not yet original-input guarante
 `runCertified` binds the characteristic to the field and accepts an inverse-Frobenius law when
 `p` is at most the input Y-degree; it does not prove the algorithm cannot fail.
 
-## Remaining producer obligations
+## Subsequent correctness closure
+
+The [three-track collection](three-track-checkpoint.md) includes Personal 1's
+`6d4c45aff0fda14bc9e992538ec8ded6d57cc531`, closing the generic radical, no-failure,
+original-input graph/degree and constant-case obligations listed below. Personal 3's concrete
+coefficient inverse is also collected. Final decoder application composition remains separate.
+The following section records the boundary at the original successful-output checkpoint.
+
+## Remaining producer obligations at the original checkpoint
 
 Personal 1 next closes the full radical invariant and no-failure theorem under primitive,
 nonzero, degree-bounded input assumptions. Then connect `runCertified` to original-input graph

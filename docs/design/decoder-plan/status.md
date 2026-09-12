@@ -8,6 +8,13 @@ slices. The foundation inventory below
 describes the pinned source checkpoint, not completion of the remaining producers.
 All source paths below are relative to `ArkLib/Data/CodingTheory/ReedSolomon/` unless stated otherwise.
 
+## Current producer collection
+
+The [three-track collection](three-track-checkpoint.md) supersedes the earlier normalization
+and Taylor gaps below: generic normalization correctness, supplied-field arithmetic/centers,
+and the one-chart Taylor contract are now available together. Full decoder composition and
+positive-order global coverage remain open. Historical inventories below retain their pins.
+
 ## Subsequent normalization and specification revision
 
 The [normalization collection](normalization-checkpoint.md) adds source `672739e2a` over

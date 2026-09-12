@@ -4,6 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.NormalizationArithmetic
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.SeparablePartCorrectness
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.OrdinaryNormalizationCorrectness
+import ArkLibTest.Data.FiniteField.ExplicitConstruction.PolynomialBasisFrobenius
+import ArkLibTest.Data.FiniteField.ExplicitConstruction.ArtinSchreierCenters
+import ArkLibTest.Data.FiniteField.ExplicitConstruction.SuppliedCenters
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.SuppliedNormalization
 import
 ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Geometry.Direction
 import
@@ -160,6 +168,13 @@ private def linearFixtureBackend :
 /-- Exercise nonlinear blocks, extension-only roots, repeated images, final filtering,
 corrupted received values, and the zero-width reference branch. -/
 def run : IO Unit := do
+  NormalizationArithmeticTests.run
+  SeparablePartCorrectnessTests.run
+  OrdinaryNormalizationCorrectnessTests.run
+  PolynomialBasisFrobeniusTests.run
+  ArtinSchreierCenterTests.run
+  SuppliedCenterTests.run
+  SuppliedNormalizationTests.run
   RegularFiberTests.run
   SuppliedAdapterTests.run
   CenterDispatcherTests.run
