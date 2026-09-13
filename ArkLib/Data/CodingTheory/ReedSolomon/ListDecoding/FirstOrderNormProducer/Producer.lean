@@ -213,7 +213,7 @@ def firstOrderNormCandidates
 successful supplied-field G02 branch.  Starting from `A` agreeing positions, the proof removes
 at most the block's universal labels and applies the component-local multiplicity theorem; no
 multiplicity from a different component is used. -/
-theorem produceComputedBlock_point_complete
+theorem produceComputedBlock_point_complete_of_universal_lt
     (p : ℕ) [Fact p.Prime]
     (modulus : CPolynomial (ZMod p)) [Fact modulus.monic]
     [Fact (Irreducible modulus.toPoly)]
@@ -227,8 +227,7 @@ theorem produceComputedBlock_point_complete
         (prepare chart received).chartPolynomials.equation))
     (block : ComputedBlock (Carrier modulus))
     (hblock : block ∈ (prepare chart received).blocks)
-    (hk : 0 < k) (huniversal : block.component.universal.length ≤ k - 1)
-    (hkA : k ≤ A)
+    (huniversal : block.component.universal.length < A)
     (positions : Finset (Fin (prepare chart received).agreements.length))
     (hpositions : A ≤ positions.card)
     (hdegree : (prepare chart received).chartPolynomials.equation.natDegree < p)
@@ -265,8 +264,7 @@ theorem produceComputedBlock_point_complete
     intro i hi
     exact hresidual i (Finset.mem_filter.mp hi).1
   have hthreshold : 0 < blockThreshold A block.component := by
-    simpa [blockThreshold, threshold] using
-      threshold_pos hk huniversal hkA
+    simpa [blockThreshold, threshold] using Nat.sub_pos_of_lt huniversal
   have hthresholdCard : blockThreshold A block.component ≤ nonuniversal.card := by
     simpa [blockThreshold, threshold, nonuniversal] using
       threshold_le_card_nonuniversalPositions block.component.universal positions hpositions
@@ -354,6 +352,50 @@ theorem produceComputedBlock_point_complete
       exact Except.ok.inj hactual.symm
     subst actual
     exact hcandidate
+
+/-- Compatibility form of component completeness using the former `k - 1` policy.  The norm
+argument itself only needs the exact positive-threshold condition `|U_b| < A`. -/
+theorem produceComputedBlock_point_complete
+    (p : ℕ) [Fact p.Prime]
+    (modulus : CPolynomial (ZMod p)) [Fact modulus.monic]
+    [Fact (Irreducible modulus.toPoly)]
+    (M : MulContext (Carrier modulus)) (D : ModContext (Carrier modulus))
+    {k b L A : ℕ}
+    (chart : ReedSolomon.HiddenDerivative.FastTaylor.ChartData (Carrier modulus) 1 k)
+    (received : List (Carrier modulus × Carrier modulus))
+    (hnormal : chart.NormalForms b L)
+    (hgenericSquarefree : Squarefree
+      (Polynomial.FunctionFieldAlgorithms.ClearDenominators.valueGlobal
+        (prepare chart received).chartPolynomials.equation))
+    (block : ComputedBlock (Carrier modulus))
+    (hblock : block ∈ (prepare chart received).blocks)
+    (hk : 0 < k) (huniversal : block.component.universal.length ≤ k - 1)
+    (hkA : k ≤ A)
+    (positions : Finset (Fin (prepare chart received).agreements.length))
+    (hpositions : A ≤ positions.card)
+    (hdegree : (prepare chart received).chartPolynomials.equation.natDegree < p)
+    (hdenominator : DenominatorRegular chart received)
+    {K : Type} [Field K] (base : Carrier modulus →+* K) (u v : K)
+    (hcomponent : Polynomial.FunctionFieldAlgorithms.ComponentDescent.evalAt
+      base u v block.component.modulus = 0)
+    (hresidual : ∀ i ∈ positions,
+      Polynomial.FunctionFieldAlgorithms.ComponentDescent.evalAt base u v
+        (prepare chart received).agreements[i] = 0)
+    (hseparant : TowerRepresentation.evalNested
+      (prepare chart received).chartPolynomials.separant base u v ≠ 0) :
+    ∃ candidate ∈ produceComputedBlock p modulus M D A
+        (prepare chart received).chartPolynomials (prepare chart received).agreements block,
+      candidate.Point base u v ∧
+        candidate.specialize base u v =
+          Polynomial.JetHornerMachine.coefficientPolynomial
+            ((List.ofFn (prepare chart received).chartPolynomials.numerators).map
+              fun numerator => TowerRepresentation.evalNested numerator base u v /
+                TowerRepresentation.evalNested
+                  (prepare chart received).chartPolynomials.denominator base u v) := by
+  apply produceComputedBlock_point_complete_of_universal_lt
+    p modulus M D chart received hnormal hgenericSquarefree block hblock
+      (by omega) positions hpositions hdegree hdenominator base u v
+      hcomponent hresidual hseparant
 
 /-- A qualifying point on a selected actual prepared block occurs in the public producer output.
 The block remains an explicit geometric witness, while decomposition success is derived inside. -/
