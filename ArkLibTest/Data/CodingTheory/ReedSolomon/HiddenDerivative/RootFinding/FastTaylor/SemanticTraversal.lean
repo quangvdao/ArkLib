@@ -21,12 +21,16 @@ open ReedSolomon.HiddenDerivative.FastTaylor
 #check concreteDerivative_ne_zero_iff_dependsOnJet
 #check highestConcreteActive?_eq_highestActiveJet
 #check ConcreteStage.semantic_successor
+#check mem_enumerateStagesFrom_semantic_contract
+#check VaryingOrder.prefixEquation_represents
+#check VaryingOrder.prefixEquation_exactOn_canonicalStages
 #check jetDegreeMeasure_semantic_partialDerivative_lt
 #check length_enumerateStages_le_jetDegreeMeasure
 #check enumerateStages_regular_coverage
 
 #print axioms semanticEquation_partialDerivative
 #print axioms highestConcreteActive?_eq_highestActiveJet
+#print axioms VaryingOrder.prefixEquation_exactOn_canonicalStages
 #print axioms enumerateStages_regular_coverage
 
 namespace FastTaylorSemanticTraversalTests
@@ -70,6 +74,21 @@ example :
         ReedSolomon.HiddenDerivative.ActiveOrderAdapter.semantic_concrete]
       norm_num [quadraticSemantic, jetDegree, ZMod.ringChar_zmod_n]
 
+/-- The canonical varying-order equation producer is proved exact on the actual bounded scan. -/
+example :
+    VaryingOrder.EquationProducer.ExactOn
+  (VaryingOrder.prefixEquation (E := ZMod 5))
+      (enumerateStages (jetDegreeMeasure (semanticEquation quadraticEquation))
+        quadraticEquation) := by
+  apply VaryingOrder.prefixEquation_exactOn_canonicalStages (D := 0)
+  constructor
+  · norm_num [ZMod.ringChar_zmod_n]
+  · intro j
+    fin_cases j
+    rw [quadraticEquation,
+      ReedSolomon.HiddenDerivative.ActiveOrderAdapter.semantic_concrete]
+    norm_num [quadraticSemantic, jetDegree, ZMod.ringChar_zmod_n]
+
 end
 
 /-- A varying-order chain: the zero solution is singular at top order `Y₂`, then regular at the
@@ -87,6 +106,8 @@ def run : IO Unit := do
         throw (IO.userError "the separant scan did not descend to the lower active order")
       unless stage1.equation == CMvPolynomial.X 2 do
         throw (IO.userError "the stored lower-order stage is not the literal first separant")
+      unless VaryingOrder.prefixEquation stage1 == CMvPolynomial.X 2 do
+        throw (IO.userError "the lower-order prefix equation changed its active coordinate")
       unless CMvPolynomial.partialDerivative stage1.activeJet.succ stage1.equation == 1 do
         throw (IO.userError "the lower-order stage did not have a nonzero terminal separant")
       let zeroJet : Fin 4 → ZMod 5 := fun _ => 0

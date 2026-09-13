@@ -6,7 +6,7 @@ Authors: Quang Dao
 module
 
 public import
-ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Coverage
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.VaryingOrder
 public import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Regular.SingularRecursion
 
@@ -42,6 +42,18 @@ private theorem finToJetVariable_injective (r : ℕ) :
     Function.Injective (finToJetVariable r) := by
   rw [finToJetVariable_eq_finSuccEquiv]
   exact (_root_.finSuccEquiv (r + 1)).injective
+
+private theorem rename_eq_of_eq_on_vars {R σ τ : Type*} [CommSemiring R]
+    (p : MvPolynomial σ R) (f g : σ → τ) (h : ∀ i ∈ p.vars, f i = g i) :
+    MvPolynomial.rename f p = MvPolynomial.rename g p := by
+  classical
+  rw [← MvPolynomial.support_sum_monomial_coeff p]
+  simp_rw [map_sum, MvPolynomial.rename_monomial]
+  apply Finset.sum_congr rfl
+  intro u hu
+  congr 2
+  exact Finsupp.mapDomain_congr fun i hi =>
+    h i (MvPolynomial.support_subset_vars_of_mem_support hu hi)
 
 /-- A concrete stored derivative in `Y_j` is exactly the semantic separant in `Y_j`. -/
 theorem semanticEquation_partialDerivative {r : ℕ}
@@ -160,12 +172,94 @@ theorem highestConcreteActive?_eq_highestActiveJet {r D : ℕ}
       exact highestConcreteActive?_eq_some_of_highestActiveJet_eq_some equation hchar s hs
 
 omit [DecidableEq E] in
+/-- The executable prefix equation exactly represents any stage whose recorded active jet is its
+semantic highest active jet. -/
+theorem VaryingOrder.prefixEquation_represents {r : ℕ} (stage : ConcreteStage E r)
+    (hs : highestActiveJet (semanticEquation stage.equation) = some stage.activeJet) :
+    VaryingOrder.Represents stage (VaryingOrder.prefixEquation stage) := by
+  unfold VaryingOrder.Represents VaryingOrder.prefixEquation semanticEquation
+  rw [CPoly.fromCMvPolynomial_rename, MvPolynomial.rename_rename,
+    MvPolynomial.rename_rename]
+  apply rename_eq_of_eq_on_vars
+  intro i hi
+  simp only [Function.comp_apply]
+  cases i using Fin.cases with
+  | zero => rfl
+  | succ j =>
+      simp only [finToJetVariable]
+      have hdegree : MvPolynomial.degreeOf j.succ
+          (CPoly.fromCMvPolynomial stage.equation) ≠ 0 :=
+        MvPolynomial.mem_vars_iff_degreeOf_ne_zero.mp hi
+      have hdep : DependsOnJet (semanticEquation stage.equation) j := by
+        rw [DependsOnJet, jetDegree, semanticEquation]
+        change 0 < MvPolynomial.degreeOf (finToJetVariable r j.succ)
+          (MvPolynomial.rename (finToJetVariable r)
+            (CPoly.fromCMvPolynomial stage.equation))
+        rw [MvPolynomial.degreeOf_rename_of_injective (finToJetVariable_injective r)]
+        exact Nat.pos_of_ne_zero hdegree
+      have hjle : j ≤ stage.activeJet := le_of_not_gt fun hj =>
+        (isHighestActiveJet_of_highestActiveJet_eq_some hs).2 j hj hdep
+      have hj : j.val ≤ stage.activeJet.val := Fin.le_def.mp hjle
+      simp only [VaryingOrder.prefixIndex]
+      rw [dif_pos (by change j.val + 1 < stage.activeJet.val + 2; omega)]
+      apply congrArg some
+      apply Fin.ext
+      rfl
+
+omit [DecidableEq E] in
 /-- Every concrete stage's literal successor denotes its semantic separant. -/
 theorem ConcreteStage.semantic_successor {r : ℕ} (stage : ConcreteStage E r) :
     semanticEquation
         (CMvPolynomial.partialDerivative stage.activeJet.succ stage.equation) =
       separant (semanticEquation stage.equation) stage.activeJet :=
   semanticEquation_partialDerivative stage.equation stage.activeJet
+
+/-- Every emitted stage inherits the characteristic contract and records its exact semantic
+highest active jet. -/
+theorem mem_enumerateStagesFrom_semantic_contract {r D index fuel : ℕ}
+    (equation : CMvPolynomial (r + 2) E)
+    (hchar : IsBelowCharacteristic D (semanticEquation equation))
+    (stage : ConcreteStage E r) (hstage : stage ∈ enumerateStagesFrom index fuel equation) :
+    IsBelowCharacteristic D (semanticEquation stage.equation) ∧
+      highestActiveJet (semanticEquation stage.equation) = some stage.activeJet := by
+  induction fuel generalizing index equation stage with
+  | zero => simp [enumerateStagesFrom] at hstage
+  | succ fuel ih =>
+      simp only [enumerateStagesFrom] at hstage
+      cases hc : highestConcreteActive? equation with
+      | none => simp [hc] at hstage
+      | some j =>
+          simp only [hc, List.mem_cons] at hstage
+          rcases hstage with rfl | hstage
+          · exact ⟨hchar,
+              (highestConcreteActive?_eq_highestActiveJet equation hchar).symm.trans hc⟩
+          · have hnextChar : IsBelowCharacteristic D
+                (semanticEquation (CMvPolynomial.partialDerivative j.succ equation)) := by
+              rw [semanticEquation_partialDerivative]
+              exact isBelowCharacteristic_separant _ _ hchar
+            exact ih (index := index + 1)
+              (equation := CMvPolynomial.partialDerivative j.succ equation)
+              (stage := stage) hnextChar hstage
+
+/-- `prefixEquation` is exact on every concrete stage emitted from an equation satisfying the
+characteristic contract. -/
+theorem VaryingOrder.prefixEquation_exactOn_enumerateStages {r D fuel : ℕ}
+    (equation : CMvPolynomial (r + 2) E)
+    (hchar : IsBelowCharacteristic D (semanticEquation equation)) :
+    VaryingOrder.EquationProducer.ExactOn (VaryingOrder.prefixEquation (E := E))
+      (enumerateStages fuel equation) := by
+  intro stage hstage
+  apply VaryingOrder.prefixEquation_represents
+  exact (mem_enumerateStagesFrom_semantic_contract equation hchar stage hstage).2
+
+/-- In particular, the canonical sufficient-fuel stage family needs no caller-supplied equation
+producer exactness certificate. -/
+theorem VaryingOrder.prefixEquation_exactOn_canonicalStages {r D : ℕ}
+    (equation : CMvPolynomial (r + 2) E)
+    (hchar : IsBelowCharacteristic D (semanticEquation equation)) :
+    VaryingOrder.EquationProducer.ExactOn (VaryingOrder.prefixEquation (E := E))
+      (enumerateStages (jetDegreeMeasure (semanticEquation equation)) equation) :=
+  VaryingOrder.prefixEquation_exactOn_enumerateStages equation hchar
 
 /-- An emitted derivative strictly decreases the semantic sum of individual jet degrees. -/
 theorem jetDegreeMeasure_semantic_partialDerivative_lt {r D : ℕ}
