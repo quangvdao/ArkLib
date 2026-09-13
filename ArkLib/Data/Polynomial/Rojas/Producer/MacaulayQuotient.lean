@@ -130,10 +130,11 @@ def divisionLoop {n : ℕ} (divisor : CMvPolynomial n F) :
 def boundedMonomials (n degree : ℕ) : List (CMvMonomial n) :=
   (List.range (degree + 1)).flatMap (weakCompositions n)
 
-/-- One more than the exact enumerated monomial search space below the
-dividend degree. -/
+/-- A cheap numeric bound larger than the monomial search space below the
+dividend degree.  The proof-only bounded enumeration is never materialized at
+runtime. -/
 def divisionFuel {n : ℕ} (dividend : CMvPolynomial n F) : ℕ :=
-  (boundedMonomials n dividend.totalDegree).length + 1
+  (dividend.totalDegree + 1) ^ n + 1
 
 /-- Compute a quotient candidate and retain it only when multiplication checks
 against the original dividend. -/
