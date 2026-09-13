@@ -1,6 +1,21 @@
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.TriangularRecurrence
+/-
+Copyright (c) 2026 ArkLib Contributors. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Quang Dao
+-/
+
+import
+  ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.TriangularRecurrence
 import Mathlib.Data.ZMod.Basic
 import ArkLib.ToCompPoly.Multivariate.Eval
+
+/-!
+# Finite triangular Taylor recurrence regressions
+
+These tests exercise first- and second-order Hasse coefficient solves over the nonreduced
+ring `ZMod 25`, including a shifted equation that explicitly depends on the independent
+variable `Z`. The unused residual tail remains outside the finite precision contract.
+-/
 
 open CompPoly CPoly ArkLib.TruncatedSeries
 open ReedSolomon.HiddenDerivative.FastTaylor
@@ -41,6 +56,28 @@ private def input : Input (ZMod 25) 1 5 where
   binomial_values n hn := by
     fin_cases n <;> norm_num [binomial] at *
   initial_zero := initial_zero
+
+-- The stored independent variable is the displacement Z, not its value at the center.
+private def equationZ : CMvPolynomial 3 (ZMod 25) :=
+  CMvPolynomial.X 2 - CMvPolynomial.X 1 - CMvPolynomial.X 0
+
+private def inputZ : Input (ZMod 25) 1 5 where
+  equation := equationZ
+  coordinates _ := 1
+  order_lt := by decide
+  separantUnit := 1
+  separant_value := by
+    rw [separant_eq]
+    simp [TriangularIdentity.separant, equationZ, CMvPolynomial.fromCMvPolynomial_sub',
+      CMvPolynomial.fromCMvPolynomial_X]
+  binomialUnits := binomial
+  binomial_values n hn := by
+    fin_cases n <;> norm_num [binomial] at *
+  initial_zero := by
+    rw [residual_constant]
+    simp only [equationZ, CPoly.eval₂_equiv, CMvPolynomial.fromCMvPolynomial_sub',
+      CMvPolynomial.fromCMvPolynomial_X, MvPolynomial.eval₂_sub, MvPolynomial.eval₂_X]
+    decide
 
 private def equationTwo : CMvPolynomial 4 (ZMod 25) :=
   CMvPolynomial.X 3 - CMvPolynomial.X 1
@@ -85,6 +122,13 @@ example (other : List (ZMod 25)) (hlen : other.length = 5)
 def run : IO Unit := do
   unless input.run == [1, 1, 13, 21, 24] do
     throw (IO.userError "triangular Taylor recurrence changed the positive-order output")
+  unless (residual equationZ [1, 1]).coeff 1 == 23 do
+    throw (IO.userError "shifted independent variable Z was not mapped to polynomial X")
+  unless inputZ.run == [1, 1, 1, 17, 23] do
+    throw (IO.userError "Z-dependent Taylor recurrence lost its independent-variable term")
+  for m in List.range 4 do
+    unless (residual equationZ inputZ.run).coeff m == 0 do
+      throw (IO.userError "Z-dependent Taylor recurrence failed its residual precision")
   unless inputTwo.run == [1, 0, 1, 0, 21] do
     throw (IO.userError "second-order Hasse recurrence changed its binomial coefficient solve")
   unless (inputTwo.leading 4 : ZMod 25) == 6 do
