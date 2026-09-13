@@ -51,13 +51,7 @@ theorem affineLinearForm_eq (point : Fin n → R) :
     affineLinearForm point = X 0 + ∑ i, C (point i) * X i.succ := by
   apply (finSuccEquiv R n).injective
   rw [finSuccEquiv_affineLinearForm]
-  simp only [map_add, map_sum, map_mul, finSuccEquiv_X_zero, finSuccEquiv_X_succ,
-    hyperplaneRoot, Polynomial.C_neg, Polynomial.C_sum, Polynomial.C_mul]
-  congr 1
-  apply Finset.sum_congr rfl
-  intro i _
-  rw [finSuccEquiv_apply]
-  simp
+  simp [hyperplaneRoot, finSuccEquiv_apply]
 
 /-- An affine hyperplane form divides a polynomial exactly when symbolic
 substitution of the hyperplane equation makes the polynomial zero. -/

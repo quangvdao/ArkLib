@@ -17,7 +17,7 @@ open ArkLib.Rojas.Producer.HyperplaneFactor
 example : affineLinearForm (fun _ : Fin 2 => (3 : ℤ)) =
     X 0 + C 3 * X 1 + C 3 * X 2 := by
   rw [affineLinearForm_eq]
-  simp [Fin.sum_univ_two]
+  simp [Fin.sum_univ_two, add_assoc]
 
 example (point : Fin 2 → ℚ) (q : MvPolynomial (Fin 3) ℚ) :
     affineLinearForm point ∣ affineLinearForm point * q := by
