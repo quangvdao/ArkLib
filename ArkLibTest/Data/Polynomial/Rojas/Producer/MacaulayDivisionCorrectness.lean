@@ -27,6 +27,9 @@ private def quotient : CMvPolynomial 1 F := x + 2
 
 private def dividend : CMvPolynomial 1 F := quotient * divisor
 
+private def highDimensionalMonomial : CMvPolynomial 20 F :=
+  CMvPolynomial.monomial (Vector.ofFn fun _ => 1) 1
+
 example {state next : DivisionState 1 (F := F)}
     (hstep : divisionStep? divisor state = some next) :
     MonomialOrder.degLex.withBotDegree (fromCMvPolynomial next.residual)
@@ -46,6 +49,8 @@ def main : IO Unit := do
     throw <| IO.userError "graded-lex division rejected an exact quotient"
   unless checkedExactQuotient? x divisor == none do
     throw <| IO.userError "graded-lex division accepted a spurious quotient"
+  unless checkedExactQuotient? highDimensionalMonomial highDimensionalMonomial == some 1 do
+    throw <| IO.userError "graded-lex division materialized its proof-only monomial universe"
   IO.println "Rojas graded-lex division: exact quotient and rejection passed"
 
 #print axioms leadingTerm?_degree

@@ -8,6 +8,7 @@ module
 public import ArkLib.Data.Polynomial.Rojas.Producer.DenseMacaulayCorrectness
 public import ArkLib.Data.Polynomial.Rojas.Producer.MacaulayQuotient
 public import Mathlib.Data.Finsupp.MonomialOrder.DegLex
+public import Mathlib.Data.Fintype.Card
 public import Mathlib.RingTheory.MvPolynomial.MonomialOrder
 public import Mathlib.RingTheory.MvPolynomial.MonomialOrder.DegLex
 
@@ -136,6 +137,47 @@ theorem boundedMonomials_nodup (n degree : ℕ) :
       intro hequal
       exact Fin.ne_of_lt hij (Fin.ext hequal)
     exact hijValue (hleftDegree.symm.trans hrightDegree)
+
+/-- Encode an exponent vector coordinatewise in the box of side
+`degree + 1`. -/
+def boundedMonomialCode {n : ℕ} (degree : ℕ) (monomial : CMvMonomial n) :
+    Fin n → Fin (degree + 1) := fun i =>
+  ⟨monomial.get i % (degree + 1), Nat.mod_lt _ (by omega)⟩
+
+/-- The bounded monomial enumeration fits inside the coordinate box, giving
+a cheap power bound for executable fuel. -/
+theorem boundedMonomials_length_le_pow (n degree : ℕ) :
+    (boundedMonomials n degree).length ≤ (degree + 1) ^ n := by
+  have hcodeNodup :
+      ((boundedMonomials n degree).map (boundedMonomialCode degree)).Nodup := by
+    apply (boundedMonomials_nodup n degree).map_on
+    intro left hleft right hright hcode
+    apply CMvMonomial.ext
+    intro i hi
+    let index : Fin n := ⟨i, hi⟩
+    have hleftBound : left.get index < degree + 1 := by
+      have hcoordinate : left.get index ≤ left.totalDegree := by
+        rw [monomial_totalDegree_eq_finsupp_degree]
+        exact Finsupp.le_degree index left.toFinsupp
+      have htotal := mem_boundedMonomials_iff_totalDegree_le.mp hleft
+      omega
+    have hrightBound : right.get index < degree + 1 := by
+      have hcoordinate : right.get index ≤ right.totalDegree := by
+        rw [monomial_totalDegree_eq_finsupp_degree]
+        exact Finsupp.le_degree index right.toFinsupp
+      have htotal := mem_boundedMonomials_iff_totalDegree_le.mp hright
+      omega
+    change left.get index = right.get index
+    have hcoordinate := congrArg Fin.val (congrFun hcode index)
+    simpa only [boundedMonomialCode, Nat.mod_eq_of_lt hleftBound,
+      Nat.mod_eq_of_lt hrightBound] using hcoordinate
+  calc
+    (boundedMonomials n degree).length =
+        ((boundedMonomials n degree).map
+          (boundedMonomialCode degree)).length := by simp
+    _ ≤ Fintype.card (Fin n → Fin (degree + 1)) :=
+      hcodeNodup.length_le_card
+    _ = (degree + 1) ^ n := by simp
 
 /-- A returned leading term is one of the polynomial's stored nonzero terms. -/
 theorem leadingTerm?_mem {n : ℕ} {p : CMvPolynomial n F}
@@ -571,6 +613,7 @@ theorem initialDivisionLoop_step_eq_none {n : ℕ}
   · exact le_rfl
   · have hbound := residualRank_le_length
       (degree := dividend.totalDegree) dividend
+    have hlength := boundedMonomials_length_le_pow n dividend.totalDegree
     simp only [divisionFuel]
     omega
 
