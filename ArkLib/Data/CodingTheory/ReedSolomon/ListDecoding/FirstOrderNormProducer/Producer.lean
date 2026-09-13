@@ -232,7 +232,7 @@ theorem produceComputedBlock_point_complete
     (positions : Finset (Fin (prepare chart received).agreements.length))
     (hpositions : A ≤ positions.card)
     (hdegree : (prepare chart received).chartPolynomials.equation.natDegree < p)
-    (hdenominatorPower : chart.denominator = chart.separant ^ (2 * k))
+    (hdenominator : DenominatorRegular chart received)
     {K : Type} [Field K] (base : Carrier modulus →+* K) (u v : K)
     (hcomponent : Polynomial.FunctionFieldAlgorithms.ComponentDescent.evalAt
       base u v block.component.modulus = 0)
@@ -307,19 +307,25 @@ theorem produceComputedBlock_point_complete
         (thresholdProduct M (blockThreshold A block.component) decomposition)
         block.component.modulus).Point base u v :=
     ⟨hsupport, hfiberPoint⟩
-  have hdenominator : ∀ x y : AlgebraicClosure (Carrier modulus),
+  have hdenominator' : ∀ x y : AlgebraicClosure (Carrier modulus),
       (retainedTower
         (thresholdProduct M (blockThreshold A block.component) decomposition)
         block.component.modulus).Point
           (algebraMap (Carrier modulus) (AlgebraicClosure (Carrier modulus))) x y →
       TowerRepresentation.evalNested (prepare chart received).chartPolynomials.separant
           (algebraMap (Carrier modulus) (AlgebraicClosure (Carrier modulus))) x y ≠ 0 →
-      TowerRepresentation.evalNested (prepare chart received).chartPolynomials.denominator
+    TowerRepresentation.evalNested (prepare chart received).chartPolynomials.denominator
           (algebraMap (Carrier modulus) (AlgebraicClosure (Carrier modulus))) x y ≠ 0 := by
-    intro x y _ hseparant'
-    rw [prepare_denominator_eq_pow_of_chart chart received hdenominatorPower,
-      evalNested_pow]
-    exact pow_ne_zero _ hseparant'
+    intro x y hpoint hseparant'
+    refine hdenominator x y ?_ hseparant'
+    obtain ⟨q, hq⟩ := preparedBlock_modulus_dvd_equation
+      chart received hnormal block hblock
+    have hmodulus := hpoint.2
+    change TowerRepresentation.evalNested block.component.modulus
+      (algebraMap (Carrier modulus) (AlgebraicClosure (Carrier modulus))) x y = 0 at hmodulus
+    rw [hq, TowerAlgebra.evalNested_mul]
+    rw [hmodulus]
+    exact MulZeroClass.zero_mul _
   obtain ⟨candidate, hcandidate, hcandidatePoint, hspecialize⟩ :=
     materializeRetained_point_complete p
       (thresholdProduct M (blockThreshold A block.component) decomposition)
@@ -334,7 +340,7 @@ theorem produceComputedBlock_point_complete
         decomposition hdecompose)
       hfiber
       ((preparedBlock_natDegree_le_equation chart received hnormal block hblock).trans_lt hdegree)
-      hdenominator base u v htowerPoint hseparant
+      hdenominator' base u v htowerPoint hseparant
   refine ⟨candidate, ?_, hcandidatePoint, hspecialize⟩
   unfold produceComputedBlock
   simp only [dif_pos hfiber]
@@ -370,7 +376,7 @@ theorem firstOrderNormCandidates_point_complete_of_block
     (positions : Finset (Fin (prepare chart received).agreements.length))
     (hpositions : A ≤ positions.card)
     (hdegree : (prepare chart received).chartPolynomials.equation.natDegree < p)
-    (hdenominatorPower : chart.denominator = chart.separant ^ (2 * k))
+    (hdenominator : DenominatorRegular chart received)
     {K : Type} [Field K] (base : Carrier modulus →+* K) (u v : K)
     (hcomponent : Polynomial.FunctionFieldAlgorithms.ComponentDescent.evalAt
       base u v block.component.modulus = 0)
@@ -390,7 +396,7 @@ theorem firstOrderNormCandidates_point_complete_of_block
   obtain ⟨candidate, hcandidate, hpoint, hspecialize⟩ :=
     produceComputedBlock_point_complete p modulus M D chart received hnormal
       hgenericSquarefree block hblock hk huniversal hkA positions hpositions
-      hdegree hdenominatorPower base u v hcomponent hresidual hseparant
+      hdegree hdenominator base u v hcomponent hresidual hseparant
   refine ⟨candidate, ?_, hpoint, hspecialize⟩
   simp only [firstOrderNormCandidates, List.mem_flatMap]
   exact ⟨block, hblock, hcandidate⟩
@@ -418,7 +424,7 @@ theorem firstOrderNormCandidates_point_complete
     (positions : Finset (Fin (prepare chart received).agreements.length))
     (hpositions : A ≤ positions.card)
     (hdegree : (prepare chart received).chartPolynomials.equation.natDegree < p)
-    (hdenominatorPower : chart.denominator = chart.separant ^ (2 * k))
+    (hdenominator : DenominatorRegular chart received)
     {K : Type} [Field K] (base : Carrier modulus →+* K) (u v : K)
     (hequation : Polynomial.FunctionFieldAlgorithms.ComponentDescent.evalAt
       base u v (prepare chart received).chartPolynomials.equation = 0)
@@ -439,7 +445,7 @@ theorem firstOrderNormCandidates_point_complete
     exists_preparedBlock_of_equation_root chart received hnormal base u v hequation
   exact firstOrderNormCandidates_point_complete_of_block
     p modulus M D chart received hnormal hgenericSquarefree block hblock hk
-      (huniversal block hblock) hkA positions hpositions hdegree hdenominatorPower
+      (huniversal block hblock) hkA positions hpositions hdegree hdenominator
       base u v hcomponent hresidual hseparant
 
 /-- Membership in one component's executable output exposes the successful G02 branch whose
