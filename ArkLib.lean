@@ -660,6 +660,14 @@ public import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.
 public import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.ComponentAdapter
 public import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Components.FirstOrder
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Components.General
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Components.Readiness
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Components.Recursive
+public import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.ConfluentSample
 public import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Constructor
@@ -954,9 +962,15 @@ public import
 ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.ChartPolynomials
 public import
 ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.ComponentNorms
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.ConstructorContract
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.ConstructorSquarefree
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.Producer
 public import
 ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.UniversalAgreements
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.UniversalRecovery
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HiddenDerivativeDecoder.Correctness
 public import
 ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HiddenDerivativeDecoder.EquationChecks
@@ -1509,6 +1523,11 @@ public import ArkLib.Data.FiniteField.ExplicitConstruction.SuppliedField
 public import ArkLib.Data.Finset.PickSubset
 public import ArkLib.Data.Graph.GabberGalilConstruction.Adjacency
 public import ArkLib.Data.Graph.GabberGalilConstruction.Basic
+public import ArkLib.Data.Graph.GabberGalilConstruction.EnergyEstimate.Assembly
+public import ArkLib.Data.Graph.GabberGalilConstruction.EnergyEstimate.Characters
+public import ArkLib.Data.Graph.GabberGalilConstruction.EnergyEstimate.Main
+public import ArkLib.Data.Graph.GabberGalilConstruction.EnergyEstimate.ShearDefinitions
+public import ArkLib.Data.Graph.GabberGalilConstruction.EnergyEstimate.Shears
 public import ArkLib.Data.Graph.GabberGalilConstruction.Padding
 public import ArkLib.Data.Graph.GabberGalilConstruction.PowerChoice
 public import ArkLib.Data.Graph.GabberGalilConstruction.Powering
@@ -1608,9 +1627,19 @@ public import ArkLib.Data.Matrix.Vandermonde
 public import ArkLib.Data.Matrix.VandermondeMachine
 public import ArkLib.Data.Matrix.VandermondeMachineCanary
 public import ArkLib.Data.Misc.Basic
+public import ArkLib.Data.MvPolynomial.BoundedGCD.CheckedCandidate
+public import ArkLib.Data.MvPolynomial.BoundedGCD.CoefficientNormalization
+public import ArkLib.Data.MvPolynomial.BoundedGCD.ComponentRemoval
+public import ArkLib.Data.MvPolynomial.BoundedGCD.ContentPrimitiveGCD
+public import ArkLib.Data.MvPolynomial.BoundedGCD.FunctionFieldBridge
+public import ArkLib.Data.MvPolynomial.BoundedGCD.GaussPreservation
+public import ArkLib.Data.MvPolynomial.BoundedGCD.NormalizedPseudoRemainder
+public import ArkLib.Data.MvPolynomial.BoundedGCD.PseudoDivision
+public import ArkLib.Data.MvPolynomial.BoundedGCD.RecursiveArithmetic
 public import ArkLib.Data.MvPolynomial.BoxAlgebra
 public import ArkLib.Data.MvPolynomial.BoxAlgebraNilpotence
 public import ArkLib.Data.MvPolynomial.BoxTruncation
+public import ArkLib.Data.MvPolynomial.CheckedExactDivision
 public import ArkLib.Data.MvPolynomial.CoordinateChainCanary
 public import ArkLib.Data.MvPolynomial.CoordinateChainMachine
 public import ArkLib.Data.MvPolynomial.CoordinateChainRefinement
@@ -1709,6 +1738,7 @@ public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.OrdinaryNormalizati
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.OrdinaryNormalizationCorrectness
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.RadicalCorrectness
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.RegularCenterObstruction
+public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.RegularPart
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.SeparablePartCorrectness
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.StoredField
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.StoredFraction
@@ -1744,6 +1774,7 @@ public import ArkLib.Data.Polynomial.RationalFunctions.Lifts
 public import ArkLib.Data.Polynomial.RationalFunctions.RationalRootVanishing
 public import ArkLib.Data.Polynomial.RationalFunctions.Weight
 public import ArkLib.Data.Polynomial.ResultantDegree
+public import ArkLib.Data.Polynomial.ResultantTotalDegree
 public import ArkLib.Data.Polynomial.Rojas.AffineCover
 public import ArkLib.Data.Polynomial.Rojas.AffineSolver
 public import ArkLib.Data.Polynomial.Rojas.DeterministicSpecialization

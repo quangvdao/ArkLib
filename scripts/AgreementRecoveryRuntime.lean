@@ -53,6 +53,12 @@ ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor
 import
 ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.ComponentAdapter
 import
+ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.ComponentConstruction.FirstOrder
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.ComponentConstruction.General
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.ComponentConstruction.Readiness
+import
 ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.VaryingOrder
 import
 ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.SemanticTraversal
@@ -73,6 +79,20 @@ import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.ClearDenominators
 import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.RegularCenterObstruction
 import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.BivariateReducedSupport
 import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.OrdinaryNormalization
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.RegularPart
+import ArkLibTest.Data.MvPolynomial.CheckedExactDivision
+import ArkLibTest.Data.MvPolynomial.BoundedGCD.CheckedCandidate
+import ArkLibTest.Data.MvPolynomial.BoundedGCD.CoefficientNormalization
+import ArkLibTest.Data.MvPolynomial.BoundedGCD.ComponentRemoval
+import ArkLibTest.Data.MvPolynomial.BoundedGCD.ContentPrimitiveGCD
+import ArkLibTest.Data.MvPolynomial.BoundedGCD.FunctionFieldBridge
+import ArkLibTest.Data.MvPolynomial.BoundedGCD.NormalizedPseudoRemainder
+import ArkLibTest.Data.MvPolynomial.BoundedGCD.PseudoDivision
+import ArkLibTest.Data.MvPolynomial.BoundedGCD.RecursiveArithmetic
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.ConstructorContract
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.UniversalRecovery
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.AgreementRecovery.Decoder
 import ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.Ordinary
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.PositionSubsetDecoder
@@ -196,6 +216,22 @@ private def linearFixtureBackend :
 /-- Exercise nonlinear blocks, extension-only roots, repeated images, final filtering,
 corrupted received values, and the zero-width reference branch. -/
 def run : IO Unit := do
+  FirstOrderComponentConstructionTests.runTests
+  GeneralComponentConstructionTests.run
+  ComponentReadinessTests.run
+  CheckedExactDivisionTests.run
+  CheckedCandidateTests.run
+  CoefficientNormalizationTests.run
+  ComponentRemovalTests.run
+  ContentPrimitiveGCDTests.run
+  FunctionFieldBridgeTests.run
+  NormalizedPseudoRemainderTests.run
+  PseudoDivisionTests.run
+  RecursiveArithmeticTests.run
+  RegularPartTests.run
+  ReedSolomon.ListDecoding.FirstOrderNormProducer.ConstructorContractTests.run
+  ReedSolomon.ListDecoding.FirstOrderNormProducer.ConstructorContractTests.runActual
+  ReedSolomon.ListDecoding.FirstOrderNormProducer.UniversalRecoveryTests.run
   ReedSolomon.ListDecoding.FirstOrderNormProducerTests.run
   ReedSolomon.ListDecoding.FirstOrderNormProducer.ComponentNormsTests.run
   ReedSolomon.ListDecoding.FirstOrderNormProducer.ProducerTests.run
