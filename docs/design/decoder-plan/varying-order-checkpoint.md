@@ -46,3 +46,9 @@ that reviewed producer is available, `HiddenDerivativeDecoder.symbolicDecode` re
 General positive-order exactness additionally depends on Personal 1's G09 agreeing-membership and
 energy result and Personal 3's completed G08 Rojas producer. The dedicated supplied-field
 zeroth-order decoder remains complete and separate from these positive-order obligations.
+
+Two reviewed Personal 3 G08 foundations are collected alongside this checkpoint:
+`ResultantSemantics` proves that a common affine root makes the executable dense Macaulay
+determinant vanish, and `HyperplaneFactor` proves the symbolic affine-linear divisibility
+criterion. These results do not yet identify the checked quotient with the target resultant or
+prove isolated-root recovery.

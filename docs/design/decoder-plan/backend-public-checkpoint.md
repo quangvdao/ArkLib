@@ -12,6 +12,8 @@ This collection preserves the following exact published checkpoints over core
 | Personal 3 preparation | `d8c8b5478625a54a0eb6753d47a99d702a8727d4` | Stored inverse-Frobenius preparation reused by the certificate callback |
 | Personal 3 extensions | `b9d6b3b1d2795dc4933042ec4c215e4aac33399c` | Executed general extension search, proved success, quotient field and prefix |
 | Personal 3 Rojas | `de0aba60a3a8268199cf84b28e8ea182b0354dac` | Executable Macaulay matrices, checked quotient and degree/refinement infrastructure |
+| Personal 3 resultant semantics | `2455b7ed22053717628bb641a9ace78889e4d8f2` | Common affine roots annihilate the executable dense Macaulay determinant |
+| Personal 3 hyperplane factor | `3d59e8acb256344b0fbb8bf0f7cb1e050f21950c` | Symbolic affine-linear substitution/divisibility equivalence |
 | Personal 3 selection | `0ec81eae456f731cc5a7bc1d7b4c550bee0b7a63` | Executable fixed-gap independent selection conditional on `ExactEnergyEstimate` |
 
 The zeroth-order input accepts a supplied polynomial-basis field. The public theorem contains
@@ -44,9 +46,8 @@ and public positive-order dispatch. The next exact handoff must compile the conc
 these consumers together.
 
 Personal 3 is already continuing G08. Its ongoing worktree and report are not modified by this
-collection. The exact published matrix checkpoint above is the integration dependency until a
-new reviewed producer is returned. Remaining G08 obligations are multivariate-resultant semantics,
-Macaulay quotient identification and Rojas deformation/isolated-root coverage.
+collection. The two reviewed foundations above are collected, while the remaining G08 obligations
+are Macaulay quotient/resultant identification and Rojas deformation/isolated-root coverage.
 
 G09 has a second integration gap in addition to its analytic premise: the final selection theorem
 retains cardinality and independence but drops `selected ⊆ agreeing`. The agreeing-set membership
