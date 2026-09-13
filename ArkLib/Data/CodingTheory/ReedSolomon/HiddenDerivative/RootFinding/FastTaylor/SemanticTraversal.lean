@@ -261,6 +261,51 @@ theorem VaryingOrder.prefixEquation_exactOn_canonicalStages {r D : ℕ}
       (enumerateStages (jetDegreeMeasure (semanticEquation equation)) equation) :=
   VaryingOrder.prefixEquation_exactOn_enumerateStages equation hchar
 
+/-- A computable traversal bound: every jet-variable degree is at most the concrete total degree. -/
+def VaryingOrder.canonicalFuel {r : ℕ} (root : CMvPolynomial (r + 2) E) : ℕ :=
+  (r + 1) * root.totalDegree
+
+omit [DecidableEq E] [BEq E] [LawfulBEq E] in
+/-- The semantic decreasing measure fits within the computable concrete traversal bound. -/
+theorem VaryingOrder.jetDegreeMeasure_le_canonicalFuel {r : ℕ}
+    (root : CMvPolynomial (r + 2) E) :
+    jetDegreeMeasure (semanticEquation root) ≤ VaryingOrder.canonicalFuel root := by
+  rw [jetDegreeMeasure]
+  calc
+    ∑ s : Fin (r + 1), jetDegree (semanticEquation root) s ≤
+        ∑ _s : Fin (r + 1), root.totalDegree := by
+      apply Finset.sum_le_sum
+      intro s _hs
+      unfold jetDegree semanticEquation
+      calc
+        MvPolynomial.degreeOf (finToJetVariable r s.succ)
+            (MvPolynomial.rename (finToJetVariable r) (fromCMvPolynomial root)) ≤
+            (MvPolynomial.rename (finToJetVariable r)
+              (fromCMvPolynomial root)).totalDegree :=
+          MvPolynomial.degreeOf_le_totalDegree _ _
+        _ ≤ (fromCMvPolynomial root).totalDegree :=
+          MvPolynomial.totalDegree_rename_le _ _
+        _ = root.totalDegree := rfl
+    _ = VaryingOrder.canonicalFuel root := by
+      simp [VaryingOrder.canonicalFuel]
+
+/-- Assemble the varying-order source family with computed fuel and the proved prefix adapter.
+Callers provide neither a scan bound nor a lower-arity equation producer. -/
+def VaryingOrder.canonicalSources {r : ℕ} (root : CMvPolynomial (r + 2) E)
+    (centers : List E) (components : VaryingOrder.ComponentProducer E r) :
+    List (VaryingOrder.Source E r) :=
+  VaryingOrder.assembleFromEquation
+    (VaryingOrder.canonicalFuel root) root VaryingOrder.prefixEquation centers components
+
+/-- Execute canonical stage traversal, varying-order assembly and leaf construction. Order-zero
+sources still bypass the positive-order constructor through `constructSource?`. -/
+def VaryingOrder.canonicalConstruct (p k Bjet : ℕ) [CharP E p]
+    {r : ℕ} (root : CMvPolynomial (r + 2) E) (centers values : List E)
+    (components : VaryingOrder.ComponentProducer E r) : List (VaryingOrder.Entry E r k) :=
+  VaryingOrder.constructFromEquation p k Bjet
+    (VaryingOrder.canonicalFuel root) root VaryingOrder.prefixEquation
+    centers values components
+
 /-- An emitted derivative strictly decreases the semantic sum of individual jet degrees. -/
 theorem jetDegreeMeasure_semantic_partialDerivative_lt {r D : ℕ}
     (equation : CMvPolynomial (r + 2) E) (j : Fin (r + 1))
@@ -388,5 +433,19 @@ theorem enumerateStages_regular_coverage {r D : ℕ}
       highestActiveJet (semanticEquation stage.equation) = some stage.activeJet :=
   exists_regular_stage_in_enumerateStagesFrom equation hQ hchar P.polynomial P.1.2
     P.equation le_rfl
+
+/-- Executable canonical traversal reaches a regular stage for every bounded solution. Its fuel
+is computed from the concrete equation, so no scan bound or sufficiency proof is an input. -/
+theorem VaryingOrder.canonicalFuel_regular_coverage {r D : ℕ}
+    (equation : CMvPolynomial (r + 2) E) (hQ : semanticEquation equation ≠ 0)
+    (hchar : IsBelowCharacteristic D (semanticEquation equation))
+    (P : BoundedSolution (semanticEquation equation) D) :
+    ∃ stage ∈ enumerateStages (VaryingOrder.canonicalFuel equation) equation,
+      differentialSpecialization (semanticEquation stage.equation) P.polynomial = 0 ∧
+      differentialSpecialization
+        (separant (semanticEquation stage.equation) stage.activeJet) P.polynomial ≠ 0 ∧
+      highestActiveJet (semanticEquation stage.equation) = some stage.activeJet :=
+  exists_regular_stage_in_enumerateStagesFrom equation hQ hchar P.polynomial P.1.2
+    P.equation (VaryingOrder.jetDegreeMeasure_le_canonicalFuel equation)
 
 end ReedSolomon.HiddenDerivative.FastTaylor

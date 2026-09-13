@@ -7,12 +7,15 @@ does not pass through the positive-order `0 < r < k <= p` guard.
 
 `SemanticTraversal` proves that literal stored partial derivatives are the semantic separants.
 Under `IsBelowCharacteristic`, `highestConcreteActive?` agrees with `highestActiveJet`, every
-emitted derivative strictly decreases `jetDegreeMeasure`, and the initial measure supplies
-canonical sufficient fuel. Consequently every bounded solution of a nonzero input equation
-reaches an actual emitted stage where the stage equation vanishes and the selected separant is
-nonzero. The caller supplies neither fuel nor a chosen regular stage.
+emitted derivative strictly decreases `jetDegreeMeasure`. The executable `canonicalFuel` computes
+`(r + 1) * root.totalDegree` from the stored equation and proves that it bounds the semantic
+measure. Consequently every bounded solution of a nonzero input equation reaches an actual
+emitted stage where the stage equation vanishes and the selected separant is nonzero. The caller
+supplies neither fuel nor a chosen regular stage.
 
-`VaryingOrder` retains top, lower-positive and zero stages. Its dependent `EquationProducer` and
+`VaryingOrder` retains top, lower-positive and zero stages. `canonicalSources` and
+`canonicalConstruct` use the computed fuel and proved prefix adapter directly. Its dependent
+`EquationProducer` and
 `ComponentProducer` preserve the smaller arity selected by each stage. `prefixEquation` is the
 executable ambient-to-prefix adapter; `EquationProducer.ExactOn` records its exact semantic
 representation on the enumerated stages. `constructSource?` returns zero endpoints directly and

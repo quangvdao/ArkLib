@@ -24,14 +24,20 @@ open ReedSolomon.HiddenDerivative.FastTaylor
 #check mem_enumerateStagesFrom_semantic_contract
 #check VaryingOrder.prefixEquation_represents
 #check VaryingOrder.prefixEquation_exactOn_canonicalStages
+#check VaryingOrder.canonicalFuel
+#check VaryingOrder.jetDegreeMeasure_le_canonicalFuel
+#check VaryingOrder.canonicalSources
+#check VaryingOrder.canonicalConstruct
 #check jetDegreeMeasure_semantic_partialDerivative_lt
 #check length_enumerateStages_le_jetDegreeMeasure
 #check enumerateStages_regular_coverage
+#check VaryingOrder.canonicalFuel_regular_coverage
 
 #print axioms semanticEquation_partialDerivative
 #print axioms highestConcreteActive?_eq_highestActiveJet
 #print axioms VaryingOrder.prefixEquation_exactOn_canonicalStages
 #print axioms enumerateStages_regular_coverage
+#print axioms VaryingOrder.canonicalFuel_regular_coverage
 
 namespace FastTaylorSemanticTraversalTests
 
@@ -97,7 +103,7 @@ private def varyingEquation : CMvPolynomial 4 (ZMod 5) :=
   CMvPolynomial.X 3 * CMvPolynomial.X 2
 
 def run : IO Unit := do
-  let stages := enumerateStages 4 varyingEquation
+  let stages := enumerateStages (VaryingOrder.canonicalFuel varyingEquation) varyingEquation
   match stages with
   | [stage0, stage1] =>
       unless stage0.index == 0 && stage0.activeJet.val == 2 do
@@ -114,5 +120,13 @@ def run : IO Unit := do
       unless stage0.equation.eval zeroJet == 0 && stage1.equation.eval zeroJet == 0 do
         throw (IO.userError "the singular zero solution was not preserved across stages")
   | _ => throw (IO.userError "varying-order traversal did not emit exactly two active stages")
+  let zeroEquation : CMvPolynomial 3 (ZMod 5) := CMvPolynomial.X 1
+  let zeroEntries := VaryingOrder.canonicalConstruct 5 0 100 zeroEquation [] []
+    (fun _stage _center => [])
+  match zeroEntries with
+  | [.zero endpoint] =>
+      unless endpoint.stage.activeJet.val == 0 do
+        throw (IO.userError "canonical construction did not retain the zero-order stage")
+  | _ => throw (IO.userError "canonical construction did not return the zero endpoint")
 
 end FastTaylorSemanticTraversalTests
