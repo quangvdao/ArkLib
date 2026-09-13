@@ -53,6 +53,13 @@ def main : IO Unit := do
 #print axioms divisionStep?_withBotDegree_lt
 #print axioms divisionStep?_totalDegree_le
 #print axioms divisionLoop_invariant
+#print axioms initialDivisionLoop_step_eq_none
+#print axioms checkedExactQuotient?_complete
+#print axioms checkedExactQuotient?_eq_some_iff
+#print axioms checkedExactQuotient?_isSome_of_dvd
+#print axioms macaulayQuotient?_complete_of_identity
+#print axioms macaulayQuotient?_eq_some_iff
+#print axioms macaulayQuotient?_isSome_of_dvd
 
 end RojasMacaulayDivisionCorrectnessTests
 
