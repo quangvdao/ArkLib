@@ -414,7 +414,7 @@ theorem splitZeroUnit_dimension_sum
     ((splitZeroUnit r residual hr).map fun out => out.tower.dimension).sum = r.dimension := by
   let state := splitState r residual hr
   have hdividend : state.dividend.toCPolynomial.monic := by
-    simpa [state, splitState] using hr.2.2.2.1
+    simpa [state, splitState, splitStatePrimary] using hr.2.2.2.1
   change (((factorTower state).flatMap (terminalChildren r state)).map
     (fun out => out.tower.dimension)).sum = r.dimension
   rw [sum_map_flatMap]
@@ -433,7 +433,7 @@ theorem splitZeroUnit_dimension_sum
     _ = state.modulus.natDegree * state.dividend.toCPolynomial.natDegree := by
       rw [factorTower_natDegree_sum]
     _ = r.dimension := by
-      simp [state, splitState, TowerRepresentation.dimension]
+      simp [state, splitStatePrimary, TowerRepresentation.dimension]
 
 /-- `splitZeroUnit` is therefore an exact list-level geometric partition with exact dimension
 accounting and the expected zero/unit residual semantics. -/

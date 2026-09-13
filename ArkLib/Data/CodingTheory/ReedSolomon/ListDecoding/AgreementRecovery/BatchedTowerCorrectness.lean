@@ -138,7 +138,7 @@ theorem splitWithResidual_point_sound (k : ℕ) (current : Tower.Component E k)
       (child.1 = true ↔ TowerRepresentation.evalNested residual ι u v = 0) := by
   simp only [splitWithResidual, List.mem_map, List.mem_attach, true_and] at hc
   obtain ⟨out, rfl⟩ := hc
-  have hs := splitZeroUnit_point_sound current.val residual current.property
+  have hs := splitZeroUnitPrimary_point_sound current.val residual current.property
     out.val out.property ι u v hp
   refine ⟨hs.1, ?_⟩
   have ht : out.val.tag.isZero = true ↔ out.val.tag = .zero := by
@@ -155,10 +155,11 @@ theorem splitWithResidual_point_complete (k : ℕ) (current : Tower.Component E 
       child.2.val.Point ι u v ∧
         (child.1 = true ↔ TowerRepresentation.evalNested residual ι u v = 0) := by
   obtain ⟨out, ho, hpoint, ht⟩ :=
-    splitZeroUnit_point_complete current.val residual current.property ι u v hp
+    splitZeroUnitPrimary_point_complete current.val residual current.property ι u v hp
   let child : Bool × Tower.Component E k :=
     (out.tag.isZero,
-      ⟨out.tower, splitZeroUnit_wellFormed current.val residual current.property out ho⟩)
+      ⟨out.tower, splitZeroUnitPrimary_nonreducedWellFormed
+        current.val residual current.property out ho⟩)
   have hc : child ∈ splitWithResidual k current residual := by
     simp only [splitWithResidual, List.mem_map, List.mem_attach, true_and]
     exact ⟨⟨out, ho⟩, rfl⟩
@@ -334,7 +335,8 @@ theorem representedBy_of_mem_recoverAgreement [IsAlgClosed L]
     out.positions.toFinset hcard cs hc
   rw [blocks_eq] at hout
   obtain ⟨source, hsource, hout⟩ := List.mem_flatMap.mp hout
-  obtain ⟨u, v, hpoint⟩ := out.component.val.exists_point ι out.component.property
+  obtain ⟨u, v, hpoint⟩ :=
+    out.component.val.exists_point_of_nonreducedWellFormed ι out.component.property
   let point : Tower.Component E k → Unit → Prop := fun s _ => s.val.Point ι u v
   let good : Unit → Fin n → Prop := fun _ i =>
     (source.val.specialize ι u v).eval (ι (base (domain i))) = ι (base (received i))
@@ -352,7 +354,7 @@ theorem representedBy_of_mem_recoverAgreement [IsAlgClosed L]
       (coefficientPolynomial cs).map (ι.comp base) := by
     apply source.val.specialize_eq_base_map_of_shared_agreements base ι u v
       out.positions.toFinset domain received domain.injective.injOn
-    · exact source.property.2.2.2.2.2.2.2.1.trans hcard.symm
+    · exact source.property.2.2.2.2.2.2.1.trans hcard.symm
     · simpa only [hcard] using hproperties.2.2.1
     · intro i hi
       rw [hproperties.2.1, Lagrange.eval_interpolate_at_node received domain.injective.injOn hi]

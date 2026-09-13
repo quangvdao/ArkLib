@@ -36,9 +36,9 @@ variable {F E I : Type} [Field F] [DecidableEq F] [BEq F] [LawfulBEq F]
 used by both the batched runtime and the pointwise refinement specification. -/
 def splitWithResidual (k : ℕ) (component : Tower.Component E k)
     (residual : CPolynomial (CPolynomial E)) : List (Bool × Tower.Component E k) :=
-  (splitZeroUnit component.val residual component.property).attach.map fun child =>
+  (splitZeroUnitPrimary component.val residual component.property).attach.map fun child =>
     (child.val.tag.isZero,
-      ⟨child.val.tower, splitZeroUnit_wellFormed component.val residual
+      ⟨child.val.tower, splitZeroUnitPrimary_nonreducedWellFormed component.val residual
         component.property child.val child.property⟩)
 
 /-- Canonical residual used by the pointwise specification of one live descendant. The initial
@@ -144,5 +144,11 @@ apart from the namespace matches `Tower.recoverAgreement`, so callers can switch
 def recoverAgreementDefault (base : F →+* E) (domain : Fin n ↪ F) (received : Fin n → F)
     (k A : ℕ) (families : List (Tower.Component E k)) : List (List F) :=
   recoverAgreement .naive .remainderOnly base domain received k A families
+
+/-- Reduced constructors use the same batched engine after forgetting their stronger certificate. -/
+def recoverAgreementReduced (M : MulContext E) (D : ModContext E)
+    (base : F →+* E) (domain : Fin n ↪ F) (received : Fin n → F)
+    (k A : ℕ) (families : List (Tower.ReducedComponent E k)) : List (List F) :=
+  recoverAgreement M D base domain received k A (families.map Tower.ofReduced)
 
 end ReedSolomon.ListDecoding.AgreementRecovery.BatchedTower

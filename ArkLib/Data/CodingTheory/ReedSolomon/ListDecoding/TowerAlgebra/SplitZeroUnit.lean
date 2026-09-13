@@ -46,8 +46,8 @@ structure TaggedTower where
   tower : TowerRepresentation (F := F)
 
 /-- D5 state for computing the gcd of a tower fiber with a tested element. -/
-def splitState (r : TowerRepresentation (F := F)) (residual : CPolynomial (CPolynomial F))
-    {width : ℕ} (hr : r.WellFormed width) : TowerState (F := F) :=
+def splitStatePrimary (r : TowerRepresentation (F := F)) (residual : CPolynomial (CPolynomial F))
+    {width : ℕ} (hr : r.NonreducedWellFormed width) : TowerState (F := F) :=
   { modulus := r.modulus
     modulus_ne_zero := by
       exact (CPolynomial.toPoly_eq_zero_iff r.modulus).not.mp
@@ -55,7 +55,30 @@ def splitState (r : TowerRepresentation (F := F)) (residual : CPolynomial (CPoly
     modulus_monic := hr.1
     modulus_squarefree := hr.2.1
     dividend := FiberPolynomial.ofCPolynomial r.fiber
-    divisor := FiberPolynomial.ofCPolynomial residual }
+    divisor := FiberPolynomial.ofCPolynomial
+      (TowerRepresentation.reduceElement r.modulus r.fiber (residual ^ r.fiber.natDegree)) }
+
+/-- Compatibility view of the primary state for existing reduced-tower callers. -/
+abbrev splitState (r : TowerRepresentation (F := F)) (residual : CPolynomial (CPolynomial F))
+    {width : ℕ} (hr : r.WellFormed width) : TowerState (F := F) :=
+  splitStatePrimary r residual hr.nonreduced
+
+/-- The executed primary-split residual has the same geometric zero set as the input residual. -/
+theorem splitState_divisor_eval_eq_zero_iff
+    (r : TowerRepresentation (F := F)) (residual : CPolynomial (CPolynomial F))
+    {width : ℕ} (hr : r.WellFormed width)
+    {K : Type} [Field K] (phi : F →+* K) (u v : K) (hp : r.Point phi u v) :
+    ((splitState r residual hr).divisor.specialize phi u).eval v = 0 ↔
+      TowerRepresentation.evalNested residual phi u v = 0 := by
+  simp only [splitState, splitStatePrimary, FiberPolynomial.specialize_ofCPolynomial]
+  change TowerRepresentation.evalNested
+    (TowerRepresentation.reduceElement r.modulus r.fiber (residual ^ r.fiber.natDegree))
+      phi u v = 0 ↔ _
+  rw [TowerRepresentation.evalNested_reduceElement phi u v hr.modulus_monic hp.1
+    hr.fiber_monic hp.2]
+  simp only [TowerRepresentation.evalNested, specializeFiberCPolynomial,
+    CPolynomial.toPoly_pow, Polynomial.map_pow, Polynomial.eval_pow,
+    pow_eq_zero_iff hr.fiber_pos.ne']
 
 /-- Restrict the original coefficient family to a child base and fiber modulus. -/
 def restrictTower (source : TowerRepresentation (F := F)) (modulus : CPolynomial F)
@@ -85,10 +108,16 @@ def terminalChildren (source : TowerRepresentation (F := F)) (state : TowerState
 The proof argument supplies the squarefree-base invariants required by D5 and is erased at
 runtime.  A failed symbolic operation has no fallback: D5 deterministically partitions the base,
 and constant fiber pieces are discarded because they have no geometric points. -/
-def splitZeroUnit (r : TowerRepresentation (F := F)) (residual : CPolynomial (CPolynomial F))
-    {width : ℕ} (hr : r.WellFormed width) : List (TaggedTower (F := F)) :=
-  let state := splitState r residual hr
+def splitZeroUnitPrimary (r : TowerRepresentation (F := F))
+    (residual : CPolynomial (CPolynomial F))
+    {width : ℕ} (hr : r.NonreducedWellFormed width) : List (TaggedTower (F := F)) :=
+  let state := splitStatePrimary r residual hr
   (factorTower state).flatMap (terminalChildren r state)
+
+/-- Existing reduced-tower callers execute the same primary splitter. -/
+abbrev splitZeroUnit (r : TowerRepresentation (F := F)) (residual : CPolynomial (CPolynomial F))
+    {width : ℕ} (hr : r.WellFormed width) : List (TaggedTower (F := F)) :=
+  splitZeroUnitPrimary r residual hr.nonreduced
 
 /-- Zero tags record an agreement. -/
 @[simp] theorem splitTag_isZero_zero : SplitTag.zero.isZero = true := rfl
@@ -117,8 +146,8 @@ theorem mem_splitZeroUnit_iff
             some output ∨
           makeTagged? r .unit terminal.modulus
               (terminalQuotientPolynomial (splitState r residual hr) terminal) = some output := by
-  simp only [splitZeroUnit, List.mem_flatMap, terminalChildren, List.mem_filterMap,
-    List.mem_cons, List.not_mem_nil, or_false, id_eq]
+  simp only [splitZeroUnit, splitZeroUnitPrimary, List.mem_flatMap, terminalChildren,
+    List.mem_filterMap, List.mem_cons, List.not_mem_nil, or_false, id_eq]
   aesop
 
 /-- Every emitted component has positive base-by-fiber dimension. -/
@@ -126,7 +155,7 @@ theorem dimension_ne_zero_of_mem_splitZeroUnit
     (r : TowerRepresentation (F := F)) (residual : CPolynomial (CPolynomial F))
     {width : ℕ} (hr : r.WellFormed width) (output : TaggedTower (F := F))
     (houtput : output ∈ splitZeroUnit r residual hr) : output.tower.dimension ≠ 0 := by
-  rw [splitZeroUnit] at houtput
+  rw [splitZeroUnit, splitZeroUnitPrimary] at houtput
   simp only [List.mem_flatMap] at houtput
   obtain ⟨terminal, _, houtput⟩ := houtput
   simp only [terminalChildren, List.mem_filterMap] at houtput
@@ -299,12 +328,13 @@ theorem splitZeroUnit_point_sound
           (state.divisor.specialize phi u)
       rw [hq, Polynomial.eval_mul, hgcdRoot', zero_mul]
     refine ⟨⟨hbase, ?_⟩, ?_⟩
-    · simpa [state, splitState, FiberPolynomial.specialize_ofCPolynomial,
+    · simpa [state, splitState, splitStatePrimary, FiberPolynomial.specialize_ofCPolynomial,
         TowerRepresentation.evalNested] using hHRoot
     · constructor
       · intro _
-        simpa [state, splitState, FiberPolynomial.specialize_ofCPolynomial,
-          TowerRepresentation.evalNested] using hSRoot
+        apply (splitState_divisor_eval_eq_zero_iff r residual hr phi u v ⟨hbase, ?_⟩).mp hSRoot
+        simpa [state, splitState, splitStatePrimary, FiberPolynomial.specialize_ofCPolynomial,
+          TowerRepresentation.evalNested] using hHRoot
       · intro _
         rfl
   · obtain ⟨_, rfl⟩ := makeTagged?_eq_some_iff.mp hunit
@@ -316,10 +346,10 @@ theorem splitZeroUnit_point_sound
     have hassociated := factorTower_terminal_fieldGCD_associated
       state phi u terminal hterminal hraw.1
     have hfactor := terminal_gcd_mul_terminalQuotient_specialize state
-      (by simpa [state, splitState] using hr.2.2.2.1)
+      (by simpa [state, splitState, splitStatePrimary] using hr.2.2.2.1)
       terminal hterminal phi u hraw.1
     have hfree : Squarefree (state.dividend.specialize phi u) := by
-      simpa [state, splitState, FiberPolynomial.specialize_ofCPolynomial] using
+      simpa [state, splitState, splitStatePrimary, FiberPolynomial.specialize_ofCPolynomial] using
         hr.2.2.2.2.2.2.1 K phi u hbase
     have hfiltered := squarefree_and_eval_complement_gcd_iff
       hfree.ne_zero hfree hassociated hfactor v
@@ -329,7 +359,7 @@ theorem splitZeroUnit_point_sound
         TowerRepresentation.evalNested] using hraw.2
     have hunitSemantics := hfiltered.2.mp hquotientRoot
     refine ⟨⟨hbase, ?_⟩, ?_⟩
-    · simpa [state, splitState, FiberPolynomial.specialize_ofCPolynomial,
+    · simpa [state, splitState, splitStatePrimary, FiberPolynomial.specialize_ofCPolynomial,
         TowerRepresentation.evalNested] using hunitSemantics.1
     · constructor
       · intro htag
@@ -337,8 +367,10 @@ theorem splitZeroUnit_point_sound
       · intro hresidual
         exfalso
         apply hunitSemantics.2
-        simpa [state, splitState, FiberPolynomial.specialize_ofCPolynomial,
-          TowerRepresentation.evalNested] using hresidual
+        apply (splitState_divisor_eval_eq_zero_iff r residual hr phi u v ⟨hbase, ?_⟩).mpr
+          hresidual
+        simpa [state, splitState, splitStatePrimary, FiberPolynomial.specialize_ofCPolynomial,
+          TowerRepresentation.evalNested] using hunitSemantics.1
 
 /-- Every parent point reaches a returned child, and it reaches a zero-tagged child exactly when
 the tested element vanishes.  This is the exhaustive direction of `SplitZeroUnit`. -/
@@ -360,16 +392,15 @@ theorem splitZeroUnit_point_complete
       ((CPolynomial.toPoly_eq_zero_iff _).not.mpr hinvariants.1) phi hterminalRoot
       (fun x hx ↦ phi.injective (hx.trans phi.map_zero.symm))
   have hdividendMonic : state.dividend.toCPolynomial.monic := by
-    simpa [state, splitState] using hr.2.2.2.1
+    simpa [state, splitState, splitStatePrimary] using hr.2.2.2.1
   have hHRoot : (state.dividend.specialize phi u).eval v = 0 := by
-    simpa [state, splitState, FiberPolynomial.specialize_ofCPolynomial,
+    simpa [state, splitState, splitStatePrimary, FiberPolynomial.specialize_ofCPolynomial,
       TowerRepresentation.Point, TowerRepresentation.evalNested] using hpoint.2
   have hassociated := factorTower_terminal_fieldGCD_associated
     state phi u terminal hterminal hterminalRoot
   by_cases hresidual : TowerRepresentation.evalNested residual phi u v = 0
   · have hSRoot : (state.divisor.specialize phi u).eval v = 0 := by
-      simpa [state, splitState, FiberPolynomial.specialize_ofCPolynomial,
-        TowerRepresentation.evalNested] using hresidual
+      exact (splitState_divisor_eval_eq_zero_iff r residual hr phi u v hpoint).mpr hresidual
     have hgcdRoot : (fieldGCD (state.dividend.specialize phi u)
         (state.divisor.specialize phi u)).eval v = 0 := by
       let : DecidableEq K[X] := Classical.decEq K[X]
@@ -405,13 +436,13 @@ theorem splitZeroUnit_point_complete
   · have hfactor := terminal_gcd_mul_terminalQuotient_specialize state
       hdividendMonic terminal hterminal phi u hterminalRoot
     have hfree : Squarefree (state.dividend.specialize phi u) := by
-      simpa [state, splitState, FiberPolynomial.specialize_ofCPolynomial] using
+      simpa [state, splitState, splitStatePrimary, FiberPolynomial.specialize_ofCPolynomial] using
         hr.2.2.2.2.2.2.1 K phi u hpoint.1
     have hfiltered := squarefree_and_eval_complement_gcd_iff
       hfree.ne_zero hfree hassociated hfactor v
     have hSNonzero : (state.divisor.specialize phi u).eval v ≠ 0 := by
-      simpa [state, splitState, FiberPolynomial.specialize_ofCPolynomial,
-        TowerRepresentation.evalNested] using hresidual
+      exact fun hz => hresidual
+        ((splitState_divisor_eval_eq_zero_iff r residual hr phi u v hpoint).mp hz)
     have hquotientRoot := hfiltered.2.mpr ⟨hHRoot, hSNonzero⟩
     have hrawPoint : (restrictTower r terminal.modulus
         (terminalQuotientPolynomial state terminal)).Point phi u v :=
@@ -465,7 +496,7 @@ theorem splitZeroUnit_specialize
         simp [TowerRepresentation.dimension, restrictTower, hzero]
       exact Nat.pos_of_ne_zero hne
     have hdividendMonic : state.dividend.toCPolynomial.monic := by
-      simpa [state, splitState] using hr.2.2.2.1
+      simpa [state, splitState, splitStatePrimary] using hr.2.2.2.1
     have hrawMonic := factorTower_terminal_gcd_monic
       state hdividendMonic terminal hterminal
     have hchildMonic :
@@ -484,7 +515,7 @@ theorem splitZeroUnit_specialize
         simp [TowerRepresentation.dimension, restrictTower, hzero]
       exact Nat.pos_of_ne_zero hne
     have hdividendMonic : state.dividend.toCPolynomial.monic := by
-      simpa [state, splitState] using hr.2.2.2.1
+      simpa [state, splitState, splitStatePrimary] using hr.2.2.2.1
     change (restrictTower r terminal.modulus
       (terminalQuotientPolynomial state terminal)).dimension ≠ 0 at hdimension
     have hquotientNe : terminalQuotientPolynomial state terminal ≠ 0 := by
@@ -521,7 +552,7 @@ theorem splitZeroUnit_wellFormed
       apply hdimension
       simp [TowerRepresentation.dimension, restrictTower, hzeroDegree]
     have hdividendMonic : state.dividend.toCPolynomial.monic := by
-      simpa [state, splitState] using hr.2.2.2.1
+      simpa [state, splitState, splitStatePrimary] using hr.2.2.2.1
     have hrawMonic := factorTower_terminal_gcd_monic
       state hdividendMonic terminal hterminal
     have hchildMonic :
@@ -534,7 +565,7 @@ theorem splitZeroUnit_wellFormed
     · intro K _ phi u hu
       have hparentRoot := factorTower_root_sound state phi u terminal hterminal hu
       have hparentFree : Squarefree (state.dividend.specialize phi u) := by
-        simpa [state, splitState, FiberPolynomial.specialize_ofCPolynomial] using
+        simpa [state, splitState, splitStatePrimary, FiberPolynomial.specialize_ofCPolynomial] using
           hr.2.2.2.2.2.2.1 K phi u hparentRoot
       have hassociated := factorTower_terminal_fieldGCD_associated
         state phi u terminal hterminal hu
@@ -556,7 +587,7 @@ theorem splitZeroUnit_wellFormed
       apply hdimension
       simp [TowerRepresentation.dimension, restrictTower, hzeroDegree]
     have hdividendMonic : state.dividend.toCPolynomial.monic := by
-      simpa [state, splitState] using hr.2.2.2.1
+      simpa [state, splitState, splitStatePrimary] using hr.2.2.2.1
     have hquotientNe : terminalQuotientPolynomial state terminal ≠ 0 := by
       intro hzero
       apply hdimension
@@ -575,7 +606,7 @@ theorem splitZeroUnit_wellFormed
     · intro K _ phi u hu
       have hparentRoot := factorTower_root_sound state phi u terminal hterminal hu
       have hparentFree : Squarefree (state.dividend.specialize phi u) := by
-        simpa [state, splitState, FiberPolynomial.specialize_ofCPolynomial] using
+        simpa [state, splitState, splitStatePrimary, FiberPolynomial.specialize_ofCPolynomial] using
           hr.2.2.2.2.2.2.1 K phi u hparentRoot
       have hfactor := terminal_gcd_mul_terminalQuotient_specialize
         state hdividendMonic terminal hterminal phi u hu

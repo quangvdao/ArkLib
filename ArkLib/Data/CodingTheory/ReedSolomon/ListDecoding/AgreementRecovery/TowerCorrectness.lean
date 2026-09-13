@@ -57,8 +57,8 @@ theorem splitAt_represents_sound (base : F →+* E) (ι : E →+* L)
       (child.1 = true ↔ p.eval (ι (base (domain i))) = ι (base (received i))) := by
   simp only [splitAt, List.mem_map, List.mem_attach, true_and] at hc
   obtain ⟨out, rfl⟩ := hc
-  have hs := splitZeroUnit_point_sound s.val _ s.property out.val out.property ι u v hp.1
-  have he := splitZeroUnit_specialize s.val _ s.property out.val out.property ι u v hp.1
+  have hs := splitZeroUnitPrimary_point_sound s.val _ s.property out.val out.property ι u v hp.1
+  have he := splitZeroUnitPrimary_specialize s.val _ s.property out.val out.property ι u v hp.1
   have hrep : s.val.specialize ι u v = p := he.trans hp.2
   refine ⟨⟨hs.1, hrep⟩, ?_⟩
   have ht : out.val.tag.isZero = true ↔ out.val.tag = .zero := by
@@ -75,13 +75,13 @@ theorem splitAt_represents_complete (base : F →+* E) (ι : E →+* L)
     ∃ child ∈ splitAt base domain received k s i, child.2.val.Represents ι u v p ∧
       (child.1 = true ↔ p.eval (ι (base (domain i))) = ι (base (received i))) := by
   obtain ⟨out, ho, hpoint, htag⟩ :=
-    splitZeroUnit_point_complete s.val _ s.property ι u v hp.1
+    splitZeroUnitPrimary_point_complete s.val _ s.property ι u v hp.1
   let child : Bool × Component E k := (out.tag.isZero,
-    ⟨out.tower, splitZeroUnit_wellFormed s.val _ s.property out ho⟩)
+    ⟨out.tower, splitZeroUnitPrimary_nonreducedWellFormed s.val _ s.property out ho⟩)
   have hc : child ∈ splitAt base domain received k s i := by
     simp only [splitAt, List.mem_map, List.mem_attach, true_and]
     exact ⟨⟨out, ho⟩, rfl⟩
-  have he := splitZeroUnit_specialize s.val _ s.property out ho ι u v hpoint
+  have he := splitZeroUnitPrimary_specialize s.val _ s.property out ho ι u v hpoint
   refine ⟨child, hc, ⟨hpoint, he.symm.trans hp.2⟩, ?_⟩
   change out.tag.isZero = true ↔ _
   have ht : out.tag.isZero = true ↔ out.tag = .zero := by
@@ -169,7 +169,8 @@ theorem representedBy_of_mem_recoverAgreement [IsAlgClosed L]
     out.positions.toFinset hcard cs hc
   rw [blocks_eq] at hout
   obtain ⟨r, hr, hout⟩ := List.mem_flatMap.mp hout
-  obtain ⟨u, v, hpoint⟩ := out.component.val.exists_point ι out.component.property
+  obtain ⟨u, v, hpoint⟩ :=
+    out.component.val.exists_point_of_nonreducedWellFormed ι out.component.property
   let message := out.component.val.specialize ι u v
   let point : Component E k → Unit → Prop := fun s _ => s.val.Represents ι u v message
   let good : Unit → Fin n → Prop := fun _ i =>
@@ -184,7 +185,7 @@ theorem representedBy_of_mem_recoverAgreement [IsAlgClosed L]
   have heq : message = (coefficientPolynomial cs).map (ι.comp base) := by
     apply out.component.val.specialize_eq_base_map_of_shared_agreements base ι u v
       out.positions.toFinset domain received domain.injective.injOn
-    · exact out.component.property.2.2.2.2.2.2.2.1.trans hcard.symm
+    · exact out.component.property.2.2.2.2.2.2.1.trans hcard.symm
     · simpa only [hcard] using hproperties.2.2.1
     · intro i hi
       rw [hproperties.2.1, Lagrange.eval_interpolate_at_node received domain.injective.injOn hi]

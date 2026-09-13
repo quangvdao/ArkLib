@@ -133,7 +133,7 @@ private def domain : Fin 2 ↪ F :=
       ZMod.val_natCast_of_lt (by omega : j.val < 3)] using h⟩
 
 private def packet : AgreementRecovery.Tower.Component F 1 :=
-  ⟨extensionTower, extensionTower_wellFormed⟩
+  ⟨extensionTower, extensionTower_wellFormed.nonreduced⟩
 
 /- Duplicate extension-defined parameter families return one base-field message. -/
 

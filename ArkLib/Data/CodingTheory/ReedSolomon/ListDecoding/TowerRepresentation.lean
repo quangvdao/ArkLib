@@ -96,6 +96,84 @@ def WellFormed (r : TowerRepresentation (F := F)) (width : ℕ) : Prop :=
     ∀ coefficient ∈ r.coefficients,
       ElementReduced r.modulus r.fiber coefficient
 
+/-- Canonical tower invariants allowing multiplicities in the fiber. -/
+def NonreducedWellFormed (r : TowerRepresentation (F := F)) (width : ℕ) : Prop :=
+  r.modulus.monic ∧
+    Squarefree r.modulus.toPoly ∧
+    0 < r.modulus.natDegree ∧
+    r.fiber.monic ∧
+    0 < r.fiber.natDegree ∧
+    BaseReduced r.modulus r.fiber ∧
+    r.coefficients.length = width ∧
+    ∀ coefficient ∈ r.coefficients,
+      ElementReduced r.modulus r.fiber coefficient
+
+/-- Compatibility certificate for consumers that require a reduced geometric fiber. -/
+def ReducedWellFormed (r : TowerRepresentation (F := F)) (width : ℕ) : Prop :=
+  r.NonreducedWellFormed width ∧ r.FiberwiseSquarefree
+
+namespace WellFormed
+
+variable {r : TowerRepresentation (F := F)} {width : ℕ}
+
+/-- The base modulus of a well-formed tower is monic. -/
+theorem modulus_monic (hr : r.WellFormed width) : r.modulus.monic := hr.1
+
+/-- The base modulus has no repeated irreducible factors. -/
+theorem modulus_squarefree (hr : r.WellFormed width) : Squarefree r.modulus.toPoly :=
+  hr.2.1
+
+/-- Retained base blocks have positive degree. -/
+theorem modulus_pos (hr : r.WellFormed width) : 0 < r.modulus.natDegree := hr.2.2.1
+
+/-- The fiber polynomial is monic. -/
+theorem fiber_monic (hr : r.WellFormed width) : r.fiber.monic := hr.2.2.2.1
+
+/-- Retained fiber blocks have positive degree. -/
+theorem fiber_pos (hr : r.WellFormed width) : 0 < r.fiber.natDegree := hr.2.2.2.2.1
+
+/-- Fiber coefficients use the canonical base representatives. -/
+theorem fiber_reduced (hr : r.WellFormed width) : BaseReduced r.modulus r.fiber :=
+  hr.2.2.2.2.2.1
+
+/-- The historical invariant additionally certifies geometric fiber squarefreeness. -/
+theorem fiber_squarefree (hr : r.WellFormed width) : r.FiberwiseSquarefree :=
+  hr.2.2.2.2.2.2.1
+
+/-- The represented coefficient list has the requested width. -/
+theorem coefficients_length (hr : r.WellFormed width) : r.coefficients.length = width :=
+  hr.2.2.2.2.2.2.2.1
+
+/-- Every represented coefficient uses the canonical tower basis. -/
+theorem coefficients_reduced (hr : r.WellFormed width) :
+    ∀ c ∈ r.coefficients, ElementReduced r.modulus r.fiber c :=
+  hr.2.2.2.2.2.2.2.2
+
+/-- Forget fiber squarefreeness while retaining every canonical representation invariant. -/
+theorem nonreduced (hr : r.WellFormed width) : r.NonreducedWellFormed width :=
+  ⟨hr.modulus_monic, hr.modulus_squarefree, hr.modulus_pos, hr.fiber_monic,
+    hr.fiber_pos, hr.fiber_reduced, hr.coefficients_length, hr.coefficients_reduced⟩
+
+/-- Existing tower constructors supply the stronger compatibility view. -/
+theorem reduced (hr : r.WellFormed width) : r.ReducedWellFormed width :=
+  ⟨hr.nonreduced, hr.fiber_squarefree⟩
+
+end WellFormed
+
+/-- The stronger compatibility view is equivalent to the historical invariant. -/
+theorem reducedWellFormed_iff (r : TowerRepresentation (F := F)) (width : ℕ) :
+    r.ReducedWellFormed width ↔ r.WellFormed width := by
+  constructor
+  · rintro ⟨⟨hG, hGfree, hGpos, hh, hhpos, hred, hwidth, hcoeff⟩, hfree⟩
+    exact ⟨hG, hGfree, hGpos, hh, hhpos, hred, hfree, hwidth, hcoeff⟩
+  · exact WellFormed.reduced
+
+/-- Positive dimension depends on monicity and degree bounds, not fiber squarefreeness. -/
+theorem dimension_ne_zero_of_nonreducedWellFormed
+    (r : TowerRepresentation (F := F)) {width : ℕ}
+    (hr : r.NonreducedWellFormed width) : r.dimension ≠ 0 :=
+  Nat.mul_ne_zero hr.2.2.1.ne' hr.2.2.2.2.1.ne'
+
 /-- A retained tower has positive quotient dimension. -/
 theorem dimension_ne_zero (r : TowerRepresentation (F := F)) {width : ℕ}
     (hr : r.WellFormed width) : r.dimension ≠ 0 := by
