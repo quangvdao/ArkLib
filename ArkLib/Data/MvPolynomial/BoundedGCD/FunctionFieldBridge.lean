@@ -121,11 +121,6 @@ section StoredFactorizationInstances
 variable {F : Type*} [CommRing F] [IsDomain F] [UniqueFactorizationMonoid F]
   [BEq F] [LawfulBEq F] {n : ℕ}
 
-/-- Proof-only normalization on the stored representation, transported from existence of
-associate-class representatives. Runtime algorithms continue to use their explicit operations. -/
-noncomputable instance storedNormalizationMonoid : NormalizationMonoid (CMvPolynomial n F) :=
-  Nonempty.some inferInstance
-
 /-- The stored polynomial representation inherits unique factorization from semantic
 multivariate polynomials. -/
 noncomputable instance storedUniqueFactorizationMonoid :
@@ -135,6 +130,7 @@ noncomputable instance storedUniqueFactorizationMonoid :
 /-- Proof-only normalized gcd structure on stored multivariate polynomials. Executable gcds are
 still supplied explicitly and certified by `ContentPrimitiveGCD.Certificate`. -/
 noncomputable instance storedNormalizedGCDMonoid : NormalizedGCDMonoid (CMvPolynomial n F) :=
+  letI : NormalizationMonoid (CMvPolynomial n F) := Nonempty.some inferInstance
   Nonempty.some (nonempty_normalizedGCDMonoid_iff_isGCDMonoid.mpr inferInstance)
 
 end StoredFactorizationInstances
