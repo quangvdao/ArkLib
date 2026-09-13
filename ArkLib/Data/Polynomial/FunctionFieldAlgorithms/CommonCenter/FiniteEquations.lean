@@ -7,7 +7,7 @@ module
 
 public import Mathlib.LinearAlgebra.Matrix.ToLin
 public import Mathlib.LinearAlgebra.Dimension.Finrank
-public import Mathlib.Tactic
+public import Mathlib.Tactic.Linarith
 
 /-!
 # Finite equations for bounded normalization
