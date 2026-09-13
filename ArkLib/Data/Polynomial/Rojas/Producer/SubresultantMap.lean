@@ -173,17 +173,20 @@ def produce (dimension : ℕ) (α : F)
     denominator := commonDenominator p dimension α candidate
     numerators := List.ofFn (coordinateNumerator p dimension α candidate) }
 
+omit [Fact (Nat.Prime p)] [CharP F p] in
 @[simp]
 theorem produce_modulus (dimension : ℕ) (α : F)
     (candidate : SpecializationCandidate (F := F)) :
     (produce p dimension α candidate).modulus = modulus p candidate := rfl
 
+omit [Fact (Nat.Prime p)] [CharP F p] in
 @[simp]
 theorem produce_denominator (dimension : ℕ) (α : F)
     (candidate : SpecializationCandidate (F := F)) :
     (produce p dimension α candidate).denominator =
       commonDenominator p dimension α candidate := rfl
 
+omit [Fact (Nat.Prime p)] [CharP F p] in
 @[simp]
 theorem produce_numerators_length (dimension : ℕ) (α : F)
     (candidate : SpecializationCandidate (F := F)) :
@@ -200,6 +203,7 @@ local instance : DecidableEq K := Classical.decEq K
 def coefficientEval (ι : F →+* K) (θ : K) : CPolynomial F →+* K :=
   (Polynomial.eval₂RingHom ι θ).comp CPolynomial.toPolyRingHom
 
+omit [Fintype F] in
 @[simp]
 theorem coefficientEval_apply (ι : F →+* K) (θ : K) (q : CPolynomial F) :
     coefficientEval ι θ q = q.toPoly.eval₂ ι θ := by
@@ -211,6 +215,7 @@ def specializeTheta (ι : F →+* K) (θ : K)
     (q : CPolynomial (CPolynomial F)) : Polynomial K :=
   q.toPoly.map (coefficientEval ι θ)
 
+omit [Fintype F] in
 /-- Exact two-variable meaning of the executable affine substitution.  In particular the inner
 stored variable is sent to `θ`, while the outer stored variable is independently sent to `t`. -/
 theorem affineTransform_eval₂ (ι : F →+* K) (θ t : K) (α : F)
@@ -236,10 +241,11 @@ theorem affineTransform_eval₂ (ι : F →+* K) (θ t : K) (α : F)
           CPolynomial.C_toPoly, CPolynomial.X_toPoly, CPolynomial.toPoly_mul,
           CPolynomial.toPoly_sub]
 
-/-- Proof-facing Step-4 hypothesis at one root.  It says that the actual evaluated gcd is the
-computed linear first subresultant, and that its common root is the shifted coordinate
-`θ + point i`.  This is the precise conditional form of the classical subresultant fact used in
-Rojas Section 5.1; the determinant computation itself is not supplied by the caller. -/
+/-- Proof-facing Step-4 hypothesis at one root.  It says that the computed linear first
+subresultant is a nonzero scalar multiple of the monic evaluated gcd, and that the gcd's common
+root is the shifted coordinate `θ + point i`.  The scalar is necessary: determinant
+subresultants are only associated to the normalized Euclidean gcd.  This is the precise
+conditional form of the classical subresultant fact used in Rojas Section 5.1. -/
 structure GcdLinearAtRoot (dimension : ℕ) (α : F)
     (candidate : SpecializationCandidate (F := F)) (ι : F →+* K)
     (θ : K) (point : Fin dimension → K) : Prop where
@@ -248,23 +254,24 @@ structure GcdLinearAtRoot (dimension : ℕ) (α : F)
   denominator_ne_zero : ∀ i : Fin dimension,
     coefficientEval ι θ
       (reducedCoordinateSubresultant p dimension α candidate i).1 ≠ 0
-  gcd_eq : ∀ i : Fin dimension,
-    EuclideanDomain.gcd
-        (specializeTheta ι θ
-          (liftInTheta (minusPolynomial p dimension candidate i)))
-        (specializeTheta ι θ
-          (affineTransform α (plusPolynomial p dimension candidate i))) =
-      Polynomial.C (coefficientEval ι θ
-        (reducedCoordinateSubresultant p dimension α candidate i).2) +
-      Polynomial.C (coefficientEval ι θ
-        (reducedCoordinateSubresultant p dimension α candidate i).1) * Polynomial.X
+  associated_gcd : ∀ i : Fin dimension, ∃ scale : K, scale ≠ 0 ∧
+    Polynomial.C (coefficientEval ι θ
+          (reducedCoordinateSubresultant p dimension α candidate i).2) +
+        Polynomial.C (coefficientEval ι θ
+          (reducedCoordinateSubresultant p dimension α candidate i).1) * Polynomial.X =
+      Polynomial.C scale *
+        EuclideanDomain.gcd
+          (specializeTheta ι θ
+            (liftInTheta (minusPolynomial p dimension candidate i)))
+          (specializeTheta ι θ
+            (affineTransform α (plusPolynomial p dimension candidate i)))
   common_root : ∀ i : Fin dimension,
     (EuclideanDomain.gcd
         (specializeTheta ι θ
           (liftInTheta (minusPolynomial p dimension candidate i)))
         (specializeTheta ι θ
           (affineTransform α (plusPolynomial p dimension candidate i)))).eval
-      (θ + point i) = 0
+        (θ + point i) = 0
 
 theorem GcdLinearAtRoot.modulus_monic
     {dimension : ℕ} {α : F} {candidate : SpecializationCandidate (F := F)}
@@ -286,6 +293,7 @@ theorem coefficientEval_modByModulus
         (CPolynomial.squarefreeSupport_monic p hcandidate)),
     Polynomial.eval₂_modByMonic_eq_self_of_root hroot]
 
+omit [Fact (Nat.Prime p)] [CharP F p] in
 theorem GcdLinearAtRoot.coefficient_relation
     {dimension : ℕ} {α : F} {candidate : SpecializationCandidate (F := F)}
     {ι : F →+* K} {θ : K} {point : Fin dimension → K}
@@ -296,10 +304,14 @@ theorem GcdLinearAtRoot.coefficient_relation
       coefficientEval ι θ
           (reducedCoordinateSubresultant p dimension α candidate i).1 *
         (θ + point i) = 0 := by
-  have hroot := hypotheses.common_root i
-  rw [hypotheses.gcd_eq i] at hroot
-  simpa using hroot
+  obtain ⟨scale, _hscale, hassociated⟩ := hypotheses.associated_gcd i
+  have heval := congrArg (Polynomial.eval (θ + point i)) hassociated
+  simp only [Polynomial.eval_add, Polynomial.eval_mul, Polynomial.eval_C,
+    Polynomial.eval_X] at heval
+  rw [hypotheses.common_root i] at heval
+  simpa using heval
 
+omit [Fact (Nat.Prime p)] [CharP F p] in
 /-- The computed Step-4 coefficient ratio is the negative shifted coordinate. -/
 theorem GcdLinearAtRoot.subresultant_ratio
     {dimension : ℕ} {α : F} {candidate : SpecializationCandidate (F := F)}

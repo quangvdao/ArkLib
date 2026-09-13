@@ -50,6 +50,10 @@ def run : IO Unit := do
   let zeroRoot := firstSubresultant (x * (x - 1)) (x * (x - 2))
   unless zeroRoot.1 != 0 && zeroRoot.2 == 0 do
     throw (IO.userError "Rojas first subresultant: zero common root was lost")
+  let scaledSign := firstSubresultant ((x - 1) * (x - 2)) ((x - 1) * (x - 3))
+  unless scaledSign.1 == -1 && scaledSign.2 == 1 do
+    throw (IO.userError
+      "Rojas first subresultant: non-monic scalar multiple of the gcd was normalized away")
   let linear := firstSubresultant (x - 3) (x - 3)
   unless linear.1 != 0 && -linear.2 / linear.1 == 3 do
     throw (IO.userError "Rojas first subresultant: degree-one branch was incorrect")
