@@ -8,7 +8,7 @@ module
 public import
   ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Contract
 public import
-ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.ComponentConstruction.I
+  ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Components.FirstOrder
 public import
   ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.ChartPolynomials
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.SeparablePartCorrectness
