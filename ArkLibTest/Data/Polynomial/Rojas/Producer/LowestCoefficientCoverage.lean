@@ -120,3 +120,5 @@ def runChecks : IO Unit := do
 #print axioms affineLinearForm_dvd_run_perturbation
 
 end RojasLowestCoefficientCoverageTests
+
+def main : IO Unit := RojasLowestCoefficientCoverageTests.runChecks
