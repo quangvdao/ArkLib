@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2026 Gary Irving and ArkLib contributors. All rights reserved.
+Copyright (c) 2026 Geoffrey Irving and ArkLib contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Gary Irving, Quang Dao
+Authors: Geoffrey Irving, Quang Dao
 
 Adapted from https://github.com/girving/aks/tree/c7fb62ed80a4a610f87f34db0082cadbd7c00c9f/AKS/MGG.
 -/
@@ -14,6 +14,12 @@ public import ArkLib.Data.Graph.GabberGalilConstruction.EnergyEstimate.ShearDefi
 
   Diamond and outside-diamond case analysis for the pointwise condition.
   Depends on `ShearDefinitions.lean` for definitions and helper lemmas.
+
+  ## References
+
+  * [Gabber, O. and Galil, Z., *Explicit Constructions of Linear-Sized
+      Superconcentrators*][GG81]
+  * [Jimbo, S. and Maruoka, A., *Expanders Obtained from Affine Transformations*][JM87]
 -/
 
 @[expose] public section
