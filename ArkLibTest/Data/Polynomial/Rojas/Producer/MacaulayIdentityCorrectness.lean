@@ -32,6 +32,9 @@ private def linearThree : Fin 3 → CMvPolynomial 3 F
 example : extraneousFactor twoRoots ≠ 0 :=
   extraneousFactor_ne_zero twoRoots
 
+example : characteristic twoRoots ≠ 0 :=
+  characteristic_ne_zero twoRoots
+
 example {n : ℕ} (system : Fin n → CMvPolynomial n F)
     (hindices : extraneousIndices system = []) :
     macaulayQuotient? system = some (characteristic system) :=
@@ -43,6 +46,8 @@ def main : IO Unit := do
     throw <| IO.userError "expected a nonempty bivariate extraneous minor"
   unless extraneousFactor twoRoots != 0 do
     throw <| IO.userError "Canny specialization failed to witness nonvanishing"
+  unless macaulayQuotient? twoRoots != some 0 do
+    throw <| IO.userError "exact division returned a zero quotient"
   unless extraneousIndices linearThree == [] do
     throw <| IO.userError "all-linear three-variable system had an extraneous row"
   unless macaulayQuotient? linearThree == some (characteristic linearThree) do
@@ -50,11 +55,14 @@ def main : IO Unit := do
   IO.println "Rojas Macaulay identity: nonvanishing and empty-minor success passed"
 
 #print axioms cannyParameterEval_matrix
+#print axioms cannyParameterEval_characteristic
+#print axioms characteristic_ne_zero
 #print axioms cannyParameterEval_extraneousFactor
 #print axioms extraneousFactor_ne_zero
 #print axioms extraneousFactor_eq_one_of_extraneousIndices_eq_nil
 #print axioms extraneousFactor_dvd_characteristic_of_extraneousIndices_eq_nil
 #print axioms macaulayQuotient?_eq_some_characteristic_of_extraneousIndices_eq_nil
+#print axioms macaulayQuotient?_ne_some_zero
 
 end RojasMacaulayIdentityCorrectnessTests
 

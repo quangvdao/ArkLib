@@ -282,6 +282,44 @@ theorem cannyParameterEval_matrix {n : ℕ}
       · rw [if_neg (fun h => hij (htarget.mp h)), if_neg hij]
         simp
 
+/-- The full specialized Macaulay matrix is the negative characteristic
+matrix of its constant part. -/
+theorem cannyParameterEval_matrix_eq {n : ℕ}
+    (system : Fin n → CMvPolynomial n F) :
+    (cannyParameterEval (F := F)).mapMatrix (matrix system) =
+      -(cannyConstantMatrix system).charmatrix := by
+  funext i j
+  rw [RingHom.mapMatrix_apply, Matrix.map_apply, cannyParameterEval_matrix,
+    Matrix.neg_apply]
+  by_cases hij : i = j
+  · subst j
+    rw [Matrix.charmatrix_apply_eq]
+    simp
+  · rw [Matrix.charmatrix_apply_ne _ _ _ hij]
+    simp [hij]
+
+/-- Canny's path sends the full determinant to a unit multiple of the
+characteristic polynomial of the constant matrix. -/
+theorem cannyParameterEval_characteristic {n : ℕ}
+    (system : Fin n → CMvPolynomial n F) :
+    cannyParameterEval (F := F) (characteristic system) =
+      (-1) ^ (basis system).length * (cannyConstantMatrix system).charpoly := by
+  unfold characteristic
+  rw [RingHom.map_det, cannyParameterEval_matrix_eq, Matrix.det_neg]
+  simp only [Fintype.card_fin, Matrix.charpoly]
+
+/-- The full executable Macaulay determinant is nonzero for every square
+input system. -/
+theorem characteristic_ne_zero {n : ℕ}
+    (system : Fin n → CMvPolynomial n F) :
+    characteristic system ≠ 0 := by
+  intro hzero
+  have hmapped := congrArg (cannyParameterEval (F := F)) hzero
+  rw [cannyParameterEval_characteristic, _root_.map_zero] at hmapped
+  have hsign : ((-1 : Polynomial F) ^ (basis system).length) ≠ 0 :=
+    pow_ne_zero _ (by simp)
+  exact (cannyConstantMatrix system).charpoly_monic.ne_zero
+    (mul_eq_zero.mp hmapped |>.resolve_left hsign)
 omit [BEq F] [LawfulBEq F] in
 theorem extraneousIndices_nodup {n : ℕ}
     (system : Fin n → CMvPolynomial n F) :
@@ -395,5 +433,14 @@ theorem macaulayQuotient?_eq_some_characteristic_of_extraneousIndices_eq_nil
   apply macaulayQuotient?_complete_of_identity (extraneousFactor_ne_zero system)
   rw [extraneousFactor_eq_one_of_extraneousIndices_eq_nil system hindices]
   simp
+
+/-- Every successfully computed Macaulay quotient is nonzero. -/
+theorem macaulayQuotient?_ne_some_zero [DecidableEq F] {n : ℕ}
+    (system : Fin n → CMvPolynomial n F) :
+    macaulayQuotient? system ≠ some 0 := by
+  intro hzero
+  have hproduct := macaulayQuotient?_sound hzero
+  simp only [zero_mul] at hproduct
+  exact characteristic_ne_zero system hproduct.symm
 
 end ArkLib.Rojas.Producer.MacaulayQuotient
