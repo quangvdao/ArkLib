@@ -90,21 +90,25 @@ theorem connectsLargeSets_poweredEdges {n power threshold : ℕ} [NeZero (ceilSq
 /-- A separated-set witness at every intermediate rank discharges the pair-augmentation contract
 used by the executable rank-growth theorem. -/
 theorem pair_augmentation_of_cotangent_separation {n pairs threshold : ℕ}
-    {edges : List (Fin n × Fin n)} (pool : Fin n → V)
+    {edges : List (Fin n × Fin n)} (pool : Fin n → V) (allowed : Finset (Fin n))
     (hmixing : ConnectsLargeSets edges threshold)
     (hseparate : ∀ selected : Finset (Fin n),
       LinearIndepOn F pool (selected : Set (Fin n)) → selected.card < 2 * pairs →
       Even selected.card →
       ∃ I J : Finset (Fin n),
         CotangentSeparated (F := F) pool selected I J ∧
-        threshold ≤ I.card ∧ threshold ≤ J.card) :
+        I ⊆ allowed ∧ J ⊆ allowed ∧ threshold ≤ I.card ∧ threshold ≤ J.card) :
     ∀ selected : Finset (Fin n),
       LinearIndepOn F pool (selected : Set (Fin n)) → selected.card < 2 * pairs →
       Even selected.card →
-      ∃ edge ∈ edges, EscapesPair (F := F) pool selected edge := by
+      ∃ edge ∈ edges, EscapesPair (F := F) pool selected edge ∧
+        edge.1 ∈ allowed ∧ edge.2 ∈ allowed := by
   intro selected hindependent hcard heven
-  obtain ⟨I, J, hseparated, hI, hJ⟩ := hseparate selected hindependent hcard heven
-  exact exists_escaping_edge_of_large_separated hmixing selected I J hseparated hI hJ
+  obtain ⟨I, J, hseparated, hIsub, hJsub, hI, hJ⟩ :=
+    hseparate selected hindependent hcard heven
+  obtain ⟨edge, hedge, hfirst, hsecond⟩ := hmixing I J hseparated.1 hI hJ
+  exact ⟨edge, hedge, hseparated.2 edge.1 hfirst edge.2 hsecond,
+    hIsub hfirst, hJsub hsecond⟩
 
 /-- Even-rank graph selection captures a nonsingular square differential once cotangent
 separation and powered-graph connectivity have been established. -/
@@ -112,6 +116,7 @@ theorem fixedGapSelections_contains_even_capture_of_mixing
     {W : Type*} [AddCommGroup W] [Module F W] [FiniteDimensional F W]
     {n pairs power threshold : ℕ} (hn : 0 < n)
     (normal : W →ₗ[F] F) (pool : W →ₗ[F] (Fin n → F))
+    (allowed : Finset (Fin n))
     (hdim : Module.finrank F W = 2 * pairs + 1) (hnormal : normal ≠ 0)
     (hmixing : ConnectsLargeSets (poweredEdges n hn power) threshold)
     (hseparate : ∀ selected : Finset (Fin n),
@@ -121,20 +126,21 @@ theorem fixedGapSelections_contains_even_capture_of_mixing
       ∃ I J : Finset (Fin n),
         CotangentSeparated (F := F)
           (coordinateFunctional (pool.comp normal.ker.subtype)) selected I J ∧
-        threshold ≤ I.card ∧ threshold ≤ J.card) :
+        I ⊆ allowed ∧ J ⊆ allowed ∧ threshold ≤ I.card ∧ threshold ≤ J.card) :
     ∃ selected, ∃ hcard : selected.card = 2 * pairs,
-      selected ∈ fixedGapSelections n hn (2 * pairs) power ∧
+      selected ∈ fixedGapSelections n hn (2 * pairs) power ∧ selected ⊆ allowed ∧
       Function.Injective
         (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) := by
-  apply fixedGapSelections_contains_even_capture hn normal pool hdim hnormal
+  apply fixedGapSelections_contains_even_capture hn normal pool allowed hdim hnormal
   exact pair_augmentation_of_cotangent_separation
-    (coordinateFunctional (pool.comp normal.ker.subtype)) hmixing hseparate
+    (coordinateFunctional (pool.comp normal.ker.subtype)) allowed hmixing hseparate
 
 /-- Odd rank uses the same mixed pairs and one final cotangent functional outside their span. -/
 theorem fixedGapSelections_contains_odd_capture_of_mixing
     {W : Type*} [AddCommGroup W] [Module F W] [FiniteDimensional F W]
     {n pairs power threshold : ℕ} (hn : 0 < n)
     (normal : W →ₗ[F] F) (pool : W →ₗ[F] (Fin n → F))
+    (allowed : Finset (Fin n))
     (hdim : Module.finrank F W = (2 * pairs + 1) + 1) (hnormal : normal ≠ 0)
     (hmixing : ConnectsLargeSets (poweredEdges n hn power) threshold)
     (hseparate : ∀ selected : Finset (Fin n),
@@ -144,21 +150,21 @@ theorem fixedGapSelections_contains_odd_capture_of_mixing
       ∃ I J : Finset (Fin n),
         CotangentSeparated (F := F)
           (coordinateFunctional (pool.comp normal.ker.subtype)) selected I J ∧
-        threshold ≤ I.card ∧ threshold ≤ J.card)
+        I ⊆ allowed ∧ J ⊆ allowed ∧ threshold ≤ I.card ∧ threshold ≤ J.card)
     (hodd : ∀ selected : Finset (Fin n),
       LinearIndepOn F (coordinateFunctional (pool.comp normal.ker.subtype))
         (selected : Set (Fin n)) → selected.card = 2 * pairs →
-      ∃ i, coordinateFunctional (pool.comp normal.ker.subtype) i ∉
+      ∃ i ∈ allowed, coordinateFunctional (pool.comp normal.ker.subtype) i ∉
         Submodule.span F
           (coordinateFunctional (pool.comp normal.ker.subtype) ''
             (selected : Set (Fin n)))) :
     ∃ selected, ∃ hcard : selected.card = 2 * pairs + 1,
-      selected ∈ fixedGapSelections n hn (2 * pairs + 1) power ∧
+      selected ∈ fixedGapSelections n hn (2 * pairs + 1) power ∧ selected ⊆ allowed ∧
       Function.Injective
         (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) := by
-  apply fixedGapSelections_contains_odd_capture hn normal pool hdim hnormal
+  apply fixedGapSelections_contains_odd_capture hn normal pool allowed hdim hnormal
   · exact pair_augmentation_of_cotangent_separation
-      (coordinateFunctional (pool.comp normal.ker.subtype)) hmixing hseparate
+      (coordinateFunctional (pool.comp normal.ker.subtype)) allowed hmixing hseparate
   · exact hodd
 
 end ReedSolomon.ListDecoding.HigherOrderProducer

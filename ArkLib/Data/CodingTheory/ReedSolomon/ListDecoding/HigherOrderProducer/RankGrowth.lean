@@ -61,15 +61,17 @@ private theorem second_not_mem_insert_of_escapesPair {n : ℕ} {pool : Fin n →
 /-- A pair-augmentation oracle up to `pairs` steps yields an actual tuple of graph edges whose
 flattened endpoint labels are pairwise distinct and linearly independent. -/
 theorem exists_independent_edge_tuple {n pairs q : ℕ} (graphEdges : List (Fin n × Fin n))
-    (pool : Fin n → V)
+    (pool : Fin n → V) (allowed : Finset (Fin n))
     (haugment : ∀ selected : Finset (Fin n),
       LinearIndepOn F pool (selected : Set (Fin n)) → selected.card < 2 * pairs →
       Even selected.card →
-      ∃ edge ∈ graphEdges, EscapesPair (F := F) pool selected edge)
+      ∃ edge ∈ graphEdges, EscapesPair (F := F) pool selected edge ∧
+        edge.1 ∈ allowed ∧ edge.2 ∈ allowed)
     (hq : q ≤ pairs) :
     ∃ edges ∈ tuples q graphEdges,
       LinearIndepOn F pool ((edgeLabels edges).toFinset : Set (Fin n)) ∧
-      (edgeLabels edges).Nodup := by
+      (edgeLabels edges).Nodup ∧
+      (edgeLabels edges).toFinset ⊆ allowed := by
   induction q with
   | zero =>
       refine ⟨[], by simp, ?_, by simp [edgeLabels]⟩
@@ -77,7 +79,7 @@ theorem exists_independent_edge_tuple {n pairs q : ℕ} (graphEdges : List (Fin 
         linearIndepOn_empty F pool
   | succ q ih =>
       have hqle : q ≤ pairs := Nat.le_trans (Nat.le_succ q) hq
-      obtain ⟨edges, hedges, hindependent, hnodup⟩ := ih hqle
+      obtain ⟨edges, hedges, hindependent, hnodup, hsubset⟩ := ih hqle
       let selected := (edgeLabels edges).toFinset
       have hcard : selected.card = 2 * q := by
         dsimp [selected]
@@ -85,7 +87,7 @@ theorem exists_independent_edge_tuple {n pairs q : ℕ} (graphEdges : List (Fin 
         have hlength := length_of_mem_tuples hedges
         omega
       have hlt : selected.card < 2 * pairs := by omega
-      obtain ⟨edge, hedge, hescape⟩ := haugment selected hindependent hlt
+      obtain ⟨edge, hedge, hescape, hedgeAllowed⟩ := haugment selected hindependent hlt
         (by use q; omega)
       have hfirst : edge.1 ∉ selected := first_not_mem_of_escapesPair hescape
       have hsecond : edge.2 ∉ insert edge.1 selected :=
@@ -99,7 +101,7 @@ theorem exists_independent_edge_tuple {n pairs q : ℕ} (graphEdges : List (Fin 
         intro heq
         apply hsecond
         simp [heq]
-      refine ⟨edge :: edges, ?_, ?_, ?_⟩
+      refine ⟨edge :: edges, ?_, ?_, ?_, ?_⟩
       · simp only [tuples_succ, List.mem_flatMap, List.mem_map]
         exact ⟨edge, hedge, edges, hedges, rfl⟩
       · simpa only [edgeLabels_cons, List.toFinset_cons, Finset.coe_insert,
@@ -108,20 +110,27 @@ theorem exists_independent_edge_tuple {n pairs q : ℕ} (graphEdges : List (Fin 
       · rw [edgeLabels_cons, List.nodup_cons, List.nodup_cons]
         exact ⟨by simpa only [List.mem_cons, not_or] using ⟨hne, hfirstList⟩,
           hsecondList, hnodup⟩
+      · intro i hi
+        simp only [edgeLabels_cons, List.toFinset_cons, Finset.mem_insert] at hi
+        rcases hi with rfl | rfl | hi
+        · exact hedgeAllowed.1
+        · exact hedgeAllowed.2
+        · exact hsubset hi
 
 /-- The even-rank tuple produced by rank growth is emitted by the executable graph selector. -/
 theorem independent_even_selection_mem {n pairs power : ℕ} (hn : 0 < n)
-    (pool : Fin n → V)
+    (pool : Fin n → V) (allowed : Finset (Fin n))
     (haugment : ∀ selected : Finset (Fin n),
       LinearIndepOn F pool (selected : Set (Fin n)) → selected.card < 2 * pairs →
       Even selected.card →
-      ∃ edge ∈ poweredEdges n hn power, EscapesPair (F := F) pool selected edge) :
+      ∃ edge ∈ poweredEdges n hn power, EscapesPair (F := F) pool selected edge ∧
+        edge.1 ∈ allowed ∧ edge.2 ∈ allowed) :
     ∃ selected ∈ fixedGapSelections n hn (2 * pairs) power,
-      LinearIndepOn F pool (selected : Set (Fin n)) := by
-  obtain ⟨edges, hedges, hindependent, hnodup⟩ :=
+      LinearIndepOn F pool (selected : Set (Fin n)) ∧ selected ⊆ allowed := by
+  obtain ⟨edges, hedges, hindependent, hnodup, hsubset⟩ :=
     exists_independent_edge_tuple (F := F) (pairs := pairs)
-      (poweredEdges n hn power) pool haugment le_rfl
-  refine ⟨(edgeLabels edges).toFinset, ?_, hindependent⟩
+      (poweredEdges n hn power) pool allowed haugment le_rfl
+  refine ⟨(edgeLabels edges).toFinset, ?_, hindependent, hsubset⟩
   simp only [fixedGapSelections, List.mem_eraseDups, List.mem_map]
   refine ⟨edgeLabels edges, ?_, rfl⟩
   apply List.mem_filter.mpr
@@ -137,25 +146,26 @@ theorem independent_even_selection_mem {n pairs power : ℕ} (hn : 0 < n)
 
 /-- If one more label escapes the paired span, appending it handles an odd target rank. -/
 theorem independent_odd_selection_mem {n pairs power : ℕ} (hn : 0 < n)
-    (pool : Fin n → V)
+    (pool : Fin n → V) (allowed : Finset (Fin n))
     (haugment : ∀ selected : Finset (Fin n),
       LinearIndepOn F pool (selected : Set (Fin n)) → selected.card < 2 * pairs →
       Even selected.card →
-      ∃ edge ∈ poweredEdges n hn power, EscapesPair (F := F) pool selected edge)
+      ∃ edge ∈ poweredEdges n hn power, EscapesPair (F := F) pool selected edge ∧
+        edge.1 ∈ allowed ∧ edge.2 ∈ allowed)
     (hodd : ∀ selected : Finset (Fin n),
       LinearIndepOn F pool (selected : Set (Fin n)) → selected.card = 2 * pairs →
-      ∃ i, pool i ∉ Submodule.span F (pool '' (selected : Set (Fin n)))) :
+      ∃ i ∈ allowed, pool i ∉ Submodule.span F (pool '' (selected : Set (Fin n)))) :
     ∃ selected ∈ fixedGapSelections n hn (2 * pairs + 1) power,
-      LinearIndepOn F pool (selected : Set (Fin n)) := by
-  obtain ⟨edges, hedges, hindependent, hnodup⟩ :=
+      LinearIndepOn F pool (selected : Set (Fin n)) ∧ selected ⊆ allowed := by
+  obtain ⟨edges, hedges, hindependent, hnodup, hpairedSubset⟩ :=
     exists_independent_edge_tuple (F := F) (pairs := pairs)
-      (poweredEdges n hn power) pool haugment le_rfl
+      (poweredEdges n hn power) pool allowed haugment le_rfl
   let paired := (edgeLabels edges).toFinset
   have hcard : paired.card = 2 * pairs := by
     dsimp [paired]
     rw [List.toFinset_card_of_nodup hnodup, edgeLabels_length,
       length_of_mem_tuples hedges]
-  obtain ⟨i, hi⟩ := hodd paired hindependent hcard
+  obtain ⟨i, hiAllowed, hi⟩ := hodd paired hindependent hcard
   have hinot : i ∉ paired := by
     intro hmem
     apply hi
@@ -176,22 +186,29 @@ theorem independent_odd_selection_mem {n pairs power : ℕ} (hn : 0 < n)
   have hselectedIndependent :
       LinearIndepOn F pool (labels.toFinset : Set (Fin n)) := by
     simpa [labels, paired] using hindependent.insert hi
-  refine ⟨labels.toFinset, ?_, hselectedIndependent⟩
-  simp only [fixedGapSelections, List.mem_eraseDups, List.mem_map]
-  refine ⟨labels, ?_, rfl⟩
-  apply List.mem_filter.mpr
-  constructor
-  · have hmod : (2 * pairs + 1) % 2 = 1 := by omega
-    have hdiv : (2 * pairs + 1) / 2 = pairs := by omega
-    simp only [candidateLabelLists, hmod, hdiv, one_ne_zero, ↓reduceIte,
-      List.mem_flatMap, List.mem_map]
-    refine ⟨edgeLabels edges, ?_, i, by simp, ?_⟩
-    · exact ⟨edges, by simpa using hedges, rfl⟩
-    · exact rfl
-  · apply decide_eq_true
+  refine ⟨labels.toFinset, ?_, hselectedIndependent, ?_⟩
+  · simp only [fixedGapSelections, List.mem_eraseDups, List.mem_map]
+    refine ⟨labels, ?_, rfl⟩
+    apply List.mem_filter.mpr
     constructor
-    · simp [labels, edgeLabels_length, length_of_mem_tuples hedges]
-    · exact hlabelsNodup
+    · have hmod : (2 * pairs + 1) % 2 = 1 := by omega
+      have hdiv : (2 * pairs + 1) / 2 = pairs := by omega
+      simp only [candidateLabelLists, hmod, hdiv, one_ne_zero, ↓reduceIte,
+        List.mem_flatMap, List.mem_map]
+      refine ⟨edgeLabels edges, ?_, i, by simp, ?_⟩
+      · exact ⟨edges, by simpa using hedges, rfl⟩
+      · exact rfl
+    · apply decide_eq_true
+      constructor
+      · simp [labels, edgeLabels_length, length_of_mem_tuples hedges]
+      · exact hlabelsNodup
+  · intro j hj
+    have hjList : j ∈ labels := by simpa using hj
+    dsimp only [labels] at hjList
+    rw [List.mem_append, List.mem_singleton] at hjList
+    rcases hjList with hjOld | rfl
+    · exact hpairedSubset (by simpa using hjOld)
+    · exact hiAllowed
 
 /-- On an `r`-dimensional space, `r` independent coordinate functionals make the selected
 coordinate map injective. This is the linear-algebra bridge from cotangent rank growth to a
@@ -275,6 +292,7 @@ theorem fixedGapSelections_contains_even_capture
     {W : Type*} [AddCommGroup W] [Module F W] [FiniteDimensional F W]
     {n pairs power : ℕ} (hn : 0 < n)
     (normal : W →ₗ[F] F) (pool : W →ₗ[F] (Fin n → F))
+    (allowed : Finset (Fin n))
     (hdim : Module.finrank F W = 2 * pairs + 1) (hnormal : normal ≠ 0)
     (haugment : ∀ selected : Finset (Fin n),
       LinearIndepOn F (coordinateFunctional (pool.comp normal.ker.subtype))
@@ -282,9 +300,9 @@ theorem fixedGapSelections_contains_even_capture
       Even selected.card →
       ∃ edge ∈ poweredEdges n hn power,
         EscapesPair (F := F) (coordinateFunctional (pool.comp normal.ker.subtype))
-          selected edge) :
+          selected edge ∧ edge.1 ∈ allowed ∧ edge.2 ∈ allowed) :
     ∃ selected, ∃ hcard : selected.card = 2 * pairs,
-      selected ∈ fixedGapSelections n hn (2 * pairs) power ∧
+      selected ∈ fixedGapSelections n hn (2 * pairs) power ∧ selected ⊆ allowed ∧
       Function.Injective
         (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) := by
   have hrange : LinearMap.range normal = ⊤ :=
@@ -293,11 +311,11 @@ theorem fixedGapSelections_contains_even_capture
     have hrankNullity := normal.finrank_range_add_finrank_ker
     rw [hrange, finrank_top, Module.finrank_self, hdim] at hrankNullity
     omega
-  obtain ⟨selected, hselected, hindependent⟩ :=
+  obtain ⟨selected, hselected, hindependent, hsubset⟩ :=
     independent_even_selection_mem hn
-      (coordinateFunctional (pool.comp normal.ker.subtype)) haugment
+      (coordinateFunctional (pool.comp normal.ker.subtype)) allowed haugment
   have hcard := fixedGapSelections_card hselected
-  refine ⟨selected, hcard, hselected, ?_⟩
+  refine ⟨selected, hcard, hselected, hsubset, ?_⟩
   apply normalSelectedMap_injective_of_tangent
   exact selectedCoordinateMap_injective_of_independent
     (pool.comp normal.ker.subtype) selected hcard hkerDim hindependent
@@ -307,6 +325,7 @@ theorem fixedGapSelections_contains_odd_capture
     {W : Type*} [AddCommGroup W] [Module F W] [FiniteDimensional F W]
     {n pairs power : ℕ} (hn : 0 < n)
     (normal : W →ₗ[F] F) (pool : W →ₗ[F] (Fin n → F))
+    (allowed : Finset (Fin n))
     (hdim : Module.finrank F W = (2 * pairs + 1) + 1) (hnormal : normal ≠ 0)
     (haugment : ∀ selected : Finset (Fin n),
       LinearIndepOn F (coordinateFunctional (pool.comp normal.ker.subtype))
@@ -314,16 +333,16 @@ theorem fixedGapSelections_contains_odd_capture
       Even selected.card →
       ∃ edge ∈ poweredEdges n hn power,
         EscapesPair (F := F) (coordinateFunctional (pool.comp normal.ker.subtype))
-          selected edge)
+          selected edge ∧ edge.1 ∈ allowed ∧ edge.2 ∈ allowed)
     (hodd : ∀ selected : Finset (Fin n),
       LinearIndepOn F (coordinateFunctional (pool.comp normal.ker.subtype))
         (selected : Set (Fin n)) → selected.card = 2 * pairs →
-      ∃ i, coordinateFunctional (pool.comp normal.ker.subtype) i ∉
+      ∃ i ∈ allowed, coordinateFunctional (pool.comp normal.ker.subtype) i ∉
         Submodule.span F
           (coordinateFunctional (pool.comp normal.ker.subtype) ''
             (selected : Set (Fin n)))) :
     ∃ selected, ∃ hcard : selected.card = 2 * pairs + 1,
-      selected ∈ fixedGapSelections n hn (2 * pairs + 1) power ∧
+      selected ∈ fixedGapSelections n hn (2 * pairs + 1) power ∧ selected ⊆ allowed ∧
       Function.Injective
         (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) := by
   have hrange : LinearMap.range normal = ⊤ :=
@@ -332,13 +351,32 @@ theorem fixedGapSelections_contains_odd_capture
     have hrankNullity := normal.finrank_range_add_finrank_ker
     rw [hrange, finrank_top, Module.finrank_self, hdim] at hrankNullity
     omega
-  obtain ⟨selected, hselected, hindependent⟩ :=
+  obtain ⟨selected, hselected, hindependent, hsubset⟩ :=
     independent_odd_selection_mem hn
-      (coordinateFunctional (pool.comp normal.ker.subtype)) haugment hodd
+      (coordinateFunctional (pool.comp normal.ker.subtype)) allowed haugment hodd
   have hcard := fixedGapSelections_card hselected
-  refine ⟨selected, hcard, hselected, ?_⟩
+  refine ⟨selected, hcard, hselected, hsubset, ?_⟩
   apply normalSelectedMap_injective_of_tangent
   exact selectedCoordinateMap_injective_of_independent
     (pool.comp normal.ker.subtype) selected hcard hkerDim hindependent
+
+/-- If the selected labels all agree at a point, the corresponding actual square system has that
+point as a common zero. This bridge is independent of the stored equation representation and uses
+only the supplied evaluation semantics. -/
+theorem squareSystemRows_commonZero_of_subset
+    {P : Type*} {n r : ℕ} (hypersurface : P) (equations : Fin n → P) (evaluate : P → F)
+    (agreeing selected : Finset (Fin n)) (hcard : selected.card = r)
+    (hsubset : selected ⊆ agreeing) (hhypersurface : evaluate hypersurface = 0)
+    (hagree : ∀ i ∈ agreeing, evaluate (equations i) = 0) :
+    ∀ j, evaluate
+      (squareSystemRows hypersurface equations (rowSubsetEmbedding selected hcard) j) = 0 := by
+  intro j
+  refine Fin.cases hhypersurface (fun i ↦ ?_) j
+  apply hagree
+  apply hsubset
+  change selected.orderEmbOfFin hcard i ∈ selected
+  have hi : selected.orderEmbOfFin hcard i ∈
+      Set.range (selected.orderEmbOfFin hcard) := ⟨i, rfl⟩
+  rwa [Finset.range_orderEmbOfFin] at hi
 
 end ReedSolomon.ListDecoding.HigherOrderProducer
