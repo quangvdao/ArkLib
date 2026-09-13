@@ -125,3 +125,17 @@ perturbation and factorization coverage; the multiplicity layer does not yet pro
 strict valuation gap; the current cubic collision bound does not establish the paper's quadratic
 field-size guard. I3 therefore provides reviewed Rojas foundations, not a completed dense solver or
 higher-order decoder.
+
+## I4 source: effective supplied-field regular transport
+
+| Item | Exact value |
+| --- | --- |
+| Effective transport slice | `e744e5c773c62ceeb441253d060161cf7cb24f15` |
+
+The regular-equation decoder now consumes any `EffectiveField` directly, computes base,
+odd-quadratic, or binary-quadratic centers through `EffectiveCenters`, and transports quadratic
+arithmetic through relative quotients while recovering coefficients in the supplied base field.
+The compiled regression exercises all three branches, an explicit insufficient-capacity result,
+and nonempty recovery over supplied cyclic Frobenius coordinates for `F4` with `n = 4` and
+`k = 3`. This remains the checked regular-data layer: public interpolation and normalization must
+still be connected before claiming the complete generic zeroth-order facade.

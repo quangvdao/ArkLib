@@ -62,6 +62,8 @@ ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.PublicD
 import
 ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.EffectiveAdapter
 import
+ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.EffectiveTransport
+import
 ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Geometry.Direction
 import
 ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Geometry.Monic
@@ -326,6 +328,7 @@ def run : IO Unit := do
   SuppliedTransportTests.run
   PublicDecoderTests.run
   ZerothEffectiveAdapterTests.run
+  EffectiveTransportTests.run
   RegularFiberTests.run
   SuppliedAdapterTests.run
   CenterDispatcherTests.run
