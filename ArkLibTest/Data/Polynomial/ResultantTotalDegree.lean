@@ -29,11 +29,27 @@ example (P Q : Polynomial (MvPolynomial (Fin 4) (ZMod 4))) (m n A B : ℕ)
 
 -- The ready-to-use uniform envelope discharges from outer and coefficient budgets alone.
 example (P Q : Polynomial (MvPolynomial (Fin 3) (ZMod 4))) (Bjet : ℕ)
-    (hPdegree : P.natDegree ≤ Bjet) (hQdegree : Q.natDegree ≤ Bjet)
-    (hP : ∀ j, (P.coeff j).totalDegree ≤ Bjet - 1)
+    (hPdegree : P.natDegree ≤ Bjet) (hQdegree : Q.natDegree ≤ Bjet - 1)
+    (hP : ∀ j, (P.coeff j).totalDegree ≤ Bjet)
     (hQ : ∀ j, (Q.coeff j).totalDegree ≤ Bjet - 1) :
     (resultant P Q).totalDegree ≤ 2 * Bjet * (Bjet - 1) :=
   totalDegree_resultant_le_two_mul_degreeBudget P Q Bjet hPdegree hQdegree hP hQ
+
+-- The equation-side coefficient budget really can attain `Bjet`: for `Y - X^5`, the constant
+-- coefficient and the resultant against `Y` both have parameter total degree five.
+example :
+    ((X - C ((MvPolynomial.X (0 : Fin 1)) ^ 5 : MvPolynomial (Fin 1) ℤ)).coeff 0).totalDegree =
+      5 := by
+  simp only [Polynomial.coeff_sub, Polynomial.coeff_X_zero, Polynomial.coeff_C_zero,
+    zero_sub]
+  rw [MvPolynomial.totalDegree_neg, MvPolynomial.totalDegree_X_pow]
+
+example :
+    (resultant
+      (X - C ((MvPolynomial.X (0 : Fin 1)) ^ 5 : MvPolynomial (Fin 1) ℤ)) X 1 1).totalDegree =
+      5 := by
+  rw [resultant_X_sub_C_left _ _ _ (by simp)]
+  simp only [eval_X, MvPolynomial.totalDegree_X_pow]
 
 -- Derivative coefficients inherit the original parameter budget in every characteristic.
 example (P : Polynomial (MvPolynomial (Fin 2) (ZMod 3))) (B : ℕ)
