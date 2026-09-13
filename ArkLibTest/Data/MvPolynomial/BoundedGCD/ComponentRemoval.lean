@@ -20,8 +20,8 @@ def run : IO Unit := do
   let x : CMvPolynomial 2 (ZMod 5) := CMvPolynomial.X 0
   let y : CMvPolynomial 2 (ZMod 5) := CMvPolynomial.X 1
   let discarded := y + x + 1
-  let regular := y + 1
-  let support := discarded * regular
+  let leftQuotient := y + 1
+  let support := discarded * leftQuotient
   let separant := discarded * (y + 2)
   let some data := run? support separant
     | throw (IO.userError "common-factor removal rejected the meeting-component fixture")
@@ -39,8 +39,8 @@ def run : IO Unit := do
 #print axioms discarded_ne_zero
 #print axioms reconstruction
 #print axioms discarded_separant_identity
-#print axioms regular_ne_zero
-#print axioms regular_totalDegree_le
+#print axioms leftQuotient_ne_zero
+#print axioms leftQuotient_totalDegree_le
 #print axioms eval₂_regular_iff
 
 end ComponentRemovalTests

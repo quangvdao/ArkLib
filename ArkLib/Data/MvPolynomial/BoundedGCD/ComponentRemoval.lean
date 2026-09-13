@@ -11,9 +11,10 @@ public import ArkLib.Data.MvPolynomial.BoundedGCD.CheckedCandidate
 # Checked multivariate common-factor removal
 
 This stage consumes the executable pseudo-remainder candidate. A successful output removes its
-certified common factor from the support polynomial and records the quotient as the remaining
-component union. Its point theorem is global: at every point where the supplied separant is
-nonzero, removing the common factor preserves exactly the roots of the support polynomial.
+certified common factor from the support polynomial and records the resulting left quotient. Its
+point theorem is global: at every point where the supplied separant is nonzero, removing the
+checked common factor preserves exactly the roots of the support polynomial. No maximality or
+coprimality claim is made until recursive coefficient normalization completes the gcd algorithm.
 -/
 
 @[expose] public section
@@ -38,7 +39,7 @@ theorem discarded_ne_zero (support separant : CMvPolynomial (n + 1) F)
     data.divisor ≠ 0 :=
   checkedCandidate?_divisor_ne_zero support separant data hrun
 
-/-- The remaining component union reconstructs the support polynomial. -/
+/-- The left quotient reconstructs the support polynomial with the checked divisor. -/
 theorem reconstruction (support separant : CMvPolynomial (n + 1) F)
     (data : Data support separant) (hrun : run? support separant = some data) :
     data.leftQuotient * data.divisor = support :=
@@ -50,27 +51,27 @@ theorem discarded_separant_identity (support separant : CMvPolynomial (n + 1) F)
     data.rightQuotient * data.divisor = separant :=
   checkedCandidate?_right_identity support separant data hrun
 
-/-- A nonzero support produces a nonzero remaining component union. -/
-theorem regular_ne_zero (support separant : CMvPolynomial (n + 1) F)
+/-- A nonzero support produces a nonzero left quotient. -/
+theorem leftQuotient_ne_zero (support separant : CMvPolynomial (n + 1) F)
     (data : Data support separant) (hrun : run? support separant = some data)
     (hsupport : support ≠ 0) : data.leftQuotient ≠ 0 := by
   intro hzero
   apply hsupport
   rw [← reconstruction support separant data hrun, hzero, zero_mul]
 
-/-- Removing a common factor cannot increase semantic total degree. -/
-theorem regular_totalDegree_le (support separant : CMvPolynomial (n + 1) F)
+/-- Removing a checked common factor cannot increase the left quotient's semantic total degree. -/
+theorem leftQuotient_totalDegree_le (support separant : CMvPolynomial (n + 1) F)
     (data : Data support separant) (hrun : run? support separant = some data)
     (hsupport : support ≠ 0) :
     (fromCMvPolynomial data.leftQuotient).totalDegree ≤
       (fromCMvPolynomial support).totalDegree := by
-  have hregular : fromCMvPolynomial data.leftQuotient ≠ 0 := by
+  have hleft : fromCMvPolynomial data.leftQuotient ≠ 0 := by
     exact CPoly.polyRingEquiv.map_ne_zero_iff.mpr <|
-      regular_ne_zero support separant data hrun hsupport
+      leftQuotient_ne_zero support separant data hrun hsupport
   have hdiscarded : fromCMvPolynomial data.divisor ≠ 0 := by
     exact CPoly.polyRingEquiv.map_ne_zero_iff.mpr <|
       discarded_ne_zero support separant data hrun
-  have hdegree := MvPolynomial.totalDegree_mul_of_isDomain hregular hdiscarded
+  have hdegree := MvPolynomial.totalDegree_mul_of_isDomain hleft hdiscarded
   rw [← CPoly.map_mul, reconstruction support separant data hrun] at hdegree
   omega
 
