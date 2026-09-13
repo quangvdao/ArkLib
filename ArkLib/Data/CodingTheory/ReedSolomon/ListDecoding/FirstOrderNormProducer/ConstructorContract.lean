@@ -8,6 +8,8 @@ module
 public import
   ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Contract
 public import
+  ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.ConstructorSquarefree
+public import
   ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.UniversalRecovery
 
 /-!
@@ -223,6 +225,74 @@ theorem construct?_firstOrderNormCandidatesWithRecovery_complete
   · exact construct?_denominatorRegular p Bjet center T component values
       hv hB chart hc (indexedReceived domain received)
   · exact hcomponent
+  · exact hresidual
+  · exact hseparant
+  · exact hPdegree
+  · exact hPagreement
+  · exact htarget
+
+/-- End-to-end coverage from an actually computed regular component.  Its producer certificate
+supplies generic squarefreeness, while the constructor supplies projection invariance, monicity,
+normal forms, degree, and denominator regularity. -/
+theorem construct?_firstOrderRunNormCandidatesWithRecovery_complete
+    (p : ℕ) [Fact p.Prime]
+    (modulus : CPolynomial (ZMod p)) [Fact modulus.monic]
+    [Fact (Irreducible modulus.toPoly)]
+    (M : MulContext (Carrier modulus)) (D : ModContext (Carrier modulus))
+    {n k Bjet A : ℕ} (inverse : Carrier modulus → Carrier modulus)
+    (center : Carrier modulus) (T : CMvPolynomial 3 (Carrier modulus))
+    (data : RegularPart.Data (Carrier modulus))
+    (hinverse : p ≤ (ClearDenominators.primitivePart
+        (FastTaylor.ComponentConstruction.FirstOrder.specializedEquation center T)).natDegree →
+      ∀ a, inverse a ^ p = a)
+    (hrun : FastTaylor.ComponentConstruction.FirstOrder.run p inverse center T =
+      .regularPart data)
+    (values : List (Carrier modulus))
+    (hv : 0 < (semanticEquation T).weightedTotalDegree (fun i => i.elim 0 (fun _ => 1)))
+    (hB : (semanticEquation T).weightedTotalDegree (fun i => i.elim 0 (fun _ => 1)) ≤ Bjet)
+    (chart : ChartData (Carrier modulus) 1 k)
+    (hc : construct? p 1 k Bjet center T
+      (FastTaylor.ComponentConstruction.FirstOrder.component data) values = some chart)
+    (domain : Fin n ↪ Carrier modulus) (received : Fin n → Carrier modulus)
+    (hkA : k ≤ A)
+    (hcomponentDegree :
+      (FastTaylor.ComponentConstruction.FirstOrder.component data).totalDegree < p)
+    (positions : Finset (Fin
+      (prepare chart (indexedReceived domain received)).agreements.length))
+    (hpositions : A ≤ positions.card)
+    {K : Type} [Field K] (base : Carrier modulus →+* K) (u v : K)
+    (hequation : ComponentDescent.evalAt base u v
+      (prepare chart (indexedReceived domain received)).chartPolynomials.equation = 0)
+    (hresidual : ∀ i ∈ positions, ComponentDescent.evalAt base u v
+      (prepare chart (indexedReceived domain received)).agreements[i] = 0)
+    (hseparant : TowerRepresentation.evalNested
+      (prepare chart (indexedReceived domain received)).chartPolynomials.separant
+        base u v ≠ 0)
+    (P : Polynomial (Carrier modulus)) (hPdegree : P.degree < k)
+    (hPagreement : A ≤ Code.agree (evalOnPoints domain P) received)
+    (htarget :
+      Polynomial.JetHornerMachine.coefficientPolynomial
+        ((List.ofFn
+          (prepare chart (indexedReceived domain received)).chartPolynomials.numerators).map
+            fun numerator => TowerRepresentation.evalNested numerator base u v /
+              TowerRepresentation.evalNested
+                (prepare chart
+                  (indexedReceived domain received)).chartPolynomials.denominator base u v) =
+        P.map base) :
+    ∃ candidate ∈ firstOrderNormCandidatesWithRecovery
+        p modulus M D A chart domain received,
+      ∃ x y : K, candidate.Point base x y ∧
+        candidate.specialize base x y = P.map base := by
+  apply construct?_firstOrderNormCandidatesWithRecovery_complete
+    p modulus M D center T
+      (FastTaylor.ComponentConstruction.FirstOrder.component data) values hv hB chart hc
+      domain received
+  · exact construct?_firstOrder_genericSquarefree p Bjet inverse center T data
+      hinverse hrun values hv hB chart hc
+  · exact hkA
+  · exact hcomponentDegree
+  · exact hpositions
+  · exact hequation
   · exact hresidual
   · exact hseparant
   · exact hPdegree
