@@ -219,13 +219,12 @@ theorem scalarSymbolicJetMap_X_pow_succ (n steps : ℕ) :
   rw [RingHom.comp_apply, map_pow]
   have hX : (Polynomial.mapRingHom MvPolynomial.C)
       (Polynomial.X : Polynomial F) =
-      (Polynomial.X : Polynomial (MvPolynomial (Fin n) F)) :=
-    by
-      change Polynomial.map
-        (MvPolynomial.C : F →+* MvPolynomial (Fin n) F)
-        Polynomial.X = Polynomial.X
-      exact Polynomial.map_X
-        (f := (MvPolynomial.C : F →+* MvPolynomial (Fin n) F))
+      (Polynomial.X : Polynomial (MvPolynomial (Fin n) F)) := by
+    change Polynomial.map
+      (MvPolynomial.C : F →+* MvPolynomial (Fin n) F)
+      Polynomial.X = Polynomial.X
+    exact Polynomial.map_X
+      (f := (MvPolynomial.C : F →+* MvPolynomial (Fin n) F))
   rw [hX]
   exact symbolicJetQuotientMap_X_pow_succ n steps
 
