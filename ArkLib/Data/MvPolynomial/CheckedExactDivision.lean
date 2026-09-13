@@ -7,6 +7,7 @@ module
 
 public import CompPoly.Multivariate.MvPolyEquiv
 public import Mathlib.Algebra.MvPolynomial.NoZeroDivisors
+public import Mathlib.Data.Fintype.BigOperators
 
 /-!
 # Checked exact division for stored multivariate polynomials
@@ -75,6 +76,84 @@ def exactQuotientWithFuel? (fuel : ℕ) (dividend divisor : CMvPolynomial n F) :
 /-- Exact division with the canonical degree-box fuel. -/
 def exactQuotient? (dividend divisor : CMvPolynomial n F) : Option (CMvPolynomial n F) :=
   exactQuotientWithFuel? (divisionFuel dividend) dividend divisor
+
+/-- Once bounded division has reached the zero remainder, adding one more unit of fuel preserves
+the same quotient. -/
+theorem divideAux_succ_of_eq_some (fuel : ℕ) (remainder divisor accumulator quotient :
+    CMvPolynomial n F)
+    (h : divideAux fuel remainder divisor accumulator = some quotient) :
+    divideAux (fuel + 1) remainder divisor accumulator = some quotient := by
+  induction fuel generalizing remainder accumulator with
+  | zero =>
+      by_cases hr : remainder = 0
+      · simpa [divideAux, hr] using h
+      · simp [divideAux, hr] at h
+  | succ fuel ih =>
+      by_cases hr : remainder = 0
+      · simpa [divideAux, hr] using h
+      · simp only [divideAux, hr, ↓reduceIte] at h ⊢
+        cases ht : leadingQuotient? remainder divisor with
+        | none => simp [ht] at h
+        | some term =>
+            change divideAux (fuel + 1) (remainder - term * divisor) divisor
+              (accumulator + term) = some quotient
+            apply ih
+            rw [ht] at h
+            exact h
+
+/-- A successful bounded division remains successful with any larger fuel budget. -/
+theorem divideAux_mono_of_eq_some (fuel extra : ℕ)
+    (remainder divisor accumulator quotient : CMvPolynomial n F)
+    (h : divideAux fuel remainder divisor accumulator = some quotient) :
+    divideAux (fuel + extra) remainder divisor accumulator = some quotient := by
+  induction extra with
+  | zero => simpa using h
+  | succ extra ih =>
+      rw [Nat.add_succ]
+      exact divideAux_succ_of_eq_some _ _ _ _ _ ih
+
+/-- A successful checked quotient remains the same when the caller supplies more fuel. -/
+theorem exactQuotientWithFuel?_mono_of_eq_some (fuel extra : ℕ)
+    (dividend divisor quotient : CMvPolynomial n F)
+    (h : exactQuotientWithFuel? fuel dividend divisor = some quotient) :
+    exactQuotientWithFuel? (fuel + extra) dividend divisor = some quotient := by
+  unfold exactQuotientWithFuel? at h ⊢
+  by_cases hd : divisor = 0
+  · simp [hd] at h
+  simp only [hd, ↓reduceIte] at h ⊢
+  cases hc : divideAux fuel dividend divisor 0 with
+  | none => simp [hc] at h
+  | some candidate =>
+      rw [hc] at h
+      have hc' : divideAux (fuel + extra) dividend divisor 0 = some candidate :=
+        divideAux_mono_of_eq_some fuel extra dividend divisor 0 candidate hc
+      rw [hc']
+      exact h
+
+omit [DecidableEq F] in
+/-- The semantic support of a stored polynomial fits in the coordinate box cut out by its total
+degree.  This is the numerical reason for the canonical fuel formula. -/
+theorem support_card_le_degree_box (p : CMvPolynomial n F) :
+    (fromCMvPolynomial p).support.card ≤ (p.totalDegree + 1) ^ n := by
+  classical
+  let encode : {m // m ∈ (fromCMvPolynomial p).support} →
+      Fin n → Fin (p.totalDegree + 1) := fun m i =>
+    ⟨m.1 i, Nat.lt_succ_of_le <|
+      (Finsupp.single_eval_le_sum m.1 (g := id) rfl (fun _ => Nat.zero_le _) i).trans <|
+        MvPolynomial.le_totalDegree m.2⟩
+  have hinjective : Function.Injective encode := by
+    intro a b hab
+    apply Subtype.ext
+    ext i
+    exact congrArg (fun f => (f i).val) hab
+  have hcard := Fintype.card_le_of_injective encode hinjective
+  simpa only [Fintype.card_coe, Fintype.card_fun, Fintype.card_fin] using hcard
+
+omit [DecidableEq F] in
+/-- The canonical fuel strictly exceeds the number of monomials in the dividend's support. -/
+theorem support_card_lt_divisionFuel (p : CMvPolynomial n F) :
+    (fromCMvPolynomial p).support.card < divisionFuel p := by
+  exact (support_card_le_degree_box p).trans_lt (Nat.lt_succ_self _)
 
 /-- A returned quotient satisfies the literal global product identity. -/
 theorem exactQuotientWithFuel?_identity (fuel : ℕ) (dividend divisor quotient :
