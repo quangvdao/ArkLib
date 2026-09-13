@@ -12,44 +12,68 @@ open CompPoly ArkLib.FiniteField.ExplicitConstruction
 open ReedSolomon.ListDecoding.ZerothOrderDecoder.EffectiveAdapter
 open Polynomial.FunctionFieldAlgorithms
 
-/-- Runtime canary: touching preparation is a test failure. -/
-private unsafe def forbiddenPreparationImpl {p : ℕ} {K : Type} [Field K]
-    [BEq K] [LawfulBEq K] (F : EffectiveField p K) (_ : Unit) : InverseFrobeniusData p K :=
-  letI : Inhabited (InverseFrobeniusData p K) := ⟨F.prepareInverseFrobenius ()⟩
-  panic! "normalization forced forbidden Frobenius preparation"
+/-- Test-only runtime instrumentation; each actual preparation increments the local counter. -/
+@[never_extract, noinline, nospecialize]
+private unsafe def countedPreparationImpl {p : ℕ} {K : Type} [Field K]
+    [BEq K] [LawfulBEq K] (counter : IO.Ref Nat) (F : EffectiveField p K)
+    (_ : Unit) : InverseFrobeniusData p K :=
+  unsafeBaseIO do
+    counter.modify (· + 1)
+    return F.prepareInverseFrobenius ()
 
-@[implemented_by forbiddenPreparationImpl]
-private def forbiddenPreparation {p : ℕ} {K : Type} [Field K] [BEq K] [LawfulBEq K]
-    (F : EffectiveField p K) (_ : Unit) : InverseFrobeniusData p K :=
-  F.prepareInverseFrobenius ()
+/-- Keep runtime instrumentation behind a separate field-construction boundary. -/
+@[never_extract, noinline, nospecialize]
+private unsafe def countedFieldImpl {p : ℕ} {K : Type} [Field K] [BEq K] [LawfulBEq K]
+    (counter : IO.Ref Nat) (F : EffectiveField p K) : EffectiveField p K :=
+  { F with prepareInverseFrobenius := countedPreparationImpl counter F }
 
-/-- The same consumer executes non-prime-field inseparable normalization in either characteristic. -/
+/-- The logical field is unchanged; only runtime preparation is observed. -/
+@[implemented_by countedFieldImpl, never_extract, noinline, nospecialize]
+private def countedField {p : ℕ} {K : Type} [Field K] [BEq K] [LawfulBEq K]
+    (_counter : IO.Ref Nat) (F : EffectiveField p K) : EffectiveField p K := F
+
+/-- Counter regressions throw an IO error, independently of stderr or panic settings. -/
+private def checkPreparationCount (counter : IO.Ref Nat) (expected : Nat) (branch : String) :
+    IO Unit := do
+  let actual ← counter.get
+  unless actual == expected do
+    throw (IO.userError s!"{branch}: expected {expected} Frobenius preparations, observed {actual}")
+
+/-- The same consumer executes non-prime-field normalization in either characteristic.
+An injectable normalizer also permits negative checks of the preparation-count assertions. -/
 def check {p : ℕ} {K : Type} [Field K] [BEq K] [LawfulBEq K]
-    (F : EffectiveField p K) (theta : K) : IO Unit := do
+    (F : EffectiveField p K) (theta : K)
+    (normalizeProgram : EffectiveField p K → CPoly.CMvPolynomial 2 K →
+      OrdinaryNormalization.Result K := normalize) : IO Unit := do
   let _ : DecidableEq K := instDecidableEqOfLawfulBEq
   let domain : Fin 1 ↪ K := ⟨fun _ => theta, fun _ _ _ => Subsingleton.elim _ _⟩
   unless run? F (RingHom.id K) domain (fun _ => theta) 1 1 none == some [[theta]] do
     throw (IO.userError "effective constant branch required normalization")
-  let lazyField : EffectiveField p K := { F with prepareInverseFrobenius := forbiddenPreparation F }
-  match normalize lazyField 0 with
+  let counter ← IO.mkRef 0
+  let lazyField := countedField counter F
+  match normalizeProgram lazyField 0 with
   | .zeroInput => pure ()
   | _ => throw (IO.userError "zero normalization failed")
+  checkPreparationCount counter 0 "zero input"
   unless run? lazyField (RingHom.id K) domain (fun _ => theta) 1 1 none == some [[theta]] do
     throw (IO.userError "constant dispatch touched preparation")
+  checkPreparationCount counter 0 "constant dispatch"
   let x : CBivariate K := CPolynomial.C CPolynomial.X
   let y : CBivariate K := CPolynomial.X
   let slope : CBivariate K := CPolynomial.C (CPolynomial.C theta)
   let graph := y - slope * x
-  match normalize lazyField (CBivariate.toOrdinaryCMv graph) with
+  match normalizeProgram lazyField (CBivariate.toOrdinaryCMv graph) with
   | .normalized data =>
     unless data.regular == graph do
       throw (IO.userError "separable normalization changed its graph")
   | _ => throw (IO.userError "separable normalization failed")
-  match normalize F (CBivariate.toOrdinaryCMv (graph ^ p)) with
+  checkPreparationCount counter 0 "separable input"
+  match normalizeProgram lazyField (CBivariate.toOrdinaryCMv (graph ^ p)) with
   | .normalized data =>
     unless data.support == graph && data.regular == graph && data.obstruction == 1 do
       throw (IO.userError "effective normalization lost its graph")
   | _ => throw (IO.userError "effective inseparable normalization did not succeed")
+  checkPreparationCount counter 1 "inseparable input"
   unless compareField F theta theta == .eq do
     throw (IO.userError "effective comparison violated reflexivity")
 

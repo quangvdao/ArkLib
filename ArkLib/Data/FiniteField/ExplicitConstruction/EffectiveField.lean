@@ -26,6 +26,9 @@ namespace ArkLib.FiniteField.ExplicitConstruction
 structure InverseFrobeniusData (p : Nat) (K : Type*) [Field K] where
   inverseFrobenius : K → K
   inverseFrobenius_pow : ∀ a, inverseFrobenius a ^ p = a
+  /-- Retain a runtime record: erasing to the lone function field would eta-expand
+  preparation into coefficient application, defeating shared lazy preparation. -/
+  runtimeMarker : Unit := ()
 
 /-- Presentation-specific operations over existing executable field instances.
 The inverse Frobenius callback may close over reusable preprocessing data. -/
