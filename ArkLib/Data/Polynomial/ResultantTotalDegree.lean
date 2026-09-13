@@ -122,15 +122,15 @@ theorem totalDegree_resultant_derivative_le_of_coeff_totalDegree_le
 `2 * Bjet * (Bjet - 1)` envelope. -/
 theorem totalDegree_resultant_le_two_mul_degreeBudget
     (P Q : Polynomial (MvPolynomial σ R)) (Bjet : ℕ)
-    (hPdegree : P.natDegree ≤ Bjet) (hQdegree : Q.natDegree ≤ Bjet)
-    (hP : ∀ j, (P.coeff j).totalDegree ≤ Bjet - 1)
+    (hPdegree : P.natDegree ≤ Bjet) (hQdegree : Q.natDegree ≤ Bjet - 1)
+    (hP : ∀ j, (P.coeff j).totalDegree ≤ Bjet)
     (hQ : ∀ j, (Q.coeff j).totalDegree ≤ Bjet - 1) :
     (resultant P Q).totalDegree ≤ 2 * Bjet * (Bjet - 1) := by
   refine (totalDegree_resultant_le_of_coeff_totalDegree_le_actual
-    P Q (Bjet - 1) (Bjet - 1) hP hQ).trans ?_
+    P Q Bjet (Bjet - 1) hP hQ).trans ?_
   calc
-    Q.natDegree * (Bjet - 1) + P.natDegree * (Bjet - 1) ≤
-        Bjet * (Bjet - 1) + Bjet * (Bjet - 1) :=
+    Q.natDegree * Bjet + P.natDegree * (Bjet - 1) ≤
+        (Bjet - 1) * Bjet + Bjet * (Bjet - 1) :=
       Nat.add_le_add (Nat.mul_le_mul_right _ hQdegree) (Nat.mul_le_mul_right _ hPdegree)
     _ = 2 * Bjet * (Bjet - 1) := by ring
 
