@@ -27,6 +27,9 @@ def run : IO Unit := do
   let common := y + x + 1
   let left := common * (y + 1)
   let right := common * (y + 2)
+  unless pseudoGcdCandidate (CPoly.TaylorReconstruction.splitLast left) 0 ==
+      CPoly.TaylorReconstruction.splitLast left do
+    throw (IO.userError "zero-right pseudo-gcd did not retain the left input")
   let some result := checkedCandidate? left right
     | throw (IO.userError "checked common-factor producer rejected an exact candidate")
   unless result.divisor != 0 do

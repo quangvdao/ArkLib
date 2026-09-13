@@ -29,7 +29,7 @@ variable {R : Type*} [CommRing R] [DecidableEq R] [BEq R] [LawfulBEq R] [IsDomai
 /-- A bounded pseudo-remainder sequence. At fuel exhaustion it returns `1`, a safe fallback
 candidate which cannot assert a spurious common factor. -/
 def pseudoGcdAux : ℕ → CPolynomial R → CPolynomial R → CPolynomial R
-  | 0, _, right => if right = 0 then right else 1
+  | 0, left, right => if right = 0 then left else 1
   | fuel + 1, left, right =>
       if right = 0 then left
       else pseudoGcdAux fuel right (pseudoDivide left right).remainder
