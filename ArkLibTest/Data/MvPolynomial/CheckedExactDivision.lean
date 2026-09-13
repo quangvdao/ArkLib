@@ -77,6 +77,15 @@ example (fuel : ℕ) (a b q : CMvPolynomial 4 F)
     (h : exactQuotientWithFuel? fuel a b = some q) : q * b = a :=
   exactQuotientWithFuel?_identity fuel a b q h
 
+example (fuel extra : ℕ) (a b q : CMvPolynomial 4 F)
+    (h : exactQuotientWithFuel? fuel a b = some q) :
+    exactQuotientWithFuel? (fuel + extra) a b = some q :=
+  exactQuotientWithFuel?_mono_of_eq_some fuel extra a b q h
+
+example (a : CMvPolynomial 4 F) :
+    (fromCMvPolynomial a).support.card < divisionFuel a :=
+  support_card_lt_divisionFuel a
+
 example (fuel : ℕ) (a b q expected : CMvPolynomial 4 F) (hb : b ≠ 0)
     (h : exactQuotientWithFuel? fuel a b = some q) (hexpected : expected * b = a) :
     q = expected :=
@@ -90,6 +99,8 @@ example (fuel : ℕ) (a b q : CMvPolynomial 4 F) (ha : a ≠ 0)
 end
 
 #print axioms exactQuotientWithFuel?_identity
+#print axioms exactQuotientWithFuel?_mono_of_eq_some
+#print axioms support_card_lt_divisionFuel
 #print axioms exactQuotient?_identity
 #print axioms quotient_eq_of_exactQuotientWithFuel?_eq_some
 #print axioms fromCMvPolynomial_dvd_of_exactQuotientWithFuel?_eq_some
