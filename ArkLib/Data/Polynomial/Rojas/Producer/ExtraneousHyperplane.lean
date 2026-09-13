@@ -212,7 +212,6 @@ section MatrixCoefficient
 
 variable {R ι : Type*} [CommRing R] [Fintype ι] [DecidableEq ι]
 
-set_option backward.isDefEq.respectTransparency.types false in
 private theorem coeff_det_C_add_X_smul_rows (A B : Matrix ι ι R) (k : ℕ) :
     (Matrix.det (B.map Polynomial.C +
       (Polynomial.X : Polynomial R) • A.map Polynomial.C)).coeff k =
