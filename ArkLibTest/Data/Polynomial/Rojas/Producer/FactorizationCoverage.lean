@@ -29,6 +29,11 @@ private def componentAndPoint : Fin 2 → CMvPolynomial 2 F
   | 0 => CMvPolynomial.X 0 * (CMvPolynomial.X 0 - CMvPolynomial.C 1)
   | 1 => CMvPolynomial.X 0 * CMvPolynomial.X 1
 
+/-- A lower-degree executable canary with roots `(0,0)` and `(1,0)`. -/
+private def twoIsolated : Fin 2 → CMvPolynomial 2 F
+  | 0 => CMvPolynomial.X 0 * (CMvPolynomial.X 0 - CMvPolynomial.C 1)
+  | 1 => CMvPolynomial.X 1
+
 private theorem component_family_root (a : F) :
     IsCommonAffineRoot (RingHom.id F) ![0, a] componentAndPoint := by
   intro i
@@ -77,15 +82,15 @@ example (output : Output 2 (F := F))
 /-- Runtime evaluation checks the predicted specialized root in the actual
 computed perturbation. -/
 def runChecks : IO Unit := do
-  match run componentAndPoint with
+  match run twoIsolated with
   | .error _ =>
-      throw (IO.userError "Rojas factor coverage: component system was rejected")
+      throw (IO.userError "Rojas factor coverage: two-root system was rejected")
   | .ok output =>
       let u : Fin 2 → F := ![3, 4]
       let root := geometricProjection (RingHom.id F) u ![1, 0]
       unless (specializePerturbation output.perturbation u).eval root == 0 do
         throw (IO.userError "Rojas factor coverage: specialized root was lost")
-  IO.println "Rojas factor coverage: isolated root survived unrelated component"
+  IO.println "Rojas factor coverage: component proof and two-root runtime passed"
 
 #print axioms IsNonsingularAffineRoot.hasIsolatingPolynomial
 #print axioms run_coversNonsingularAffineRoots
