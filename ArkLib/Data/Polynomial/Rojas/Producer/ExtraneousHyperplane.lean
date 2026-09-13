@@ -601,8 +601,8 @@ theorem extraneousFactor_polynomialEvaluation_coeff_nonAuxiliaryRows {n : ℕ}
   rw [coeff_det_C_add_X_smul_negDiagonalOn]
   exact det_piecewise_perturbationDiagonal_eq system u
 
-/-- A point on the parameter hyperplane `u₀ + ∑ uᵢ pointᵢ = 1` obtained
-from any nonzero coordinate of `point`. -/
+/-- With `u₀ = 1`, a point on the parameter hyperplane
+`u₀ + ∑ uᵢ pointᵢ = 0` obtained from any nonzero coordinate of `point`. -/
 noncomputable def hyperplaneWitness {n : ℕ} (point : Fin n → F)
     (k : Fin n) : Fin n → F :=
   fun i => if i = k then -(point k)⁻¹ else 0

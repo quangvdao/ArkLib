@@ -86,6 +86,18 @@ def main : IO Unit := do
   | .ok output =>
       unless output.exponent == 0 do
         throw <| IO.userError "Rojas quotient coverage: unexpected quotient exponent"
+      let extraneous := extraneousFactor originSystem
+      unless auxiliaryAssignedExtraneousB originSystem do
+        throw <| IO.userError "Rojas quotient coverage: origin row assignment changed"
+      unless lowestSExponent? extraneous == some 0 do
+        throw <| IO.userError "Rojas quotient coverage: extraneous trailing degree changed"
+      unless coefficientInS 0 extraneous == X 0 do
+        throw <| IO.userError "Rojas quotient coverage: origin trailing factor changed"
+      unless (checkedExactQuotient? output.perturbation (X 0)).isSome do
+        throw <| IO.userError "Rojas quotient coverage: quotient lost its origin factor"
+      unless (checkedExactQuotient?
+          (coefficientInS 0 (characteristic originSystem)) (X 0 ^ 2)).isSome do
+        throw <| IO.userError "Rojas quotient coverage: determinant lost origin multiplicity"
       let u : Fin 2 → F := ![3, 4]
       let specialized := specializePerturbation output.perturbation u
       unless specialized.eval 0 == 0 do
@@ -96,11 +108,11 @@ def main : IO Unit := do
         throw <| IO.userError "Rojas quotient coverage: zero-coordinate root was lost"
       let parameters : Fin 3 → F := ![0, 1, 1]
       unless parameterEvalHom (RingHom.id F) parameters 1
-          (extraneousFactor originSystem) == 0 do
+          extraneous == 0 do
         throw <| IO.userError "Rojas quotient coverage: origin extraneous absorption changed"
       let parametersAtOne : Fin 3 → F := ![1, 1, 1]
       unless parameterEvalHom (RingHom.id F) parametersAtOne 1
-          (extraneousFactor originSystem) == 1 do
+          extraneous == 1 do
         throw <| IO.userError "Rojas quotient coverage: u0=1 extraneous canary changed"
   IO.println "Rojas quotient coverage: origin and zero-coordinate runtime passed"
 
