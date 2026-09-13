@@ -1,14 +1,11 @@
 /-
-Copyright (c) 2026 Gary Irving and ArkLib contributors. All rights reserved.
+Copyright (c) 2026 Geoffrey Irving and ArkLib contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Gary Irving, Quang Dao
+Authors: Geoffrey Irving, Quang Dao
 
 The Fourier and weighted-Young argument is adapted from
 https://github.com/girving/aks/tree/c7fb62ed80a4a610f87f34db0082cadbd7c00c9f/AKS/MGG.
 
-The sharp estimate is due to Ofer Gabber and Zvi Galil, "Explicit Constructions of
-Linear-Sized Superconcentrators", JCSS 22(3):407--420 (1981),
-https://doi.org/10.1016/0022-0000(81)90040-4.
 -/
 module
 
@@ -23,6 +20,12 @@ have squared mean-zero adjacency norm at most `50`. The proof for side length at
 the discrete Fourier form of the Gabber--Galil/Jimbo--Maruoka argument: Parseval transfers the
 four forward correlations to dual shears, and reciprocal Young weights give the sharp
 `5 * sqrt 2` adjacency bound.
+
+## References
+
+* [Gabber, O. and Galil, Z., *Explicit Constructions of Linear-Sized
+    Superconcentrators*][GG81]
+* [Jimbo, S. and Maruoka, A., *Expanders Obtained from Affine Transformations*][JM87]
 -/
 
 @[expose] public section

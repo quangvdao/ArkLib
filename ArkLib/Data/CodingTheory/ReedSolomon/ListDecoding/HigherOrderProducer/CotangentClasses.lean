@@ -716,7 +716,7 @@ theorem fixedGapSystems_contains_odd_commonZero_capture_of_exactEnergy
 /-- Unconditional executable even-rank selection using the proved Gabber--Galil estimate. -/
 theorem fixedGapSelections_contains_even_capture_unconditional
     {W : Type*} [AddCommGroup W] [Module F W] [FiniteDimensional F W]
-    {n k pairs : ℕ} [NeZero (ceilSqrt n)] (hn : 0 < n)
+    {n k pairs : ℕ} (hn : 0 < n)
     (normal : W →ₗ[F] F) (pool : W →ₗ[F] (Fin n → F))
     (hdim : Module.finrank F W = 2 * pairs + 1) (hnormal : normal ≠ 0)
     (agreeing : Finset (Fin n))
@@ -728,14 +728,15 @@ theorem fixedGapSelections_contains_even_capture_unconditional
       selected ∈ fixedGapSelections n hn (2 * pairs) power ∧
       selected ⊆ agreeing ∧
       Function.Injective
-        (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) :=
-  fixedGapSelections_contains_even_capture_of_exactEnergy hn normal pool hdim hnormal
+        (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) := by
+  let _ : NeZero (ceilSqrt n) := ⟨(ceilSqrt_pos hn).ne'⟩
+  exact fixedGapSelections_contains_even_capture_of_exactEnergy hn normal pool hdim hnormal
     agreeing hbound hk (exactEnergyEstimate (ceilSqrt n))
 
 /-- Unconditional executable odd-rank selection using the proved Gabber--Galil estimate. -/
 theorem fixedGapSelections_contains_odd_capture_unconditional
     {W : Type*} [AddCommGroup W] [Module F W] [FiniteDimensional F W]
-    {n k pairs : ℕ} [NeZero (ceilSqrt n)] (hn : 0 < n)
+    {n k pairs : ℕ} (hn : 0 < n)
     (normal : W →ₗ[F] F) (pool : W →ₗ[F] (Fin n → F))
     (hdim : Module.finrank F W = (2 * pairs + 1) + 1) (hnormal : normal ≠ 0)
     (agreeing : Finset (Fin n))
@@ -747,14 +748,15 @@ theorem fixedGapSelections_contains_odd_capture_unconditional
       selected ∈ fixedGapSelections n hn (2 * pairs + 1) power ∧
       selected ⊆ agreeing ∧
       Function.Injective
-        (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) :=
-  fixedGapSelections_contains_odd_capture_of_exactEnergy hn normal pool hdim hnormal
+        (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) := by
+  let _ : NeZero (ceilSqrt n) := ⟨(ceilSqrt_pos hn).ne'⟩
+  exact fixedGapSelections_contains_odd_capture_of_exactEnergy hn normal pool hdim hnormal
     agreeing hbound hk (exactEnergyEstimate (ceilSqrt n))
 
 /-- Unconditional even-rank common-zero and Jacobian-rank bridge for the executable selector. -/
 theorem fixedGapSystems_contains_even_commonZero_capture_unconditional
     {W P : Type*} [AddCommGroup W] [Module F W] [FiniteDimensional F W]
-    [DecidableEq P] {n k pairs : ℕ} [NeZero (ceilSqrt n)] (hn : 0 < n)
+    [DecidableEq P] {n k pairs : ℕ} (hn : 0 < n)
     (hypersurface : P) (equations : Fin n → P) (evaluate : P → F)
     (normal : W →ₗ[F] F) (pool : W →ₗ[F] (Fin n → F))
     (hdim : Module.finrank F W = 2 * pairs + 1) (hnormal : normal ≠ 0)
@@ -771,15 +773,16 @@ theorem fixedGapSystems_contains_even_commonZero_capture_unconditional
       (∀ j, evaluate
         (squareSystemRows hypersurface equations (rowSubsetEmbedding selected hcard) j) = 0) ∧
       Function.Injective
-        (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) :=
-  fixedGapSystems_contains_even_commonZero_capture_of_exactEnergy hn hypersurface equations
+        (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) := by
+  let _ : NeZero (ceilSqrt n) := ⟨(ceilSqrt_pos hn).ne'⟩
+  exact fixedGapSystems_contains_even_commonZero_capture_of_exactEnergy hn hypersurface equations
     evaluate normal pool hdim hnormal agreeing hbound hk
     (exactEnergyEstimate (ceilSqrt n)) hhypersurface hagree
 
 /-- Unconditional odd-rank common-zero and Jacobian-rank bridge for the executable selector. -/
 theorem fixedGapSystems_contains_odd_commonZero_capture_unconditional
     {W P : Type*} [AddCommGroup W] [Module F W] [FiniteDimensional F W]
-    [DecidableEq P] {n k pairs : ℕ} [NeZero (ceilSqrt n)] (hn : 0 < n)
+    [DecidableEq P] {n k pairs : ℕ} (hn : 0 < n)
     (hypersurface : P) (equations : Fin n → P) (evaluate : P → F)
     (normal : W →ₗ[F] F) (pool : W →ₗ[F] (Fin n → F))
     (hdim : Module.finrank F W = (2 * pairs + 1) + 1) (hnormal : normal ≠ 0)
@@ -796,8 +799,9 @@ theorem fixedGapSystems_contains_odd_commonZero_capture_unconditional
       (∀ j, evaluate
         (squareSystemRows hypersurface equations (rowSubsetEmbedding selected hcard) j) = 0) ∧
       Function.Injective
-        (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) :=
-  fixedGapSystems_contains_odd_commonZero_capture_of_exactEnergy hn hypersurface equations
+        (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) := by
+  let _ : NeZero (ceilSqrt n) := ⟨(ceilSqrt_pos hn).ne'⟩
+  exact fixedGapSystems_contains_odd_commonZero_capture_of_exactEnergy hn hypersurface equations
     evaluate normal pool hdim hnormal agreeing hbound hk
     (exactEnergyEstimate (ceilSqrt n)) hhypersurface hagree
 
