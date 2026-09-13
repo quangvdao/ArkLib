@@ -180,11 +180,11 @@ theorem odd_escape_of_original_hypotheses {n k pairs : ℕ}
     (hdim : Module.finrank F V = 2 * pairs + 1) :
     ∀ selected : Finset (Fin n),
       LinearIndepOn F pool (selected : Set (Fin n)) → selected.card = 2 * pairs →
-      ∃ i, pool i ∉ Submodule.span F (pool '' (selected : Set (Fin n))) := by
+      ∃ i ∈ agreeing, pool i ∉ Submodule.span F (pool '' (selected : Set (Fin n))) := by
   intro selected hindependent hcard
-  obtain ⟨i, _hi, hout⟩ := exists_agreeing_outside_span agreeing pool hbound hk
+  obtain ⟨i, hi, hout⟩ := exists_agreeing_outside_span agreeing pool hbound hk
     selected hindependent (by omega)
-  exact ⟨i, hout⟩
+  exact ⟨i, hi, hout⟩
 
 /-- Adjoining one vector to a subspace that is at least two dimensions below the ambient space
 still gives a proper subspace. -/
@@ -256,6 +256,7 @@ theorem exists_cotangent_separated_of_original_hypotheses [FiniteDimensional F V
     (hremaining : selected.card + 1 < Module.finrank F V) :
     ∃ I J : Finset (Fin n),
       CotangentSeparated (F := F) pool selected I J ∧
+      I ⊆ agreeing ∧ J ⊆ agreeing ∧
       agreeing.card - k + 1 ≤ 3 * I.card ∧
       agreeing.card - k + 1 ≤ 3 * J.card := by
   classical
@@ -321,8 +322,6 @@ theorem exists_cotangent_separated_of_original_hypotheses [FiniteDimensional F V
       omega
   obtain ⟨I, J, hIJ, hunion, hI, hJ, hkeys⟩ :=
     exists_balanced_fiber_sets active key gap hgapPos hgapActive hfiber
-  refine ⟨I, J, ⟨hIJ, ?_⟩, hI, hJ⟩
-  intro i hi j hj
   have hIsub : I ⊆ active := by
     intro x hx
     rw [← hunion]
@@ -331,14 +330,20 @@ theorem exists_cotangent_separated_of_original_hypotheses [FiniteDimensional F V
     intro x hx
     rw [← hunion]
     exact Finset.mem_union_right I hx
-  have hiOutside : pool i ∉ U := (Finset.mem_filter.mp (hIsub hi)).2
-  have hjOutside : pool j ∉ U := (Finset.mem_filter.mp (hJsub hj)).2
-  have hkeyNe : quotientProjectiveKey U (pool i) ≠ quotientProjectiveKey U (pool j) := by
-    simpa only [key] using hkeys i hi j hj
-  refine ⟨hiOutside, ?_⟩
-  have hjEscape := not_mem_sup_of_quotientProjectiveKey_ne hiOutside hjOutside hkeyNe
-  simpa only [Finset.coe_insert, Set.image_insert_eq, Submodule.span_insert,
-    sup_comm] using hjEscape
+  refine ⟨I, J, ⟨hIJ, ?_⟩, ?_, ?_, hI, hJ⟩
+  · intro i hi j hj
+    have hiOutside : pool i ∉ U := (Finset.mem_filter.mp (hIsub hi)).2
+    have hjOutside : pool j ∉ U := (Finset.mem_filter.mp (hJsub hj)).2
+    have hkeyNe : quotientProjectiveKey U (pool i) ≠ quotientProjectiveKey U (pool j) := by
+      simpa only [key] using hkeys i hi j hj
+    refine ⟨hiOutside, ?_⟩
+    have hjEscape := not_mem_sup_of_quotientProjectiveKey_ne hiOutside hjOutside hkeyNe
+    simpa only [Finset.coe_insert, Set.image_insert_eq, Submodule.span_insert,
+      sup_comm] using hjEscape
+  · intro i hi
+    exact (Finset.mem_filter.mp (hIsub hi)).1
+  · intro i hi
+    exact (Finset.mem_filter.mp (hJsub hi)).1
 
 /-- If enough agreeing coordinate functionals avoid every proper subspace, then the full
 coordinate map is injective. This derives coverage for the direct-system route from the same
@@ -385,6 +390,53 @@ theorem coordinateMap_injective_of_original_hypotheses [FiniteDimensional F V]
     simpa [Module.evalEquiv_apply, Module.Dual.eval_apply] using hall functional
   exact sub_eq_zero.mp hxyZero
 
+/-- The coordinates indexed by the agreeing set already determine a tangent vector. -/
+theorem agreeingCoordinateMap_injective_of_original_hypotheses [FiniteDimensional F V]
+    {n k : ℕ} (agreeing : Finset (Fin n)) (map : V →ₗ[F] (Fin n → F))
+    (hbound : ProperSubspaceAgreementBound (F := F) agreeing
+      (coordinateFunctional map) k)
+    (hk : k ≤ agreeing.card) :
+    Function.Injective
+      (selectedCoordinateMap map (agreeing.orderEmbOfFin rfl)) := by
+  let U := Submodule.span F
+    (coordinateFunctional map '' (agreeing : Set (Fin n)))
+  have hUtop : U = ⊤ := by
+    by_contra hne
+    have hproper : U < ⊤ := lt_top_iff_ne_top.mpr hne
+    have hsmall := hbound U hproper
+    have hall : agreeingInSubspace agreeing (coordinateFunctional map) U = agreeing := by
+      classical
+      ext i
+      simp only [agreeingInSubspace, Finset.mem_filter]
+      exact and_iff_left_of_imp fun hi ↦ Submodule.subset_span ⟨i, hi, rfl⟩
+    rw [hall] at hsmall
+    omega
+  intro x y hxy
+  have hzero : selectedCoordinateMap map (agreeing.orderEmbOfFin rfl) (x - y) = 0 := by
+    simpa only [map_sub, sub_eq_zero] using hxy
+  have hvanish (i : Fin n) (hi : i ∈ agreeing) : coordinateFunctional map i (x - y) = 0 := by
+    have hirange : i ∈ Set.range (agreeing.orderEmbOfFin rfl) := by
+      rwa [Finset.range_orderEmbOfFin]
+    obtain ⟨j, rfl⟩ := hirange
+    exact congrFun hzero j
+  have hall (functional : Module.Dual F V) : functional (x - y) = 0 := by
+    have hfunctional : functional ∈ U := by rw [hUtop]; trivial
+    refine Submodule.span_induction (p := fun phi _ ↦ phi (x - y) = 0) ?_ ?_ ?_ ?_
+      hfunctional
+    · intro phi hphi
+      obtain ⟨i, hi, rfl⟩ := hphi
+      exact hvanish i hi
+    · simp
+    · intro phi psi _ _ hphi hpsi
+      simp [hphi, hpsi]
+    · intro scalar phi _ hphi
+      simp [hphi]
+  have hxyZero : x - y = 0 := by
+    apply (Module.evalEquiv F V).injective
+    ext functional
+    simpa [Module.evalEquiv_apply, Module.Dual.eval_apply] using hall functional
+  exact sub_eq_zero.mp hxyZero
+
 /-- The exhaustive direct-system producer contains a nonsingular system under the original
 agreement hypothesis; no caller-supplied tangent coverage premise remains. -/
 theorem directSystems_contains_capture_of_original_hypotheses
@@ -399,11 +451,57 @@ theorem directSystems_contains_capture_of_original_hypotheses
     ∃ (selected : Finset (Fin n)) (hcard : selected.card = r),
       squareSystemRows hypersurface equations (rowSubsetEmbedding selected hcard) ∈
         directSystems r hypersurface equations ∧
+      selected ⊆ agreeing ∧
       Function.Injective
         (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) := by
-  apply directSystems_contains_capture hypersurface equations normal pool hdim hnormal
-  exact coordinateMap_injective_of_original_hypotheses agreeing
-    (pool.comp normal.ker.subtype) hbound hk
+  let positions : Fin agreeing.card ↪ Fin n := (agreeing.orderEmbOfFin rfl).toEmbedding
+  have htangent : Function.Injective
+      ((selectedCoordinateMap pool positions).comp normal.ker.subtype) := by
+    exact agreeingCoordinateMap_injective_of_original_hypotheses agreeing
+      (pool.comp normal.ker.subtype) hbound hk
+  obtain ⟨chosen, hchosen⟩ := exists_injective_normalSelectedMap normal
+    (selectedCoordinateMap pool positions) hdim hnormal htangent
+  let full := chosen.trans positions
+  have hfull : Function.Injective (normalSelectedMap normal pool full) := hchosen
+  let selected := Finset.univ.map full
+  have hcard : selected.card = r := card_map_univ_embedding full
+  refine ⟨selected, hcard, squareSystemRows_mem_enumerate _ _ _ _, ?_, ?_⟩
+  · intro i hi
+    obtain ⟨j, _hj, rfl⟩ := Finset.mem_map.mp hi
+    change positions (chosen j) ∈ agreeing
+    change agreeing.orderEmbOfFin rfl (chosen j) ∈ agreeing
+    have hjrange : agreeing.orderEmbOfFin rfl (chosen j) ∈
+        Set.range (agreeing.orderEmbOfFin rfl) := ⟨chosen j, rfl⟩
+    rwa [Finset.range_orderEmbOfFin] at hjrange
+  · exact rowSubsetEmbedding_preserves_injective normal pool full hfull
+
+/-- The all-subsets producer contains an actual common-zero system with injective supplied
+differential, using only the equations' value and differential semantics at the wanted point. -/
+theorem directSystems_contains_commonZero_capture_of_original_hypotheses
+    {W P : Type*} [AddCommGroup W] [Module F W] [FiniteDimensional F W]
+    [DecidableEq P] {n k r : ℕ} (hypersurface : P) (equations : Fin n → P)
+    (evaluate : P → F) (normal : W →ₗ[F] F) (pool : W →ₗ[F] (Fin n → F))
+    (hdim : Module.finrank F W = r + 1) (hnormal : normal ≠ 0)
+    (agreeing : Finset (Fin n))
+    (hbound : ProperSubspaceAgreementBound (F := F) agreeing
+      (coordinateFunctional (pool.comp normal.ker.subtype)) k)
+    (hk : k ≤ agreeing.card) (hhypersurface : evaluate hypersurface = 0)
+    (hagree : ∀ i ∈ agreeing, evaluate (equations i) = 0) :
+    ∃ (selected : Finset (Fin n)) (hcard : selected.card = r),
+      squareSystemRows hypersurface equations (rowSubsetEmbedding selected hcard) ∈
+        directSystems r hypersurface equations ∧
+      selected ⊆ agreeing ∧
+      (∀ j, evaluate
+        (squareSystemRows hypersurface equations (rowSubsetEmbedding selected hcard) j) = 0) ∧
+      Function.Injective
+        (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) := by
+  obtain ⟨selected, hcard, hsystem, hsubset, hinjective⟩ :=
+    directSystems_contains_capture_of_original_hypotheses hypersurface equations normal pool
+      hdim hnormal agreeing hbound hk
+  exact ⟨selected, hcard, hsystem, hsubset,
+    squareSystemRows_commonZero_of_subset hypersurface equations evaluate agreeing selected
+      hcard hsubset hhypersurface hagree,
+    hinjective⟩
 
 /-- If the agreement excess has density at least `epsilonNumerator / epsilonDenominator`, then
 the balanced threshold has padded density at least one twelfth as large. -/
@@ -437,6 +535,7 @@ theorem fixedGapSelections_contains_even_capture_of_original_hypotheses
       (thirdCeil (agreeing.card - k + 1) : ℝ) ^ 2) :
     ∃ selected, ∃ hcard : selected.card = 2 * pairs,
       selected ∈ fixedGapSelections n hn (2 * pairs) power ∧
+      selected ⊆ agreeing ∧
       Function.Injective
         (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) := by
   let tangentPool := coordinateFunctional (pool.comp normal.ker.subtype)
@@ -450,13 +549,14 @@ theorem fixedGapSelections_contains_even_capture_of_original_hypotheses
     simpa [Subspace.dual_finrank_eq] using htangentDim
   have hgapPos : 0 < agreeing.card - k + 1 := by omega
   have hmixing := connectsLargeSets_poweredEdges hn hGG (thirdCeil_pos hgapPos) hnumeric
-  apply fixedGapSelections_contains_even_capture_of_mixing hn normal pool hdim hnormal hmixing
+  apply fixedGapSelections_contains_even_capture_of_mixing hn normal pool agreeing
+    hdim hnormal hmixing
   intro selected hindependent hcard heven
   obtain ⟨q, hq⟩ := heven
-  obtain ⟨I, J, hseparated, hI, hJ⟩ :=
+  obtain ⟨I, J, hseparated, hIsub, hJsub, hI, hJ⟩ :=
     exists_cotangent_separated_of_original_hypotheses agreeing tangentPool hbound hk
       selected hindependent (by rw [hdualDim]; omega)
-  exact ⟨I, J, hseparated, thirdCeil_le_of_le_three_mul hI,
+  exact ⟨I, J, hseparated, hIsub, hJsub, thirdCeil_le_of_le_three_mul hI,
     thirdCeil_le_of_le_three_mul hJ⟩
 
 /-- The odd-rank version derives both every paired augmentation and the final leftover rank from
@@ -474,6 +574,7 @@ theorem fixedGapSelections_contains_odd_capture_of_original_hypotheses
       (thirdCeil (agreeing.card - k + 1) : ℝ) ^ 2) :
     ∃ selected, ∃ hcard : selected.card = 2 * pairs + 1,
       selected ∈ fixedGapSelections n hn (2 * pairs + 1) power ∧
+      selected ⊆ agreeing ∧
       Function.Injective
         (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) := by
   let tangentPool := coordinateFunctional (pool.comp normal.ker.subtype)
@@ -487,13 +588,14 @@ theorem fixedGapSelections_contains_odd_capture_of_original_hypotheses
     simpa [Subspace.dual_finrank_eq] using htangentDim
   have hgapPos : 0 < agreeing.card - k + 1 := by omega
   have hmixing := connectsLargeSets_poweredEdges hn hGG (thirdCeil_pos hgapPos) hnumeric
-  apply fixedGapSelections_contains_odd_capture_of_mixing hn normal pool hdim hnormal hmixing
+  apply fixedGapSelections_contains_odd_capture_of_mixing hn normal pool agreeing
+    hdim hnormal hmixing
   · intro selected hindependent hcard heven
     obtain ⟨q, hq⟩ := heven
-    obtain ⟨I, J, hseparated, hI, hJ⟩ :=
+    obtain ⟨I, J, hseparated, hIsub, hJsub, hI, hJ⟩ :=
       exists_cotangent_separated_of_original_hypotheses agreeing tangentPool hbound hk
         selected hindependent (by rw [hdualDim]; omega)
-    exact ⟨I, J, hseparated, thirdCeil_le_of_le_three_mul hI,
+    exact ⟨I, J, hseparated, hIsub, hJsub, thirdCeil_le_of_le_three_mul hI,
       thirdCeil_le_of_le_three_mul hJ⟩
   · intro selected hindependent hcard
     apply odd_escape_of_original_hypotheses agreeing tangentPool hbound hk hdualDim
@@ -513,6 +615,7 @@ theorem fixedGapSelections_contains_even_capture_of_exactEnergy
     let power := firstMixingPower (paddedSize n) (thirdCeil (agreeing.card - k + 1))
     ∃ selected, ∃ hcard : selected.card = 2 * pairs,
       selected ∈ fixedGapSelections n hn (2 * pairs) power ∧
+      selected ⊆ agreeing ∧
       Function.Injective
         (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) := by
   dsimp only
@@ -535,6 +638,7 @@ theorem fixedGapSelections_contains_odd_capture_of_exactEnergy
     let power := firstMixingPower (paddedSize n) (thirdCeil (agreeing.card - k + 1))
     ∃ selected, ∃ hcard : selected.card = 2 * pairs + 1,
       selected ∈ fixedGapSelections n hn (2 * pairs + 1) power ∧
+      selected ⊆ agreeing ∧
       Function.Injective
         (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) := by
   dsimp only
@@ -543,5 +647,69 @@ theorem fixedGapSelections_contains_odd_capture_of_exactEnergy
   apply firstMixingPower_spec
   · exact lt_of_lt_of_le hn (le_paddedSize n)
   · exact thirdCeil_pos (by omega)
+
+/-- The executable even-rank fixed-gap family contains a supplied common-zero system whose
+supplied square differential is injective. -/
+theorem fixedGapSystems_contains_even_commonZero_capture_of_exactEnergy
+    {W P : Type*} [AddCommGroup W] [Module F W] [FiniteDimensional F W]
+    [DecidableEq P] {n k pairs : ℕ} [NeZero (ceilSqrt n)] (hn : 0 < n)
+    (hypersurface : P) (equations : Fin n → P) (evaluate : P → F)
+    (normal : W →ₗ[F] F) (pool : W →ₗ[F] (Fin n → F))
+    (hdim : Module.finrank F W = 2 * pairs + 1) (hnormal : normal ≠ 0)
+    (agreeing : Finset (Fin n))
+    (hbound : ProperSubspaceAgreementBound (F := F) agreeing
+      (coordinateFunctional (pool.comp normal.ker.subtype)) k)
+    (hk : k ≤ agreeing.card) (hGG : ExactEnergyEstimate (ceilSqrt n))
+    (hhypersurface : evaluate hypersurface = 0)
+    (hagree : ∀ i ∈ agreeing, evaluate (equations i) = 0) :
+    let power := firstMixingPower (paddedSize n) (thirdCeil (agreeing.card - k + 1))
+    ∃ selected, ∃ hcard : selected.card = 2 * pairs,
+      selected ⊆ agreeing ∧
+      squareSystemRows hypersurface equations (rowSubsetEmbedding selected hcard) ∈
+        fixedGapSystems hn power hypersurface equations ∧
+      (∀ j, evaluate
+        (squareSystemRows hypersurface equations (rowSubsetEmbedding selected hcard) j) = 0) ∧
+      Function.Injective
+        (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) := by
+  dsimp only
+  obtain ⟨selected, hcard, hselected, hsubset, hinjective⟩ :=
+    fixedGapSelections_contains_even_capture_of_exactEnergy hn normal pool hdim hnormal
+      agreeing hbound hk hGG
+  refine ⟨selected, hcard, hsubset, ?_, ?_, hinjective⟩
+  · simpa using squareSystemRows_mem_fixedGapSystems hypersurface equations hselected
+  · exact squareSystemRows_commonZero_of_subset hypersurface equations evaluate agreeing selected
+      hcard hsubset hhypersurface hagree
+
+/-- The odd-rank fixed-gap family has the same common-zero and differential guarantee, including
+the final agreeing label appended after pair growth. -/
+theorem fixedGapSystems_contains_odd_commonZero_capture_of_exactEnergy
+    {W P : Type*} [AddCommGroup W] [Module F W] [FiniteDimensional F W]
+    [DecidableEq P] {n k pairs : ℕ} [NeZero (ceilSqrt n)] (hn : 0 < n)
+    (hypersurface : P) (equations : Fin n → P) (evaluate : P → F)
+    (normal : W →ₗ[F] F) (pool : W →ₗ[F] (Fin n → F))
+    (hdim : Module.finrank F W = (2 * pairs + 1) + 1) (hnormal : normal ≠ 0)
+    (agreeing : Finset (Fin n))
+    (hbound : ProperSubspaceAgreementBound (F := F) agreeing
+      (coordinateFunctional (pool.comp normal.ker.subtype)) k)
+    (hk : k ≤ agreeing.card) (hGG : ExactEnergyEstimate (ceilSqrt n))
+    (hhypersurface : evaluate hypersurface = 0)
+    (hagree : ∀ i ∈ agreeing, evaluate (equations i) = 0) :
+    let power := firstMixingPower (paddedSize n) (thirdCeil (agreeing.card - k + 1))
+    ∃ selected, ∃ hcard : selected.card = 2 * pairs + 1,
+      selected ⊆ agreeing ∧
+      squareSystemRows hypersurface equations (rowSubsetEmbedding selected hcard) ∈
+        fixedGapSystems hn power hypersurface equations ∧
+      (∀ j, evaluate
+        (squareSystemRows hypersurface equations (rowSubsetEmbedding selected hcard) j) = 0) ∧
+      Function.Injective
+        (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) := by
+  dsimp only
+  obtain ⟨selected, hcard, hselected, hsubset, hinjective⟩ :=
+    fixedGapSelections_contains_odd_capture_of_exactEnergy hn normal pool hdim hnormal
+      agreeing hbound hk hGG
+  refine ⟨selected, hcard, hsubset, ?_, ?_, hinjective⟩
+  · simpa using squareSystemRows_mem_fixedGapSystems hypersurface equations hselected
+  · exact squareSystemRows_commonZero_of_subset hypersurface equations evaluate agreeing selected
+      hcard hsubset hhypersurface hagree
 
 end ReedSolomon.ListDecoding.HigherOrderProducer
