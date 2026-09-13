@@ -86,3 +86,21 @@ complexity claim is made. The interpolation path stops before JNSV minimal-basis
 The generic zeroth-order adapter is deliberately absent from I1: a reliable preparation counter
 found that its inseparable path forced reusable Frobenius preparation three times. Its production
 sharing repair and reviewed runtime evidence are required before adoption.
+
+## I2 sources: effective zeroth-order boundary
+
+| Item | Exact value |
+| --- | --- |
+| Effective zeroth adapter | `4449390c103c645da68b4b346f015b8982dd51ee` |
+| Lazy-preparation repair | `256870e7ac2900756b3ef636d12778c73d0cc608` |
+| Retained prepared record and reliable counter | `3dbd183002e757a83e268e47c82daa09f5bc89f6` |
+
+The checked adapter now accepts any `EffectiveField`, preserves the characteristic-free ordinary
+consumer and the `k = 1` bypass, and agrees with the polynomial-basis implementation. A retained
+runtime marker prevents erasure from moving preparation into each coefficient application. The
+compiled counter requires preparation counts `0/0/0/1` for zero, constant dispatch, separable and
+inseparable inputs; eager and unshared mutations fail the fixture.
+
+This remains a checked-input seam. Generic normalization is not yet composed with quadratic-center
+transport into a complete generic public decoder, so I2 does not claim the final public zeroth-order
+facade required by the paper.

@@ -6,6 +6,10 @@ Authors: Quang Dao
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.EffectiveAdapter
 import ArkLibTest.Data.FiniteField.ExplicitConstruction.PolynomialBasisFrobenius
 
+/-!
+# Effective-field zeroth-order adapter tests
+-/
+
 namespace ZerothEffectiveAdapterTests
 
 open CompPoly ArkLib.FiniteField.ExplicitConstruction
