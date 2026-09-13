@@ -14,7 +14,11 @@ Macaulay's universal determinant quotient requires cancellation between the
 reduced and non-reduced blocks.  This file gives a stronger, fully executable
 sufficient condition: the computed extraneous factor divides every Leibniz
 product in the full determinant.  The condition is derived solely from the
-stored input matrix and checked by the proved exact-division procedure.
+stored input matrix and checked by the proved exact-division procedure.  It is
+a small-instance diagnostic fallback: for a Macaulay basis of size `N`, a
+successful check examines all `N!` permutations and performs one stored-
+polynomial exact division per permutation.  It is not a scalable replacement
+for the universal Macaulay determinant identity.
 -/
 
 @[expose] public section
@@ -34,7 +38,9 @@ def determinantProduct {n : ℕ} (system : Fin n → CMvPolynomial n F)
 
 /-- Executably check exact divisibility of every Leibniz product by the
 computed extraneous factor.  This condition is stronger than divisibility of
-their signed sum, but it permits a direct proof without a resultant oracle. -/
+their signed sum, but it permits a direct proof without a resultant oracle.
+The successful worst case enumerates all `N!` permutations for an `N × N`
+Macaulay matrix, so this check is intended only for small instances. -/
 def determinantProductsDivisibleB {n : ℕ}
     (system : Fin n → CMvPolynomial n F) : Bool :=
   decide <| ∀ permutation : Equiv.Perm (Fin (basis system).length),
