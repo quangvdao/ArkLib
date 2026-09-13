@@ -3,16 +3,12 @@ Copyright (c) 2026 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
-module
-
-public import ArkLib.Data.MvPolynomial.BoundedGCD.FunctionFieldBridge
-public import ArkLib.Data.MvPolynomial.TaylorReconstruction.UnivariateView
-public import ArkLib.ToCompPoly.Multivariate.PartialDerivative
-public import CompPoly.Univariate.Deriv
+import ArkLib.Data.MvPolynomial.BoundedGCD.FunctionFieldBridge
+import ArkLib.Data.MvPolynomial.TaylorReconstruction.UnivariateView
+import ArkLib.ToCompPoly.Multivariate.PartialDerivative
+import CompPoly.Univariate.Deriv
 
 /-! Compile-time and executable checks for the last-variable function-field bridges. -/
-
-@[expose] public section
 
 open CPoly CompPoly CPoly.TaylorReconstruction
 open CPoly.CMvPolynomial.BoundedGCD.FunctionFieldBridge
