@@ -30,7 +30,7 @@ open CPoly CPoly.CMvPolynomial
 open DenseMacaulay
 
 variable {F K : Type*} [CommRing F] [BEq F] [LawfulBEq F]
-  [Field K]
+  [CommRing K]
 
 /-- Values assigned to `(u₀,...,uₙ,s)`, with `s` in the final coordinate. -/
 def parameterAssignment {n : ℕ} (u : Fin (n + 1) → K) (s : K) :
@@ -345,6 +345,7 @@ omit [BEq F] [LawfulBEq F] in
 /-- A nonzero projective point gives a nonzero monomial-value vector. -/
 theorem monomialVector_ne_zero {n : ℕ} (z : Fin (n + 1) → K)
     (system : Fin n → CMvPolynomial n F)
+    [IsDomain K]
     (hz : ∃ coordinate, z coordinate ≠ 0) : monomialVector z system ≠ 0 := by
   obtain ⟨coordinate, hcoordinate⟩ := hz
   let target := powerMonomial coordinate (macaulayDegree system)
@@ -379,6 +380,7 @@ every common nonzero projective root makes its parameter specialization zero. -/
 theorem characteristic_eval_eq_zero_of_commonProjectiveRoot {n : ℕ}
     (ι : F →+* K) (u : Fin (n + 1) → K) (s : K)
     (z : Fin (n + 1) → K) (system : Fin n → CMvPolynomial n F)
+    [IsDomain K]
     (hz : ∃ coordinate, z coordinate ≠ 0)
     (hroot : IsCommonProjectiveRoot ι u s z system) :
     parameterEvalHom ι u s (characteristic system) = 0 := by
@@ -575,6 +577,7 @@ multiple. -/
 theorem characteristic_eval_zero_of_affineRoot {n : ℕ} (ι : F →+* K)
     (u : Fin (n + 1) → K) (x : Fin n → K)
     (system : Fin n → CMvPolynomial n F)
+    [IsDomain K]
     (hlinear : affineLinearValue u x = 0)
     (hroot : IsCommonAffineRoot ι x system) :
     parameterEvalHom ι u 0 (characteristic system) = 0 := by
