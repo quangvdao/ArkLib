@@ -5,8 +5,7 @@ Authors: Quang Dao
 -/
 
 import
-  ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Components.General
-import ArkLib.Data.MvPolynomial.BoundedGCD.RecursiveArithmetic
+  ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Components.Recursive
 import Mathlib.Algebra.Field.ZMod
 
 /-! Runtime and proof-level tests for recursive stored polynomial arithmetic. -/
@@ -91,8 +90,9 @@ def run : IO Unit := do
     | throw (IO.userError "the three-variable gcd lost mixed coefficient content")
   unless commonQuotient₃ * common₃ == gcd₃ do
     throw (IO.userError "the three-variable common factor reconstruction failed")
-  let some data := General.runInitial? (RecursiveArithmetic.gcd 2)
-      (RecursiveArithmetic.divide 2) (RecursiveArithmetic.divide 3) 3 ambientFixture
+  let some data :=
+      ReedSolomon.HiddenDerivative.FastTaylor.ComponentConstruction.RecursiveArithmetic.runInitial?
+        3 ambientFixture
     | throw (IO.userError "the concrete recursive General.runInitial? adapter failed")
   unless General.component data == expectedRegular do
     throw (IO.userError "the repeated/separant pipeline returned the wrong regular component")
