@@ -6,7 +6,10 @@ Authors: Quang Dao
 import
   ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Components.General
 import ArkLib.Data.MvPolynomial.CheckedExactDivision
+import ArkLib.Data.FiniteField.ExplicitConstruction.Quotient
 import Mathlib.Algebra.Field.ZMod
+import Mathlib.Algebra.Polynomial.SpecificDegree
+import Mathlib.Tactic.FinCases
 
 /-! Executable and theorem-level tests for the general-order two-gcd component producer. -/
 
@@ -16,6 +19,7 @@ open CompPoly CPoly CPolynomial CPoly.TaylorReconstruction
 open CPoly.CMvPolynomial.BoundedGCD.CoefficientNormalization
 open CPoly.CMvPolynomial.BoundedGCD.ContentPrimitiveGCD
 open CPoly.CMvPolynomial.CheckedExactDivision
+open ArkLib.FiniteField.ExplicitConstruction
 open ReedSolomon.HiddenDerivative.FastTaylor.ComponentConstruction.General
 
 variable {r : ℕ}
@@ -55,6 +59,30 @@ private def ambientEquation : CMvPolynomial 3 E :=
     (CMvPolynomial.X 2 + CMvPolynomial.X 1) *
     (CMvPolynomial.X 2 - 1)
 
+private def extensionModulus : CPolynomial E := CPolynomial.X ^ 2 + CPolynomial.C 2
+
+private theorem extensionModulus_toPoly : extensionModulus.toPoly =
+    (Polynomial.X : Polynomial E) ^ 2 + Polynomial.C 2 := by
+  simp only [extensionModulus, CPolynomial.toPoly_add, CPolynomial.toPoly_pow,
+    CPolynomial.X_toPoly, CPolynomial.toPoly_C]
+
+private instance : Fact extensionModulus.monic := ⟨by
+  apply (CPolynomial.monic_toPoly_iff extensionModulus).mpr
+  rw [extensionModulus_toPoly]
+  exact Polynomial.monic_X_pow_add_C (a := (2 : E)) (by decide)⟩
+
+private instance : Fact (Irreducible extensionModulus.toPoly) := ⟨by
+  rw [extensionModulus_toPoly]
+  apply Polynomial.irreducible_of_degree_le_three_of_not_isRoot
+  · rw [Polynomial.natDegree_X_pow_add_C]
+    decide
+  · intro a
+    simp only [Polynomial.IsRoot, Polynomial.eval_add, Polynomial.eval_pow,
+      Polynomial.eval_X, Polynomial.eval_C]
+    fin_cases a <;> decide⟩
+
+private abbrev Extension := Carrier extensionModulus
+
 /-- Execute both gcd stages directly and through the actual initial-equation adapter. -/
 def run : IO Unit := do
   let some direct := run? coefficientGcd exactQuotient? exactQuotient? equation separant
@@ -83,6 +111,17 @@ def run : IO Unit := do
       CMvPolynomial.eval regularRoot separant != 0 &&
       CMvPolynomial.eval regularRoot expected == 0 do
     throw (IO.userError "the ramified fiber did not retain its regular root")
+  let extensionPoint : Fin 2 → Extension :=
+    ![embed extensionModulus 0, embed extensionModulus 1]
+  unless CMvPolynomial.eval₂ (embedding extensionModulus) extensionPoint equation == 0 &&
+      CMvPolynomial.eval₂ (embedding extensionModulus) extensionPoint separant != 0 &&
+      CMvPolynomial.eval₂ (embedding extensionModulus) extensionPoint expected == 0 do
+    throw (IO.userError "the retained regular root was lost over the quadratic extension")
+  let some constant := run? coefficientGcd exactQuotient? exactQuotient?
+      (1 : CMvPolynomial 2 E) 0
+    | throw (IO.userError "the constant branch unexpectedly failed")
+  unless components constant == [] do
+    throw (IO.userError "the constant branch emitted a positive-degree component")
 
 example {equation separant : CMvPolynomial (r + 1) E} {data : Data r E}
     (certificate : Certificate equation separant data) : component data ∣ equation :=

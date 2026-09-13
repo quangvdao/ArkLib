@@ -515,8 +515,8 @@ theorem Certificate.regular_isCoprime_separant
   (certificate.generic_regular_certificates hequation hseparant).2.2
 
 /-- At every extension-field point where the actual separant is nonzero, the retained component
-has exactly the same roots as the original equation. This includes component meetings and points
-over ramified projection fibers. -/
+has exactly the same roots as the original equation. This includes regular points in projection
+fibers that may be ramified or contain component meetings elsewhere. -/
 theorem Certificate.eval₂_component_iff_equation
     {equation separant : CMvPolynomial (r + 1) E} {data : Data r E}
     (certificate : Certificate equation separant data)
