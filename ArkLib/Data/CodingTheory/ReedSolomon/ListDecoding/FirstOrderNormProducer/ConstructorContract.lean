@@ -255,8 +255,6 @@ theorem construct?_firstOrderRunNormCandidatesWithRecovery_complete
       (FastTaylor.ComponentConstruction.FirstOrder.component data) values = some chart)
     (domain : Fin n ↪ Carrier modulus) (received : Fin n → Carrier modulus)
     (hkA : k ≤ A)
-    (hcomponentDegree :
-      (FastTaylor.ComponentConstruction.FirstOrder.component data).totalDegree < p)
     (positions : Finset (Fin
       (prepare chart (indexedReceived domain received)).agreements.length))
     (hpositions : A ≤ positions.card)
@@ -290,7 +288,8 @@ theorem construct?_firstOrderRunNormCandidatesWithRecovery_complete
   · exact construct?_firstOrder_genericSquarefree p Bjet inverse center T data
       hinverse hrun values hv hB chart hc
   · exact hkA
-  · exact hcomponentDegree
+  · exact construct?_firstOrder_component_totalDegree_lt p Bjet inverse center T data
+      hinverse hrun values hB chart hc
   · exact hpositions
   · exact hequation
   · exact hresidual
