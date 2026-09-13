@@ -17,7 +17,11 @@ namespace RojasSafeSubresultantMapTests
 
 abbrev F := ZMod 11
 
+abbrev FLarge := ZMod 101
+
 private instance : Fact (Nat.Prime 11) := ⟨by decide⟩
+
+private instance : Fact (Nat.Prime 101) := ⟨by decide⟩
 
 /-- Two isolated points; its `ε = 2` specialization has a denominator coprime to the modulus. -/
 private def safePerturbation : CMvPolynomial 3 F :=
@@ -30,6 +34,16 @@ private def denominatorBadPerturbation : CMvPolynomial 3 F :=
   (X 0 + X 1 + X 2) *
     (X 0 + X 1 + C 2 * X 2) *
     (X 0 + X 1 + C 3 * X 2)
+
+/-- A same-degree pair over a larger field: the first candidate has a cross-family
+collision, while the second is safe. -/
+private def denominatorBadPerturbationLarge : CMvPolynomial 3 FLarge :=
+  (X 0 + X 1 + X 2) *
+    (X 0 + X 1 + C 2 * X 2) *
+    (X 0 + X 1 + C 3 * X 2)
+
+private def safeThreePerturbation : CMvPolynomial 3 FLarge :=
+  X 0 * (X 0 + X 1) * (X 0 + X 2)
 
 /-- Execute both sides of the strengthened guard and exercise first-success selection. -/
 def run : IO Unit := do
@@ -46,6 +60,17 @@ def run : IO Unit := do
     throw (IO.userError "safe canary did not pass the existing support guard")
   unless SafeSubresultantMap.isSafe 11 2 2 1 safe do
     throw (IO.userError "computed coprimality guard rejected the safe candidate")
+  let badLarge := candidateFromParameter denominatorBadPerturbationLarge 1 3
+  let safeLarge := candidateFromParameter safeThreePerturbation 1 3
+  unless hasExpectedSupportDegree 101 2 3 badLarge &&
+      !SafeSubresultantMap.isSafe 101 2 3 1 badLarge &&
+      SafeSubresultantMap.isSafe 101 2 3 1 safeLarge do
+    throw (IO.userError "same-degree first-success fixtures do not separate the guards")
+  match SafeSubresultantMap.selectSafe? 101 2 3 1 [badLarge, safeLarge] with
+  | some selected =>
+      unless selected.eliminant == safeLarge.eliminant do
+        throw (IO.userError "safe selector did not skip the rejected first candidate")
+  | none => throw (IO.userError "safe selector missed the later passing candidate")
   match SafeSubresultantMap.run 11 safePerturbation 1 2 [2] with
   | none => throw (IO.userError "safe composed producer rejected its passing parameter")
   | some output =>
