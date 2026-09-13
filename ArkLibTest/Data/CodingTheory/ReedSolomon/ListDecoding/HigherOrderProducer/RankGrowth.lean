@@ -38,4 +38,24 @@ example {F V : Type*} [Field F] [AddCommGroup V] [Module F V]
     (hk : k ≤ agreeing.card) : Function.Injective map :=
   coordinateMap_injective_of_original_hypotheses agreeing map hbound hk
 
+example {F V : Type*} [Field F] [AddCommGroup V] [Module F V]
+    [FiniteDimensional F V] {n k : ℕ} (agreeing : Finset (Fin n))
+    (map : V →ₗ[F] (Fin n → F))
+    (hbound : ProperSubspaceAgreementBound (F := F) agreeing
+      (coordinateFunctional map) k)
+    (hk : k ≤ agreeing.card) :
+    Function.Injective
+      (selectedCoordinateMap map (agreeing.orderEmbOfFin rfl)) :=
+  agreeingCoordinateMap_injective_of_original_hypotheses agreeing map hbound hk
+
+example {F P : Type*} [Field F] {n r : ℕ}
+    (hypersurface : P) (equations : Fin n → P) (evaluate : P → F)
+    (agreeing selected : Finset (Fin n)) (hcard : selected.card = r)
+    (hsubset : selected ⊆ agreeing) (hhypersurface : evaluate hypersurface = 0)
+    (hagree : ∀ i ∈ agreeing, evaluate (equations i) = 0) :
+    ∀ j, evaluate
+      (squareSystemRows hypersurface equations (rowSubsetEmbedding selected hcard) j) = 0 :=
+  squareSystemRows_commonZero_of_subset hypersurface equations evaluate agreeing selected
+    hcard hsubset hhypersurface hagree
+
 end ReedSolomon.ListDecoding.HigherOrderProducerTest
