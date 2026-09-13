@@ -1,5 +1,12 @@
+/-
+Copyright (c) 2026 ArkLib Contributors. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Quang Dao
+-/
 import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.TraceKernel
 import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.FiniteWindows
+
+/-! Runtime checks for finite trace kernels and the three normalization numerator windows. -/
 
 open Polynomial.FunctionFieldAlgorithms.CommonCenter CompPoly
 
