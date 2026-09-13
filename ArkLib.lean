@@ -1751,9 +1751,11 @@ public import ArkLib.Data.Polynomial.Rojas.HyperplaneAvoidance
 public import ArkLib.Data.Polynomial.Rojas.PerturbationCoefficient
 public import ArkLib.Data.Polynomial.Rojas.Producer.DenseMacaulay
 public import ArkLib.Data.Polynomial.Rojas.Producer.DenseMacaulayCorrectness
+public import ArkLib.Data.Polynomial.Rojas.Producer.HyperplaneFactor
 public import ArkLib.Data.Polynomial.Rojas.Producer.Linear
 public import ArkLib.Data.Polynomial.Rojas.Producer.MacaulayQuotient
 public import ArkLib.Data.Polynomial.Rojas.Producer.MacaulayQuotientCorrectness
+public import ArkLib.Data.Polynomial.Rojas.Producer.ResultantSemantics
 public import ArkLib.Data.Polynomial.Rojas.Producer.Source
 public import ArkLib.Data.Polynomial.Rojas.Producer.Univariate
 public import ArkLib.Data.Polynomial.Rojas.Producer.UnivariateFactorization

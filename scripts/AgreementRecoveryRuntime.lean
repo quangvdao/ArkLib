@@ -16,6 +16,8 @@ import ArkLibTest.Data.Graph.GabberGalilConstruction.PowerChoice
 import ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.FixedGapSelection
 import ArkLibTest.Data.Polynomial.Rojas.Producer.DenseMacaulay
 import ArkLibTest.Data.Polynomial.Rojas.Producer.MacaulayQuotient
+import ArkLibTest.Data.Polynomial.Rojas.Producer.ResultantSemantics
+import ArkLibTest.Data.Polynomial.Rojas.Producer.HyperplaneFactor
 import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.NormalizationArithmetic
 import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.SeparablePartCorrectness
 import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.OrdinaryNormalizationCorrectness
@@ -207,6 +209,7 @@ def run : IO Unit := do
   ArkLibTest.FixedGapSelection.run
   RojasDenseMacaulayTests.runChecks
   RojasMacaulayQuotientTests.runChecks
+  RojasResultantSemanticsTests.runChecks
   NormalizationArithmeticTests.run
   SeparablePartCorrectnessTests.run
   OrdinaryNormalizationCorrectnessTests.run
