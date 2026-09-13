@@ -100,6 +100,43 @@ theorem gradedLexKey_le_iff_degLex {n : ℕ} (a b : CMvMonomial n) :
       a.toFinsupp ≼[MonomialOrder.degLex] b.toFinsupp := by
   rw [← not_lt, ← not_lt, gradedLexKey_lt_iff_degLex]
 
+/-- The bounded enumeration contains exactly the monomials below its total
+degree ceiling. -/
+theorem mem_boundedMonomials_iff_totalDegree_le {n degree : ℕ}
+    {monomial : CMvMonomial n} :
+    monomial ∈ boundedMonomials n degree ↔ monomial.totalDegree ≤ degree := by
+  simp only [boundedMonomials, List.mem_flatMap, List.mem_range]
+  constructor
+  · rintro ⟨weight, hweight, hmonomial⟩
+    rw [mem_weakCompositions_iff_totalDegree] at hmonomial
+    omega
+  · intro hdegree
+    exact ⟨monomial.totalDegree, by omega,
+      mem_weakCompositions_of_totalDegree rfl⟩
+
+/-- No exponent vector is repeated in the bounded enumeration. -/
+theorem boundedMonomials_nodup (n degree : ℕ) :
+    (boundedMonomials n degree).Nodup := by
+  rw [boundedMonomials, List.nodup_flatMap]
+  constructor
+  · intro weight _
+    exact weakCompositions_nodup n weight
+  · rw [List.pairwise_iff_get]
+    intro i j hij
+    change List.Disjoint
+      (weakCompositions n ((List.range (degree + 1)).get i))
+      (weakCompositions n ((List.range (degree + 1)).get j))
+    rw [List.disjoint_left]
+    intro monomial hmonomialLeft hmonomialRight
+    have hleftDegree := mem_weakCompositions_totalDegree hmonomialLeft
+    have hrightDegree := mem_weakCompositions_totalDegree hmonomialRight
+    have hijValue : (List.range (degree + 1)).get i ≠
+        (List.range (degree + 1)).get j := by
+      simp only [List.get_eq_getElem, List.getElem_range]
+      intro hequal
+      exact Fin.ne_of_lt hij (Fin.ext hequal)
+    exact hijValue (hleftDegree.symm.trans hrightDegree)
+
 /-- A returned leading term is one of the polynomial's stored nonzero terms. -/
 theorem leadingTerm?_mem {n : ℕ} {p : CMvPolynomial n F}
     {term : CMvMonomial n × F} (hterm : leadingTerm? p = some term) :
@@ -179,6 +216,81 @@ theorem leadingTerm?_degree {n : ℕ} {p : CMvPolynomial n F}
           (gradedLexKey_le_iff_degLex _ _).mp hkey
   apply order.toSyn.injective
   exact le_antisymm hdegreeLe hmonomialLe
+
+/-- A returned leading monomial has the polynomial's ordinary total degree. -/
+theorem leadingTerm?_totalDegree {n : ℕ} {p : CMvPolynomial n F}
+    {monomial : CMvMonomial n} {coefficient : F}
+    (hterm : leadingTerm? p = some (monomial, coefficient)) :
+    monomial.totalDegree = p.totalDegree := by
+  calc
+    monomial.totalDegree = monomial.toFinsupp.degree :=
+      monomial_totalDegree_eq_finsupp_degree monomial
+    _ = (MonomialOrder.degLex.degree
+        (fromCMvPolynomial p)).degree := by
+      rw [leadingTerm?_degree hterm]
+    _ = (fromCMvPolynomial p).totalDegree :=
+      MvPolynomial.degree_degLexDegree
+    _ = p.totalDegree := (CPoly.totalDegree_equiv (S := F)).symm
+
+/-- Number of bounded monomials at or below a monomial in the executable
+graded-lex order. -/
+def monomialRank {n : ℕ} (degree : ℕ) (monomial : CMvMonomial n) : ℕ :=
+  ((boundedMonomials n degree).toFinset.filter fun candidate =>
+    gradedLexKey candidate ≤ gradedLexKey monomial).card
+
+/-- Rank strictly increases along the executable graded-lex order when both
+monomials lie in the bounded universe. -/
+theorem monomialRank_lt {n degree : ℕ} {left right : CMvMonomial n}
+    (hright : right ∈ boundedMonomials n degree)
+    (hlt : gradedLexKey left < gradedLexKey right) :
+    monomialRank degree left < monomialRank degree right := by
+  unfold monomialRank
+  apply Finset.card_lt_card
+  apply Finset.ssubset_iff_subset_ne.mpr
+  constructor
+  · intro candidate hc
+    simp only [Finset.mem_filter, List.mem_toFinset] at hc ⊢
+    exact ⟨hc.1, hc.2.trans (le_of_lt hlt)⟩
+  · intro hequal
+    have hrightFiltered : right ∈
+        (boundedMonomials n degree).toFinset.filter (fun candidate =>
+          gradedLexKey candidate ≤ gradedLexKey right) := by
+      simp only [Finset.mem_filter, List.mem_toFinset]
+      exact ⟨hright, le_rfl⟩
+    rw [← hequal] at hrightFiltered
+    simp only [Finset.mem_filter, List.mem_toFinset] at hrightFiltered
+    exact (not_le_of_gt hlt) hrightFiltered.2
+
+/-- Monomial rank is bounded by the length of the enumerated universe. -/
+theorem monomialRank_le_length {n degree : ℕ} (monomial : CMvMonomial n) :
+    monomialRank degree monomial ≤ (boundedMonomials n degree).length := by
+  unfold monomialRank
+  exact (Finset.card_le_card (Finset.filter_subset _ _)).trans
+    (List.toFinset_card_le _)
+
+/-- A monomial in the bounded universe has positive rank. -/
+theorem monomialRank_pos {n degree : ℕ} {monomial : CMvMonomial n}
+    (hmonomial : monomial ∈ boundedMonomials n degree) :
+    0 < monomialRank degree monomial := by
+  unfold monomialRank
+  rw [Finset.card_pos]
+  refine ⟨monomial, ?_⟩
+  simp only [Finset.mem_filter, List.mem_toFinset]
+  exact ⟨hmonomial, le_rfl⟩
+
+/-- Rank of a residual, with the zero residual represented by rank zero. -/
+def residualRank {n : ℕ} (degree : ℕ) (residual : CMvPolynomial n F) : ℕ :=
+  match leadingTerm? residual with
+  | none => 0
+  | some term => monomialRank degree term.1
+
+/-- Residual rank is bounded by the enumerated monomial universe. -/
+theorem residualRank_le_length {n degree : ℕ} (residual : CMvPolynomial n F) :
+    residualRank degree residual ≤ (boundedMonomials n degree).length := by
+  unfold residualRank
+  split
+  · exact Nat.zero_le _
+  · exact monomialRank_le_length _
 
 /-- The mathematical graded-lex leading term is the monomial and coefficient
 returned by the executable search. -/
@@ -375,6 +487,43 @@ theorem leadingTerm?_eq_none_iff {n : ℕ} (p : CMvPolynomial n F) :
     change (0 : Unlawful n F) = (∅ : Unlawful n F)
     exact Unlawful.zero_eq_empty
 
+/-- On a degree-bounded state, every successful executable step strictly
+lowers the finite residual rank. -/
+theorem divisionStep?_residualRank_lt {n degree : ℕ}
+    {divisor : CMvPolynomial n F} {state next : DivisionState n (F := F)}
+    (hdegree : state.residual.totalDegree ≤ degree)
+    (hstep : divisionStep? divisor state = some next) :
+    residualRank degree next.residual < residualRank degree state.residual := by
+  cases hcurrent : leadingTerm? state.residual with
+  | none =>
+      unfold divisionStep? at hstep
+      rw [hcurrent] at hstep
+      simp at hstep
+  | some current =>
+      have hcurrentMem : current.1 ∈ boundedMonomials n degree := by
+        rw [mem_boundedMonomials_iff_totalDegree_le,
+          leadingTerm?_totalDegree hcurrent]
+        exact hdegree
+      cases hnext : leadingTerm? next.residual with
+      | none =>
+          simp only [residualRank, hcurrent, hnext]
+          exact monomialRank_pos hcurrentMem
+      | some nextTerm =>
+          simp only [residualRank, hcurrent, hnext]
+          apply monomialRank_lt hcurrentMem
+          rw [gradedLexKey_lt_iff_degLex]
+          have hdecrease := divisionStep?_withBotDegree_lt hstep
+          rw [MonomialOrder.withBotDegree_lt_withBotDegree_iff] at hdecrease
+          rcases hdecrease with hdecrease | ⟨hzero, _⟩
+          · simpa [leadingTerm?_degree hnext,
+              leadingTerm?_degree hcurrent] using hdecrease
+          · have hnextZero : next.residual = 0 := by
+              apply fromCMvPolynomial_injective
+              simpa using hzero
+            have hnone := (leadingTerm?_eq_none_iff next.residual).2 hnextZero
+            rw [hnext] at hnone
+            simp at hnone
+
 /-- A successful reduction step preserves the decomposition represented by
 the division state. -/
 theorem divisionStep?_invariant {n : ℕ} {divisor : CMvPolynomial n F}
@@ -390,6 +539,109 @@ theorem divisionStep?_invariant {n : ℕ} {divisor : CMvPolynomial n F}
   rcases hstep with ⟨hdivides, rfl⟩
   dsimp
   ring
+
+/-- Any run with more fuel than the residual's finite rank reaches a state
+where no further leading-term reduction is available. -/
+theorem divisionLoop_step_eq_none_of_rank_lt_fuel {n degree fuel : ℕ}
+    (divisor : CMvPolynomial n F) (state : DivisionState n (F := F))
+    (hdegree : state.residual.totalDegree ≤ degree)
+    (hfuel : residualRank degree state.residual < fuel) :
+    divisionStep? divisor (divisionLoop divisor fuel state) = none := by
+  induction fuel generalizing state with
+  | zero => omega
+  | succ fuel ih =>
+      rw [divisionLoop]
+      cases hstep : divisionStep? divisor state with
+      | none => exact hstep
+      | some next =>
+          apply ih next
+          · exact (divisionStep?_totalDegree_le hstep).trans hdegree
+          · have hrank := divisionStep?_residualRank_lt hdegree hstep
+            omega
+
+/-- The concrete enumerated fuel used by exact division always reaches a
+state where no further leading-term reduction is available. -/
+theorem initialDivisionLoop_step_eq_none {n : ℕ}
+    (dividend divisor : CMvPolynomial n F) :
+    divisionStep? divisor
+      (divisionLoop divisor (divisionFuel dividend)
+        { quotient := 0, residual := dividend }) = none := by
+  apply divisionLoop_step_eq_none_of_rank_lt_fuel
+    (degree := dividend.totalDegree)
+  · exact le_rfl
+  · have hbound := residualRank_le_length
+      (degree := dividend.totalDegree) dividend
+    simp only [divisionFuel]
+    omega
+
+/-- A nonzero residual which is a multiple of a nonzero divisor always admits
+another leading-term reduction step. -/
+theorem divisionStep?_ne_none_of_eq_mul {n : ℕ}
+    {divisor multiplier residual accumulator : CMvPolynomial n F}
+    (hresidual : residual = multiplier * divisor)
+    (hresidualNe : residual ≠ 0) :
+    divisionStep? divisor { quotient := accumulator, residual := residual } ≠ none := by
+  have hmultiplierNe : multiplier ≠ 0 := by
+    intro hzero
+    apply hresidualNe
+    simp [hresidual, hzero]
+  have hdivisorNe : divisor ≠ 0 := by
+    intro hzero
+    apply hresidualNe
+    simp [hresidual, hzero]
+  have hmultiplierSome : leadingTerm? multiplier ≠ none := by
+    intro hnone
+    exact hmultiplierNe ((leadingTerm?_eq_none_iff multiplier).mp hnone)
+  have hdivisorSome : leadingTerm? divisor ≠ none := by
+    intro hnone
+    exact hdivisorNe ((leadingTerm?_eq_none_iff divisor).mp hnone)
+  have hresidualSome : leadingTerm? residual ≠ none := by
+    intro hnone
+    exact hresidualNe ((leadingTerm?_eq_none_iff residual).mp hnone)
+  obtain ⟨multiplierTerm, hmultiplier⟩ :=
+    Option.ne_none_iff_exists'.mp hmultiplierSome
+  obtain ⟨divisorTerm, hdivisor⟩ :=
+    Option.ne_none_iff_exists'.mp hdivisorSome
+  obtain ⟨residualTerm, hleadingResidual⟩ :=
+    Option.ne_none_iff_exists'.mp hresidualSome
+  have hmapMultiplierNe : fromCMvPolynomial multiplier ≠ 0 := by
+    intro hzero
+    apply hmultiplierNe
+    apply fromCMvPolynomial_injective
+    simpa using hzero
+  have hmapDivisorNe : fromCMvPolynomial divisor ≠ 0 := by
+    intro hzero
+    apply hdivisorNe
+    apply fromCMvPolynomial_injective
+    simpa using hzero
+  have hleadingMonomial : residualTerm.1.toFinsupp =
+      multiplierTerm.1.toFinsupp + divisorTerm.1.toFinsupp := by
+    calc
+      residualTerm.1.toFinsupp = MonomialOrder.degLex.degree
+          (fromCMvPolynomial residual) :=
+        (leadingTerm?_degree hleadingResidual).symm
+      _ = MonomialOrder.degLex.degree
+          (fromCMvPolynomial (multiplier * divisor)) := by rw [hresidual]
+      _ = MonomialOrder.degLex.degree
+          (fromCMvPolynomial multiplier * fromCMvPolynomial divisor) := by
+        rw [CPoly.map_mul]
+      _ = MonomialOrder.degLex.degree (fromCMvPolynomial multiplier) +
+          MonomialOrder.degLex.degree (fromCMvPolynomial divisor) :=
+        MonomialOrder.degree_mul hmapMultiplierNe hmapDivisorNe
+      _ = multiplierTerm.1.toFinsupp + divisorTerm.1.toFinsupp := by
+        rw [leadingTerm?_degree hmultiplier, leadingTerm?_degree hdivisor]
+  have hdivides : ∀ i, divisorTerm.1.get i ≤ residualTerm.1.get i := by
+    intro i
+    change divisorTerm.1.toFinsupp i ≤ residualTerm.1.toFinsupp i
+    rw [hleadingMonomial, Finsupp.add_apply]
+    omega
+  unfold divisionStep?
+  rw [hleadingResidual, hdivisor]
+  simp only
+  split
+  · simp
+  · exact fun _ => ‹¬ ∀ i, divisorTerm.1.get i ≤ residualTerm.1.get i›
+      hdivides
 
 /-- Every bounded run preserves quotient-times-divisor plus residual. -/
 theorem divisionLoop_invariant {n : ℕ} (divisor : CMvPolynomial n F)
@@ -416,5 +668,113 @@ theorem initialDivisionLoop_invariant {n : ℕ}
     state.quotient * divisor + state.residual = dividend := by
   simpa using divisionLoop_invariant divisor (divisionFuel dividend)
     { quotient := 0, residual := dividend }
+
+/-- When the dividend is a multiple of the divisor, the fuel-bounded run has
+zero residual. -/
+theorem initialDivisionLoop_residual_eq_zero_of_eq_mul {n : ℕ}
+    {dividend divisor multiplier : CMvPolynomial n F}
+    (hdividend : multiplier * divisor = dividend) :
+    (divisionLoop divisor (divisionFuel dividend)
+      { quotient := 0, residual := dividend }).residual = 0 := by
+  let state := divisionLoop divisor (divisionFuel dividend)
+    { quotient := 0, residual := dividend }
+  have hnormal : divisionStep? divisor state = none := by
+    exact initialDivisionLoop_step_eq_none dividend divisor
+  have hinvariant : state.quotient * divisor + state.residual = dividend := by
+    exact initialDivisionLoop_invariant dividend divisor
+  by_contra hresidualNe
+  have hresidual : state.residual =
+      (multiplier - state.quotient) * divisor := by
+    calc
+      state.residual = dividend - state.quotient * divisor := by
+        rw [← hinvariant]
+        ring
+      _ = multiplier * divisor - state.quotient * divisor := by
+        rw [hdividend]
+      _ = (multiplier - state.quotient) * divisor := by ring
+  exact (divisionStep?_ne_none_of_eq_mul
+    (accumulator := state.quotient) hresidual hresidualNe) hnormal
+
+variable [DecidableEq F]
+
+/-- Completeness of checked exact division over a nonzero divisor: whenever
+an exact quotient identity holds, the executable reducer returns that unique
+quotient. -/
+theorem checkedExactQuotient?_complete {n : ℕ}
+    {dividend divisor quotient : CMvPolynomial n F}
+    (hdivisor : divisor ≠ 0) (hquotient : quotient * divisor = dividend) :
+    checkedExactQuotient? dividend divisor = some quotient := by
+  let state := divisionLoop divisor (divisionFuel dividend)
+    { quotient := 0, residual := dividend }
+  have hresidual : state.residual = 0 :=
+    initialDivisionLoop_residual_eq_zero_of_eq_mul hquotient
+  have hinvariant : state.quotient * divisor + state.residual = dividend :=
+    initialDivisionLoop_invariant dividend divisor
+  have hstateQuotient : state.quotient * divisor = dividend := by
+    simpa [hresidual] using hinvariant
+  have hequal : state.quotient = quotient := by
+    apply fromCMvPolynomial_injective
+    apply mul_right_cancel₀ (b := fromCMvPolynomial divisor)
+    · intro hzero
+      apply hdivisor
+      apply fromCMvPolynomial_injective
+      simpa using hzero
+    · rw [← CPoly.map_mul, ← CPoly.map_mul,
+        hstateQuotient, hquotient]
+  unfold checkedExactQuotient?
+  change (if state.quotient * divisor = dividend then some state.quotient else none) =
+    some quotient
+  rw [if_pos hstateQuotient, hequal]
+
+/-- For a nonzero divisor, executable exact division returns a given quotient
+exactly when its product is the dividend. -/
+theorem checkedExactQuotient?_eq_some_iff {n : ℕ}
+    {dividend divisor quotient : CMvPolynomial n F} (hdivisor : divisor ≠ 0) :
+    checkedExactQuotient? dividend divisor = some quotient ↔
+      quotient * divisor = dividend :=
+  ⟨checkedExactQuotient?_sound, checkedExactQuotient?_complete hdivisor⟩
+
+/-- Divisibility by a nonzero divisor guarantees executable success. -/
+theorem checkedExactQuotient?_isSome_of_dvd {n : ℕ}
+    {dividend divisor : CMvPolynomial n F} (hdivisor : divisor ≠ 0)
+    (hdivides : divisor ∣ dividend) :
+    ∃ quotient, checkedExactQuotient? dividend divisor = some quotient := by
+  obtain ⟨quotient, rfl⟩ := hdivides
+  exact ⟨quotient, checkedExactQuotient?_complete hdivisor (by ring)⟩
+
+/-- The computed Canny quotient succeeds once its determinant identity is
+available and the computed extraneous determinant is nonzero. -/
+theorem macaulayQuotient?_complete_of_identity {n : ℕ}
+    {system : Fin n → CMvPolynomial n F} {quotient : Parameters n F}
+    (hfactor : extraneousFactor system ≠ 0)
+    (hidentity : quotient * extraneousFactor system = characteristic system) :
+    macaulayQuotient? system = some quotient := by
+  unfold macaulayQuotient?
+  simp only [hfactor, ↓reduceIte]
+  exact checkedExactQuotient?_complete hfactor hidentity
+
+/-- Complete success characterization for the computed Canny division. -/
+theorem macaulayQuotient?_eq_some_iff {n : ℕ}
+    {system : Fin n → CMvPolynomial n F} {quotient : Parameters n F} :
+    macaulayQuotient? system = some quotient ↔
+      extraneousFactor system ≠ 0 ∧
+        quotient * extraneousFactor system = characteristic system := by
+  constructor
+  · intro hquotient
+    exact ⟨macaulayQuotient?_extraneousFactor_ne_zero hquotient,
+      macaulayQuotient?_sound hquotient⟩
+  · rintro ⟨hfactor, hidentity⟩
+    exact macaulayQuotient?_complete_of_identity hfactor hidentity
+
+/-- Canny's determinant divisibility and nonzero extraneous minor guarantee
+that the computed Macaulay quotient succeeds. -/
+theorem macaulayQuotient?_isSome_of_dvd {n : ℕ}
+    {system : Fin n → CMvPolynomial n F}
+    (hfactor : extraneousFactor system ≠ 0)
+    (hdivides : extraneousFactor system ∣ characteristic system) :
+    ∃ quotient, macaulayQuotient? system = some quotient := by
+  obtain ⟨quotient, hidentity⟩ := hdivides
+  exact ⟨quotient, macaulayQuotient?_complete_of_identity hfactor
+    (by simpa only [mul_comm] using hidentity.symm)⟩
 
 end ArkLib.Rojas.Producer.MacaulayQuotient

@@ -126,10 +126,14 @@ def divisionLoop {n : ℕ} (divisor : CMvPolynomial n F) :
       | some next => divisionLoop divisor fuel next
       | none => state
 
-/-- A finite bound larger than the number of monomials of total degree at most
-the dividend degree. -/
+/-- All exponent vectors in `n` variables of total degree at most `degree`. -/
+def boundedMonomials (n degree : ℕ) : List (CMvMonomial n) :=
+  (List.range (degree + 1)).flatMap (weakCompositions n)
+
+/-- One more than the exact enumerated monomial search space below the
+dividend degree. -/
 def divisionFuel {n : ℕ} (dividend : CMvPolynomial n F) : ℕ :=
-  (dividend.totalDegree + 1) ^ n + 1
+  (boundedMonomials n dividend.totalDegree).length + 1
 
 /-- Compute a quotient candidate and retain it only when multiplication checks
 against the original dividend. -/
