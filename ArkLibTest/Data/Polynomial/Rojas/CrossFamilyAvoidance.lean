@@ -76,4 +76,5 @@ def run : IO Unit := do
 
 end RojasCrossFamilyAvoidanceTests
 
-def main : IO Unit := RojasCrossFamilyAvoidanceTests.run
+def rojasCrossFamilyAvoidanceStandaloneMain : IO Unit :=
+  RojasCrossFamilyAvoidanceTests.run

@@ -62,4 +62,5 @@ def run : IO Unit := do
 
 end RojasMacaulayMapTests
 
-def main : IO Unit := RojasMacaulayMapTests.run
+def rojasMacaulayMapStandaloneMain : IO Unit :=
+  RojasMacaulayMapTests.run

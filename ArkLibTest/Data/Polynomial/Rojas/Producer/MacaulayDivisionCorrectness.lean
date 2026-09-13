@@ -68,4 +68,5 @@ def main : IO Unit := do
 
 end RojasMacaulayDivisionCorrectnessTests
 
-def main : IO Unit := RojasMacaulayDivisionCorrectnessTests.main
+def rojasMacaulayDivisionCorrectnessStandaloneMain : IO Unit :=
+  RojasMacaulayDivisionCorrectnessTests.main

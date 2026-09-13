@@ -72,4 +72,5 @@ def run : IO Unit := do
 
 end RojasSubresultantMapTests
 
-def main : IO Unit := RojasSubresultantMapTests.run
+def rojasSubresultantMapStandaloneMain : IO Unit :=
+  RojasSubresultantMapTests.run

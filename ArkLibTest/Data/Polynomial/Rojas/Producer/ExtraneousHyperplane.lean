@@ -103,4 +103,5 @@ def main : IO Unit := do
 
 end RojasExtraneousHyperplaneTests
 
-def main : IO Unit := RojasExtraneousHyperplaneTests.main
+def rojasExtraneousHyperplaneStandaloneMain : IO Unit :=
+  RojasExtraneousHyperplaneTests.main

@@ -90,4 +90,5 @@ def run : IO Unit := do
 
 end RojasSafeSubresultantMapTests
 
-def main : IO Unit := RojasSafeSubresultantMapTests.run
+def rojasSafeSubresultantMapStandaloneMain : IO Unit :=
+  RojasSafeSubresultantMapTests.run

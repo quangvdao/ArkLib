@@ -66,4 +66,5 @@ def run : IO Unit := do
 
 end RojasMappedCoordinateDegreesTests
 
-def main : IO Unit := RojasMappedCoordinateDegreesTests.run
+def rojasMappedCoordinateDegreesStandaloneMain : IO Unit :=
+  RojasMappedCoordinateDegreesTests.run

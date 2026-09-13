@@ -127,4 +127,5 @@ def main : IO Unit := do
 
 end RojasQuotientCoverageTests
 
-def main : IO Unit := RojasQuotientCoverageTests.main
+def rojasQuotientCoverageStandaloneMain : IO Unit :=
+  RojasQuotientCoverageTests.main

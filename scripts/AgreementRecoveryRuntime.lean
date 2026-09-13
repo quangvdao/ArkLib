@@ -256,8 +256,8 @@ private def linearFixtureBackend :
             CPolynomial.C ((c * e - a * d) / determinant)]⟩]
   | _ => []
 
-/-- Exercise nonlinear blocks, extension-only roots, repeated images, final filtering,
-corrupted received values, and the zero-width reference branch. -/
+set_option maxHeartbeats 1000000 in
+-- The combined registry intentionally executes every decoder producer suite in one process.
 def run : IO Unit := do
   FirstOrderComponentConstructionTests.runTests
   GeneralComponentConstructionTests.run

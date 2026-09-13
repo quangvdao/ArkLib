@@ -54,4 +54,5 @@ def run : IO Unit := do
 
 end RojasFirstSubresultantNonzeroTests
 
-def main : IO Unit := RojasFirstSubresultantNonzeroTests.run
+def rojasFirstSubresultantNonzeroStandaloneMain : IO Unit :=
+  RojasFirstSubresultantNonzeroTests.run

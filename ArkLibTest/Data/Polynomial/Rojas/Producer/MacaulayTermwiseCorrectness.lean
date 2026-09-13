@@ -56,4 +56,5 @@ def main : IO Unit := do
 
 end RojasMacaulayTermwiseCorrectnessTests
 
-def main : IO Unit := RojasMacaulayTermwiseCorrectnessTests.main
+def rojasMacaulayTermwiseCorrectnessStandaloneMain : IO Unit :=
+  RojasMacaulayTermwiseCorrectnessTests.main

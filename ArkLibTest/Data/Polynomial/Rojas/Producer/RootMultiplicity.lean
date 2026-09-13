@@ -125,4 +125,5 @@ def main : IO Unit := do
 
 end RojasRootMultiplicityTests
 
-def main : IO Unit := RojasRootMultiplicityTests.main
+def rojasRootMultiplicityStandaloneMain : IO Unit :=
+  RojasRootMultiplicityTests.main

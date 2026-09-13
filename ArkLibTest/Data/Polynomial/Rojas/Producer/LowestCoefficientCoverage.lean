@@ -121,4 +121,5 @@ def runChecks : IO Unit := do
 
 end RojasLowestCoefficientCoverageTests
 
-def main : IO Unit := RojasLowestCoefficientCoverageTests.runChecks
+def rojasLowestCoefficientCoverageStandaloneMain : IO Unit :=
+  RojasLowestCoefficientCoverageTests.runChecks

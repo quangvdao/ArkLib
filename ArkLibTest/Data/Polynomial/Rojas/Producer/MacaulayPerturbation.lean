@@ -86,4 +86,5 @@ def main : IO Unit := do
 
 end RojasMacaulayPerturbationTests
 
-def main : IO Unit := RojasMacaulayPerturbationTests.main
+def rojasMacaulayPerturbationStandaloneMain : IO Unit :=
+  RojasMacaulayPerturbationTests.main

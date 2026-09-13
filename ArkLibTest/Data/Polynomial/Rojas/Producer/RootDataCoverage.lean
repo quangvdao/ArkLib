@@ -78,4 +78,5 @@ def run : IO Unit := do
 
 end RojasRootDataCoverageTests
 
-def main : IO Unit := RojasRootDataCoverageTests.run
+def rojasRootDataCoverageStandaloneMain : IO Unit :=
+  RojasRootDataCoverageTests.run

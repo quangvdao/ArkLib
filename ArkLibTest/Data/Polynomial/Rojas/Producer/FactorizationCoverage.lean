@@ -99,4 +99,5 @@ def runChecks : IO Unit := do
 
 end RojasFactorizationCoverageTests
 
-def main : IO Unit := RojasFactorizationCoverageTests.runChecks
+def rojasFactorizationCoverageStandaloneMain : IO Unit :=
+  RojasFactorizationCoverageTests.runChecks
