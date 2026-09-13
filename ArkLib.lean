@@ -1537,7 +1537,7 @@ public import ArkLib.Data.FiniteField.ExplicitConstruction.Centers
 public import ArkLib.Data.FiniteField.ExplicitConstruction.EffectiveCenters
 public import ArkLib.Data.FiniteField.ExplicitConstruction.EffectiveExtensionSearch
 public import ArkLib.Data.FiniteField.ExplicitConstruction.EffectiveField
-public import ArkLib.Data.FiniteField.ExplicitConstruction.EffectiveNormalBasis
+public import ArkLib.Data.FiniteField.ExplicitConstruction.EffectiveFrobeniusCoordinates
 public import ArkLib.Data.FiniteField.ExplicitConstruction.EffectivePolynomialBasis
 public import ArkLib.Data.FiniteField.ExplicitConstruction.EffectiveRelativeQuotient
 public import ArkLib.Data.FiniteField.ExplicitConstruction.ExtensionSearch

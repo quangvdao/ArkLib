@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 import ArkLib.Data.FiniteField.ExplicitConstruction.EffectiveCenters
-import ArkLibTest.Data.FiniteField.ExplicitConstruction.EffectiveNormalBasis
+import ArkLibTest.Data.FiniteField.ExplicitConstruction.EffectiveFrobeniusCoordinates
 
 /-! Characteristic-sensitive center dispatch and effective quotient consumer checks. -/
 
@@ -53,8 +53,8 @@ def run : IO Unit := do
   check (effectivePrimeField 3) 4 .oddQuadratic
   check (effectivePrimeField 3) 9 .oddQuadratic
   check (effectivePrimeField 3) 10 .insufficientCapacity
-  check EffectiveNormalBasisTests.binaryCoordinates.effectiveField 5 .binaryQuadratic
-  check EffectiveNormalBasisTests.binaryCoordinates.effectiveField 16 .binaryQuadratic
+  check EffectiveFrobeniusCoordinatesTests.binaryCoordinates.effectiveField 5 .binaryQuadratic
+  check EffectiveFrobeniusCoordinatesTests.binaryCoordinates.effectiveField 16 .binaryQuadratic
 
 #print axioms EffectiveCenters.run_odd_parameter
 #print axioms EffectiveCenters.run_binary_parameter

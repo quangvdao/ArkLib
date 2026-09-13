@@ -77,7 +77,7 @@ umbrella, mathematical import boundaries, documentation, knowledge-base checks, 
 | Local/full interpolation frames | `6a21a05992e79a7bcbe74ae48bf940552fe25aaa`, `757d0a0e7d26af5d663f98760f4aad11bd95256c`, `63c4835a983ca9a55da51cbac8acfe691068228d` |
 
 These sources establish executable supplied-field adapters, least sufficient effective extensions,
-relative and supplied normal coordinates, finite ring-level recurrence specifications, a quadratic
+relative and supplied Frobenius coordinates, finite ring-level recurrence specifications, a quadratic
 dyadic cache, rational recurrence correctness, the concrete shifted triangular Hasse recurrence,
 and materialized normalized interpolation/Jordan frames. The scheduler is currently proved for one
 quadratic cached recurrence; the rational engine still uses finite Newton inversion. No general fast

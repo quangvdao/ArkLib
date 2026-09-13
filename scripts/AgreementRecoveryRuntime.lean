@@ -13,7 +13,7 @@ import ArkLibTest.Data.FiniteField.ExplicitConstruction.ExtensionSearch
 import ArkLibTest.Data.FiniteField.ExplicitConstruction.EffectiveCenters
 import ArkLibTest.Data.FiniteField.ExplicitConstruction.EffectiveExtensionSearch
 import ArkLibTest.Data.FiniteField.ExplicitConstruction.EffectiveField
-import ArkLibTest.Data.FiniteField.ExplicitConstruction.EffectiveNormalBasis
+import ArkLibTest.Data.FiniteField.ExplicitConstruction.EffectiveFrobeniusCoordinates
 import ArkLibTest.Data.FiniteField.ExplicitConstruction.EffectiveRelativeQuotient
 import ArkLibTest.Data.Graph.GabberGalilConstruction.Adjacency
 import ArkLibTest.Data.Graph.GabberGalilConstruction.Padding
@@ -258,7 +258,7 @@ def run : IO Unit := do
   ExtensionSearchTests.run
   EffectiveFieldTests.run
   EffectiveRelativeQuotientTests.run
-  EffectiveNormalBasisTests.run
+  EffectiveFrobeniusCoordinatesTests.run
   EffectiveExtensionSearchTests.run
   EffectiveCentersTests.run
   GabberGalilAdjacencyTest.run
