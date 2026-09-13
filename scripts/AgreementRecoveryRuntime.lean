@@ -48,6 +48,14 @@ import
 ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Constructor
 import
 ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Coverage
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.ComponentAdapter
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.VaryingOrder
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.SemanticTraversal
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.HiddenDerivativeDecoder.FirstOrderPipeline
 import ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.RegularFiber
 import ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.SuppliedAdapter
 import ArkLibTest.Data.FiniteField.ExplicitConstruction.CenterDispatcher
@@ -262,6 +270,8 @@ def run : IO Unit := do
   FundamentalMatrixTests.run
   FastTaylorConstructorTests.run
   FastTaylorCoverageTests.run
+  FastTaylorVaryingOrderTests.run
+  FastTaylorSemanticTraversalTests.run
   ConfluentInverseTests.run
   ProjectionMatrixTests.run
   LocalEquationTests.run

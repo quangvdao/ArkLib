@@ -14,8 +14,10 @@ The dedicated zeroth decoder is complete. The full positive-order symbolic decod
 
 Read the [verified status](status.md), then the [shared contracts](contracts.md),
 [workstream assignments](workstreams.md), and [launch and acceptance workflow](workflow.md).
-The contracts describe required semantics. The first stored chart payload is implemented;
-concrete component construction and varying-order coverage remain open. See [the Taylor checkpoint](taylor-checkpoint.md).
+The contracts describe required semantics. The first stored chart payload is implemented, and
+the [varying-order checkpoint](varying-order-checkpoint.md) now provides semantic traversal,
+canonical fuel and dependent dispatch. Concrete component production remains open. See also
+[the Taylor checkpoint](taylor-checkpoint.md).
 
 ## Target and scope
 
@@ -71,9 +73,9 @@ remaining obligations. Personal 4 remains the sole core integration owner.
 | I0 | Shared Lean interface freeze | Personal 4; fixed-order coverage and candidate APIs available | Freeze P1 component/constructor bridge and varying-order consumer signatures |
 | G01 | Function-field algebra and normalization | Generic normalization and first-order descent complete | Support concrete regular-component construction |
 | G02 | Full squarefree decomposition | Personal 1 backend collected; actual supplied-field success proved | Consume from concrete component/first-order integration |
-| G03 | Taylor geometry | P1 concrete components; P4 stage/order assembly | Produce regular components and sufficient centers from original inputs |
+| G03 | Taylor geometry | P4 stage/order assembly complete; P1 owns concrete components | Produce regular components and sufficient centers from original inputs |
 | G04 | Taylor local algebra and lifting | One-chart lifting/success complete | Preserve characteristic guards through varying-order dispatch |
-| G05 | Taylor reconstruction | Regular-locus contract complete; global coverage conditional | Prove constructor normal forms and varying-order solution coverage |
+| G05 | Taylor reconstruction | Semantic traversal and canonical fuel complete; global coverage conditional | Connect concrete components to varying-order solution coverage |
 | G06 | First-order norms | Concrete backend collected under chart premises | Discharge constructor premises and compose final recovery |
 | G07 | Explicit fields | Prepared supplied inverse and general extensions complete | Consume published constructors |
 | G08 | Rojas producer | Personal 3 actively continuing foundations | Resultant semantics, quotient identification and isolated-root factor theorem |

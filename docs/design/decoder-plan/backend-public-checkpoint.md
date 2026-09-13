@@ -8,6 +8,7 @@ This collection preserves the following exact published checkpoints over core
 | Personal 1 | `b26284081fa4d45fd400c0ff00081fc468988e2c` | Actual full decomposition, component norm/descent, candidate coverage under chart premises, emitted modulus degree bounds |
 | Personal 4 zeroth | `ebd6cefb822870955b192759618dab8c4a745dc7` | Public supplied-field `run?` and `run?_exists_exact` under `Valid` |
 | Personal 4 positive | `6fe32a979590e6e31863192fff1b66b4bcfe575b` | Fixed-order stage/chart assembly and conditional top-active coverage |
+| Personal 4 varying order | current topic branch | Canonical semantic separant traversal, dependent positive/zero dispatch, component and first-order consumer adapters |
 | Personal 3 preparation | `d8c8b5478625a54a0eb6753d47a99d702a8727d4` | Stored inverse-Frobenius preparation reused by the certificate callback |
 | Personal 3 extensions | `b9d6b3b1d2795dc4933042ec4c215e4aac33399c` | Executed general extension search, proved success, quotient field and prefix |
 | Personal 3 Rojas | `de0aba60a3a8268199cf84b28e8ea182b0354dac` | Executable Macaulay matrices, checked quotient and degree/refinement infrastructure |
@@ -28,17 +29,19 @@ as a polynomial. Personal 1 must repair this consumer premise to quotient/evalua
 regular-point nonvanishing. The returned conditional theorem is sound but not yet directly usable
 with general constructor outputs. It does not itself prove global chart coverage.
 
-The positive chart scan currently drops stages whose active jet is below the fixed top jet.
-`ComponentProducer.CoversTopActiveSolutions` accurately names that boundary. A concrete component
-producer, varying-order adapter and semantic separant-chain/fuel bridge remain necessary.
-See [the fixed-order contract](positive-coverage-checkpoint.md).
+The fixed-order chart scan still accurately exposes only top-active coverage. The separate
+[varying-order checkpoint](varying-order-checkpoint.md) now retains lower-active stages, proves
+canonical sufficient traversal fuel and dispatches order zero separately. A concrete component
+producer and its chart-to-first-order contracts remain necessary. See
+[the fixed-order contract](positive-coverage-checkpoint.md).
 
 ## Remaining work and ownership
 
-Personal 1 resumes on concrete regular-component construction and the chart contracts required
-by its first-order backend. Personal 4 owns varying-order coverage, the semantic separant-chain
-bridge, final candidate recovery and public positive-order dispatch. Their next exact handoffs
-freeze separate files and consumer signatures before parallel implementation.
+Personal 1 resumes on concrete regular-component construction, the chart contracts required by
+its first-order backend, and repair of the overly strong literal denominator premise. Personal 4
+has completed the varying-order and semantic traversal layers and owns final candidate recovery
+and public positive-order dispatch. The next exact handoff must compile the concrete producer and
+these consumers together.
 
 Personal 3 is already continuing G08. Its ongoing worktree and report are not modified by this
 collection. The exact published matrix checkpoint above is the integration dependency until a
