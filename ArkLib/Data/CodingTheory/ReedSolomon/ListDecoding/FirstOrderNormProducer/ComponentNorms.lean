@@ -121,6 +121,19 @@ def prepare {k : ℕ} (chart : ChartData E 1 k) (received : List (E × E)) : Pre
     descent := descent
     blocks := descent.blocks.map (computeBlock agreements) }
 
+/-- The exact denominator property needed by retained-tower materialization.  It is deliberately
+stated on the chart hypersurface: constructor normal-form reduction preserves these evaluations,
+but need not preserve literal polynomial representatives. -/
+def DenominatorRegular {k : ℕ} (chart : ChartData E 1 k)
+    (received : List (E × E)) : Prop :=
+  ∀ u v : AlgebraicClosure E,
+    TowerRepresentation.evalNested (prepare chart received).chartPolynomials.equation
+        (algebraMap E (AlgebraicClosure E)) u v = 0 →
+    TowerRepresentation.evalNested (prepare chart received).chartPolynomials.separant
+        (algebraMap E (AlgebraicClosure E)) u v ≠ 0 →
+    TowerRepresentation.evalNested (prepare chart received).chartPolynomials.denominator
+        (algebraMap E (AlgebraicClosure E)) u v ≠ 0
+
 @[simp] theorem prepare_chartPolynomials {k : ℕ} (chart : ChartData E 1 k)
     (received : List (E × E)) :
     (prepare chart received).chartPolynomials = ChartPolynomials.ofChart chart := rfl
@@ -138,6 +151,15 @@ theorem prepare_denominator_eq_pow_of_chart {k n : ℕ} (chart : ChartData E 1 k
       (prepare chart received).chartPolynomials.separant ^ n := by
   simp only [prepare_chartPolynomials, ChartPolynomials.ofChart]
   rw [hpower, map_pow]
+
+/-- Compatibility adapter for hand-built charts whose stored denominator really is a separant
+power.  Actual constructor output uses `construct?_denominatorRegular` instead. -/
+theorem denominatorRegular_of_eq_pow {k n : ℕ} (chart : ChartData E 1 k)
+    (received : List (E × E)) (hpower : chart.denominator = chart.separant ^ n) :
+    DenominatorRegular chart received := by
+  intro u v _ hseparant
+  rw [prepare_denominator_eq_pow_of_chart chart received hpower, evalNested_pow]
+  exact pow_ne_zero _ hseparant
 
 @[simp] theorem prepare_descent {k : ℕ} (chart : ChartData E 1 k)
     (received : List (E × E)) :
@@ -169,6 +191,25 @@ theorem preparedBlock_component_mem {k : ℕ} (chart : ChartData E 1 k)
   obtain ⟨block, hblock, rfl⟩ :=
     (mem_prepare_blocks_iff chart received out).mp hout
   exact hblock
+
+/-- Every modulus emitted by the actual descent divides the converted chart equation. -/
+theorem preparedBlock_modulus_dvd_equation [DecidableEq E] {k b L : ℕ}
+    (chart : ChartData E 1 k) (received : List (E × E))
+    (hnormal : chart.NormalForms b L) (out : ComputedBlock E)
+    (hout : out ∈ (prepare chart received).blocks) :
+    out.component.modulus ∣ (prepare chart received).chartPolynomials.equation := by
+  have hequationMonic : (prepare chart received).chartPolynomials.equation.monic :=
+    ChartPolynomials.equation_monic_of_normalForms chart hnormal
+  have hfactor : out.component.modulus ∈
+      ((ComponentDescent.run (prepare chart received).chartPolynomials.equation
+        (prepare chart received).agreements).blocks.map ComponentDescent.Block.modulus) :=
+    List.mem_map.mpr ⟨out.component, by
+      simpa only [prepare_descent, prepare_chartPolynomials, prepare_agreements] using
+        preparedBlock_component_mem chart received out hout, rfl⟩
+  have hdvd := List.dvd_prod hfactor
+  rwa [ComponentDescent.run_product
+    (prepare chart received).chartPolynomials.equation
+    (prepare chart received).agreements hequationMonic] at hdvd
 
 /-- Every root of the converted chart equation lies on an actual prepared component, over every
 coefficient-field extension.  This remains valid on denominator-zero, ramified, and component-
@@ -219,12 +260,12 @@ theorem preparedBlock_natDegree_le_equation [DecidableEq E] {k b L : ℕ}
   let residuals := (prepare chart received).agreements
   have hequationMonic : equation.monic :=
     ChartPolynomials.equation_monic_of_normalForms chart hnormal
-  have hfactor : block.modulus ∈
-      ((ComponentDescent.run equation residuals).blocks.map ComponentDescent.Block.modulus) :=
-    List.mem_map.mpr ⟨block, by simpa [equation, residuals] using hblock, rfl⟩
   have hdvd : block.modulus ∣ equation := by
-    have := List.dvd_prod hfactor
-    rwa [ComponentDescent.run_product equation residuals hequationMonic] at this
+    simpa [equation] using
+      preparedBlock_modulus_dvd_equation chart received hnormal
+        (computeBlock (prepare chart received).agreements block) (by
+          rw [prepare_blocks]
+          exact List.mem_map.mpr ⟨block, hblock, rfl⟩)
   have hdvdPoly : CBivariate.toPoly block.modulus ∣ CBivariate.toPoly equation := by
     obtain ⟨q, hq⟩ := hdvd
     refine ⟨CBivariate.toPoly q, ?_⟩
