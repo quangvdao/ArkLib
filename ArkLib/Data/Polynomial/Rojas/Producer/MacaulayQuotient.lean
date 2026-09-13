@@ -6,6 +6,7 @@ Authors: Quang Dao
 module
 
 public import ArkLib.Data.Polynomial.Rojas.Producer.DenseMacaulay
+public import Mathlib.Data.List.MinMax
 
 /-!
 # The extraneous minor in Macaulay's dense formula
@@ -81,26 +82,39 @@ theorem extraneousFactor_eq_det {n : ℕ} (system : Fin n → CMvPolynomial n F)
 
 variable [Div F] [DecidableEq F]
 
+/-- Executable key for graded lexicographic order: total degree first, then
+the exponent vector in variable order. -/
+def gradedLexKey {n : ℕ} (m : CMvMonomial n) : Lex (ℕ × List ℕ) :=
+  toLex (m.totalDegree, m.toList)
+
 /-- Graded lexicographic comparison used by the executable exact division. -/
 def gradedLexCompare {n : ℕ} (a b : CMvMonomial n) : Ordering :=
-  match compare a.totalDegree b.totalDegree with
-  | .eq => compare a b
-  | order => order
+  compare (gradedLexKey a) (gradedLexKey b)
 
 /-- Greatest stored term for the fixed graded lexicographic comparison. -/
 def leadingTerm? {n : ℕ} (p : CMvPolynomial n F) : Option (CMvMonomial n × F) :=
-  p.val.toList.foldl
-    (fun current term =>
-      match current with
-      | none => some term
-      | some previous =>
-          if gradedLexCompare previous.1 term.1 = .lt then some term else current)
-    none
+  p.val.toList.argmax (gradedLexKey ∘ Prod.fst)
 
 /-- State of bounded single-divisor polynomial reduction. -/
 structure DivisionState (n : ℕ) where
   quotient : CMvPolynomial n F
   residual : CMvPolynomial n F
+
+/-- One executable leading-term reduction step.  A missing result means that
+the residual is zero, the divisor is zero, or its leading monomial does not
+divide the residual's leading monomial. -/
+def divisionStep? {n : ℕ} (divisor : CMvPolynomial n F)
+    (state : DivisionState n (F := F)) : Option (DivisionState n (F := F)) :=
+  match leadingTerm? state.residual, leadingTerm? divisor with
+  | some remainderTerm, some divisorTerm =>
+      if _hdivides : ∀ i, divisorTerm.1.get i ≤ remainderTerm.1.get i then
+        let term := CMvPolynomial.monomial
+          (remainderTerm.1 / divisorTerm.1) (remainderTerm.2 / divisorTerm.2)
+        some
+          { quotient := state.quotient + term
+            residual := state.residual - term * divisor }
+      else none
+  | _, _ => none
 
 /-- Bounded leading-term reduction.  Its result is checked independently, so
 fuel exhaustion is an explicit failure rather than an unsound quotient. -/
@@ -108,16 +122,9 @@ def divisionLoop {n : ℕ} (divisor : CMvPolynomial n F) :
     ℕ → DivisionState n (F := F) → DivisionState n (F := F)
   | 0, state => state
   | fuel + 1, state =>
-      match leadingTerm? state.residual, leadingTerm? divisor with
-      | some remainderTerm, some divisorTerm =>
-          if _hdivides : ∀ i, divisorTerm.1.get i ≤ remainderTerm.1.get i then
-            let term := CMvPolynomial.monomial
-              (remainderTerm.1 / divisorTerm.1) (remainderTerm.2 / divisorTerm.2)
-            divisionLoop divisor fuel
-              { quotient := state.quotient + term
-                residual := state.residual - term * divisor }
-          else state
-      | _, _ => state
+      match divisionStep? divisor state with
+      | some next => divisionLoop divisor fuel next
+      | none => state
 
 /-- A finite bound larger than the number of monomials of total degree at most
 the dividend degree. -/
