@@ -44,5 +44,8 @@ def run : IO Unit := do
 #print axioms normalize?_content_eq
 #print axioms normalize?_identity
 #print axioms normalize?_primitive_ne_zero
+#print axioms coefficientContent_dvd_of_mem
+#print axioms dvd_coefficientContent
+#print axioms divideList?_identity
 
 end CoefficientNormalizationTests
