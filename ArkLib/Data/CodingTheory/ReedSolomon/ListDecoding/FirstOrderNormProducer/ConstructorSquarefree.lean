@@ -13,6 +13,7 @@ public import
   ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.ChartPolynomials
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.SeparablePartCorrectness
 public import CompPoly.Bivariate.CMvEquiv
+import Mathlib.Algebra.MvPolynomial.NoZeroDivisors
 
 /-!
 # Squarefreeness across a computed Taylor chart
@@ -212,6 +213,78 @@ private theorem ordinaryNestedEquiv_eq (q : CMvPolynomial 2 E) :
     ordinaryNestedEquiv q =
       CBivariate.toPoly (ChartPolynomials.bivariatePolynomial q) := by
   rw [ordinaryNestedEquiv_semantics, toPoly_bivariatePolynomial]
+
+/-- The component returned by the first-order regular-part producer divides the actual initial
+equation supplied to that producer, after transporting its nested-polynomial certificate back to
+the stored ordinary multivariate representation. -/
+theorem firstOrder_component_dvd_initialEquation
+    [DecidableEq E] (p : ℕ) [Fact p.Prime] [CharP E p] (inverse : E → E) (center : E)
+    (T : CMvPolynomial 3 E) (data : RegularPart.Data E)
+    (hinverse : p ≤ (ClearDenominators.primitivePart
+        (FastTaylor.ComponentConstruction.FirstOrder.specializedEquation center T)).natDegree →
+      ∀ a, inverse a ^ p = a)
+    (hrun : FastTaylor.ComponentConstruction.FirstOrder.run p inverse center T =
+      .regularPart data) :
+    FastTaylor.ComponentConstruction.FirstOrder.component data ∣
+      FastTaylor.initialEquation center T := by
+  let cert := FastTaylor.ComponentConstruction.FirstOrder.run_regularPart_certificate
+    p inverse center T data hinverse hrun
+  have hnested :
+      ordinaryNestedEquiv (FastTaylor.ComponentConstruction.FirstOrder.component data) ∣
+        ordinaryNestedEquiv (FastTaylor.initialEquation center T) := by
+    rw [ordinaryNestedEquiv_eq, ordinaryNestedEquiv_eq,
+      ChartPolynomials.bivariatePolynomial]
+    change CBivariate.toPoly
+        (BivariateReducedSupport.fromOrdinaryCMv
+          (FastTaylor.ComponentConstruction.FirstOrder.component data)) ∣
+      CBivariate.toPoly
+        (FastTaylor.ComponentConstruction.FirstOrder.specializedEquation center T)
+    rw [FastTaylor.ComponentConstruction.FirstOrder.fromOrdinaryCMv_component]
+    exact cert.regular_dvd_equation
+  exact (map_dvd_iff (ordinaryNestedEquiv (E := E)).toMulEquiv).mp hnested
+
+/-- The actual first-order component has total degree below the characteristic whenever it reaches
+the constructor: regular-part divisibility bounds it by the specialized initial equation, whose
+total degree is bounded by the producer's weighted degree and the constructor guard. -/
+theorem construct?_firstOrder_component_totalDegree_lt
+    [DecidableEq E] (p Bjet : ℕ) [Fact p.Prime] [CharP E p] (inverse : E → E)
+    (center : E) (T : CMvPolynomial 3 E) (data : RegularPart.Data E)
+    (hinverse : p ≤ (ClearDenominators.primitivePart
+        (FastTaylor.ComponentConstruction.FirstOrder.specializedEquation center T)).natDegree →
+      ∀ a, inverse a ^ p = a)
+    (hrun : FastTaylor.ComponentConstruction.FirstOrder.run p inverse center T =
+      .regularPart data)
+    (values : List E)
+    (hB : (semanticEquation T).weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ Bjet)
+    {k : ℕ} (chart : ChartData E 1 k)
+    (hc : FastTaylor.construct? p 1 k Bjet center T
+      (FastTaylor.ComponentConstruction.FirstOrder.component data) values = some chart) :
+    (FastTaylor.ComponentConstruction.FirstOrder.component data).totalDegree < p := by
+  let cert := FastTaylor.ComponentConstruction.FirstOrder.run_regularPart_certificate
+    p inverse center T data hinverse hrun
+  have hinitial : FastTaylor.initialEquation center T ≠ 0 := by
+    intro hzero
+    apply cert.equation_ne_zero
+    rw [FastTaylor.ComponentConstruction.FirstOrder.specializedEquation, hzero]
+    exact BivariateReducedSupport.fromOrdinaryHom.map_zero
+  have hdvd := firstOrder_component_dvd_initialEquation p inverse center T data hinverse hrun
+  have hdegree :
+      (FastTaylor.ComponentConstruction.FirstOrder.component data).totalDegree ≤
+        (FastTaylor.initialEquation center T).totalDegree := by
+    rw [CPoly.totalDegree_equiv (S := E), CPoly.totalDegree_equiv (S := E)]
+    apply MvPolynomial.totalDegree_le_of_dvd_of_isDomain
+    · exact map_dvd CPoly.polyRingEquiv hdvd
+    · exact CPoly.polyRingEquiv.map_ne_zero_iff.mpr hinitial
+  calc
+    (FastTaylor.ComponentConstruction.FirstOrder.component data).totalDegree ≤
+        (FastTaylor.initialEquation center T).totalDegree := hdegree
+    _ = (initialJetEquation center (semanticEquation T)).totalDegree := by
+      rw [CPoly.totalDegree_equiv (S := E), FastTaylor.initialEquation_semantics]
+    _ ≤ (semanticEquation T).weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) :=
+      totalDegree_initialJetEquation_le center (semanticEquation T)
+    _ ≤ Bjet := hB
+    _ < p := (FastTaylor.construct?_geometry p 1 k Bjet center T
+      (FastTaylor.ComponentConstruction.FirstOrder.component data) values chart hc).1.2.2.2
 
 /-- Squarefreeness of the supplied ordinary component survives the constructor's invertible
 linear projection and nonzero monic normalization, and hence holds over the chart's generic
