@@ -42,15 +42,29 @@ theorem normalized_gcd_natDegree_eq_euclidean_gcd [DecidableEq K] (P Q : K[X]) :
     (Polynomial.degree_eq_degree_of_associated hassociated)
 
 omit [Fintype F] [Fact (Nat.Prime p)] [CharP F p] in
+/-- The stored coefficient lift is the ordinary polynomial coefficient map. -/
+theorem Producer.SubresultantMap.liftInTheta_toPoly (q : CPolynomial F) :
+    (liftInTheta q).toPoly = q.toPoly.map CHom := by
+  rw [← CPolynomial.toPolyRingHom_apply]
+  rw [liftInTheta, CPolynomial.eval₂_toPoly, Polynomial.hom_eval₂]
+  rw [Polynomial.eval₂_eq_eval_map, Polynomial.eval_map]
+  congr 1
+  · apply RingHom.ext
+    intro a
+    simp [RingHom.comp_apply, CPolynomial.C_toPoly]
+  · simp [CPolynomial.X_toPoly]
+
+omit [Fintype F] [Fact (Nat.Prime p)] [CharP F p] in
 /-- Mapping the coefficient lift evaluates only the coefficient ring and recovers the original
 mapped polynomial. -/
 theorem Producer.SubresultantMap.map_liftInTheta
-    [IsAlgClosed K] (ι : F →+* K) (theta : K) (q : CPolynomial F) :
+    (ι : F →+* K) (theta : K) (q : CPolynomial F) :
     (liftInTheta q).toPoly.map (coefficientEval ι theta) = q.toPoly.map ι := by
-  apply Polynomial.funext
-  intro t
-  rw [Polynomial.eval_map, Polynomial.eval_map]
-  exact liftInTheta_eval₂ ι theta t q
+  rw [liftInTheta_toPoly, Polynomial.map_map]
+  congr 1
+  apply RingHom.ext
+  intro a
+  simp [coefficientEval, RingHom.comp_apply, CPolynomial.C_toPoly]
 
 /-- The exact degree-preservation hypotheses needed by the mapped principal-minor theorem for an
 actual candidate. -/
@@ -66,6 +80,8 @@ structure MappedCoordinateDegrees (alpha : F)
         (affineTransform alpha (plusPolynomial p s candidate i)).natDegree
   minus_positive : ∀ i : Fin s,
     0 < (liftInTheta (minusPolynomial p s candidate i)).natDegree
+  plus_positive : ∀ i : Fin s,
+    0 < (affineTransform alpha (plusPolynomial p s candidate i)).natDegree
 
 /-- For every coordinate of an actual cross-family-safe specialization, the mapped stored
 constant-column minor is nonzero. -/
