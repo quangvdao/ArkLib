@@ -1,5 +1,17 @@
+/-
+Copyright (c) 2026 ArkLib Contributors. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Quang Dao
+-/
 import ArkLib.Data.CodingTheory.ReedSolomon.Computation.Interpolation.Module.Full
 import Mathlib.Data.ZMod.Basic
+
+/-!
+# Full local interpolation module tests
+
+Checks full-frame dimensions, Jordan actions, generator construction, and normalization against
+an independent second-order coefficient oracle, including both linear and quadratic error terms.
+-/
 
 namespace ReedSolomon.HiddenDerivative.InterpolationFullModuleTests
 
@@ -51,8 +63,33 @@ private def generatorCheck {F : Type*} [CommRing F] [BEq F] (a y : F) : IO Unit 
   unless (buildFull? 1 4 1 4 15 [(a, y)] [b]).isNone do
     throw (IO.userError "out-of-degree monomial was accepted")
 
+/-- Direct expansion of `(2 + T Y₁ - T² Y₂ + T³ V)²` over `ZMod 5`.
+The error terms at degrees three and six distinguish the `d * u` normalization shift. -/
+private def secondOrderCoefficient : List ℕ → ZMod 5
+  | [0, 0, 0, 0] => 4
+  | [1, 0, 1, 0] => 4
+  | [2, 0, 0, 1] => 1
+  | [3, 1, 0, 0] => 4
+  | [2, 0, 2, 0] => 1
+  | [4, 0, 0, 2] => 1
+  | [6, 2, 0, 0] => 1
+  | [3, 0, 1, 1] => 3
+  | [4, 1, 1, 0] => 2
+  | [5, 1, 0, 1] => 3
+  | _ => 0
+
+private def secondOrderGeneratorCheck : IO Unit := do
+  let some values := generator? 2 7 2 (1 : ZMod 5) 2 ⟨2, [0, 0]⟩
+    | throw (IO.userError "second-order generator failed")
+  let rows := fullFrame 2 7 2
+  unless values.length == 70 do
+    throw (IO.userError "second-order generator dimension mismatch")
+  unless values == rows.map secondOrderCoefficient do
+    throw (IO.userError "second-order normalization coefficient mismatch")
+
 /-- Runtime checks for full module rows, actual generators and the materialized Jordan action. -/
 def run : IO Unit := do
+  secondOrderGeneratorCheck
   matrixCheck (1 : ZMod 2)
   matrixCheck (2 : ZMod 5)
   generatorCheck (1 : ZMod 2) 1
