@@ -943,6 +943,12 @@ public import
 ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormDecoder.D5.TerminalCoprime
 public import
 ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormDecoder.FiberPreprocess
+public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.Assembly
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.ChartPolynomials
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.ComponentNorms
+public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.Producer
 public import
 ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.UniversalAgreements
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HiddenDerivativeDecoder.Correctness
@@ -953,8 +959,14 @@ public import
 ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HiddenDerivativeDecoder.Explainer.Support
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HiddenDerivativeDecoder.Input
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HiddenDerivativeDecoder.Run
+public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.BalancedClasses
+public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.CotangentClasses
+public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.CotangentMixing
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.DirectJacobian
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.DirectSelection
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.FixedGapSelection
+public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.RankGrowth
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.NormSieve.MultiplicitySupport
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.NormSieve.ProductFilter
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.OrdinaryInterpolatedDecoder
@@ -1479,6 +1491,7 @@ public import ArkLib.Data.FiniteField.Candidates
 public import ArkLib.Data.FiniteField.ExplicitConstruction.ArtinSchreierCenters
 public import ArkLib.Data.FiniteField.ExplicitConstruction.CenterDispatcher
 public import ArkLib.Data.FiniteField.ExplicitConstruction.Centers
+public import ArkLib.Data.FiniteField.ExplicitConstruction.ExtensionSearch
 public import ArkLib.Data.FiniteField.ExplicitConstruction.OddCenters
 public import ArkLib.Data.FiniteField.ExplicitConstruction.PolynomialBasis
 public import ArkLib.Data.FiniteField.ExplicitConstruction.PolynomialBasisFrobenius
@@ -1486,7 +1499,13 @@ public import ArkLib.Data.FiniteField.ExplicitConstruction.Quotient
 public import ArkLib.Data.FiniteField.ExplicitConstruction.SuppliedCenters
 public import ArkLib.Data.FiniteField.ExplicitConstruction.SuppliedField
 public import ArkLib.Data.Finset.PickSubset
+public import ArkLib.Data.Graph.GabberGalilConstruction.Adjacency
 public import ArkLib.Data.Graph.GabberGalilConstruction.Basic
+public import ArkLib.Data.Graph.GabberGalilConstruction.Padding
+public import ArkLib.Data.Graph.GabberGalilConstruction.PowerChoice
+public import ArkLib.Data.Graph.GabberGalilConstruction.Powering
+public import ArkLib.Data.Graph.GabberGalilConstruction.SpectralMixing
+public import ArkLib.Data.Graph.GabberGalilConstruction.SpectralPower
 public import ArkLib.Data.GroupTheory.PrimeOrder
 public import ArkLib.Data.Hash.DomainSep
 public import ArkLib.Data.Hash.DuplexSponge
@@ -1662,12 +1681,19 @@ public import ArkLib.Data.Polynomial.FoldingPolynomial
 public import ArkLib.Data.Polynomial.FractionFieldExpand
 public import ArkLib.Data.Polynomial.FractionFieldFactorization
 public import ArkLib.Data.Polynomial.FractionFieldRoots
+public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.Degree
+public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.Driver
 public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.Frobenius
+public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.NormSieveBridge
+public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.RefinementSuccess
 public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.Residues
+public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.Success
+public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.Totality
 public import ArkLib.Data.Polynomial.FullSquarefreeDecomposition.TreeRefinement
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.BivariateReducedSupport
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.CanonicalRepresentative
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.ClearDenominators
+public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.ComponentDescent
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.Euclidean
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.NormalizationArithmetic
 public import ArkLib.Data.Polynomial.FunctionFieldAlgorithms.NormalizationMultiplicity
@@ -1689,6 +1715,8 @@ public import ArkLib.Data.Polynomial.ModularInverse
 public import ArkLib.Data.Polynomial.NewtonInverse
 public import ArkLib.Data.Polynomial.NilpotentInverse
 public import ArkLib.Data.Polynomial.NonvanishingSearch
+public import ArkLib.Data.Polynomial.NormProducts.ComponentNorms
+public import ArkLib.Data.Polynomial.NormProducts.DeterminantDegree
 public import ArkLib.Data.Polynomial.NormProducts.MultiplicationMatrix
 public import ArkLib.Data.Polynomial.Prelims
 public import ArkLib.Data.Polynomial.QuadraticJetHornerCanary
@@ -1713,7 +1741,12 @@ public import ArkLib.Data.Polynomial.Rojas.AffineSolver
 public import ArkLib.Data.Polynomial.Rojas.DeterministicSpecialization
 public import ArkLib.Data.Polynomial.Rojas.HyperplaneAvoidance
 public import ArkLib.Data.Polynomial.Rojas.PerturbationCoefficient
+public import ArkLib.Data.Polynomial.Rojas.Producer.DenseMacaulay
+public import ArkLib.Data.Polynomial.Rojas.Producer.DenseMacaulayCorrectness
 public import ArkLib.Data.Polynomial.Rojas.Producer.Linear
+public import ArkLib.Data.Polynomial.Rojas.Producer.MacaulayQuotient
+public import ArkLib.Data.Polynomial.Rojas.Producer.MacaulayQuotientCorrectness
+public import ArkLib.Data.Polynomial.Rojas.Producer.Source
 public import ArkLib.Data.Polynomial.Rojas.Producer.Univariate
 public import ArkLib.Data.Polynomial.Rojas.Producer.UnivariateFactorization
 public import ArkLib.Data.Polynomial.Rojas.Producer.UnivariatePerturbation

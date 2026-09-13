@@ -10,10 +10,13 @@ All source paths below are relative to `ArkLib/Data/CodingTheory/ReedSolomon/` u
 
 ## Current producer collection
 
-The [three-track collection](three-track-checkpoint.md) supersedes the earlier normalization
-and Taylor gaps below: generic normalization correctness, supplied-field arithmetic/centers,
-and the one-chart Taylor contract are now available together. Full decoder composition and
-positive-order global coverage remain open. Historical inventories below retain their pins.
+The [backend/public collection](backend-public-checkpoint.md) supersedes the earlier gaps below.
+The public supplied-field zeroth decoder is complete, as are supplied-field decomposition,
+first-order component norm/candidate arithmetic, prepared inverse Frobenius and general extensions.
+Positive-order coverage still needs concrete regular components and varying-order assembly;
+first-order candidate completeness needs a denominator-contract repair and chart premises. G08
+geometric foundations, G09 agreeing-label capture and the exact energy estimate remain open. Personal 3 is actively continuing G08.
+Historical inventories below retain their pins and do not describe current completion status.
 
 ## Subsequent normalization and specification revision
 

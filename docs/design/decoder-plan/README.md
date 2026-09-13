@@ -6,15 +6,16 @@ It replaces the completed A–E worker assignments and earlier decoder sprint no
 
 The original foundation source baseline is
 [`3c67cb3fa669985b2add6c5d080a3060c4728789`](https://github.com/quangvdao/ArkLib/commit/3c67cb3fa669985b2add6c5d080a3060c4728789).
-The current accepted integration base is
+The preceding accepted integration base is
 [`b626a599817381cfb84155f8b74d9cf6ff0c18a4`](https://github.com/quangvdao/ArkLib/commit/b626a599817381cfb84155f8b74d9cf6ff0c18a4).
-The finite-tower foundation milestone is complete. The full symbolic decoder is not:
+The [new backend/public collection](backend-public-checkpoint.md) records subsequent exact sources.
+The dedicated zeroth decoder is complete. The full positive-order symbolic decoder is not:
 `HiddenDerivativeDecoder.symbolicDecode` still returns `symbolicBackendUnavailable`.
 
 Read the [verified status](status.md), then the [shared contracts](contracts.md),
 [workstream assignments](workstreams.md), and [launch and acceptance workflow](workflow.md).
 The contracts describe required semantics. The first stored chart payload is implemented;
-full chart validity and producer records remain open. See [the Taylor checkpoint](taylor-checkpoint.md).
+concrete component construction and varying-order coverage remain open. See [the Taylor checkpoint](taylor-checkpoint.md).
 
 ## Target and scope
 
@@ -67,18 +68,18 @@ remaining obligations. Personal 4 remains the sole core integration owner.
 
 | ID | Work | State | First action |
 | --- | --- | --- | --- |
-| I0 | Shared Lean interface freeze | Personal 4; one-chart contract proved | Freeze all-chart coverage and candidate interfaces |
-| G01 | Function-field algebra and normalization | Personal 1; generic ordinary normalization complete | Higher-order component arithmetic and global descent |
-| G02 | Full squarefree decomposition | Personal 1; residue/Frobenius/tree slices collected | Full labelled recursive driver and threshold bridge |
-| G03 | Taylor geometry | Personal 4; executable fixed-order stage/chart family | Add varying-order adapter and concrete component producer |
-| G04 | Taylor local algebra and lifting | Personal 4; one-chart lifting/success consumed by family | Preserve solver contracts through later dispatch |
-| G05 | Taylor reconstruction | Personal 4; conditional top-active candidate coverage | Discharge producer coverage for every qualifying solution |
-| G06 | First-order norms | Personal 1; norm/universal-scan slices collected | Chart count, multiplicity product and candidate coverage |
-| G07 | Explicit fields | Personal 3; supplied-field producers complete | General extension construction for positive-order algorithms |
-| G08 | Rojas producer | Personal 3; univariate factorization collected | General toric construction, specialization and isolated-root coverage |
-| G09 | Higher-order selection | Personal 3; actual direct-Jacobian bridge collected | Spectral certificate, powering and complete candidate selection |
-| G10 | Supplied-field zeroth-order decoder | Personal 4; executable exact composition and all center branches complete | Maintain public exactness while integrating later tracks |
-| I1 | Integration and independent review | Personal 4 | Accept compiled slices; maintain this board and obligation ledger |
+| I0 | Shared Lean interface freeze | Personal 4; fixed-order coverage and candidate APIs available | Freeze P1 component/constructor bridge and varying-order consumer signatures |
+| G01 | Function-field algebra and normalization | Generic normalization and first-order descent complete | Support concrete regular-component construction |
+| G02 | Full squarefree decomposition | Personal 1 backend collected; actual supplied-field success proved | Consume from concrete component/first-order integration |
+| G03 | Taylor geometry | P1 concrete components; P4 stage/order assembly | Produce regular components and sufficient centers from original inputs |
+| G04 | Taylor local algebra and lifting | One-chart lifting/success complete | Preserve characteristic guards through varying-order dispatch |
+| G05 | Taylor reconstruction | Regular-locus contract complete; global coverage conditional | Prove constructor normal forms and varying-order solution coverage |
+| G06 | First-order norms | Concrete backend collected under chart premises | Discharge constructor premises and compose final recovery |
+| G07 | Explicit fields | Prepared supplied inverse and general extensions complete | Consume published constructors |
+| G08 | Rojas producer | Personal 3 actively continuing foundations | Resultant semantics, quotient identification and isolated-root factor theorem |
+| G09 | Higher-order selection | Conditional independence selection; P1 takes remaining proof lane | Preserve agreeing labels, prove exact energy bound, then compose G08 |
+| G10 | Supplied-field zeroth-order decoder | Public actual-run exactness complete | Preserve base/odd/binary public regression coverage |
+| I1 | Integration and independent review | Personal 4 | Collect exact producers and prove public positive-order exactness |
 
 At each launch record the lead, exact branch/base, owned files, first deliverable and acceptance
 check here or in the corresponding group section. Record explicit dependency commit SHAs as they land.
@@ -86,15 +87,19 @@ Do not substitute a moving branch name for an agreed interface revision.
 
 ## Next substantial delivery wave
 
-All three returned checkpoints are collected in [the current integration](three-track-checkpoint.md).
+The [backend/public collection](backend-public-checkpoint.md) records this wave's sources.
 The next targets are intentionally larger than individual helper lemmas:
 
-- Personal 1: close the labelled decomposition and first-order norm-candidate pipeline,
-  with higher-order component arithmetic and descent as supporting work.
-- Personal 3: construct general extensions and the higher-order isolated-root/selection
-  producers, keeping toric and spectral obligations explicit until proved.
-- Personal 4: construct the full Taylor candidate cover and compose the positive-order public
-  decoder while preserving the completed zeroth-order interface.
+- Personal 1: construct actual regular components and close constructor-to-first-order chart
+  premises, giving Personal 4 a usable producer. In a separate lane, repair G09 agreeing-label
+  capture and prove the exact graph energy estimate.
+- Personal 3: continue the already active G08 resultant and Rojas foundations. Do not restart
+  or duplicate that work. General extensions and prepared inverse Frobenius are completed.
+- Personal 4: cover varying active orders and semantic separant chains, then close the public
+  first-order decoder and compose higher-order producers as their exact contracts become available.
+
+The remaining G09 energy estimate is a distinct analytic obligation. Current selection also
+needs its agreeing-label invariant exposed before common-zero capture can be composed.
 
 Publish independently reviewed and fully validated checkpoints along the way. A checkpoint
 records progress; it does not close a larger target whose completeness obligations remain.
@@ -108,9 +113,9 @@ stabilize. This is a staffing proposal, not a measured optimum or a tool-concurr
 Split a group only when another worker has an independent deliverable and separate file ownership.
 Each group needs compilation capacity; uncompiled patches otherwise accumulate at integration.
 
-Start G01, G02, G03, G04, G05, G07 and G08 on their generic first slices. G06 can build norms before
-its universal-agreement loop is ready. G09 can develop direct-system mathematics and the expander
-in parallel. G10 can begin interpolation without waiting for the differential Taylor constructor.
+Use the completed algebra, fields and zeroth decoder as frozen dependencies. Split concrete
+component construction from varying-order coverage and final recovery. G08 foundations and the
+G09 analytic estimate can advance independently of first-order public completion.
 
 | Consumer milestone | Required groups and already available components |
 | --- | --- |

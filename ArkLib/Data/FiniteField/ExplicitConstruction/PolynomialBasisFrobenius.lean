@@ -64,9 +64,38 @@ def frobeniusRootGCD : CPolynomial (Carrier f) :=
 /-- The root recovered from the negative constant coefficient of the computed gcd. -/
 def frobeniusBeta : Carrier f := -(frobeniusRootGCD p f).coeff 0
 
-/-- The first `p` powers of the computed root, prepared once for regrouped evaluation. -/
+/-- The first `p` powers of the computed root. This compatibility definition describes the
+mathematical table; use `prepareInverseFrobenius` to compute and retain it once. -/
 def frobeniusBetaPowers : Array (Carrier f) :=
   Array.ofFn fun r : Fin p => frobeniusBeta p f ^ r.val
+
+/-- Stored preprocessing for repeated inverse-Frobenius evaluations. The executable constructor
+computes the gcd-derived root once, then builds and retains its first `p` powers. -/
+structure PreparedInverseFrobenius where
+  beta : Carrier f
+  powers : Array (Carrier f)
+  powers_size : powers.size = p
+
+/-- Compute the inverse-Frobenius field preprocessing once. The let-bound `beta` is shared by all
+entries of the stored power table. -/
+def prepareInverseFrobenius : PreparedInverseFrobenius p f :=
+  let beta := frobeniusBeta p f
+  let powers := Array.ofFn fun r : Fin p => beta ^ r.val
+  { beta
+    powers
+    powers_size := by simp [powers] }
+
+/-- Read one retained power from a prepared packet. -/
+def PreparedInverseFrobenius.power (prepared : PreparedInverseFrobenius p f) (r : Fin p) :
+    Carrier f :=
+  prepared.powers[r.val]'(by rw [prepared.powers_size]; exact r.isLt)
+
+/-- Apply retained inverse-Frobenius preprocessing to one polynomial-basis element. This operation
+performs only coefficient regrouping, table reads, multiplications, and a length-`p` sum. -/
+def PreparedInverseFrobenius.apply (prepared : PreparedInverseFrobenius p f)
+    (a : Carrier f) : Carrier f :=
+  (List.ofFn fun r : Fin p =>
+    prepared.power p f r * regroupCoefficient p f a.val r.val).sum
 
 /-- Evaluate the regrouped coefficient vector using the precomputed powers of `beta`. -/
 def inverseFrobenius (a : Carrier f) : Carrier f :=
@@ -76,9 +105,12 @@ def inverseFrobenius (a : Carrier f) : Carrier f :=
       regroupCoefficient p f a.val r.val).sum
 
 /-- Construct the same inverse callback once the decoder has discharged its
-small-characteristic guard. -/
+small-characteristic guard. This compatibility definition preserves the original
+function-level API; repeated-use consumers should construct
+`boundedInverseFrobeniusCertificate`, which retains a preparation packet. -/
 def boundedInverseFrobenius (B : Nat) (_hpB : p ≤ B) : Carrier f → Carrier f :=
-  inverseFrobenius p f
+  let prepared := prepareInverseFrobenius p f
+  fun a => prepared.apply p f a
 
 /-- A one-time certificate that ties the decoder bound to the supplied field's
 actual characteristic and carries the inverse law for the callback. -/
@@ -86,6 +118,29 @@ structure InverseFrobeniusCertificate (B : Nat) where
   inverse : Carrier f → Carrier f
   characteristic_le : p ≤ B
   inverse_pow_characteristic : ∀ a, inverse a ^ p = a
+
+@[simp] theorem prepareInverseFrobenius_beta :
+    (prepareInverseFrobenius p f).beta = frobeniusBeta p f := by
+  rfl
+
+@[simp] theorem prepareInverseFrobenius_power (r : Fin p) :
+    (prepareInverseFrobenius p f).power p f r = frobeniusBeta p f ^ r.val := by
+  simp [PreparedInverseFrobenius.power, prepareInverseFrobenius]
+
+/-- Applying freshly prepared data agrees exactly with the original mathematical callback. -/
+theorem prepareInverseFrobenius_apply (a : Carrier f) :
+    (prepareInverseFrobenius p f).apply p f a = inverseFrobenius p f a := by
+  simp only [PreparedInverseFrobenius.apply, inverseFrobenius]
+  apply congrArg List.sum
+  apply List.ofFn_inj.mpr
+  funext r
+  rw [prepareInverseFrobenius_power]
+  simp [frobeniusBetaPowers]
+
+@[simp] theorem boundedInverseFrobenius_apply (B : Nat) (hpB : p ≤ B) (a : Carrier f) :
+    boundedInverseFrobenius p f B hpB a = inverseFrobenius p f a := by
+  rw [boundedInverseFrobenius]
+  exact prepareInverseFrobenius_apply p f a
 
 @[simp] theorem residuePolynomial_coeff (g : CPolynomial (ZMod p)) (r j : Nat) :
     (residuePolynomial p g r).coeff j =
@@ -521,9 +576,19 @@ theorem boundedInverseFrobenius_pow (B : Nat) (hpB : p ≤ B) (a : Carrier f) :
 
 /-- Package the bounded callback and its law once at the decoder branch. -/
 def boundedInverseFrobeniusCertificate (B : Nat) (hpB : p ≤ B) :
-    InverseFrobeniusCertificate p f B where
-  inverse := boundedInverseFrobenius p f B hpB
-  characteristic_le := hpB
-  inverse_pow_characteristic := boundedInverseFrobenius_pow p f B hpB
+    InverseFrobeniusCertificate p f B :=
+  let prepared := prepareInverseFrobenius p f
+  { inverse := fun a => prepared.apply p f a
+    characteristic_le := hpB
+    inverse_pow_characteristic := by
+      intro a
+      rw [prepareInverseFrobenius_apply]
+      exact inverseFrobenius_pow p f a }
+
+@[simp] theorem boundedInverseFrobeniusCertificate_inverse
+    (B : Nat) (hpB : p ≤ B) (a : Carrier f) :
+    (boundedInverseFrobeniusCertificate p f B hpB).inverse a = inverseFrobenius p f a := by
+  rw [boundedInverseFrobeniusCertificate]
+  exact prepareInverseFrobenius_apply p f a
 
 end ArkLib.FiniteField.ExplicitConstruction

@@ -4,6 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
+import ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.Assembly
+import ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.ComponentNorms
+import ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.Producer
+import ArkLibTest.Data.Polynomial.FullSquarefreeDecomposition.Driver
+import ArkLibTest.Data.Polynomial.FullSquarefreeDecomposition.RefinementSuccess
+import ArkLibTest.Data.FiniteField.ExplicitConstruction.ExtensionSearch
+import ArkLibTest.Data.Graph.GabberGalilConstruction.Adjacency
+import ArkLibTest.Data.Graph.GabberGalilConstruction.Padding
+import ArkLibTest.Data.Graph.GabberGalilConstruction.PowerChoice
+import ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.FixedGapSelection
+import ArkLibTest.Data.Polynomial.Rojas.Producer.DenseMacaulay
+import ArkLibTest.Data.Polynomial.Rojas.Producer.MacaulayQuotient
 import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.NormalizationArithmetic
 import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.SeparablePartCorrectness
 import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.OrdinaryNormalizationCorrectness
@@ -174,6 +186,19 @@ private def linearFixtureBackend :
 /-- Exercise nonlinear blocks, extension-only roots, repeated images, final filtering,
 corrupted received values, and the zero-width reference branch. -/
 def run : IO Unit := do
+  ReedSolomon.ListDecoding.FirstOrderNormProducerTests.run
+  ReedSolomon.ListDecoding.FirstOrderNormProducer.ComponentNormsTests.run
+  ReedSolomon.ListDecoding.FirstOrderNormProducer.ProducerTests.run
+  FullSquarefreeDriverTests.run
+  FullSquarefreeDriverTests.BinaryExtension.run
+  FullSquarefreeRefinementSuccessTests.run
+  ExtensionSearchTests.run
+  GabberGalilAdjacencyTest.run
+  GabberGalilPaddingTest.run
+  GabberGalilPowerChoiceTest.run
+  ArkLibTest.FixedGapSelection.run
+  RojasDenseMacaulayTests.runChecks
+  RojasMacaulayQuotientTests.runChecks
   NormalizationArithmeticTests.run
   SeparablePartCorrectnessTests.run
   OrdinaryNormalizationCorrectnessTests.run

@@ -1,5 +1,10 @@
 # Ten decoder workstreams
 
+This page preserves the original package specifications. Current completion and ownership are
+in the [task board](README.md#current-task-board) and
+[backend/public collection](backend-public-checkpoint.md). Earlier proposed first actions below
+are not new assignments.
+
 The verified source baseline for this reference is
 `3c67cb3fa669985b2add6c5d080a3060c4728789`. Launch from the coordinator's exact
 revision containing this plan and accepted interfaces, as specified in the workflow. The branches and new source directories below are

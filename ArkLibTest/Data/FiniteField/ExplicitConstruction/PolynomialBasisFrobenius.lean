@@ -100,6 +100,11 @@ example : frobeniusRootGCD 2 Binary.linearModulus =
 example (a : Carrier Binary.modulus) : inverseFrobenius 2 Binary.modulus a ^ 2 = a :=
   inverseFrobenius_pow 2 Binary.modulus a
 
+example (a : Carrier Binary.modulus) :
+    (prepareInverseFrobenius 2 Binary.modulus).apply 2 Binary.modulus a =
+      inverseFrobenius 2 Binary.modulus a :=
+  prepareInverseFrobenius_apply 2 Binary.modulus a
+
 example (a : Carrier
     ArkLibTest.FiniteField.ExplicitConstruction.PolynomialBasis.modulus) :
     inverseFrobenius 3
@@ -125,16 +130,25 @@ def run : IO Unit := do
       indexF2 (indexF2.symm a) == a) do
     throw <| IO.userError "F2 inverse Frobenius failed"
   let f4 := polynomialBasisPrefix Binary.modulus Binary.index 4
+  let preparedF4 := prepareInverseFrobenius 2 Binary.modulus
+  let certificateF4 := boundedInverseFrobeniusCertificate 2 Binary.modulus 3 (by decide)
   unless f4.length == 4 &&
+      preparedF4.beta == frobeniusBeta 2 Binary.modulus &&
+      preparedF4.powers.size == 2 &&
+      preparedF4.power 2 Binary.modulus ⟨0, by decide⟩ == 1 &&
+      preparedF4.power 2 Binary.modulus ⟨1, by decide⟩ == preparedF4.beta &&
       frobeniusBeta 2 Binary.modulus ^ 2 == frobeniusTheta 2 Binary.modulus &&
       (frobeniusRootGCD 2 Binary.modulus).natDegree == 1 &&
       frobeniusRootGCD 2 Binary.modulus == X - C (frobeniusBeta 2 Binary.modulus) do
     throw <| IO.userError "F4 computed gcd/root check failed"
   let indexF4 := polynomialBasisIndex Binary.modulus Binary.index
-  unless f4.all (fun a => inverseFrobenius 2 Binary.modulus a ^ 2 == a &&
+  unless f4.all (fun a =>
+      preparedF4.apply 2 Binary.modulus a == inverseFrobenius 2 Binary.modulus a &&
+      certificateF4.inverse a == preparedF4.apply 2 Binary.modulus a &&
+      inverseFrobenius 2 Binary.modulus a ^ 2 == a &&
       boundedInverseFrobenius 2 Binary.modulus 3 (by decide) a ^ 2 == a &&
       indexF4 (indexF4.symm a) == a) do
-    throw <| IO.userError "F4 exhaustive inverse Frobenius failed"
+    throw <| IO.userError "F4 prepared inverse Frobenius failed"
   let modulus9 := ArkLibTest.FiniteField.ExplicitConstruction.PolynomialBasis.modulus
   let index3 := ArkLibTest.FiniteField.ExplicitConstruction.PolynomialBasis.index3
   let f3 := polynomialBasisPrefix Ternary.linearModulus index3 3
@@ -162,6 +176,7 @@ def run : IO Unit := do
     throw <| IO.userError "F9 exhaustive inverse Frobenius failed"
 
 #print axioms frobeniusRootGCD_eq_X_sub_C
+#print axioms prepareInverseFrobenius_apply
 #print axioms inverseFrobenius_pow
 #print axioms boundedInverseFrobenius_pow
 
