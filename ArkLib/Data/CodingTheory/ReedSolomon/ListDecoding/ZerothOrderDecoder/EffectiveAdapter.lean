@@ -46,14 +46,20 @@ instance (F : EffectiveField p K) : Std.LawfulEqCmp (compareField F) where
       Fin.ext (Std.LawfulEqCmp.eq_of_compare (cmp := compare) hab)
     simpa using congrArg F.unindex hi
 
-/-- Preparation happens inside normalization and is shared by its radical calls. -/
+/-- Preparation is forced only when a joint-root coefficient needs inverse Frobenius.
+The runtime memoizes this thunk, sharing preparation across all radical calls. -/
 def normalize (F : EffectiveField p K) (Q : CPoly.CMvPolynomial 2 K) :
     OrdinaryNormalization.Result K := by
   let _ : Fact p.Prime := ⟨F.prime⟩
   let _ := F.characteristic
-  let prepared := F.prepareInverseFrobenius ()
-  exact OrdinaryNormalization.runCertified p prepared.inverseFrobenius Q
-    (fun _ => prepared.inverseFrobenius_pow)
+  let prepared : Thunk (InverseFrobeniusData p K) := ⟨F.prepareInverseFrobenius⟩
+  exact OrdinaryNormalization.runCertified p (fun a => prepared.get.inverseFrobenius a) Q
+    (fun _ => prepared.get.inverseFrobenius_pow)
+
+/-- Delaying and memoizing preparation preserves the ordinary algorithm's result. -/
+theorem normalize_eq_run (F : EffectiveField p K) (Q : CPoly.CMvPolynomial 2 K) :
+    normalize F Q = OrdinaryNormalization.run p
+      (F.prepareInverseFrobenius ()).inverseFrobenius Q := rfl
 
 /-- The generic boundary retains the complete ordinary-normalization contract. -/
 theorem normalize_correct (F : EffectiveField p K) (Q : CPoly.CMvPolynomial 2 K) :
@@ -97,7 +103,7 @@ theorem normalize_polynomialBasis (p : ℕ) [Fact p.Prime]
     funext a
     rw [effectivePolynomialBasis_inverseFrobenius, boundedInverseFrobeniusCertificate_inverse]
   unfold normalize PublicDecoder.normalize OrdinaryNormalization.runCertified
-  dsimp only
+  dsimp only [Thunk.get]
   rw [hi]
 
 end ReedSolomon.ListDecoding.ZerothOrderDecoder.EffectiveAdapter
