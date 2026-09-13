@@ -8,7 +8,7 @@ module
 public import
   ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Contract
 public import
-  ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.Producer
+  ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.UniversalRecovery
 
 /-!
 # Actual Taylor-constructor contract for first-order norm candidates
@@ -163,5 +163,70 @@ theorem construct?_firstOrderNormCandidates_point_complete
   · exact hequation
   · exact hresidual
   · exact hseparant
+
+/-- Actual-constructor coverage with recovery of fully universal components.  The determinant
+norm branch handles components with fewer than `A` universal labels; otherwise executable
+position-subset interpolation emits a constant tower for the same base-field message. -/
+theorem construct?_firstOrderNormCandidatesWithRecovery_complete
+    (p : ℕ) [Fact p.Prime]
+    (modulus : CPolynomial (ZMod p)) [Fact modulus.monic]
+    [Fact (Irreducible modulus.toPoly)]
+    (M : MulContext (Carrier modulus)) (D : ModContext (Carrier modulus))
+    {n k Bjet A : ℕ} (center : Carrier modulus)
+    (T : CMvPolynomial 3 (Carrier modulus))
+    (component : CMvPolynomial 2 (Carrier modulus)) (values : List (Carrier modulus))
+    (hv : 0 < (semanticEquation T).weightedTotalDegree (fun i => i.elim 0 (fun _ => 1)))
+    (hB : (semanticEquation T).weightedTotalDegree (fun i => i.elim 0 (fun _ => 1)) ≤ Bjet)
+    (chart : ChartData (Carrier modulus) 1 k)
+    (hc : construct? p 1 k Bjet center T component values = some chart)
+    (domain : Fin n ↪ Carrier modulus) (received : Fin n → Carrier modulus)
+    (hgenericSquarefree : Squarefree
+      (ClearDenominators.valueGlobal
+        (prepare chart (indexedReceived domain received)).chartPolynomials.equation))
+    (hkA : k ≤ A) (hcomponentDegree : component.totalDegree < p)
+    (positions : Finset (Fin
+      (prepare chart (indexedReceived domain received)).agreements.length))
+    (hpositions : A ≤ positions.card)
+    {K : Type} [Field K] (base : Carrier modulus →+* K) (u v : K)
+    (hequation : ComponentDescent.evalAt base u v
+      (prepare chart (indexedReceived domain received)).chartPolynomials.equation = 0)
+    (hresidual : ∀ i ∈ positions, ComponentDescent.evalAt base u v
+      (prepare chart (indexedReceived domain received)).agreements[i] = 0)
+    (hseparant : TowerRepresentation.evalNested
+      (prepare chart (indexedReceived domain received)).chartPolynomials.separant
+        base u v ≠ 0)
+    (P : Polynomial (Carrier modulus)) (hPdegree : P.degree < k)
+    (hPagreement : A ≤ Code.agree (evalOnPoints domain P) received)
+    (htarget :
+      Polynomial.JetHornerMachine.coefficientPolynomial
+        ((List.ofFn
+          (prepare chart (indexedReceived domain received)).chartPolynomials.numerators).map
+            fun numerator => TowerRepresentation.evalNested numerator base u v /
+              TowerRepresentation.evalNested
+                (prepare chart
+                  (indexedReceived domain received)).chartPolynomials.denominator base u v) =
+        P.map base) :
+    ∃ candidate ∈ firstOrderNormCandidatesWithRecovery
+        p modulus M D A chart domain received,
+      ∃ x y : K, candidate.Point base x y ∧
+        candidate.specialize base x y = P.map base := by
+  have hnormal := construct?_firstOrder_normalForms p Bjet center T component values
+    hv hB chart hc
+  obtain ⟨block, hblock, hcomponent⟩ :=
+    exists_preparedBlock_of_equation_root chart (indexedReceived domain received)
+      hnormal base u v hequation
+  apply firstOrderNormCandidatesWithRecovery_complete_of_block
+    p modulus M D chart domain received hnormal hgenericSquarefree hkA block hblock
+      positions hpositions
+  · simpa only [construct?_firstOrder_equation_natDegree p Bjet center T component values
+      hv hB chart hc (indexedReceived domain received)] using hcomponentDegree
+  · exact construct?_denominatorRegular p Bjet center T component values
+      hv hB chart hc (indexedReceived domain received)
+  · exact hcomponent
+  · exact hresidual
+  · exact hseparant
+  · exact hPdegree
+  · exact hPagreement
+  · exact htarget
 
 end ReedSolomon.ListDecoding.FirstOrderNormProducer
