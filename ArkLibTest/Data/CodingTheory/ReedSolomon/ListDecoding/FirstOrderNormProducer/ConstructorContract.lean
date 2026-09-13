@@ -58,6 +58,9 @@ def run : IO Unit := do
 #check construct?_firstOrder_equation_natDegree
 #check construct?_firstOrderNormCandidates_point_complete
 #check construct?_firstOrderNormCandidatesWithRecovery_complete
+#check construct?_genericSquarefree
+#check construct?_firstOrder_genericSquarefree
+#check construct?_firstOrderRunNormCandidatesWithRecovery_complete
 
 #print axioms preparedBlock_modulus_dvd_equation
 #print axioms construct?_denominatorRegular
@@ -65,5 +68,8 @@ def run : IO Unit := do
 #print axioms construct?_firstOrder_equation_natDegree
 #print axioms construct?_firstOrderNormCandidates_point_complete
 #print axioms construct?_firstOrderNormCandidatesWithRecovery_complete
+#print axioms construct?_genericSquarefree
+#print axioms construct?_firstOrder_genericSquarefree
+#print axioms construct?_firstOrderRunNormCandidatesWithRecovery_complete
 
 end ReedSolomon.ListDecoding.FirstOrderNormProducer.ConstructorContractTests
