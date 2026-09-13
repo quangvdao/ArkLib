@@ -36,7 +36,7 @@ open DenseMacaulay
 
 variable {F : Type*} [Field F] [BEq F] [LawfulBEq F]
 
-noncomputable local instance parameterIsDomain (n : ℕ) :
+noncomputable instance parameterIsDomain (n : ℕ) :
     IsDomain (Parameters n F) :=
   (CPoly.polyRingEquiv (n := n + 2) (R := F)).isDomain_iff.mpr inferInstance
 
@@ -46,7 +46,7 @@ def IsExtraneousIndex {n : ℕ} (system : Fin n → CMvPolynomial n F)
     (i : Fin (basis system).length) : Prop :=
   nonReducedB system (basis system)[i] = true
 
-local instance isExtraneousIndexDecidablePred {n : ℕ}
+instance isExtraneousIndexDecidablePred {n : ℕ}
     (system : Fin n → CMvPolynomial n F) :
     DecidablePred (IsExtraneousIndex system) :=
   fun i => decidable_of_iff
@@ -65,14 +65,14 @@ noncomputable def extraneousSubtypeEquiv {n : ℕ}
     Equiv.subtypeEquivRight fun i => by
       simp [extraneousIndices, IsExtraneousIndex]
 
-noncomputable local instance extraneousSubtypeFintype {n : ℕ}
+noncomputable instance extraneousSubtypeFintype {n : ℕ}
     (system : Fin n → CMvPolynomial n F) : Fintype (ExtraneousSubtype system) :=
-  Fintype.ofEquiv (ExtraneousIndex system) (extraneousSubtypeEquiv system)
+  Subtype.fintype (IsExtraneousIndex system)
 
-noncomputable local instance reducedSubtypeFintype {n : ℕ}
+noncomputable instance reducedSubtypeFintype {n : ℕ}
     (system : Fin n → CMvPolynomial n F) :
     Fintype {i // ¬IsExtraneousIndex system i} :=
-  Fintype.ofFinite _
+  Subtype.fintype fun i => ¬IsExtraneousIndex system i
 
 omit [BEq F] [LawfulBEq F] in
 /-- The stored extraneous index has the same underlying full-matrix index as
@@ -202,6 +202,13 @@ noncomputable def fractionSchurComplement {n : ℕ}
     fractionLowerLeftBlock system * (fractionExtraneousBlock system)⁻¹ *
       fractionUpperRightBlock system
 
+/-- Determinant of the explicit Schur complement.  This is the sole
+fraction-field quantity whose descent is equivalent to the universal
+Macaulay divisibility theorem. -/
+noncomputable def fractionSchurDet {n : ℕ}
+    (system : Fin n → CMvPolynomial n F) : ParameterFraction n F :=
+  (fractionSchurComplement system).det
+
 /-- The embedded full characteristic is the determinant of the full matrix
 over the coefficient fraction field.  `Matrix.det_toBlock` supplies the
 native non-reduced/reduced block decomposition of this determinant. -/
@@ -211,6 +218,30 @@ theorem fraction_characteristic_eq_det_fractionMatrix {n : ℕ}
       (fractionMatrix system).det := by
   rw [characteristic_eq_det, RingHom.map_det]
   rfl
+
+/-- The full fraction-field matrix in the native sum-indexed block
+presentation selected by the executable non-reduced predicate. -/
+noncomputable def fractionBlockMatrix {n : ℕ}
+    (system : Fin n → CMvPolynomial n F) :
+    Matrix (ExtraneousSubtype system ⊕ {i // ¬IsExtraneousIndex system i})
+      (ExtraneousSubtype system ⊕ {i // ¬IsExtraneousIndex system i})
+      (ParameterFraction n F) :=
+  Matrix.fromBlocks
+    (Matrix.toBlock (fractionMatrix system) (IsExtraneousIndex system)
+      (IsExtraneousIndex system))
+    (Matrix.toBlock (fractionMatrix system) (IsExtraneousIndex system)
+      fun i => ¬IsExtraneousIndex system i)
+    (Matrix.toBlock (fractionMatrix system) (fun i => ¬IsExtraneousIndex system i)
+      (IsExtraneousIndex system))
+    (Matrix.toBlock (fractionMatrix system) (fun i => ¬IsExtraneousIndex system i)
+      fun i => ¬IsExtraneousIndex system i)
+
+/-- Reindexing by the non-reduced predicate preserves the determinant of the
+full fraction-field matrix. -/
+theorem det_fractionMatrix_eq_det_fractionBlockMatrix {n : ℕ}
+    (system : Fin n → CMvPolynomial n F) :
+    (fractionMatrix system).det = (fractionBlockMatrix system).det := by
+  exact Matrix.det_toBlock (fractionMatrix system) (IsExtraneousIndex system)
 
 /-- The native block determinant factors through the non-reduced block and
 its Schur complement.  Together with `fraction_characteristic_eq_det_fractionMatrix`,
@@ -224,7 +255,7 @@ theorem fraction_blockDet_eq_extraneousBlock_mul_schurDet {n : ℕ}
       (fractionLowerLeftBlock system)
       (fractionReducedBlock system)).det =
       (fractionExtraneousBlock system).det *
-        (fractionSchurComplement system).det := by
+        fractionSchurDet system := by
   have hfactor := @Matrix.det_fromBlocks₁₁
     (ExtraneousSubtype system) {i // ¬IsExtraneousIndex system i}
     (ParameterFraction n F) _ _ _ _ _
@@ -236,6 +267,53 @@ theorem fraction_blockDet_eq_extraneousBlock_mul_schurDet {n : ℕ}
   rw [@Matrix.invOf_eq_nonsing_inv _ _ _ _ _
     (fractionExtraneousBlock system)
     (fractionExtraneousBlockInvertible system)] at hfactor
-  exact hfactor
+  simpa only [fractionSchurDet, fractionSchurComplement] using hfactor
+
+/-- Composed fraction-field factorization of the executable characteristic
+through the executable extraneous factor and the explicit Schur determinant. -/
+theorem map_characteristic_eq_map_extraneousFactor_mul_fractionSchurDet {n : ℕ}
+    (system : Fin n → CMvPolynomial n F) :
+    algebraMap (Parameters n F) (ParameterFraction n F) (characteristic system) =
+      algebraMap (Parameters n F) (ParameterFraction n F) (extraneousFactor system) *
+        fractionSchurDet system := by
+  calc
+    _ = (fractionMatrix system).det :=
+      fraction_characteristic_eq_det_fractionMatrix system
+    _ = (fractionBlockMatrix system).det :=
+      det_fractionMatrix_eq_det_fractionBlockMatrix system
+    _ = (fractionExtraneousBlock system).det * fractionSchurDet system := by
+      simpa only [fractionBlockMatrix, toBlock_eq_fractionExtraneousBlock,
+        toBlock_eq_fractionUpperRightBlock, toBlock_eq_fractionLowerLeftBlock,
+        toBlock_eq_fractionReducedBlock] using
+        fraction_blockDet_eq_extraneousBlock_mul_schurDet system
+    _ = _ := by rw [det_fractionExtraneousBlock]
+
+/-- Universal Macaulay divisibility is equivalent to descent of the explicit
+Schur determinant from the coefficient fraction field. -/
+theorem extraneousFactor_dvd_characteristic_iff_fractionSchurDet_descends {n : ℕ}
+    (system : Fin n → CMvPolynomial n F) :
+    extraneousFactor system ∣ characteristic system ↔
+      ∃ quotient : Parameters n F,
+        algebraMap (Parameters n F) (ParameterFraction n F) quotient =
+          fractionSchurDet system := by
+  constructor
+  · rintro ⟨quotient, hquotient⟩
+    refine ⟨quotient, ?_⟩
+    have hmap := congrArg
+      (algebraMap (Parameters n F) (ParameterFraction n F)) hquotient
+    rw [map_characteristic_eq_map_extraneousFactor_mul_fractionSchurDet,
+      _root_.map_mul] at hmap
+    have hnonzero :
+        algebraMap (Parameters n F) (ParameterFraction n F)
+          (extraneousFactor system) ≠ 0 := by
+      simpa only [_root_.map_zero] using
+        (IsFractionRing.injective (Parameters n F) (ParameterFraction n F)).ne
+          (extraneousFactor_ne_zero system)
+    exact mul_left_cancel₀ hnonzero hmap.symm
+  · rintro ⟨quotient, hquotient⟩
+    refine ⟨quotient, ?_⟩
+    apply (IsFractionRing.injective (Parameters n F) (ParameterFraction n F))
+    rw [_root_.map_mul, hquotient]
+    exact map_characteristic_eq_map_extraneousFactor_mul_fractionSchurDet system
 
 end ArkLib.Rojas.Producer.MacaulayQuotient
