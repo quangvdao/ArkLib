@@ -10,6 +10,7 @@ public import
 public import
   ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.BalancedClasses
 public import ArkLib.Data.Graph.GabberGalilConstruction.PowerChoice
+public import ArkLib.Data.Graph.GabberGalilConstruction.EnergyEstimate.Main
 public import Mathlib.LinearAlgebra.Projectivization.Basic
 
 /-!
@@ -711,5 +712,93 @@ theorem fixedGapSystems_contains_odd_commonZero_capture_of_exactEnergy
   · simpa using squareSystemRows_mem_fixedGapSystems hypersurface equations hselected
   · exact squareSystemRows_commonZero_of_subset hypersurface equations evaluate agreeing selected
       hcard hsubset hhypersurface hagree
+
+/-- Unconditional executable even-rank selection using the proved Gabber--Galil estimate. -/
+theorem fixedGapSelections_contains_even_capture_unconditional
+    {W : Type*} [AddCommGroup W] [Module F W] [FiniteDimensional F W]
+    {n k pairs : ℕ} [NeZero (ceilSqrt n)] (hn : 0 < n)
+    (normal : W →ₗ[F] F) (pool : W →ₗ[F] (Fin n → F))
+    (hdim : Module.finrank F W = 2 * pairs + 1) (hnormal : normal ≠ 0)
+    (agreeing : Finset (Fin n))
+    (hbound : ProperSubspaceAgreementBound (F := F) agreeing
+      (coordinateFunctional (pool.comp normal.ker.subtype)) k)
+    (hk : k ≤ agreeing.card) :
+    let power := firstMixingPower (paddedSize n) (thirdCeil (agreeing.card - k + 1))
+    ∃ selected, ∃ hcard : selected.card = 2 * pairs,
+      selected ∈ fixedGapSelections n hn (2 * pairs) power ∧
+      selected ⊆ agreeing ∧
+      Function.Injective
+        (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) :=
+  fixedGapSelections_contains_even_capture_of_exactEnergy hn normal pool hdim hnormal
+    agreeing hbound hk (exactEnergyEstimate (ceilSqrt n))
+
+/-- Unconditional executable odd-rank selection using the proved Gabber--Galil estimate. -/
+theorem fixedGapSelections_contains_odd_capture_unconditional
+    {W : Type*} [AddCommGroup W] [Module F W] [FiniteDimensional F W]
+    {n k pairs : ℕ} [NeZero (ceilSqrt n)] (hn : 0 < n)
+    (normal : W →ₗ[F] F) (pool : W →ₗ[F] (Fin n → F))
+    (hdim : Module.finrank F W = (2 * pairs + 1) + 1) (hnormal : normal ≠ 0)
+    (agreeing : Finset (Fin n))
+    (hbound : ProperSubspaceAgreementBound (F := F) agreeing
+      (coordinateFunctional (pool.comp normal.ker.subtype)) k)
+    (hk : k ≤ agreeing.card) :
+    let power := firstMixingPower (paddedSize n) (thirdCeil (agreeing.card - k + 1))
+    ∃ selected, ∃ hcard : selected.card = 2 * pairs + 1,
+      selected ∈ fixedGapSelections n hn (2 * pairs + 1) power ∧
+      selected ⊆ agreeing ∧
+      Function.Injective
+        (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) :=
+  fixedGapSelections_contains_odd_capture_of_exactEnergy hn normal pool hdim hnormal
+    agreeing hbound hk (exactEnergyEstimate (ceilSqrt n))
+
+/-- Unconditional even-rank common-zero and Jacobian-rank bridge for the executable selector. -/
+theorem fixedGapSystems_contains_even_commonZero_capture_unconditional
+    {W P : Type*} [AddCommGroup W] [Module F W] [FiniteDimensional F W]
+    [DecidableEq P] {n k pairs : ℕ} [NeZero (ceilSqrt n)] (hn : 0 < n)
+    (hypersurface : P) (equations : Fin n → P) (evaluate : P → F)
+    (normal : W →ₗ[F] F) (pool : W →ₗ[F] (Fin n → F))
+    (hdim : Module.finrank F W = 2 * pairs + 1) (hnormal : normal ≠ 0)
+    (agreeing : Finset (Fin n))
+    (hbound : ProperSubspaceAgreementBound (F := F) agreeing
+      (coordinateFunctional (pool.comp normal.ker.subtype)) k)
+    (hk : k ≤ agreeing.card) (hhypersurface : evaluate hypersurface = 0)
+    (hagree : ∀ i ∈ agreeing, evaluate (equations i) = 0) :
+    let power := firstMixingPower (paddedSize n) (thirdCeil (agreeing.card - k + 1))
+    ∃ selected, ∃ hcard : selected.card = 2 * pairs,
+      selected ⊆ agreeing ∧
+      squareSystemRows hypersurface equations (rowSubsetEmbedding selected hcard) ∈
+        fixedGapSystems hn power hypersurface equations ∧
+      (∀ j, evaluate
+        (squareSystemRows hypersurface equations (rowSubsetEmbedding selected hcard) j) = 0) ∧
+      Function.Injective
+        (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) :=
+  fixedGapSystems_contains_even_commonZero_capture_of_exactEnergy hn hypersurface equations
+    evaluate normal pool hdim hnormal agreeing hbound hk
+    (exactEnergyEstimate (ceilSqrt n)) hhypersurface hagree
+
+/-- Unconditional odd-rank common-zero and Jacobian-rank bridge for the executable selector. -/
+theorem fixedGapSystems_contains_odd_commonZero_capture_unconditional
+    {W P : Type*} [AddCommGroup W] [Module F W] [FiniteDimensional F W]
+    [DecidableEq P] {n k pairs : ℕ} [NeZero (ceilSqrt n)] (hn : 0 < n)
+    (hypersurface : P) (equations : Fin n → P) (evaluate : P → F)
+    (normal : W →ₗ[F] F) (pool : W →ₗ[F] (Fin n → F))
+    (hdim : Module.finrank F W = (2 * pairs + 1) + 1) (hnormal : normal ≠ 0)
+    (agreeing : Finset (Fin n))
+    (hbound : ProperSubspaceAgreementBound (F := F) agreeing
+      (coordinateFunctional (pool.comp normal.ker.subtype)) k)
+    (hk : k ≤ agreeing.card) (hhypersurface : evaluate hypersurface = 0)
+    (hagree : ∀ i ∈ agreeing, evaluate (equations i) = 0) :
+    let power := firstMixingPower (paddedSize n) (thirdCeil (agreeing.card - k + 1))
+    ∃ selected, ∃ hcard : selected.card = 2 * pairs + 1,
+      selected ⊆ agreeing ∧
+      squareSystemRows hypersurface equations (rowSubsetEmbedding selected hcard) ∈
+        fixedGapSystems hn power hypersurface equations ∧
+      (∀ j, evaluate
+        (squareSystemRows hypersurface equations (rowSubsetEmbedding selected hcard) j) = 0) ∧
+      Function.Injective
+        (normalSelectedMap normal pool (rowSubsetEmbedding selected hcard)) :=
+  fixedGapSystems_contains_odd_commonZero_capture_of_exactEnergy hn hypersurface equations
+    evaluate normal pool hdim hnormal agreeing hbound hk
+    (exactEnergyEstimate (ceilSqrt n)) hhypersurface hagree
 
 end ReedSolomon.ListDecoding.HigherOrderProducer
