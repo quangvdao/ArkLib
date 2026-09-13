@@ -443,4 +443,25 @@ theorem macaulayQuotient?_ne_some_zero [DecidableEq F] {n : ℕ}
   simp only [zero_mul] at hproduct
   exact characteristic_ne_zero system hproduct.symm
 
+/-- Exact success characterization after discharging nonvanishing of the
+computed extraneous factor internally. -/
+theorem exists_macaulayQuotient?_eq_some_iff_dvd [DecidableEq F] {n : ℕ}
+    (system : Fin n → CMvPolynomial n F) :
+    (∃ quotient, macaulayQuotient? system = some quotient) ↔
+      extraneousFactor system ∣ characteristic system := by
+  constructor
+  · rintro ⟨quotient, hquotient⟩
+    refine ⟨quotient, ?_⟩
+    simpa only [mul_comm] using (macaulayQuotient?_sound hquotient).symm
+  · exact macaulayQuotient?_isSome_of_dvd (extraneousFactor_ne_zero system)
+
+/-- Boolean executable success is equivalent to the remaining universal
+Macaulay divisibility identity. -/
+theorem macaulayQuotient?_isSome_iff_dvd [DecidableEq F] {n : ℕ}
+    (system : Fin n → CMvPolynomial n F) :
+    (macaulayQuotient? system).isSome = true ↔
+      extraneousFactor system ∣ characteristic system := by
+  rw [Option.isSome_iff_exists]
+  exact exists_macaulayQuotient?_eq_some_iff_dvd system
+
 end ArkLib.Rojas.Producer.MacaulayQuotient

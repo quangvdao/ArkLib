@@ -63,6 +63,8 @@ def main : IO Unit := do
 #print axioms extraneousFactor_dvd_characteristic_of_extraneousIndices_eq_nil
 #print axioms macaulayQuotient?_eq_some_characteristic_of_extraneousIndices_eq_nil
 #print axioms macaulayQuotient?_ne_some_zero
+#print axioms exists_macaulayQuotient?_eq_some_iff_dvd
+#print axioms macaulayQuotient?_isSome_iff_dvd
 
 end RojasMacaulayIdentityCorrectnessTests
 
