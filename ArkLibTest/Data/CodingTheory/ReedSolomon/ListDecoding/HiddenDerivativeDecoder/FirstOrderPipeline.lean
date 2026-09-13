@@ -5,7 +5,10 @@ Authors: Quang Dao
 -/
 module
 
-public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HiddenDerivativeDecoder.FirstOrderPipeline
+public import
+  ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.HiddenDerivativeDecoder.FirstOrderPipeline
+
+/-! # Acceptance checks for executable first-order chart recovery -/
 
 namespace ReedSolomon.ListDecoding.HiddenDerivativeDecoder.FirstOrderPipeline
 

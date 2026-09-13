@@ -6,7 +6,8 @@ Authors: Quang Dao
 module
 
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.Producer
-public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.AgreementRecovery.BatchedTowerCorrectness
+public import
+  ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.AgreementRecovery.BatchedTowerCorrectness
 public import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Contract
 
 /-!
