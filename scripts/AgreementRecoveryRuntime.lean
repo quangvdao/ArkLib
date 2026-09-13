@@ -23,6 +23,30 @@ import ArkLibTest.Data.Polynomial.Rojas.Producer.DenseMacaulay
 import ArkLibTest.Data.Polynomial.Rojas.Producer.MacaulayQuotient
 import ArkLibTest.Data.Polynomial.Rojas.Producer.ResultantSemantics
 import ArkLibTest.Data.Polynomial.Rojas.Producer.HyperplaneFactor
+import ArkLibTest.Data.Polynomial.Rojas.CrossFamilyAvoidance
+import ArkLibTest.Data.Polynomial.Rojas.Producer.AffineDeformation
+import ArkLibTest.Data.Polynomial.Rojas.Producer.ExtraneousHyperplane
+import ArkLibTest.Data.Polynomial.Rojas.Producer.FactorizationCoverage
+import ArkLibTest.Data.Polynomial.Rojas.Producer.FiniteJetDeformation
+import ArkLibTest.Data.Polynomial.Rojas.Producer.FirstSubresultantNonzero
+import ArkLibTest.Data.Polynomial.Rojas.Producer.HyperplaneCoverage
+import ArkLibTest.Data.Polynomial.Rojas.Producer.LowestCoefficientCoverage
+import ArkLibTest.Data.Polynomial.Rojas.Producer.LowestSCoefficient
+import ArkLibTest.Data.Polynomial.Rojas.Producer.MacaulayDivisionCorrectness
+import ArkLibTest.Data.Polynomial.Rojas.Producer.MacaulayIdentityCorrectness
+import ArkLibTest.Data.Polynomial.Rojas.Producer.MacaulayMap
+import ArkLibTest.Data.Polynomial.Rojas.Producer.MacaulayPerturbation
+import ArkLibTest.Data.Polynomial.Rojas.Producer.MacaulayTermwiseCorrectness
+import ArkLibTest.Data.Polynomial.Rojas.Producer.MappedCoordinateDegrees
+import ArkLibTest.Data.Polynomial.Rojas.Producer.QuotientCoverage
+import ArkLibTest.Data.Polynomial.Rojas.Producer.RootDataCoverage
+import ArkLibTest.Data.Polynomial.Rojas.Producer.RootMultiplicity
+import ArkLibTest.Data.Polynomial.Rojas.Producer.SafeCoprimeCorrectness
+import ArkLibTest.Data.Polynomial.Rojas.Producer.SafeMacaulayMap
+import ArkLibTest.Data.Polynomial.Rojas.Producer.SafeSpecializationCorrectness
+import ArkLibTest.Data.Polynomial.Rojas.Producer.SafeSubresultantMap
+import ArkLibTest.Data.Polynomial.Rojas.Producer.SubresultantCorrectness
+import ArkLibTest.Data.Polynomial.Rojas.Producer.SubresultantMap
 import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.NormalizationArithmetic
 import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.SeparablePartCorrectness
 import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.OrdinaryNormalizationCorrectness
@@ -270,6 +294,28 @@ def run : IO Unit := do
   RojasDenseMacaulayTests.runChecks
   RojasMacaulayQuotientTests.runChecks
   RojasResultantSemanticsTests.runChecks
+  RojasCrossFamilyAvoidanceTests.run
+  RojasAffineDeformationTests.runChecks
+  RojasExtraneousHyperplaneTests.main
+  RojasFactorizationCoverageTests.runChecks
+  RojasFiniteJetDeformationTests.runChecks
+  RojasFirstSubresultantNonzeroTests.run
+  RojasHyperplaneCoverageTests.runChecks
+  RojasLowestCoefficientCoverageTests.runChecks
+  RojasLowestSCoefficientTests.runChecks
+  RojasMacaulayDivisionCorrectnessTests.main
+  RojasMacaulayIdentityCorrectnessTests.main
+  RojasMacaulayMapTests.run
+  RojasMacaulayPerturbationTests.main
+  RojasMacaulayTermwiseCorrectnessTests.main
+  RojasMappedCoordinateDegreesTests.run
+  RojasQuotientCoverageTests.main
+  RojasRootDataCoverageTests.run
+  RojasRootMultiplicityTests.main
+  RojasSafeMacaulayMapTests.run
+  RojasSafeSubresultantMapTests.run
+  RojasSubresultantCorrectnessTests.run
+  RojasSubresultantMapTests.run
   NormalizationArithmeticTests.run
   SeparablePartCorrectnessTests.run
   OrdinaryNormalizationCorrectnessTests.run

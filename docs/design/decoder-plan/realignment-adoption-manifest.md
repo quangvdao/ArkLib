@@ -104,3 +104,24 @@ inseparable inputs; eager and unshared mutations fail the fixture.
 This remains a checked-input seam. Generic normalization is not yet composed with quadratic-center
 transport into a complete generic public decoder, so I2 does not claim the final public zeroth-order
 facade required by the paper.
+
+## I3 sources: reviewed Personal 3 Rojas union
+
+| Item | Exact value |
+| --- | --- |
+| Safe specialization/map union | `67bf095639d8323f22bb7ca2bbb2748ea16c1e39` |
+| Deformation and coverage union | `cde343b94eef10064f57187a37e67076d6a12674` |
+| Root-data coverage tip | `1bc9ddddf8ef4d9b81fce4ef90de63eccbf6f3a9` |
+| Coordinator merges | `b707a0de8`, `3fd7bb44b` |
+| Coordinator cherry-pick | `ad3870275` |
+
+The second merge had one add/add conflict in `ResultantSemantics.lean`; the exact
+`cde343b94eef10064f57187a37e67076d6a12674` version was selected because it generalizes the
+coefficient assumptions from a field to a commutative domain. All executable P3 fixtures are
+registered centrally; `SafeCoprimeCorrectness` and `SafeSpecializationCorrectness` are compile-only.
+
+These producers remain conditional. Root-data coverage consumes successful specialization,
+perturbation and factorization coverage; the multiplicity layer does not yet prove the paper's
+strict valuation gap; the current cubic collision bound does not establish the paper's quadratic
+field-size guard. I3 therefore provides reviewed Rojas foundations, not a completed dense solver or
+higher-order decoder.
