@@ -39,3 +39,21 @@ example : (squareGate.run 7 [0, 1] 5).known = [0, 1, 3, 2, 3, 2, 2] := by decide
 -- Inspect the executed persistent cache, rather than only the final coefficient list.
 example : (squareGate.run 7 [0, 1] 5).products.toArray.toList =
     [0, 0, 1, 2, 1, 2, 2] := by decide
+
+namespace RelaxedConvolutionTests
+
+/-- Compiled acceptance entrypoint inspecting dyadic scheduling and persistent state. -/
+def run : IO Unit := do
+  unless decide (blockOf (2, 6) = ⟨1, 3, false⟩ ∧
+      blockOf (6, 2) = ⟨1, 3, true⟩ ∧ (blockOf (2, 6)).ready = 8) do
+    throw (IO.userError "dyadic block orientation or readiness changed")
+  unless (cache 7 input input 3)[6] == 0 &&
+      (cache 7 input input 5)[6] == 1 && (cache 7 input input 6)[6] == 3 do
+    throw (IO.userError "dyadic contributions were cached at the wrong completion time")
+  let state := squareGate.run 7 [0, 1] 5
+  unless state.known == [0, 1, 3, 2, 3, 2, 2] do
+    throw (IO.userError "cached recurrence changed the nonreduced output")
+  unless state.products.toArray.toList == [0, 0, 1, 2, 1, 2, 2] do
+    throw (IO.userError "cached recurrence did not retain the expected product cache")
+
+end RelaxedConvolutionTests

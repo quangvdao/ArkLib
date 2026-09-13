@@ -47,3 +47,14 @@ private def negativeUnit : System (ZMod 4) where
 example : negativeUnit.through [2] 3 = [2, 1, 1] := by decide
 
 #eval negativeUnit.through [2] 3
+
+namespace FiniteRecurrenceTests
+
+/-- Compiled acceptance entrypoint for the executable finite recurrence. -/
+def run : IO Unit := do
+  unless increment.through [0, 1] 7 == [0, 1, 2, 3, 0, 1, 2] do
+    throw (IO.userError "finite recurrence changed the nonreduced seven-term output")
+  unless negativeUnit.through [2] 3 == [2, 1, 1] do
+    throw (IO.userError "finite recurrence failed inversion of a nonidentity unit")
+
+end FiniteRecurrenceTests
