@@ -5,9 +5,12 @@ Authors: Quang Dao
 -/
 module
 
+import Lean.Elab.Tactic.Omega
+import Mathlib.Tactic.Ring
+
 public import ArkLib.ToMathlib.MvPolynomial.FirstOrderTaylor
+public import Mathlib.Algebra.Polynomial.Div
 public import Mathlib.Algebra.Polynomial.HasseDeriv
-public import Mathlib.Tactic
 
 /-!
 # Ring-valued triangular Hasse-jet coefficient identity

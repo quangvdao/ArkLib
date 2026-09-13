@@ -1,5 +1,15 @@
+/-
+Copyright (c) 2026 ArkLib Contributors. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Quang Dao
+-/
+
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.CachedRecurrence
 import Mathlib.Data.ZMod.Basic
+
+/-!
+# Relaxed-convolution cache tests
+-/
 
 open ReedSolomon.HiddenDerivative.FastTaylor
 open RelaxedConvolution

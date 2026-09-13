@@ -5,9 +5,10 @@ Authors: Quang Dao
 -/
 module
 
+import Lean.Elab.Tactic.Omega
+
 public import Mathlib.Algebra.Group.Units.Basic
 public import Mathlib.Data.List.TakeDrop
-public import Mathlib.Tactic
 public import Mathlib.Algebra.Polynomial.Degree.Operations
 public import Mathlib.Data.List.GetD
 

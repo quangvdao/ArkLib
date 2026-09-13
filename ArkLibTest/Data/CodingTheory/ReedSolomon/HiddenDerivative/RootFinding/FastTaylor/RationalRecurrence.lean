@@ -1,5 +1,17 @@
-import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.RationalRecurrence
+/-
+Copyright (c) 2026 ArkLib Contributors. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Quang Dao
+-/
+
+import
+  ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.RationalRecurrence
 import Mathlib.Data.ZMod.Basic
+import Mathlib.Tactic.IntervalCases
+
+/-!
+# Rational Taylor-recurrence tests
+-/
 
 open CompPoly ArkLib.TruncatedSeries
 open ReedSolomon.HiddenDerivative.FastTaylor.RationalCircuit
