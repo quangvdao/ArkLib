@@ -40,7 +40,8 @@ private def ambientEquation : CMvPolynomial 3 E :=
 private def check (label : String) (condition : Bool) : IO Unit :=
   unless condition do throw (IO.userError label)
 
-/-- Execute the exact general producer output through projection, computed obstruction and sample. -/
+/-- Execute the exact general producer output through projection, computed obstruction and
+sample. -/
 def run : IO Unit := do
   let center : E := 3
   let some produced := ComponentConstruction.RecursiveArithmetic.runInitial? center ambientEquation
@@ -75,7 +76,7 @@ def run : IO Unit := do
 #check ComponentConstruction.Readiness.projected_obstruction_totalDegree_le
 #check ComponentConstruction.Readiness.exists_projection_and_confluent_sample
 #check ComponentConstruction.Readiness.recursiveInitial_projection_and_confluent_sample
-#check ComponentConstruction.Readiness.recursiveInitial_projection_and_confluent_sample_of_nonempty_components
+#check recursiveInitial_projection_and_confluent_sample_of_nonempty_components
 
 #print axioms ComponentConstruction.Readiness.projected_generic_coprime
 #print axioms ComponentConstruction.Readiness.projected_obstruction_ne_zero
@@ -83,6 +84,6 @@ def run : IO Unit := do
 #print axioms ComponentConstruction.Readiness.projected_obstruction_totalDegree_le
 #print axioms ComponentConstruction.Readiness.exists_projection_and_confluent_sample
 #print axioms ComponentConstruction.Readiness.recursiveInitial_projection_and_confluent_sample
-#print axioms ComponentConstruction.Readiness.recursiveInitial_projection_and_confluent_sample_of_nonempty_components
+#print axioms recursiveInitial_projection_and_confluent_sample_of_nonempty_components
 
 end ComponentReadinessTests
