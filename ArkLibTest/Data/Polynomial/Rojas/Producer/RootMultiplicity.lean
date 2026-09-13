@@ -79,6 +79,7 @@ theorem bare_kernel_does_not_force_principal_multiplicity :
     (∀ i, Polynomial.X ∣
         counterexampleMatrix.mulVec counterexampleVector i) ∧
       IsUnit (counterexampleVector 1) ∧
+      Polynomial.X ∣ counterexampleMatrix 0 0 ∧
       ¬Polynomial.X * Polynomial.X ∣ counterexampleMatrix.det := by
   constructor
   · intro i
@@ -86,6 +87,8 @@ theorem bare_kernel_does_not_force_principal_multiplicity :
       simp [counterexampleMatrix, counterexampleVector, Matrix.mulVec]
   constructor
   · simp [counterexampleVector]
+  constructor
+  · simp [counterexampleMatrix]
   · intro hdiv
     have hpow : Polynomial.X ^ 2 ∣ counterexampleMatrix.det := by
       simpa [pow_two] using hdiv
