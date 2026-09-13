@@ -7,6 +7,8 @@ Authors: Quang Dao
 import ArkLib.Data.MvPolynomial.BoundedGCD.PseudoDivision
 import Mathlib.Algebra.Field.ZMod
 
+/-! Executable tests for bounded multivariate pseudo-division. -/
+
 open CPoly CPoly.CMvPolynomial CPoly.CMvPolynomial.BoundedGCD CompPoly
 
 namespace PseudoDivisionTests

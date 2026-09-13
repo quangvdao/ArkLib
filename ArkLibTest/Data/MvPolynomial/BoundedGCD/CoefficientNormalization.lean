@@ -8,6 +8,8 @@ import ArkLib.Data.MvPolynomial.BoundedGCD.CoefficientNormalization
 import ArkLib.Data.MvPolynomial.BoundedGCD.CheckedCandidate
 import Mathlib.Algebra.Field.ZMod
 
+/-! Executable tests for recursive coefficient-content normalization. -/
+
 open CPoly CPoly.CMvPolynomial CompPoly
 open CPoly.CMvPolynomial.BoundedGCD
 open CPoly.CMvPolynomial.BoundedGCD.CoefficientNormalization

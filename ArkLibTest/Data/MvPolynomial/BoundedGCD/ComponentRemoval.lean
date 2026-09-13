@@ -7,6 +7,8 @@ Authors: Quang Dao
 import ArkLib.Data.MvPolynomial.BoundedGCD.ComponentRemoval
 import Mathlib.Algebra.Field.ZMod
 
+/-! Executable tests for checked common-component removal. -/
+
 open CPoly CPoly.CMvPolynomial CompPoly
 open CPoly.CMvPolynomial.BoundedGCD.ComponentRemoval
 

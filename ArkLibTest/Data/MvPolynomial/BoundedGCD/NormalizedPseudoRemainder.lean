@@ -8,6 +8,8 @@ import ArkLib.Data.MvPolynomial.BoundedGCD.NormalizedPseudoRemainder
 import ArkLib.Data.MvPolynomial.BoundedGCD.CheckedCandidate
 import Mathlib.Algebra.Field.ZMod
 
+/-! Executable tests for normalized pseudo-remainder sequences. -/
+
 open CPoly CPoly.CMvPolynomial CompPoly
 open CPoly.CMvPolynomial.BoundedGCD
 open CPoly.CMvPolynomial.BoundedGCD.NormalizedPseudoRemainder

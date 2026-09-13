@@ -7,6 +7,8 @@ Authors: Quang Dao
 import ArkLib.Data.MvPolynomial.BoundedGCD.CheckedCandidate
 import Mathlib.Algebra.Field.ZMod
 
+/-! Executable tests for checked bounded multivariate gcd candidates. -/
+
 open CPoly CPoly.CMvPolynomial CPoly.CMvPolynomial.BoundedGCD CompPoly
 
 namespace CheckedCandidateTests
