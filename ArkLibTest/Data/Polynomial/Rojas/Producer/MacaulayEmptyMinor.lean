@@ -40,6 +40,15 @@ example : macaulayQuotient? dependentLinear = some (characteristic dependentLine
     simp only [dependentLinear]
     decide +kernel)
 
+example : ∃ output, ArkLib.Rojas.Producer.MacaulayPerturbation.run inseparable = .ok output :=
+  exists_macaulayPerturbation_run_eq_ok_univariate inseparable
+
+example : ∃ output, ArkLib.Rojas.Producer.MacaulayPerturbation.run dependentLinear = .ok output :=
+  exists_macaulayPerturbation_run_eq_ok_of_totalDegree_le_one dependentLinear (by
+    intro i
+    simp only [dependentLinear]
+    decide +kernel)
+
 /-- Degree two in two variables escapes the proved empty-minor branch. -/
 example : extraneousIndices nonlinear ≠ [] := by decide +kernel
 example : extraneousFactor nonlinear ≠ 1 := by decide +kernel
@@ -53,11 +62,21 @@ def main : IO Unit := do
       throw <| IO.userError "univariate input acquired an extraneous factor"
     unless macaulayQuotient? system == some (characteristic system) do
       throw <| IO.userError "univariate checked division failed"
+    match ArkLib.Rojas.Producer.MacaulayPerturbation.run system with
+    | .error _ => throw <| IO.userError "univariate perturbation producer failed"
+    | .ok output =>
+        unless output.perturbation != 0 do
+          throw <| IO.userError "univariate perturbation output was zero"
   let zeroSystem : Fin 2 → CMvPolynomial 2 F := fun _ ↦ 0
   for system in [zeroSystem, dependentLinear] do
     unless extraneousIndices system == [] &&
         macaulayQuotient? system == some (characteristic system) do
       throw <| IO.userError "degenerate affine-linear input failed total division"
+    match ArkLib.Rojas.Producer.MacaulayPerturbation.run system with
+    | .error _ => throw <| IO.userError "affine-linear perturbation producer failed"
+    | .ok output =>
+        unless output.perturbation != 0 do
+          throw <| IO.userError "affine-linear perturbation output was zero"
   unless extraneousIndices nonlinear != [] && extraneousFactor nonlinear != 1 do
     throw <| IO.userError "nonlinear control stopped exercising a genuine minor"
   IO.println "Macaulay empty minor: unary degrees, zero and dependent linear inputs passed"
@@ -66,6 +85,8 @@ def main : IO Unit := do
 #print axioms extraneousIndices_eq_nil_univariate
 #print axioms macaulayQuotient?_eq_some_characteristic_of_totalDegree_le_one
 #print axioms macaulayQuotient?_eq_some_characteristic_univariate
+#print axioms exists_macaulayPerturbation_run_eq_ok_of_totalDegree_le_one
+#print axioms exists_macaulayPerturbation_run_eq_ok_univariate
 
 end RojasMacaulayEmptyMinorTests
 

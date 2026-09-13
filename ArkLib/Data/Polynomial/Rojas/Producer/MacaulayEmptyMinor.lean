@@ -6,6 +6,7 @@ Authors: Quang Dao
 module
 
 public import ArkLib.Data.Polynomial.Rojas.Producer.MacaulayIdentityCorrectness
+public import ArkLib.Data.Polynomial.Rojas.Producer.MacaulayPerturbationCorrectness
 
 /-!
 # Input-only cases of total Macaulay division
@@ -149,5 +150,41 @@ theorem macaulayQuotient?_eq_some_characteristic_univariate [DecidableEq F]
     macaulayQuotient? system = some (characteristic system) :=
   macaulayQuotient?_eq_some_characteristic_of_extraneousIndices_eq_nil system
     (extraneousIndices_eq_nil_univariate system)
+
+/-- A checked quotient equal to the nonzero characteristic determinant gives
+an actual successful perturbation output. -/
+theorem exists_macaulayPerturbation_run_eq_ok_of_quotient_eq_characteristic
+    [DecidableEq F] {n : ℕ} (system : Fin n → CMvPolynomial n F)
+    (hquotient : macaulayQuotient? system = some (characteristic system)) :
+    ∃ output, MacaulayPerturbation.run system = .ok output := by
+  have hcharacteristic : characteristic system ≠ 0 := characteristic_ne_zero system
+  cases hexponent : lowestSExponent? (characteristic system) with
+  | none =>
+      exact False.elim <| hcharacteristic <|
+        (lowestSExponent?_eq_none_iff (characteristic system)).mp hexponent
+  | some exponent =>
+      refine ⟨{
+        quotient := characteristic system
+        exponent := exponent
+        perturbation := coefficientInS exponent (characteristic system) }, ?_⟩
+      simp [MacaulayPerturbation.run, MacaulayPerturbation.fromCheckedQuotient?,
+        hquotient, hexponent]
+
+/-- The executable Macaulay perturbation producer succeeds on every
+affine-linear square input, including degenerate systems. -/
+theorem exists_macaulayPerturbation_run_eq_ok_of_totalDegree_le_one
+    [DecidableEq F] {n : ℕ} (system : Fin n → CMvPolynomial n F)
+    (hlinear : ∀ i, (system i).totalDegree ≤ 1) :
+    ∃ output, MacaulayPerturbation.run system = .ok output :=
+  exists_macaulayPerturbation_run_eq_ok_of_quotient_eq_characteristic system
+    (macaulayQuotient?_eq_some_characteristic_of_totalDegree_le_one system hlinear)
+
+/-- The executable Macaulay perturbation producer succeeds on every
+univariate input, independently of degree and coefficients. -/
+theorem exists_macaulayPerturbation_run_eq_ok_univariate [DecidableEq F]
+    (system : Fin 1 → CMvPolynomial 1 F) :
+    ∃ output, MacaulayPerturbation.run system = .ok output :=
+  exists_macaulayPerturbation_run_eq_ok_of_quotient_eq_characteristic system
+    (macaulayQuotient?_eq_some_characteristic_univariate system)
 
 end ArkLib.Rojas.Producer.MacaulayQuotient
