@@ -326,14 +326,24 @@ theorem characteristic_eval_zero_at_dualLift {n : ℕ}
 
 /-- A canonical auxiliary hyperplane through any affine point: every affine
 coefficient is `1`, and the constant coefficient is minus the coordinate sum. -/
+def hyperplaneThrough {n : ℕ} {K : Type*} [CommRing K]
+    (weights x : Fin n → K) : Fin (n + 1) → K :=
+  Fin.cons (-∑ i, weights i * x i) weights
+
+theorem affineLinearValue_hyperplaneThrough {n : ℕ} {K : Type*} [CommRing K]
+    (weights x : Fin n → K) : affineLinearValue (hyperplaneThrough weights x) x = 0 := by
+  rw [affineLinearValue, Fin.sum_univ_succ]
+  simp [hyperplaneThrough, affinePoint]
+
+/-- A canonical auxiliary hyperplane through any affine point: every affine
+coefficient is `1`. -/
 def canonicalHyperplane {n : ℕ} {K : Type*} [CommRing K]
     (x : Fin n → K) : Fin (n + 1) → K :=
-  Fin.cons (-∑ i, x i) (fun _ => 1)
+  hyperplaneThrough (fun _ => 1) x
 
 theorem affineLinearValue_canonicalHyperplane {n : ℕ} {K : Type*} [CommRing K]
     (x : Fin n → K) : affineLinearValue (canonicalHyperplane x) x = 0 := by
-  rw [affineLinearValue, Fin.sum_univ_succ]
-  simp [canonicalHyperplane, affinePoint]
+  exact affineLinearValue_hyperplaneThrough _ _
 
 /-- Fully input-derived first-order determinant vanishing: both the lifted
 point and an auxiliary hyperplane through it are computed from the system and
