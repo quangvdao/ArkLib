@@ -12,3 +12,6 @@ open ArkLib.Rojas
 
 #print axioms commonDenominator_isCoprime_modulus_of_factorization
 #print axioms candidate_isSafe_of_factorization
+#print axioms exists_parameter_isSafe_of_factorization
+#print axioms selectSafeParameter?_exists_of_factorization
+#print axioms Producer.SafeMacaulayMap.run_exists_of_factorization
