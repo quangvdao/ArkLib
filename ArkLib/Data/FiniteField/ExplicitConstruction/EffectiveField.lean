@@ -11,7 +11,9 @@ public import ArkLib.Data.FiniteField.ExplicitConstruction.SuppliedField
 # Operational data for an effective supplied finite field
 
 The existing `Field` and lawful boolean equality instances own arithmetic and equality.
-This record adds the presentation-specific executable operations and their laws. It
+This record adds the presentation-specific executable operations and their laws.
+Frobenius preparation is explicitly staged behind a function; constructing the
+package or a prefix does not run it. Consumers prepare once and reuse the result. It
 contains no cost assumptions and requires no conversion to an absolute polynomial basis.
 The index order is supplied explicitly; prefixes compute only the requested entries.
 -/
@@ -19,6 +21,11 @@ The index order is supplied explicitly; prefixes compute only the requested entr
 @[expose] public section
 
 namespace ArkLib.FiniteField.ExplicitConstruction
+
+/-- A prepared inverse-Frobenius callback with its operational correctness law. -/
+structure InverseFrobeniusData (p : Nat) (K : Type*) [Field K] where
+  inverseFrobenius : K → K
+  inverseFrobenius_pow : ∀ a, inverseFrobenius a ^ p = a
 
 /-- Presentation-specific operations over existing executable field instances.
 The inverse Frobenius callback may close over reusable preprocessing data. -/
@@ -30,8 +37,7 @@ structure EffectiveField (p : Nat) (K : Type*) [Field K] [BEq K] [LawfulBEq K] w
   index : FiniteIndex K
   cardinality_eq : index.cardinality = p ^ degree
   primeEmbedding : ZMod p →+* K
-  inverseFrobenius : K → K
-  inverseFrobenius_pow : ∀ a, inverseFrobenius a ^ p = a
+  prepareInverseFrobenius : Unit → InverseFrobeniusData p K
 
 namespace EffectiveField
 
@@ -62,6 +68,14 @@ theorem prefix_nodup (F : EffectiveField p K) (count : Nat)
     (hcount : count ≤ F.index.cardinality) : (F.elementPrefix count hcount).Nodup :=
   indexedPrefix_nodup _ _ _
 
+/-- Prefix generation is definitionally independent of Frobenius preparation.
+Changing the preparation function cannot affect this operation. -/
+theorem elementPrefix_prepareInvariant (F : EffectiveField p K)
+    (prepare : Unit → InverseFrobeniusData p K) (count : Nat)
+    (hcount : count ≤ F.index.cardinality) :
+    ({ F with prepareInverseFrobenius := prepare }).elementPrefix count hcount =
+      F.elementPrefix count hcount := rfl
+
 /-- The coordinate bijection certifies the cardinality independently of enumeration. -/
 theorem cardinality (F : EffectiveField p K) : Nat.card K = p ^ F.degree := by
   rw [← Nat.card_congr F.index.equivFin, Nat.card_fin, F.cardinality_eq]
@@ -88,7 +102,8 @@ def effectivePrimeField (p : Nat) [Fact p.Prime] : EffectiveField p (ZMod p) whe
   index := primeFiniteIndex p
   cardinality_eq := (pow_one p).symm
   primeEmbedding := RingHom.id _
-  inverseFrobenius := id
-  inverseFrobenius_pow := ZMod.pow_card
+  prepareInverseFrobenius := fun _ => {
+    inverseFrobenius := id
+    inverseFrobenius_pow := ZMod.pow_card }
 
 end ArkLib.FiniteField.ExplicitConstruction

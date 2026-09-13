@@ -19,10 +19,11 @@ def check {p : Nat} {K : Type} [Field K] [BEq K] [LawfulBEq K]
   let values := F.elementPrefix count hcount
   unless values.length == count && decide values.Nodup do
     throw (IO.userError "effective field prefix length or uniqueness failed")
+  let prepared := F.prepareInverseFrobenius ()
   for a in values do
     unless F.unindex (F.elementIndex a) == a do
       throw (IO.userError "effective field coordinate round trip failed")
-    unless F.inverseFrobenius a ^ p == a do
+    unless prepared.inverseFrobenius a ^ p == a do
       throw (IO.userError "effective field inverse Frobenius failed")
     unless a + 0 == a && a * 1 == a && (a == 0 || a / a == 1) do
       throw (IO.userError "effective field arithmetic failed")
@@ -31,8 +32,9 @@ example {p : Nat} {K : Type} [Field K] [BEq K] [LawfulBEq K]
     (F : EffectiveField p K) : Nat.card K = p ^ F.degree := F.cardinality
 
 example {p : Nat} {K : Type} [Field K] [BEq K] [LawfulBEq K]
-    (F : EffectiveField p K) (a : K) : F.inverseFrobenius a ^ p = a :=
-  F.inverseFrobenius_pow a
+    (F : EffectiveField p K) (a : K) :
+    (F.prepareInverseFrobenius ()).inverseFrobenius a ^ p = a :=
+  (F.prepareInverseFrobenius ()).inverseFrobenius_pow a
 
 /-- Exercise prime, binary extension, and odd extension presentations through the same consumer. -/
 def run : IO Unit := do
