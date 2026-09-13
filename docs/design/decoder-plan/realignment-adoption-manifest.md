@@ -51,3 +51,38 @@ The source union is `be8f0b2a9e97ce82451fdc37c6bb95b9dca4128f`. Coordinator umbr
 runtime registration are a subsequent owned integration change. Their exact validated and
 published heads are recorded in later manifest entries after the combined gate and independent
 review.
+
+## I0 publication: reviewed P1/P4 union
+
+| Item | Exact value |
+| --- | --- |
+| Coordinator registration | `60498e967a11ae9dafe4fe6510d070de44e536db` |
+| Validation command | `LAKE_ARTIFACT_CACHE=false LAKE_NO_CACHE=true ./scripts/validate.sh --axioms` |
+| Validation log SHA-256 | `9e757c176d98d74a2fcd0ffaff99325d42bb676e06a45818a9824aa75fceff86` |
+| Axiom sweep | 42,190 declarations across 1,699 modules; 289 baseline `sorryAx` taints; no new taint |
+| Published ref | `fork/quang/decoder-realign-p4-integration` |
+
+Independent source review found no P0--P3 issue in the exact union. The cold combined gate passed
+the library, acceptance clients, warning budgets, source policy, compiled runtimes, generated
+umbrella, mathematical import boundaries, documentation, knowledge-base checks, and axiom sweep.
+
+## I1 sources: effective fields, finite Taylor recurrences, and interpolation frames
+
+| Source slice | Immutable reviewed commits |
+| --- | --- |
+| Effective supplied fields | `4bf6c233a9bc1c51b5413198ecd624e6bb909e41`, `2b54a26203640339ddd193698656c6e81a793980`, `3c04ff9d2bfb02ebc44fe4d156a9574d83350663`, `82141169a94024c50b5a425b0e421f8d39f6e72e` |
+| Finite and cached recurrence | `25b6d98a6da6b4b3ef0972ed0e908c8adf6b1c21`, `e7c71e7de769047c03cd1bfdcbec5d63e8736af0`, `6079bc1e80ba1caac9e3cd9e39878a387369b9f4` |
+| Rational recurrence | `0d2a6d9bb15866d91f58c6912489d6988ec523e4` |
+| Triangular Hasse recurrence | `f7798feeb31e1128b5293f42afa58d18661ed82c`, `e499b7708bb02511b8e46b09211a1f4a1e7fd00a` |
+| Local/full interpolation frames | `6a21a05992e79a7bcbe74ae48bf940552fe25aaa`, `757d0a0e7d26af5d663f98760f4aad11bd95256c`, `63c4835a983ca9a55da51cbac8acfe691068228d` |
+
+These sources establish executable supplied-field adapters, least sufficient effective extensions,
+relative and supplied normal coordinates, finite ring-level recurrence specifications, a quadratic
+dyadic cache, rational recurrence correctness, the concrete shifted triangular Hasse recurrence,
+and materialized normalized interpolation/Jordan frames. The scheduler is currently proved for one
+quadratic cached recurrence; the rational engine still uses finite Newton inversion. No general fast
+complexity claim is made. The interpolation path stops before JNSV minimal-basis execution.
+
+The generic zeroth-order adapter is deliberately absent from I1: a reliable preparation counter
+found that its inseparable path forced reusable Frobenius preparation three times. Its production
+sharing repair and reviewed runtime evidence are required before adoption.

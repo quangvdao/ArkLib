@@ -10,6 +10,11 @@ import ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProdu
 import ArkLibTest.Data.Polynomial.FullSquarefreeDecomposition.Driver
 import ArkLibTest.Data.Polynomial.FullSquarefreeDecomposition.RefinementSuccess
 import ArkLibTest.Data.FiniteField.ExplicitConstruction.ExtensionSearch
+import ArkLibTest.Data.FiniteField.ExplicitConstruction.EffectiveCenters
+import ArkLibTest.Data.FiniteField.ExplicitConstruction.EffectiveExtensionSearch
+import ArkLibTest.Data.FiniteField.ExplicitConstruction.EffectiveField
+import ArkLibTest.Data.FiniteField.ExplicitConstruction.EffectiveNormalBasis
+import ArkLibTest.Data.FiniteField.ExplicitConstruction.EffectiveRelativeQuotient
 import ArkLibTest.Data.Graph.GabberGalilConstruction.Adjacency
 import ArkLibTest.Data.Graph.GabberGalilConstruction.Padding
 import ArkLibTest.Data.Graph.GabberGalilConstruction.PowerChoice
@@ -62,6 +67,18 @@ import
 ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.VaryingOrder
 import
 ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.SemanticTraversal
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.FiniteRecurrence
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.RelaxedConvolution
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.RationalRecurrence
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.TriangularRecurrence
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.Computation.Interpolation.Module.Local
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.Computation.Interpolation.Module.Full
 import
 ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.HiddenDerivativeDecoder.FirstOrderPipeline
 import ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.RegularFiber
@@ -239,6 +256,11 @@ def run : IO Unit := do
   FullSquarefreeDriverTests.BinaryExtension.run
   FullSquarefreeRefinementSuccessTests.run
   ExtensionSearchTests.run
+  EffectiveFieldTests.run
+  EffectiveRelativeQuotientTests.run
+  EffectiveNormalBasisTests.run
+  EffectiveExtensionSearchTests.run
+  EffectiveCentersTests.run
   GabberGalilAdjacencyTest.run
   GabberGalilPaddingTest.run
   GabberGalilPowerChoiceTest.run
@@ -311,6 +333,12 @@ def run : IO Unit := do
   FastTaylorCoverageTests.run
   FastTaylorVaryingOrderTests.run
   FastTaylorSemanticTraversalTests.run
+  FiniteRecurrenceTests.run
+  RelaxedConvolutionTests.run
+  RationalRecurrenceTests.run
+  TriangularRecurrenceTests.run
+  ReedSolomon.HiddenDerivative.InterpolationModuleTests.run
+  ReedSolomon.HiddenDerivative.InterpolationFullModuleTests.run
   ConfluentInverseTests.run
   ProjectionMatrixTests.run
   LocalEquationTests.run

@@ -197,6 +197,9 @@ public import ArkLib.Data.CodingTheory.ReedSolomon.Computation.Interpolation.Loc
 public import ArkLib.Data.CodingTheory.ReedSolomon.Computation.Interpolation.Local.TranslateSpec
 public import ArkLib.Data.CodingTheory.ReedSolomon.Computation.Interpolation.Matrix.Machine
 public import ArkLib.Data.CodingTheory.ReedSolomon.Computation.Interpolation.Matrix.Semantics
+public import ArkLib.Data.CodingTheory.ReedSolomon.Computation.Interpolation.Module.Full
+public import ArkLib.Data.CodingTheory.ReedSolomon.Computation.Interpolation.Module.Local
+public import ArkLib.Data.CodingTheory.ReedSolomon.Computation.Interpolation.Module.Support
 public import ArkLib.Data.CodingTheory.ReedSolomon.Computation.Interpolation.Search.Machine
 public import ArkLib.Data.CodingTheory.ReedSolomon.Computation.Interpolation.Search.Proofs
 public import ArkLib.Data.CodingTheory.ReedSolomon.Computation.Interpolation.Solution.Attempts
@@ -656,6 +659,8 @@ public import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Counting.TotalJetDegreeRootCount
 public import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.DegreeBounds.SpecializationDegree
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.CachedRecurrence
 public import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.ChartData
 public import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.ComponentAdapter
@@ -674,6 +679,8 @@ ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Con
 public import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Contract
 public import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Coverage
 public import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.FiniteRecurrence
+public import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Geometry.Direction
 public import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Geometry.Matrix
@@ -686,7 +693,21 @@ ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Glo
 public import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Global.Residual
 public import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.RationalCircuit
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.RationalRecurrence
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.RelaxedConvolution
+public import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.SemanticTraversal
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.TriangularIdentity
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.TriangularRecurrence
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.TriangularResidual
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.UnitSeriesInverse
 public import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Validity
 public import
 ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.VaryingOrder
@@ -1513,11 +1534,18 @@ public import ArkLib.Data.FiniteField.Candidates
 public import ArkLib.Data.FiniteField.ExplicitConstruction.ArtinSchreierCenters
 public import ArkLib.Data.FiniteField.ExplicitConstruction.CenterDispatcher
 public import ArkLib.Data.FiniteField.ExplicitConstruction.Centers
+public import ArkLib.Data.FiniteField.ExplicitConstruction.EffectiveCenters
+public import ArkLib.Data.FiniteField.ExplicitConstruction.EffectiveExtensionSearch
+public import ArkLib.Data.FiniteField.ExplicitConstruction.EffectiveField
+public import ArkLib.Data.FiniteField.ExplicitConstruction.EffectiveNormalBasis
+public import ArkLib.Data.FiniteField.ExplicitConstruction.EffectivePolynomialBasis
+public import ArkLib.Data.FiniteField.ExplicitConstruction.EffectiveRelativeQuotient
 public import ArkLib.Data.FiniteField.ExplicitConstruction.ExtensionSearch
 public import ArkLib.Data.FiniteField.ExplicitConstruction.OddCenters
 public import ArkLib.Data.FiniteField.ExplicitConstruction.PolynomialBasis
 public import ArkLib.Data.FiniteField.ExplicitConstruction.PolynomialBasisFrobenius
 public import ArkLib.Data.FiniteField.ExplicitConstruction.Quotient
+public import ArkLib.Data.FiniteField.ExplicitConstruction.RelativeFrobenius
 public import ArkLib.Data.FiniteField.ExplicitConstruction.SuppliedCenters
 public import ArkLib.Data.FiniteField.ExplicitConstruction.SuppliedField
 public import ArkLib.Data.Finset.PickSubset
