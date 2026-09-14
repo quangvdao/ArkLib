@@ -39,6 +39,22 @@ theorem product (h s : CBivariate E) (b : ℕ) (hh : h.monic) :
     removed h s b * retain h s b = h :=
   monicGlobalGcd_mul_divByMonic h (s ^ b) hh
 
+/-- Every retained point satisfies the original chart equation, including closed points. -/
+theorem retained_point {K : Type*} [Field K] (phi : E →+* K) (u v : K)
+    (h s : CBivariate E) (b : ℕ) (hh : h.monic)
+    (hz : evalAt phi u v (retain h s b) = 0) : evalAt phi u v h = 0 := by
+  rw [← product h s b hh, evalAt, CBivariate.toPoly_mul, Polynomial.eval₂_mul]
+  change _ * evalAt phi u v (retain h s b) = 0
+  rw [hz, mul_zero]
+
+/-- A generically reduced source stays generically reduced after removing closed components. -/
+theorem retain_generic_squarefree (h s : CBivariate E) (b : ℕ) (hh : h.monic)
+    (hs : Squarefree (ClearDenominators.valueGlobal h)) :
+    Squarefree (ClearDenominators.valueGlobal (retain h s b)) := by
+  apply hs.squarefree_of_dvd
+  refine ⟨ClearDenominators.valueGlobal (removed h s b), ?_⟩
+  rw [← ClearDenominators.valueGlobal_mul, mul_comm, product h s b hh]
+
 theorem retain_monic (h s : CBivariate E) (b : ℕ) (hh : h.monic) :
     (retain h s b).monic := by
   apply (CPolynomial.monic_toPoly_iff _).mpr

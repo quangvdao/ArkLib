@@ -66,6 +66,27 @@ theorem coefficients?_properties (h : CPolynomial (CPolynomial E))
   have heq : actual = cs := Option.some.inj (ha.symm.trans hc)
   simpa only [heq] using And.intro hlen hm
 
+/-- Each output row is the actual residual filter at the same received-position index. -/
+theorem coefficients?_getElem? (h : CPolynomial (CPolynomial E))
+    (gs : List (CPolynomial (CPolynomial E))) (cs : List (CPolynomial E))
+    (hc : coefficients? h gs = some cs) (i : ℕ)
+    (g : CPolynomial (CPolynomial E)) (hi : gs[i]? = some g) :
+    ∃ c, cs[i]? = some c ∧ residualFilter? h g = some c := by
+  induction gs generalizing cs i with
+  | nil => simp at hi
+  | cons a gs ih =>
+    obtain ⟨c, hca⟩ := residualFilter?_exists h a
+    obtain ⟨ds, hds, _, _⟩ := coefficients?_exists h gs
+    have heq : c :: ds = cs := by
+      exact Option.some.inj (by simpa [coefficients?, hca, hds] using hc)
+    subst cs
+    cases i with
+    | zero =>
+      simp only [List.getElem?_cons_zero, Option.some.injEq] at hi
+      subst g
+      exact ⟨c, rfl, hca⟩
+    | succ i => exact ih ds hds i hi
+
 omit [BEq E] [LawfulBEq E] in
 private theorem wires_all_mem {d : ℕ}
     (a : CPolynomial.PolynomialThreshold.Wires E d) (P : CPolynomial E → Prop)
