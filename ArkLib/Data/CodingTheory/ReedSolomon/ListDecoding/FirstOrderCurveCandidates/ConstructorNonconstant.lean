@@ -7,6 +7,7 @@ module
 
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.UniversalAgreementBound
 public import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Contract
+public import ArkLib.Data.Polynomial.CenteredCoefficients
 
 /-! # Initial-coordinate identities of actual constructed charts -/
 
@@ -183,5 +184,101 @@ theorem construct_message_not_base {r k : ℕ} (p Bjet : ℕ) [CharP E p] (cente
     chart hc base point hz hden hparameter
   obtain ⟨b, hb⟩ := entries_base_of_polynomial_map base _ q hq _ (List.mem_ofFn.mpr ⟨j, rfl⟩)
   exact hj b hb
+
+omit [DecidableEq E] [BEq E] [LawfulBEq E] in
+/-- Base-defined Taylor translation and reversal preserve coefficient descent. -/
+theorem entries_base_of_centered_polynomial_map {A : Type*} [Field A] (base : E →+* A)
+    (center : E) (cs : List A) (q : E[X])
+    (hq : coefficientPolynomial
+      (CoefficientList.centeredToDescending (base center) cs) = q.map base) :
+    ∀ c ∈ cs, ∃ b, c = base b := by
+  rw [CoefficientList.centeredToDescending_polynomial] at hq
+  have ht := congrArg (taylor (base center)) hq
+  rw [taylor_taylor, add_neg_cancel, taylor_zero, ← map_taylor] at ht
+  intro c hc
+  exact entries_base_of_polynomial_map base cs.reverse (taylor center q) ht c
+    (List.mem_reverse.mpr hc)
+
+/-- The actual centered message cannot descend to the coefficient field on a component
+whose generic parameter is not a coefficient-field scalar. -/
+theorem construct_centered_message_not_base {r k : ℕ} (p Bjet : ℕ) [CharP E p] (center : E)
+    (T : CMvPolynomial (r + 2) E) (component : CMvPolynomial (r + 1) E)
+    (values : List E)
+    (hv : 0 < (semanticEquation T).weightedTotalDegree (fun i => i.elim 0 (fun _ => 1)))
+    (hB : (semanticEquation T).weightedTotalDegree (fun i => i.elim 0 (fun _ => 1)) ≤ Bjet)
+    (chart : ChartData E r k) (hc : construct? p r k Bjet center T component values = some chart)
+    {A : Type*} [Field A] (base : E →+* A) (point : Fin (r + 1) → A)
+    (hz : CMvPolynomial.eval₂ base point chart.equation = 0)
+    (hden : CMvPolynomial.eval₂ base point chart.denominator ≠ 0)
+    (hparameter : ∃ i, ∀ c : E, point i ≠ base c) :
+    ∀ q : E[X], coefficientPolynomial (CoefficientList.centeredToDescending (base chart.center)
+      (List.ofFn fun j : Fin k => CMvPolynomial.eval₂ base point (chart.numerators j) /
+        CMvPolynomial.eval₂ base point chart.denominator)) ≠ q.map base := by
+  intro q hq
+  obtain ⟨j, hj⟩ := construct_exists_ratio_not_base p Bjet center T component values hv hB
+    chart hc base point hz hden hparameter
+  obtain ⟨b, hb⟩ := entries_base_of_centered_polynomial_map base chart.center _ q hq _
+    (List.mem_ofFn.mpr ⟨j, rfl⟩)
+  exact hj b hb
+
+private theorem eval_centered_ofFn {A : Type*} [Field A] {k : ℕ} (hk : 0 < k)
+    (center x : A) (cs : Fin k → A) :
+    (coefficientPolynomial (CoefficientList.centeredToDescending center (List.ofFn cs))).eval x =
+      ∑ j : Fin k, cs j * (x - center) ^ j.val := by
+  rw [CoefficientList.centeredToDescending_polynomial, taylor_eval]
+  have hd : (CoefficientList.ascendingPolynomial (List.ofFn cs)).degree < k := by
+    simpa [CoefficientList.ascendingPolynomial] using
+      degree_coefficientPolynomial_lt_length (List.ofFn cs).reverse
+  have hn : (CoefficientList.ascendingPolynomial (List.ofFn cs)).natDegree < k := by
+    by_cases hz : CoefficientList.ascendingPolynomial (List.ofFn cs) = 0
+    · simpa [hz] using hk
+    · exact (natDegree_lt_iff_degree_lt hz).mpr hd
+  rw [eval_eq_sum_range' hn, ← Fin.sum_univ_eq_sum_range]
+  apply Finset.sum_congr rfl
+  intro j _
+  simp [CoefficientList.ascendingPolynomial_coeff, List.getD, sub_eq_add_neg]
+
+/-- Universal vanishing of actual cleared agreement polynomials on a generic component
+has cardinality at most `k - 1`. Nonconstancy is derived from the successful constructor
+and a faithful parameter coordinate, rather than assumed for the message. -/
+theorem construct_universal_card_le_pred {r k : ℕ} (p Bjet : ℕ) [CharP E p] (center : E)
+    (T : CMvPolynomial (r + 2) E) (component : CMvPolynomial (r + 1) E)
+    (values : List E)
+    (hv : 0 < (semanticEquation T).weightedTotalDegree (fun i => i.elim 0 (fun _ => 1)))
+    (hB : (semanticEquation T).weightedTotalDegree (fun i => i.elim 0 (fun _ => 1)) ≤ Bjet)
+    (chart : ChartData E r k) (hc : construct? p r k Bjet center T component values = some chart)
+    {A I : Type*} [Field A] (base : E →+* A) (point : Fin (r + 1) → A)
+    (hz : CMvPolynomial.eval₂ base point chart.equation = 0)
+    (hden : CMvPolynomial.eval₂ base point chart.denominator ≠ 0)
+    (hparameter : ∃ i, ∀ c : E, point i ≠ base c)
+    (positions : Finset I) (domain received : I → E) (hinj : Set.InjOn domain positions)
+    (hzero : ∀ i ∈ positions,
+      CMvPolynomial.eval₂ base point (chart.agreement (domain i) (received i)) = 0) :
+    positions.card ≤ k - 1 := by
+  let cs : Fin k → A := fun j => CMvPolynomial.eval₂ base point (chart.numerators j) /
+    CMvPolynomial.eval₂ base point chart.denominator
+  let message := coefficientPolynomial
+    (CoefficientList.centeredToDescending (base chart.center) (List.ofFn cs))
+  have hd : message.degree < k := by
+    simpa [message] using degree_coefficientPolynomial_lt_length
+      (CoefficientList.centeredToDescending (base chart.center) (List.ofFn cs))
+  apply UniversalAgreementBound.card_le_pred_of_not_base_defined base message hd
+    (construct_centered_message_not_base p Bjet center T component values hv hB chart hc
+      base point hz hden hparameter) positions domain received hinj
+  intro i hi
+  have hk : 0 < k := by
+    have := (construct?_geometry p r k Bjet center T component values chart hc).1
+    omega
+  have he := chart.eval₂_agreement_of_cleared base point cs (by
+    intro j
+    dsimp [cs]
+    field_simp) (domain i) (received i)
+  rw [hzero i hi] at he
+  have hs := (mul_eq_zero.mp he.symm).resolve_left hden
+  change message.eval (base (domain i)) = _
+  rw [show message = coefficientPolynomial
+    (CoefficientList.centeredToDescending (base chart.center) (List.ofFn cs)) from rfl,
+    eval_centered_ofFn hk]
+  exact sub_eq_zero.mp hs
 
 end ReedSolomon.ListDecoding.FirstOrderCurveCandidates.ConstructorNonconstant

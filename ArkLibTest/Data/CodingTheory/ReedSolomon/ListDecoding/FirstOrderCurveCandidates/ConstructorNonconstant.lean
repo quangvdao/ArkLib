@@ -43,6 +43,12 @@ example (c : ℚ) : (Polynomial.X : Polynomial ℚ) ≠ Polynomial.C c :=
 #print axioms construct_coordinate_eq_sum_ratios
 #print axioms construct_exists_ratio_not_base
 #print axioms construct_message_not_base
+#print axioms construct_centered_message_not_base
+#print axioms construct_universal_card_le_pred
+
+-- At center 2, ascending [3,1] means 3 + (X-2), hence descending [1,1].
+example : Polynomial.CoefficientList.centeredToDescending (2 : ZMod 5) [3, 1] = [1, 1] := by
+  decide
 
 end ConstructorNonconstantTest
 
