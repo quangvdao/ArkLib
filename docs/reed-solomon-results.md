@@ -5,9 +5,10 @@ agreement (MCA) results and its ProveKit, ZisK, and LambdaVM parameter certifica
 Start with the [mathematical guide](../ArkLib/Data/CodingTheory/ReedSolomon/PaperGuide.lean)
 and the [application guide](../ArkLibExamples/ReedSolomon/PaperGuide.lean).
 
-The branch is `quang/reed-solomon-quantitative-bounds`. Its starting validated revision is
-`ffab000e71c5b19e8a19bebadcc0050eac1366e3`; subsequent edits need their own validation.
-The [completion handoff](design/reed-solomon-release-handoff.md) records that work.
+The branch is `quang/reed-solomon-quantitative-bounds`. Its completed Lean implementation at
+`e26d8ea3107f6b10488e0a8168a04f74e659c125` passed the full repository and axiom gates; the
+following release-record update changes only this guide. The
+[completion handoff](design/reed-solomon-release-handoff.md) is the historical work record.
 
 ## Scope
 
