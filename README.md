@@ -13,6 +13,10 @@ In the future, we plan to verify functional equivalence of the executable spec (
 
 ## Library Structure
 
+For the quantitative Reed–Solomon list-decoding and MCA results, start with the
+[result guide and headline theorem checklist](docs/reed-solomon-results.md).
+It separates the mathematical entrypoint and concrete parameter certificates from decoder work.
+
 The core of our library is a mechanized theory of **Interactive Oracle Reductions** (see [OracleReduction](ArkLib/OracleReduction)):
 1. An **IOR** (called `OracleReduction` in our formalization) is an interactive protocol between a prover and a verifier to reduce a relation $$R_1$$ on some public statement & private witness to another relation $$R_2$$.
 2. The verifier may _not_ see the messages sent by the prover in the clear, but can make oracle queries to these messages using a specified oracle interface;

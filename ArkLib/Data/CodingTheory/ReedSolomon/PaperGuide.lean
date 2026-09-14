@@ -7,9 +7,11 @@ module
 
 public import ArkLib.Data.CodingTheory.ReedSolomon.Interleaved.PowerAgreementArbitrary
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity
+public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.FixedRateExplicitGate
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.RatePartition
-public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.PaperAlgorithms
 public import ArkLib.Data.CodingTheory.ReedSolomon.MutualCorrelatedAgreement.Capacity
+public import
+  ArkLib.Data.CodingTheory.ReedSolomon.MutualCorrelatedAgreement.Capacity.FixedRateExplicitGate
 public import
   ArkLib.Data.CodingTheory.ReedSolomon.MutualCorrelatedAgreement.Capacity.FixedRateCombined
 public import
@@ -31,9 +33,13 @@ public import
 # Reader guide to the quantitative Reed--Solomon results
 
 This is the reusable-library entrypoint for the main theorems accompanying [DKTZ26]. It maps the
-paper's four quantitative regimes to semantic Lean declarations and records the boundary between
-mathematical existence, executable reference code, and the still-unassembled fast decoder. Import
-this module when reading or checking the paper-facing theorem surface.
+paper's four quantitative regimes to semantic Lean declarations. Import this module to read or
+check the mathematical results without importing the executable decoder guide. The headline
+reading checklist and documentation standard are in `docs/reed-solomon-results.md`.
+
+The paper's bounded-input list-recovery extension is outside this formalization's scope.
+The headline first-order bounds use a positive gap above the agreement curve. Constant-code
+and full-code cases have separate elementary guarantees.
 
 Concrete ProveKit, ZisK, LambdaVM, and appendix parameter instantiations live outside the reusable
 library graph. They are indexed separately by `ArkLibExamples.ReedSolomon.PaperGuide`; this module
@@ -131,6 +137,14 @@ and positive exponent slack, then chooses a gap cutoff and
 `d = ceil(exp((fixedRateCoefficient R + epsilon)/delta))`. It is useful for asymptotic capacity
 statements, but it is not the direct fixed-`R,a,d`, `Gamma > 1` theorem.
 
+For the paper's explicit fixed-rate order, use
+`ReedSolomon.HiddenDerivative.fixedRatePartitionOrder` and the matching declarations
+`ReedSolomon.fixedRatePartitionOrder_list_bound_selected` and
+`ReedSolomon.fixedRatePartitionOrder_lineMCA`. They select finite parameters before the field,
+code, and received words, and give the displayed `n^d` and `n^(d+1)` bounds. The order is
+`ceil(max(500, (20/(27*rho)) * exp(rho*log(40/(9*rho))/delta)))`.
+The existential list wrapper is `ReedSolomon.fixedRatePartitionOrder_list_bound`.
+
 ## A fixed gap from capacity
 
 For complete lists, `ReedSolomon.exists_rateCapacity_list` is the all-rate paper facade. It uses
@@ -171,20 +185,15 @@ not the literal counterpart of the paper's branch-dependent characteristic guard
 power agreement
 to the arbitrary-field interleaved setting.
 
-## Decoder algorithms
+## Separate decoder development
 
-Importing this guide also imports
-`ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.PaperAlgorithms`, whose module documentation
-maps
-the paper's named algorithms to their proved Lean endpoints. The central boundary is:
-
-* mathematical list and MCA results above are complete semantic theorems;
-* the coordinate capacity decoder is a retained correctness reference with a primitive-work ledger;
-* agreement recovery is exact relative to supplied finite representations and becomes an ordinary
-  `ExactOutput` theorem when constructor coverage is proved;
-* the square-system decoder is conditional on an explicit torus-backend coverage contract; and
-* the first-order norm components do not yet form a top-level paper decoder or whole-decoder
-  bit/RAM theorem.
+Executable decoding is a separate import:
+`ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.PaperAlgorithms`.
+The mathematical results above bound complete lists and exceptional sets; they do not assert
+that the paper's fast decoder has been implemented. Decoder source remains in the repository,
+and the generated `ArkLib` umbrella still imports it. Use this guide, rather than that umbrella,
+for the mathematical entrypoint. Concrete applications use
+`ArkLibExamples.ReedSolomon.PaperGuide`.
 
 ## References
 

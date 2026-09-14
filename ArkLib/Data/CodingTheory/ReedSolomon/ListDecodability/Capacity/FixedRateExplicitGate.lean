@@ -22,18 +22,34 @@ open HiddenDerivative
 universe u
 
 open Classical in
-/-- The explicit factor-six order together with the least multiplicity returned by the
-terminating search bounds every complete close-polynomial list. -/
+/-- Complete lists at a fixed rate `R` and positive gap `δ` from capacity.
+
+We use agreement `R + δ` and the explicit derivative order
+`d = ceil(max(500, (20/(27*R)) * exp(R*log(40/(9*R))/δ)))`.
+The selected multiplicity and length threshold depend only on `R` and `δ`, not on the field,
+evaluation points, or received word. For every code of rate at most `R` above that length,
+the complete set of degree-`< k` polynomials with at least `A` agreements is finite and has
+size at most `B^2 * (2*B/δ)^d * n^d`, where `B` is the selected jet-degree bound.
+
+The field may be infinite. Its characteristic must be zero or exceed `max(k-1, d, B)`.
+Finiteness is a separate conclusion: the numerical `Set.ncard` bound alone would not rule out
+an infinite list. This is the selected-parameter form of the paper's fixed-rate corollary;
+`fixedRatePartitionOrder_list_bound` hides the particular parameter choice. -/
 theorem fixedRatePartitionOrder_list_bound_selected {R δ : ℝ}
     (hR : 0 < R) (hδ : 0 < δ) (haone : R + δ < 1) :
+    -- Choose the interpolation parameters before the field and code.
     let p := fixedRatePartitionFiniteParameters hR hδ
     ∀ (F : Type u) [Field F] (n k A : ℕ),
+      -- The code has rate at most R; A is an integer agreement count, not a fraction.
       ratePartitionMathematicalLength R (fixedRatePartitionOrder R δ) p.multiplicity ≤ n →
       0 < k →
       (k : ℝ) ≤ R * n → (R + δ) * n ≤ A → A ≤ n →
       ∀ (domain : Fin n ↪ F) (received : Fin n → F),
+      -- Injectivity of domain supplies distinct evaluation points; this guard is on
+      -- characteristic, not field cardinality.
       (ringChar F = 0 ∨ max (max (k - 1) (fixedRatePartitionOrder R δ))
         (ratePartitionJetBound R p.multiplicity) < ringChar F) →
+      -- Bound the full agreement list, not a chosen subset of candidates.
       (closePolynomialSet domain received k A).Finite ∧
         ((closePolynomialSet domain received k A).ncard : ℝ) ≤
           (ratePartitionJetBound R p.multiplicity : ℝ) ^ 2 *

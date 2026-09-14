@@ -23,18 +23,33 @@ open Polynomial HiddenDerivative
 universe u
 
 open Classical in
-/-- At a fixed positive rate and gap, the explicit factor-six order and the least multiplicity
-returned by the terminating search give one exceptional set for every close polynomial. -/
+/-- Line MCA at a fixed rate `R` and positive gap `δ` from capacity.
+
+Use the same derivative order and selected interpolation parameters as
+`fixedRatePartitionOrder` and the fixed-rate list bound: agreement is `R + δ`, and
+`d = ceil(max(500, (20/(27*R)) * exp(R*log(40/(9*R))/δ)))`.
+For each pair of received words, one exceptional set of at most `C * n^(d+1)` challenges
+works for every close polynomial. The constant `C` and length threshold depend only on
+`R` and `δ`; the displayed formula computes `C` from the selected jet and height bounds.
+
+Outside that set, `HasExactCorrelatedPair` supplies degree-`< k` polynomials for the two
+received words. Their linear combination is the candidate, and their common agreement set
+equals its full agreement set. The witnesses may depend on the challenge and candidate;
+the exceptional set may not. The field need not be finite, and its characteristic must be
+zero or exceed `max(k-1, d, B)`, where `B` is the selected jet-degree bound. -/
 theorem fixedRatePartitionOrder_lineMCA {R δ : ℝ}
     (hR : 0 < R) (hδ : 0 < δ) (haone : R + δ < 1) :
+    -- Fix the quantitative choices before the field, code, and received words.
     let p := fixedRatePartitionFiniteParameters hR hδ
     ∀ (F : Type u) [Field F] (n k A : ℕ),
       ratePartitionMathematicalLength R (fixedRatePartitionOrder R δ) p.multiplicity ≤ n →
       0 < k →
       (k : ℝ) ≤ R * n → (R + δ) * n ≤ A → A ≤ n →
+      -- domain is injective; f and g determine the received line f + z*g.
       ∀ (domain : Fin n ↪ F) (f g : Fin n → F),
       (ringChar F = 0 ∨ max (max (k - 1) (fixedRatePartitionOrder R δ))
         (ratePartitionJetBound R p.multiplicity) < ringChar F) →
+      -- One set is chosen before either the challenge z or the candidate P.
       ∃ exceptional : Finset F,
         (exceptional.card : ℝ) ≤ polynomialCurveProductMCAConstant δ
           (ratePartitionJetBound R p.multiplicity)
@@ -42,6 +57,7 @@ theorem fixedRatePartitionOrder_lineMCA {R δ : ℝ}
             (ratePartitionFiniteRatio R (R + δ) (fixedRatePartitionOrder R δ)
               p.multiplicity))
           (fixedRatePartitionOrder R δ) * (n : ℝ) ^ (fixedRatePartitionOrder R δ + 1) ∧
+        -- The conclusion concerns the candidate's full agreement set, not a subset.
         ∀ z ∉ exceptional, ∀ P : F[X], P.degree < k →
           A ≤ (polynomialAgreementSet domain (fun i ↦ f i + z * g i) P).card →
           HasExactCorrelatedPair domain f g (RingHom.id F) k z P := by
