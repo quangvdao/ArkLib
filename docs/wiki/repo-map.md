@@ -778,8 +778,8 @@ there are no forwarding modules at the retired paths.
   `ProofSystem/RingSwitching/Basic.lean` carries the taxonomy over two construction folders.
   `Packing/` is the small→large packing family: `Profile.lean` holds the shared
   packing data layer `RingSwitchingProfile` (packing data + reconstruction laws) and the
-  remaining files are the DP24/Binius construction (`Prelude` with `packMLE` + the Binius
-  instance `binaryTowerProfile`, `Spec`, `BatchingPhase`, `SumcheckPhase`, `General`; RBR
+  remaining files are the DP24/Binius construction (`Prelude` with `packMLE` + the tensor-product
+  constructor `tensorProductProfile`, `Spec`, `BatchingPhase`, `SumcheckPhase`, `General`; RBR
   soundness, `[IsDomain L]`); Binius instantiates it in `ProofSystem/Binius/FRIBinius/`
   (`biniusProfile`), and Hachi's §3 packing head is the intended next `Profile` instance.
   `Lift/` is the **generic HMZ25 lift** (large quotient ring →
