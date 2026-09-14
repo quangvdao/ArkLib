@@ -139,3 +139,23 @@ The compiled regression exercises all three branches, an explicit insufficient-c
 and nonempty recovery over supplied cyclic Frobenius coordinates for `F4` with `n = 4` and
 `k = 3`. This remains the checked regular-data layer: public interpolation and normalization must
 still be connected before claiming the complete generic zeroth-order facade.
+
+## I5 sources: checked Taylor preparation and public effective zeroth decoder
+
+| Item | Exact value |
+| --- | --- |
+| Checked Taylor preparation source | `18961140cede9a64cc1c27de71351ed350f70a67` |
+| Effective public decoder source | `eee9edda862ebac85d52f7bb3faacb4550d21c52` |
+| Coordinator cherry-picks | `80b6de8f0`, `5be96525f` |
+
+The Taylor adapter applies a division-free shift to the original equation, checks the actual
+initial root and separant inverse, derives binomial units from `CharP` and `k ≤ p`, executes the
+finite triangular recurrence, and proves the literal cleared-numerator provenance.  The canonical
+constructor still executes its retained Newton backend; switching that call remains a separate
+milestone.
+
+The effective public zeroth-order facade computes interpolation, normalization, center selection,
+transport, and recovery from data alone.  Its nonempty supplied-coordinate `F4` regression has
+`k = 3 > p = 2` and traverses the large ordinary path.  Existing I4 regressions continue to cover
+the odd and binary quadratic center branches.  Matrix interpolation remains an explicitly slower
+implementation and is not claimed to implement the JNSV minimal-basis algorithm.

@@ -64,6 +64,8 @@ ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.Effecti
 import
 ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.EffectiveTransport
 import
+ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.ZerothOrderDecoder.EffectivePublicDecoder
+import
 ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Geometry.Direction
 import
 ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Geometry.Monic
@@ -103,6 +105,8 @@ import
 ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.RationalRecurrence
 import
 ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.TriangularRecurrence
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.TriangularPreparation
 import
 ArkLibTest.Data.CodingTheory.ReedSolomon.Computation.Interpolation.Module.Local
 import
@@ -329,6 +333,7 @@ def run : IO Unit := do
   PublicDecoderTests.run
   ZerothEffectiveAdapterTests.run
   EffectiveTransportTests.run
+  EffectivePublicDecoderTests.run
   RegularFiberTests.run
   SuppliedAdapterTests.run
   CenterDispatcherTests.run
@@ -389,6 +394,7 @@ def run : IO Unit := do
   RelaxedConvolutionTests.run
   RationalRecurrenceTests.run
   TriangularRecurrenceTests.run
+  TriangularPreparationTests.run
   ReedSolomon.HiddenDerivative.InterpolationModuleTests.run
   ReedSolomon.HiddenDerivative.InterpolationFullModuleTests.run
   ConfluentInverseTests.run
