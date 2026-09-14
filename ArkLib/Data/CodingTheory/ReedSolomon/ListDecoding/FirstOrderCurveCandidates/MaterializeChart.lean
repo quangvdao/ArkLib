@@ -14,9 +14,9 @@ public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.TowerAlgebra.Mat
 
 The executed denominator is the stored chart denominator, not a substituted separant power.
 All `k` numerators are materialized in their original order. The source tower may have nilpotents.
-Success follows from an explicit quotient-unit premise; deriving that premise from
-`DenominatorRegular` for weak towers remains a separate geometric obligation. This module makes
-no agreement or candidate-coverage claim.
+Success follows from an explicit quotient-unit premise. The `DenominatorUnits` adapter discharges
+that premise from `DenominatorRegular` on localized weak towers. This module makes no agreement
+or candidate-coverage claim.
 -/
 
 @[expose] public section
