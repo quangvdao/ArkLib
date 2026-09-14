@@ -72,6 +72,13 @@ or a fresh measurement.
   supplied schedule and field assumptions. The payload theorems prove exact rational expectation
   intervals from the checked tree model and supplied measurement inputs; they do not measure a
   deployment or combine unrelated protocol phases.
+  `ScheduleBudget` covers per-round and adjacent-transition obligations only. For the separate
+  Passport phases, see `ProveKit.Passport.outer_localBudgets` and
+  `ProveKit.Passport.internal_localBudgets`; their docstrings identify the companion checks.
+  For Goldilocks, also read `goldilocksLookupBlindTail_transition`,
+  `goldilocksLookupBlindTail_query`, `goldilocksLookupBlindTail_ood`, and
+  `goldilocksLookupBlindTail_identity` in `ProveKit/Budgets.lean`.
+  No theorem unions these phase bounds into whole-transcript security.
 * `ArkLibExamples.ReedSolomon.ZisK.exists_nested_exceptional` composes the powers challenges fixed
   by the stated final-STARK profile; it is a local algebraic error certificate, not an end-to-end
   soundness theorem.

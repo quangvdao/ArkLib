@@ -6,6 +6,7 @@ Authors: Quang Dao
 module
 
 public import ArkLib.Data.CodingTheory.ReedSolomon.Interleaved.PowerAgreementArbitrary
+public import ArkLib.Data.CodingTheory.ReedSolomon.Interleaved.TensorFoldAgreement
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.FixedRateExplicitGate
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecodability.Capacity.RatePartition

@@ -252,7 +252,10 @@ open Classical in
 /-- Factorwise squarefree recovery with genuinely independent ordinary and regular retention
 thresholds, matching `lem:first-order-factorwise`. The ordinary transfer itself is
 all-characteristic; the positive-order guard supports the preceding squarefree decomposition and
-the regular chart. -/
+the regular chart. Recovery requires the candidate to solve the specialized equation `Q_z(P) = 0`;
+certificate-level wrappers supply this premise for every qualifying candidate.
+`F` contains the received rows and recovered constituents. `E` is the algebraically closed field
+containing challenges and candidates, and `iota` embeds `F` into `E`. -/
 theorem exists_exceptional_retainedSquarefreeCurveMCA_sharp_at
     {F E : Type*} [Field F] [Field E] [IsAlgClosed E]
     {n D ell L₀ L A B M H : ℕ}
@@ -274,7 +277,7 @@ theorem exists_exceptional_retainedSquarefreeCurveMCA_sharp_at
       (exceptional.card : ℚ) ≤ retainedSquarefreeCurveMCASharpRawAt
         n D ell L₀ L A B M H ∧
       ∀ z ∉ exceptional, ∀ P : E[X], P.degree < D + 1 →
-        -- Every candidate with the full agreement threshold receives one common witness tuple.
+        -- A close candidate solving the certificate equation receives one common witness tuple.
         A ≤ (polynomialAgreementSet (mappedDomain domain iota)
           (powerBatchedWord (fun t i ↦ iota (values t i)) z) P).card →
         differentialSpecialization (challengeSpecialization Q z) P = 0 →
@@ -348,7 +351,11 @@ theorem exists_exceptional_retainedSquarefreeCurveMCA_sharp_at
 
 open Classical in
 /-- The independent ordinary minimum is semantic: its attaining threshold is selected before the
-challenge and the resulting exceptional set has the full common-witness conclusion. -/
+challenge and the resulting exceptional set has the full common-witness conclusion.
+Recovery requires the candidate to solve the specialized equation `Q_z(P) = 0`;
+certificate-level wrappers supply this premise for every qualifying candidate.
+`F` contains the received rows and recovered constituents. Challenges and candidates live in the
+algebraically closed field `E`, with `iota` embedding `F` into `E`. -/
 theorem exists_exceptional_retainedSquarefreeCurveMCA_sharp_optimized
     {F E : Type*} [Field F] [Field E] [IsAlgClosed E]
     {n D ell L A B M H : ℕ}
@@ -367,6 +374,7 @@ theorem exists_exceptional_retainedSquarefreeCurveMCA_sharp_optimized
       (exceptional.card : ℚ) ≤ retainedSquarefreeCurveMCASharpOptimizedRaw
         n D ell L A B M H ∧
       ∀ z ∉ exceptional, ∀ P : E[X], P.degree < D + 1 →
+        -- Both closeness and the specialized certificate equation are required here.
         A ≤ (polynomialAgreementSet (mappedDomain domain iota)
           (powerBatchedWord (fun t i ↦ iota (values t i)) z) P).card →
         differentialSpecialization (challengeSpecialization Q z) P = 0 →
@@ -614,8 +622,8 @@ def squarefreeSharpOptimizedCurveEnvelope (p : LineProfile) (split : ℕ) : ℚ 
   retainedSquarefreeCurveMCASharpOptimizedRaw p.n p.D p.batchingDegree split
     p.agreement p.totalJetCap p.firstDerivativeCap p.height
 
-/-- The paper-exact independently optimized profile envelope improves the historical profile
-expression by selecting the admissible ordinary threshold `L₀ = D+1`. -/
+/-- The paper-exact independently optimized profile envelope is no larger than the historical
+expression, because `L₀ = D+1` is one admissible choice in the minimized range. -/
 theorem squarefreeSharpOptimizedCurveEnvelope_le_fixed
     (p : LineProfile) (split : ℕ) (hDA : p.D < p.agreement)
     (hAn : p.agreement ≤ p.n) :
@@ -624,7 +632,10 @@ theorem squarefreeSharpOptimizedCurveEnvelope_le_fixed
   exact retainedSquarefreeCurveMCASharpOptimizedRaw_le_fixed hDA hAn
 
 open Classical in
-/-- A verified finite profile inherits the exact one-chart/content-resultant curve theorem. -/
+/-- A verified finite profile inherits the exact one-chart/content-resultant curve theorem.
+`E` is an auxiliary algebraically closed field, and `iota` embeds `F` into `E` for the proof.
+The returned exceptional set,
+challenge, candidate, and recovered constituents all live over `F`. -/
 theorem exists_exceptional_exact_powerAgreement_squarefree_sharp
     {F E : Type u} [Field F] [Field E] [IsAlgClosed E]
     {p : LineProfile} (hp : p.CurveVerification)
@@ -661,14 +672,18 @@ open Classical in
 /-- A verified finite profile inherits the paper-exact factorwise bound, including its attained
 ordinary-threshold minimum and complete agreement-set witness. This positive-order theorem is the
 `M ≥ 1` branch; derivative-degree zero is routed through the ordinary theorem by the hybrid
-owner layer. -/
+owner layer. The finite range is `2 ≤ k < n` and `k ≤ A ≤ n`; the ordinary and regular
+thresholds may both equal `k` when `A = k`.
+`E` is an auxiliary algebraically closed field, and `iota` embeds `F` into `E` for the proof.
+The returned exceptional set,
+challenge, candidate, and recovered constituents all live over `F`. -/
 theorem exists_exceptional_exact_powerAgreement_squarefree_sharp_optimized
     {F E : Type u} [Field F] [Field E] [IsAlgClosed E]
     {p : LineProfile} (hp : p.CurveVerification)
     -- `split` controls only the regular chart; ordinary retention is minimized separately.
     (split : ℕ)
     (hsplit : p.k ≤ split ∧ split ≤ p.agreement ∧ p.agreement ≤ p.n)
-    (hk : 2 ≤ p.k) (hkA : p.k < p.agreement)
+    (hk : 2 ≤ p.k) (hkn : p.k < p.n)
     (hell : 0 < p.batchingDegree)
     (hM : 1 ≤ p.firstDerivativeCap)
     (hMB : p.firstDerivativeCap ≤ p.totalJetCap)
@@ -693,7 +708,7 @@ theorem exists_exceptional_exact_powerAgreement_squarefree_sharp_optimized
   obtain ⟨cert⟩ := hp.exists_certificate domain curveWord hw
   have hresult :=
     exists_baseExceptional_retainedSquarefreeCurveMCA_sharp_optimized_of_certificate
-      domain values iota p.columns cert hk (hkA.trans_le hsplit.2.2)
+      domain values iota p.columns cert hk hkn
         hsplit.1 hsplit.2.1 hsplit.2.2 hell hM hMB hchar
   simpa only [squarefreeSharpOptimizedCurveEnvelope, LineProfile.D] using hresult
 

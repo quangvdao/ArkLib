@@ -121,7 +121,10 @@ open Classical in
 
 The minimum of the independently proved optimized-hybrid and factorwise-squarefree envelopes still
 has an actual recovery theorem. The chosen exceptional set comes from whichever theorem attains the
-minimum, and every good challenge recovers exact power agreement with the complete agreement set. -/
+minimum, and every good challenge recovers exact power agreement with the complete agreement set.
+`E` is an auxiliary algebraically closed field, and `iota` embeds `F` into `E` for the proof.
+The returned exceptional set,
+challenge, candidate, and recovered constituents all live over `F`. -/
 theorem exists_exceptional_exact_powerAgreement_best
     {F E : Type u} [Field F] [Field E] [IsAlgClosed E]
     {p : LineProfile} (hp : p.CurveVerification)
@@ -168,15 +171,18 @@ open Classical in
 
 The hybrid and factorwise-squarefree alternatives both carry complete agreement-set witnesses.
 In the squarefree branch, the ordinary threshold is attained independently of the regular split.
-The premise `p.k < p.agreement` is exactly what supplies `D ≤ n-2` for that free-retention
-ordinary transfer. -/
+The premise `p.k < p.n` supplies `D = k-1 ≤ n-2` for that ordinary transfer.
+The agreement threshold may equal `k`; neither minimization requires a strict gap above it.
+`E` is an auxiliary algebraically closed field, and `iota` embeds `F` into `E` for the proof.
+The returned exceptional set,
+challenge, candidate, and recovered constituents all live over `F`. -/
 theorem exists_exceptional_exact_powerAgreement_best_optimized
     {F E : Type u} [Field F] [Field E] [IsAlgClosed E]
     {p : LineProfile} (hp : p.CurveVerification)
     -- The regular squarefree split is explicit; its ordinary split is independently minimized.
     (split : ℕ)
     (hsplit : p.k ≤ split ∧ split ≤ p.agreement ∧ p.agreement ≤ p.n)
-    (hk : 2 ≤ p.k) (hkA : p.k < p.agreement)
+    (hk : 2 ≤ p.k) (hkn : p.k < p.n)
     -- Positive-order factorwise premises; the hybrid owner layer handles derivative degree zero.
     (hell : 0 < p.batchingDegree)
     (hM : 1 ≤ p.firstDerivativeCap)
@@ -205,7 +211,7 @@ theorem exists_exceptional_exact_powerAgreement_best_optimized
         hybridOptimizedCurveEnvelope p := le_of_not_ge hbest
     obtain ⟨exceptional, hcard, hgood⟩ :=
       exists_exceptional_exact_powerAgreement_squarefree_sharp_optimized hp split hsplit
-        hk hkA hell hM hMB domain values iota hchar
+        hk hkn hell hM hMB domain values iota hchar
     refine ⟨exceptional, ?_, hgood⟩
     have hcardReal : (exceptional.card : ℝ) ≤
         (squarefreeSharpOptimizedCurveEnvelope p split : ℝ) := by

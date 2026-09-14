@@ -5,10 +5,20 @@ agreement (MCA) results and its ProveKit, ZisK, and LambdaVM parameter certifica
 Start with the [mathematical guide](../ArkLib/Data/CodingTheory/ReedSolomon/PaperGuide.lean)
 and the [application guide](../ArkLibExamples/ReedSolomon/PaperGuide.lean).
 
-The branch is `quang/reed-solomon-quantitative-bounds`. Its completed Lean implementation at
-`e26d8ea3107f6b10488e0a8168a04f74e659c125` passed the full repository and axiom gates; the
-following release-record update changes only this guide. The
+The branch is `quang/reed-solomon-quantitative-bounds`. The independently audited release
+includes ordinary-threshold minimization, certificate wrappers covering `A = k < n`, and a
+mathematical entrypoint importing every headline result, including tensor folds. Its checks use
+`./scripts/validate.sh --axioms`, including the mathematical import boundary and baseline taint
+comparison. The
 [completion handoff](design/reed-solomon-release-handoff.md) is the historical work record.
+
+The September 13 audit started from published revision
+`5d45b0aa554f280386c3c36b132e6196e997d3b7` and independently re-reviewed the repairs above.
+The repaired source passed the full gate: 37,726 declarations across 1,568 modules, 289 unchanged
+baseline `sorryAx`-tainted declarations, and zero nonstandard axioms. The mathematical guide's
+closure contains 501 production modules and no examples; the application guide contains 512
+production and 28 example modules. Validation log SHA-256:
+`92738fb7818136bacd2d032bd19a2a05e6f18cc77bf7277b55e697525452c8ec`.
 
 ## Scope
 
