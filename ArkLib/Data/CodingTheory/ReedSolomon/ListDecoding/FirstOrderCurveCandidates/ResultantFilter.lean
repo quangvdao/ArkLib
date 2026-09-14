@@ -10,14 +10,15 @@ public import
 public import ArkLib.Data.Polynomial.NormProducts.MultiplicationMatrix
 public import CompPoly.Univariate.EuclideanAlgorithm
 public import Mathlib.LinearAlgebra.Matrix.Charpoly.Coeff
+public import ArkLib.ToMathlib.Polynomial.NormResultant
 
 /-!
 # Characteristic-polynomial coefficient filter
 
 For each residual this module computes the stored determinant `det(W I - m_g)` in the
 monomial quotient basis. This is the characteristic-polynomial form of the paper's resultant
-filter. The formal bridge below identifies the computed polynomial with the matrix characteristic
-polynomial; identification with a Sylvester resultant is a separate algebraic obligation.
+filter. The formal bridges below identify the computed polynomial with both the matrix
+characteristic polynomial and the Sylvester resultant, including nonreduced monic quotients.
 The coefficient scan counts neither factors nor multiplicities: it selects the first nonzero
 coefficient in increasing powers of `W` and normalizes that polynomial in `u`.
 -/
@@ -54,6 +55,24 @@ theorem characteristicPolynomial_toPoly (h g : CPolynomial (CPolynomial E)) :
   by_cases hij : i = j <;>
     simp [hij, CPolynomial.toPoly_sub, CPolynomial.toPoly_neg,
       CPolynomial.C_toPoly, CPolynomial.X_toPoly]
+
+/-- The computed characteristic polynomial is exactly `Res_V(h, W - g)`. The coefficient
+ring is the polynomial ring in the projection parameter, and the fiber may be nonreduced. -/
+theorem characteristicPolynomial_eq_resultant (h g : CPolynomial (CPolynomial E))
+    (hh : h.monic) :
+    (characteristicPolynomial h g).toPoly =
+      Polynomial.resultant (h.toPoly.map Polynomial.C)
+        (Polynomial.C Polynomial.X - g.toPoly.map Polynomial.C) := by
+  let : IsDomain (CPolynomial E) := CPolynomial.ringEquiv.toMulEquiv.isDomain
+  rw [characteristicPolynomial_toPoly, CPolynomial.natDegree_toPoly]
+  have hm : CPolynomial.NormProducts.multiplicationMatrix h.toPoly.natDegree h g =
+      fun i j : Fin h.toPoly.natDegree =>
+        ((g.toPoly * Polynomial.X ^ j.val) %ₘ h.toPoly).coeff i.val := by
+    funext i j
+    exact CPolynomial.NormProducts.multiplicationMatrix_apply _ h g hh i j
+  rw [hm]
+  exact Polynomial.charpoly_modByMonic_eq_resultant h.toPoly g.toPoly
+    ((CPolynomial.monic_toPoly_iff h).mp hh)
 
 /-- Monicity supplies a nonzero coefficient even for a universally vanishing residual. -/
 theorem characteristicPolynomial_monic (h g : CPolynomial (CPolynomial E)) :

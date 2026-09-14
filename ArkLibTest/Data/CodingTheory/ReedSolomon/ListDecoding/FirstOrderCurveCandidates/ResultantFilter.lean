@@ -31,3 +31,14 @@ example : (residualFilter? crossing 1 == some (1 : CPolynomial E)) = true := by 
 
 -- A zero intermediate coefficient does not terminate the increasing coefficient scan.
 example : (lowestCoefficient? (v ^ 2) == some (1 : CPolynomial E)) = true := by decide +kernel
+
+-- A double infinitesimal fiber retains its multiplicity and the sign of `W - g`.
+example : characteristicPolynomial (v ^ 2) (v + 1) = v ^ 2 + v + 1 := by decide +kernel
+
+-- The Sylvester bridge requires only monicity, including for this nonreduced fiber.
+example :
+    (characteristicPolynomial (v ^ 2) (v + 1)).toPoly =
+      Polynomial.resultant ((v ^ 2).toPoly.map Polynomial.C)
+        (Polynomial.C Polynomial.X - (v + 1).toPoly.map Polynomial.C) := by
+  apply characteristicPolynomial_eq_resultant
+  decide +kernel
