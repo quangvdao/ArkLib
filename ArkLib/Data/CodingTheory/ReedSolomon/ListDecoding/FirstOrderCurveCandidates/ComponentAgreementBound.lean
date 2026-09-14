@@ -5,9 +5,12 @@ Authors: Quang Dao
 -/
 module
 
-public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.ConstructorNonconstant
-public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.ComponentRemoval
-public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.ComponentNorms
+public import
+  ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.ConstructorNonconstant
+public import
+  ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.ComponentRemoval
+public import
+  ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderNormProducer.ComponentNorms
 public import Mathlib.FieldTheory.RatFunc.AsPolynomial
 
 /-! # Universal agreement bounds on actual descended components -/

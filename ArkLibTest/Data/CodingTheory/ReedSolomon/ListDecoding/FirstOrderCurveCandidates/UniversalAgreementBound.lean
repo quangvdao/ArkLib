@@ -3,7 +3,10 @@ Copyright (c) 2026 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
-import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.UniversalAgreementBound
+import
+ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.UniversalAgreementBound
+
+/-! Tests for nonconstant curve-message agreement bounds. -/
 
 open Polynomial
 open ReedSolomon.ListDecoding.FirstOrderCurveCandidates.UniversalAgreementBound

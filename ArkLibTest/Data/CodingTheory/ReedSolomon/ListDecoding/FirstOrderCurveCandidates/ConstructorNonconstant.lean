@@ -3,8 +3,11 @@ Copyright (c) 2026 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
-import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.ConstructorNonconstant
+import
+  ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.ConstructorNonconstant
 import Mathlib.Algebra.Field.ZMod
+
+/-! Tests for nonconstancy derived from constructed chart coordinates. -/
 
 namespace ConstructorNonconstantTest
 

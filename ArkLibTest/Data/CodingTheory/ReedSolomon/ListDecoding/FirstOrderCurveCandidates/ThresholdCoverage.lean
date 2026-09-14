@@ -3,7 +3,10 @@ Copyright (c) 2026 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
-import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.ThresholdCoverage
+import
+  ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.ThresholdCoverage
+
+/-! Tests for threshold coverage from component agreement bounds. -/
 
 open CompPoly ReedSolomon.ListDecoding.FirstOrderCurveCandidates
 open Polynomial.FunctionFieldAlgorithms

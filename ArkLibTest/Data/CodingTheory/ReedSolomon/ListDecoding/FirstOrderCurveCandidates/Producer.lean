@@ -7,6 +7,8 @@ import
   ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.ConstructorPoints
 import Mathlib.Algebra.Field.ZMod
 
+/-! End-to-end tests for the executable curve candidate producer. -/
+
 namespace ArkLibTest.FirstOrderCurveProducer
 
 open CompPoly CPoly Polynomial

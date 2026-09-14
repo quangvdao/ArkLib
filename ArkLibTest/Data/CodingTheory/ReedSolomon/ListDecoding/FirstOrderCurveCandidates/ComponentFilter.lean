@@ -7,6 +7,8 @@ import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidat
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.FilterCore
 import Mathlib.Data.ZMod.Basic
 
+/-! Tests for componentwise residual-filter semantics. -/
+
 open CompPoly ReedSolomon.ListDecoding.FirstOrderCurveCandidates
 
 private abbrev E := ZMod 2

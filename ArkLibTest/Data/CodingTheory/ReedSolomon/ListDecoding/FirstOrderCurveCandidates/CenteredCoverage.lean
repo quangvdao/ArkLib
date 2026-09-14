@@ -7,6 +7,8 @@ import
   ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.CenteredCoverage
 import Mathlib.Algebra.Field.ZMod
 
+/-! Tests for centered Taylor payload materialization and recovery. -/
+
 namespace ArkLibTest.FirstOrderCenteredCoverage
 
 open CompPoly CPoly Polynomial

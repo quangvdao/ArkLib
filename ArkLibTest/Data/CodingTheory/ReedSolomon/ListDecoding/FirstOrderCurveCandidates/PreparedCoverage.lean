@@ -7,6 +7,8 @@ import
   ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.PreparedCoverage
 import Mathlib.Algebra.Field.ZMod
 
+/-! Tests for retained-filter materialization and point coverage. -/
+
 namespace ArkLibTest.FirstOrderPreparedCoverage
 
 open CompPoly CPoly Polynomial

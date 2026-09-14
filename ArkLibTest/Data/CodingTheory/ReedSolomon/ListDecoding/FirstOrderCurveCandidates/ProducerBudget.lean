@@ -3,8 +3,11 @@ Copyright (c) 2026 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
-import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.ProducerBudget
+import
+  ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.ProducerBudget
 import Mathlib.Algebra.Field.ZMod
+
+/-! Tests for executed producer degree and dimension budgets. -/
 
 namespace ProducerBudgetTest
 

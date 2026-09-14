@@ -5,6 +5,8 @@ Authors: Quang Dao
 -/
 import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.ComponentRemoval
 
+/-! Tests for removing closed primary components. -/
+
 open CompPoly ReedSolomon.ListDecoding.FirstOrderCurveCandidates.ComponentRemoval
 
 private def u : CBivariate (ZMod 2) := CPolynomial.C CPolynomial.X
