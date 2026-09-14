@@ -700,6 +700,7 @@ On the small-gap branch, the definitions expand to
 This is an algebraic agreement theorem over arbitrary fields; finiteness is needed only by the
 probability and affine-space corollaries below. -/
 theorem sharpCapacity_lineAgreement (δ : ℝ) (hδ : 0 < δ) :
+    -- The gap alone fixes the length threshold, characteristic cap, exponent, and coefficient.
     HasSharpCapacityLineAgreement δ (sharpCapacityLengthThreshold δ)
       (fun n ↦ sharpCapacityLineConstant δ *
         (n : ℝ) ^ (sharpCapacityDerivativeOrder δ + 1)) := by
@@ -798,7 +799,9 @@ The concrete witnesses are `sharpCapacityLengthThreshold δ`,
 `sharpCapacityDerivativeOrder δ`, and `sharpCapacityLineConstant δ`.  The conclusion is exact
 full-agreement-set equality, not only the existence of common witnesses on `A` positions. -/
 theorem exists_sharpCapacity_lineAgreement (δ : ℝ) (hδ : 0 < δ) :
+    -- Select all asymptotic parameters before the code, field, received line, and challenge.
     ∃ N d : ℕ, ∃ C : ℝ, 4 ≤ N ∧ 0 < C ∧
+      -- The nested property retains the exact exceptional-set and witness quantifier order.
       HasSharpCapacityLineAgreement δ N (fun n ↦ C * (n : ℝ) ^ (d + 1)) :=
   ⟨sharpCapacityLengthThreshold δ, sharpCapacityDerivativeOrder δ,
     sharpCapacityLineConstant δ, sharpCapacityLengthThreshold_ge_four δ,
@@ -895,20 +898,25 @@ The last conjunct gives the stronger witness-level statement for every indexed a
 biconditional identifies the complete agreement set.  All conclusions use the same piecewise
 jet bound and the same characteristic exception at `k = 1` as the line theorem. -/
 theorem sharpCapacity_affineAgreement_and_mcaError (δ : ℝ) (hδ : 0 < δ) :
+    -- Fix a sufficiently long positive-dimensional code after the capacity gap.
     ∀ n k : ℕ, sharpCapacityLengthThreshold δ ≤ n → 0 < k → k ≤ n →
+    -- Probability claims require a finite field; the characteristic guard is unchanged.
     ∀ (F : Type) [Field F] [Fintype F] [DecidableEq F],
       (k = 1 ∨ ringChar F = 0 ∨ max (k - 1) (sharpCapacityJetBound δ) < ringChar F) →
       ∀ domain : Fin n ↪ F,
+        -- A uniformly sampled line challenge has denominator `|F|`.
         mcaError (AffineLineGenerator F) (code domain k) (1 - k / n - δ) ≤
           ENNReal.ofReal (sharpCapacityLineConstant δ *
             (n : ℝ) ^ (sharpCapacityDerivativeOrder δ + 1) /
               (Fintype.card F : ℝ)) ∧
         ∀ s : ℕ, 1 ≤ s →
+          -- Any positive affine dimension has the same numerator and denominator `|F|-1`.
           mcaError (AffineSpaceGenerator F s) (code domain k) (1 - k / n - δ) ≤
             ENNReal.ofReal (sharpCapacityLineConstant δ *
               (n : ℝ) ^ (sharpCapacityDerivativeOrder δ + 1) /
                 ((Fintype.card F : ℝ) - 1)) ∧
           ∀ U : Fin (s + 1) → Fin n → F,
+            -- The actual bad coefficient vectors are chosen before the vector and candidate.
             ∃ exceptional : Finset (Fin s → F),
               (exceptional.card : ℝ) ≤ sharpCapacityLineConstant δ *
                 (n : ℝ) ^ (sharpCapacityDerivativeOrder δ + 1) *
@@ -918,8 +926,10 @@ theorem sharpCapacity_affineAgreement_and_mcaError (δ : ℝ) (hδ : 0 < δ) :
                   ∑ j, AffineSpaceGenerator F s x j * U j i).card : ℝ) ≥
                     (k : ℝ) + δ * n →
                 ∃ P₀ : Fin (s + 1) → F[X],
+                  -- Constituents are code messages whose affine combination is exactly `P`.
                   (∀ j, (P₀ j).degree < k) ∧
                   P = ∑ j, AffineSpaceGenerator F s x j • P₀ j ∧
+                  -- The biconditional identifies the candidate's complete agreement set.
                   ∀ i, (P.eval (domain i) =
                       ∑ j, AffineSpaceGenerator F s x j * U j i) ↔
                     ∀ j, (P₀ j).eval (domain i) = U j i := by
@@ -1162,7 +1172,9 @@ the exceptional count only: the length threshold, exponent, constant, and charac
 all depend solely on `δ`.  This theorem deliberately does not claim the line theorem's piecewise
 `bδ` for powers batching. -/
 theorem sharpCapacity_powerBatchingAgreement (δ : ℝ) (hδ : 0 < δ) :
+    -- Gap-only choices precede every batching degree, code, field, challenge, and candidate.
     HasSharpCapacityPowerBatchingAgreement δ (sharpCapacityPowerLengthThreshold δ)
+      -- Only the exceptional count grows with `ell`; its characteristic cap does not.
       (fun ell n ↦ (ell : ℝ) * sharpCapacityPowerConstant δ *
         (n : ℝ) ^ (sharpCapacityPowerDerivativeOrder δ + 1)) := by
   let epsilon := sharpCapacityPowerGap δ

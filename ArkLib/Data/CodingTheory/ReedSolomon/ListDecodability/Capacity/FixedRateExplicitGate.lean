@@ -65,17 +65,28 @@ theorem fixedRatePartitionOrder_list_bound_selected {R δ : ℝ}
 open Classical in
 /-- At a fixed positive rate and margin, the explicit factor-six derivative order admits a
 terminating search for the finite interpolation multiplicity and hence bounds every complete
-close-polynomial list.  No 300-based closed multiplicity is asserted at this minimal cutoff. -/
+close-polynomial list.
+
+The order is the fixed explicit value `fixedRatePartitionOrder R δ`; the existential quantifier
+chooses only interpolation parameters for the already fixed `R` and `δ`.  Thus this is distinct
+from the eventual-small-gap theorem built from `ratePartition_fixedRate_eventually`, whose order of
+quantifiers is `∃ δ₀, ∀ δ < δ₀`.  No 300-based closed multiplicity is asserted at this
+minimal cutoff. -/
 theorem fixedRatePartitionOrder_list_bound {R δ : ℝ}
     (hR : 0 < R) (hδ : 0 < δ) (haone : R + δ < 1) :
+    -- Choose finite interpolation data from the fixed rate and gap before the field and code.
     ∃ p : RatePartitionFiniteParameters R (R + δ) (fixedRatePartitionOrder R δ),
+      -- The field may be infinite; only the later characteristic guard restricts it.
       ∀ (F : Type u) [Field F] (n k A : ℕ),
+      -- The code is long enough, has rate at most `R`, and uses agreement at least `(R + δ)n`.
       ratePartitionMathematicalLength R (fixedRatePartitionOrder R δ) p.multiplicity ≤ n →
       0 < k →
       (k : ℝ) ≤ R * n → (R + δ) * n ≤ A → A ≤ n →
       ∀ (domain : Fin n ↪ F) (received : Fin n → F),
+      -- Characteristic zero or above the message/order/jet thresholds is allowed.
       (ringChar F = 0 ∨ max (max (k - 1) (fixedRatePartitionOrder R δ))
         (ratePartitionJetBound R p.multiplicity) < ringChar F) →
+      -- The complete degree-`< k` list is finite before its `Set.ncard` is bounded.
       (closePolynomialSet domain received k A).Finite ∧
         ((closePolynomialSet domain received k A).ncard : ℝ) ≤
           (ratePartitionJetBound R p.multiplicity : ℝ) ^ 2 *

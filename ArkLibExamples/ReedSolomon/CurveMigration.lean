@@ -20,6 +20,12 @@ bounds, so it is automatically no worse than every existing squarefree applicati
 The ProveKit exceptional counts were conservatively stored from the older curve expression.  We
 record exact ceiling equalities for that literal legacy expression separately; unlike the ZisK
 and LambdaVM tables, they are not claimed to be exact ceilings of the smaller squarefree bound.
+
+The profiles and stored schedules are source-derived inputs, not measurements proved by Lean.
+The declarations below construct actual exceptional sets, prove their stored cardinality budgets,
+and return exact full-set power agreement. They do not verify a complete protocol transcript,
+serializer, or deployed system. The 15 ProveKit rows, eight ZisK rows, and nine LambdaVM rows are
+handled through their common family wrappers rather than 32 duplicated proofs.
 -/
 
 open Polynomial ReedSolomon
@@ -45,12 +51,16 @@ private theorem exists_exceptional_best_le_budget
     (hM : 1 ≤ p.firstDerivativeCap)
     (hMB : p.firstDerivativeCap ≤ p.totalJetCap)
     (hbudget : bestCurveEnvelope p split ≤ (budget : ℝ))
+    -- The application supplies distinct evaluation points and the entire received power curve.
     (domain : Fin p.n ↪ F)
     (values : Fin (p.batchingDegree + 1) → Fin p.n → F)
     (iota : F →+* E)
+    -- Positive-order recovery needs this characteristic guard; it is not a field-size bound.
     (hchar : ringChar F = 0 ∨ max p.D p.firstDerivativeCap < ringChar F) :
+    -- One base-field exceptional set is fixed before every challenge and candidate.
     ∃ exceptional : Finset F,
       exceptional.card ≤ budget ∧
+      -- Good challenges recover constituents and the candidate's complete agreement set.
       ∀ z ∉ exceptional, ∀ P : F[X], P.degree < p.k →
         p.agreement ≤ (polynomialAgreementSet domain (powerBatchedWord values z) P).card →
         HasExactPowerAgreement domain values (RingHom.id F) p.k z P := by
@@ -139,15 +149,23 @@ theorem goldilocksBlind_best_envelope_le :
   exact_mod_cast goldilocksBlind_squarefree_envelope_le
 
 open Classical in
-/-- Optimized-hybrid-or-squarefree exact recovery for every Passport outer row. -/
+/-- Exact recovery for all six stored Passport outer rows.
+
+Each row uses its verified interpolation profile and conservative source-derived exceptional
+budget. The bound comes from the smaller of two semantic recovery theorems, not from a numerical
+envelope alone. The statement proves the exceptional set and exact full-set witnesses; it does
+not prove the surrounding ProveKit transcript or its measured compressed size. -/
 theorem passportOuter_exists_exceptional_best
     (i : Fin 6) {F E : Type u} [Field F] [Field E] [IsAlgClosed E]
+    -- The row index fixes all profile integers before these arbitrary code data.
     (domain : Fin (passportOuterProfiles i).n ↪ F)
     (values : Fin ((passportOuterProfiles i).batchingDegree + 1) →
       Fin (passportOuterProfiles i).n → F)
     (iota : F →+* E)
+    -- This guards characteristic, not the cardinality of `F`.
     (hchar : ringChar F = 0 ∨ max ((passportOuterProfiles i).k - 1)
       (passportOuterProfiles i).firstDerivativeCap < ringChar F) :
+    -- One set precedes `z` and `P` and is bounded by the stored schedule input.
     ∃ exceptional : Finset F,
       exceptional.card ≤
           (passportOuterWitness.row ⟨i.val, by omega⟩).exceptionalCount ∧
@@ -166,15 +184,22 @@ theorem passportOuter_exists_exceptional_best
   simpa only [_root_.ReedSolomon.CurveProfile.LineProfile.D] using hchar
 
 open Classical in
-/-- Optimized-hybrid-or-squarefree exact recovery for every Passport internal row. -/
+/-- Exact recovery for all four stored Passport internal zkWHIR rows.
+
+The verified curve profiles construct actual exceptional sets below the conservative scheduled
+counts and recover exact constituent polynomials with full agreement-set equality. The stored
+profile and schedule data are inputs; this theorem is not a whole-transcript union bound. -/
 theorem passportInternal_exists_exceptional_best
     (i : Fin 4) {F E : Type u} [Field F] [Field E] [IsAlgClosed E]
+    -- The selected row fixes its profile, split, agreement threshold, and budget.
     (domain : Fin (passportInternalProfiles i).n ↪ F)
     (values : Fin ((passportInternalProfiles i).batchingDegree + 1) →
       Fin (passportInternalProfiles i).n → F)
     (iota : F →+* E)
+    -- This positive-order characteristic guard is independent of field cardinality.
     (hchar : ringChar F = 0 ∨ max ((passportInternalProfiles i).k - 1)
       (passportInternalProfiles i).firstDerivativeCap < ringChar F) :
+    -- The same bounded set works for every later challenge and close candidate.
     ∃ exceptional : Finset F,
       exceptional.card ≤
           (passportInternalZk.row ⟨i.val, by omega⟩).exceptionalCount ∧
@@ -193,15 +218,22 @@ theorem passportInternal_exists_exceptional_best
   simpa only [_root_.ReedSolomon.CurveProfile.LineProfile.D] using hchar
 
 open Classical in
-/-- Optimized-hybrid-or-squarefree exact recovery for every lookup-witness row. -/
+/-- Exact recovery for all four stored Goldilocks lookup-witness rows.
+
+For each source-derived row, Lean checks the profile and budget inequality, constructs one
+exceptional set before the challenge and candidate, and proves exact power agreement. The theorem
+does not turn the recorded ProveKit implementation measurements into verified measurements. -/
 theorem goldilocksWitness_exists_exceptional_best
     (i : Fin 4) {F E : Type u} [Field F] [Field E] [IsAlgClosed E]
+    -- The row fixes its finite certificate and conservative schedule budget.
     (domain : Fin (goldilocksWitnessProfiles i).n ↪ F)
     (values : Fin ((goldilocksWitnessProfiles i).batchingDegree + 1) →
       Fin (goldilocksWitnessProfiles i).n → F)
     (iota : F →+* E)
+    -- Characteristic must clear the message and first-derivative degrees.
     (hchar : ringChar F = 0 ∨ max ((goldilocksWitnessProfiles i).k - 1)
       (goldilocksWitnessProfiles i).firstDerivativeCap < ringChar F) :
+    -- Cardinality and full-set recovery are proved for one uniform exceptional set.
     ∃ exceptional : Finset F,
       exceptional.card ≤
           (goldilocksLookupWitness.row ⟨i.val, by omega⟩).exceptionalCount ∧
@@ -220,15 +252,22 @@ theorem goldilocksWitness_exists_exceptional_best
   simpa only [_root_.ReedSolomon.CurveProfile.LineProfile.D] using hchar
 
 open Classical in
-/-- Optimized-hybrid-or-squarefree exact recovery for the lookup-blinding row. -/
+/-- Exact recovery for the single stored Goldilocks lookup-blinding row.
+
+The profile and budget are fixed source-derived inputs. Lean proves an actual exceptional set
+below that budget and exact full-set power agreement; the declaration does not verify protocol
+serialization or compressed proof measurements. -/
 theorem goldilocksBlind_exists_exceptional_best
     {F E : Type u} [Field F] [Field E] [IsAlgClosed E]
+    -- Supply arbitrary distinct evaluation points and the received blinding curve.
     (domain : Fin goldilocksBlindProfile.n ↪ F)
     (values : Fin (goldilocksBlindProfile.batchingDegree + 1) →
       Fin goldilocksBlindProfile.n → F)
     (iota : F →+* E)
+    -- Positive-order reconstruction uses a characteristic, rather than field-size, guard.
     (hchar : ringChar F = 0 ∨ max (goldilocksBlindProfile.k - 1)
       goldilocksBlindProfile.firstDerivativeCap < ringChar F) :
+    -- One bounded set works for all later challenges and candidates.
     ∃ exceptional : Finset F,
       exceptional.card ≤ (goldilocksLookupBlind.row 0).exceptionalCount ∧
       ∀ z ∉ exceptional, ∀ P : F[X], P.degree < goldilocksBlindProfile.k →
@@ -261,11 +300,18 @@ theorem best_envelopes_le (i : Fin 8) :
   exact_mod_cast envelopes_le i
 
 open Classical in
-/-- Optimized-hybrid-or-squarefree exact recovery for every compressed ZisK curve. -/
+/-- Exact recovery for all eight compressed-final-STARK ZisK curves.
+
+The row data and saved counts are source-derived inputs whose envelope equalities are checked
+above. This theorem constructs an actual exceptional set and exact power witnesses for every
+candidate outside it; later declarations separately compose challenges and check query/byte
+arithmetic. -/
 theorem exists_exceptional_best (i : Fin 8)
+    -- The row index fixes its profile before the received curve is supplied.
     (domain : Fin (profiles i).n ↪ ConcreteFields.GoldilocksCubic)
     (values : Fin ((profiles i).batchingDegree + 1) →
       Fin (profiles i).n → ConcreteFields.GoldilocksCubic) :
+    -- A single stored-size exceptional set precedes every challenge and candidate.
     ∃ exceptional : Finset ConcreteFields.GoldilocksCubic,
       exceptional.card ≤ exceptionalCounts i ∧
       ∀ z ∉ exceptional, ∀ P : ConcreteFields.GoldilocksCubic[X],
@@ -304,11 +350,18 @@ theorem best_envelopes_le (i : Fin 9) :
   exact_mod_cast envelopes_le i
 
 open Classical in
-/-- Optimized-hybrid-or-squarefree exact recovery for every LambdaVM CPU curve. -/
+/-- Exact recovery for all nine LambdaVM CPU curves.
+
+The source-derived profiles and saved exceptional counts are inputs. Lean checks their finite
+certificates, constructs the bounded exceptional sets, and proves exact full-set power agreement.
+The local-error and byte-accounting capstones live separately and do not claim whole-system
+verification. -/
 theorem exists_exceptional_best (i : Fin 9)
+    -- The row index fixes all certificate integers before the received curve.
     (domain : Fin (profiles i).n ↪ ConcreteFields.GoldilocksCubic)
     (values : Fin ((profiles i).batchingDegree + 1) →
       Fin (profiles i).n → ConcreteFields.GoldilocksCubic) :
+    -- One exceptional set of the saved size works for every later `z` and `P`.
     ∃ exceptional : Finset ConcreteFields.GoldilocksCubic,
       exceptional.card ≤ exceptionalCounts i ∧
       ∀ z ∉ exceptional, ∀ P : ConcreteFields.GoldilocksCubic[X],

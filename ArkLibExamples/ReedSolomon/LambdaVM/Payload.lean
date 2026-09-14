@@ -40,9 +40,16 @@ theorem payload_reduction (unchanged : ℕ) :
       unchanged + 208 * responseBytes + anchorBytes + 55992 := by
   norm_num [responseBytes, anchorBytes]
 
-/-- Total CPU field-and-hash data before and after the replacement. -/
+/-- Nominal CPU field-and-hash totals before and after the replacement.
+
+The baseline query count, response width, fixed bytes, and added anchor bytes are source-derived
+model inputs. Lean proves the two integer totals; it does not verify LambdaVM serialization or
+measure an emitted proof. Together with `payload_reduction`, they give the nominal 55,992-byte
+reduction. -/
 theorem proof_size :
+    -- Recorded baseline: fixed payload plus 219 complete responses.
     fixedBytes + 219 * responseBytes = 1155704 ∧
+    -- Revised model: 208 responses plus the two-anchor payload.
     fixedBytes + 208 * responseBytes + anchorBytes = 1099712 := by
   decide
 
@@ -66,8 +73,13 @@ theorem expectedNetSaving_eq :
     (by simp : 0 < Fintype.card (Fin 32768))]
   norm_num [responseBytes, anchorBytes]
 
-/-- Deduplication retains an expected net reduction of approximately 55617 bytes. -/
+/-- Deduplication retains an expected net reduction strictly between 55,617 and 55,618 bytes.
+
+This is an exact expectation under the stated independent uniform-query occupancy model after
+charging the anchor bytes. It is distinct from the nominal identity and is not a measured or
+serializer-verified proof-size claim. -/
 theorem expectedNetSaving_bounds :
+    -- The exact rational expectation is bracketed by consecutive integer byte totals.
     (55617 : ℚ) < expectedNetSaving ∧ expectedNetSaving < 55618 := by
   rw [expectedNetSaving_eq]
   decide +kernel

@@ -30,7 +30,11 @@ noncomputable section
 
 set_option autoImplicit false
 
-/-- The finite-length slack used by the first-order rate theorem. -/
+/-- The exact finite-length gap `s = eta + 1/n` used by the first-order theorem.
+
+Here `eta` is the positive real gap above the asymptotic first-order agreement curve and `n` is
+the block length. The extra `1/n` absorbs the one-degree difference between message dimension `k`
+and maximum polynomial degree `k - 1`; replacing `s` by `eta` gives the coarser headline bounds. -/
 def finiteLengthSlack (eta : ℝ) (n : ℕ) : ℝ := eta + 1 / (n : ℝ)
 
 theorem finiteLengthSlack_pos {eta : ℝ} {n : ℕ} (heta : 0 < eta) (hn : 0 < n) :

@@ -69,8 +69,14 @@ theorem passportOuterWitness_transitionBudget (i : Fin 5) :
     norm_num [passportOuterWitness, sourceIndex, targetIndex, codeRound, powThreshold,
       TransitionMeetsTarget, bn254FieldSize, security]
 
-/-- Exact per-phase arithmetic for both identical Passport outer witnesses. -/
-theorem passportOuterWitness_budget : ScheduleBudget passportOuterWitness where
+/-- Exact per-phase arithmetic for both identical Passport outer witnesses.
+
+The schedule fields are source-derived inputs. `ScheduleBudget` proves every recorded round event
+and adjacent transition separately at the 128-bit target; it is not a transcript-wide union bound
+and does not prove the implementation measurements that supplied those fields. -/
+theorem passportOuterWitness_budget :
+    -- This conclusion packages the proved local and transition inequalities only.
+    ScheduleBudget passportOuterWitness where
   round := passportOuterWitness_roundBudget
   transition := passportOuterWitness_transitionBudget
 
@@ -125,8 +131,13 @@ theorem passportInternalZk_rhoNonzero :
     FieldCollisionMeetsTarget 1 bn254FieldSize security := by
   norm_num [FieldCollisionMeetsTarget, bn254FieldSize, security]
 
-/-- Exact arithmetic for each of the two identical internal zkWHIR proofs. -/
-theorem passportInternalZk_budget : ScheduleBudget passportInternalZk where
+/-- Exact per-phase arithmetic for each of the two identical internal zkWHIR proofs.
+
+Lean proves the local algebra, OOD, query-survival, and adjacent-transition inequalities encoded by
+the source-derived schedule. It does not assert a union bound for the complete transcript. -/
+theorem passportInternalZk_budget :
+    -- The measured schedule is an input; the packaged inequalities are the proved output.
+    ScheduleBudget passportInternalZk where
   round := passportInternalZk_roundBudget
   transition := passportInternalZk_transitionBudget
 
@@ -152,8 +163,13 @@ theorem goldilocksLookupWitness_transitionBudget (i : Fin 3) :
     norm_num [goldilocksLookupWitness, sourceIndex, targetIndex, codeRound, powThreshold,
       TransitionMeetsTarget, goldilocksCubicFieldSize, security]
 
-/-- Exact arithmetic for both identical cubic-Goldilocks lookup witnesses. -/
-theorem goldilocksLookupWitness_budget : ScheduleBudget goldilocksLookupWitness where
+/-- Exact per-phase arithmetic for both identical cubic-Goldilocks lookup witnesses.
+
+The recorded field, row, query, and OOD data are inputs. This theorem checks each local and
+adjacent-transition inequality, separately from semantic curve recovery and whole-proof security. -/
+theorem goldilocksLookupWitness_budget :
+    -- `ScheduleBudget` records the proved phase-local obligations.
+    ScheduleBudget goldilocksLookupWitness where
   round := goldilocksLookupWitness_roundBudget
   transition := goldilocksLookupWitness_transitionBudget
 
@@ -165,8 +181,13 @@ theorem goldilocksLookupBlind_roundBudget (i : Fin 1) :
       nonceSpace, CodeRound.StructurallyValid, TensorFoldIdentityMeetsTarget,
       RepeatedOodMeetsTarget, QueryMeetsTarget]
 
-/-- The initial blinding code is a one-row schedule and therefore has no internal transition. -/
-theorem goldilocksLookupBlind_budget : ScheduleBudget goldilocksLookupBlind where
+/-- The initial blinding code is a one-row schedule and therefore has no internal transition.
+
+Its source-derived row is checked against the same local 128-bit predicates; the separate tail
+transition and protocol composition are not part of this one-row package. -/
+theorem goldilocksLookupBlind_budget :
+    -- Only the row obligation is inhabited; the transition index type is empty.
+    ScheduleBudget goldilocksLookupBlind where
   round := goldilocksLookupBlind_roundBudget
   transition := by intro i; exact Fin.elim0 i
 

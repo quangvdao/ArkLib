@@ -66,9 +66,14 @@ theorem passportOuterAnalytical_transitionBudget (i : Fin 5) :
   · change TransitionMeetsTarget 22 1 712536 bn254FieldSize security
     norm_num [TransitionMeetsTarget, bn254FieldSize, security]
 
-/-- All local and adjacent-transition inequalities for both identical analytical outer
-witnesses. -/
-theorem passportOuterAnalytical_budget : ScheduleBudget passportOuterAnalytical where
+/-- All local and adjacent-transition inequalities for both analytical Passport outer witnesses.
+
+This is exact arithmetic for the modeled schedule, including its changed fifth row. The schedule
+is an analytical input, and the conclusion remains phase-local rather than a transcript-wide
+security or measured-size claim. -/
+theorem passportOuterAnalytical_budget :
+    -- Package every modeled round and adjacent transition at the fixed target.
+    ScheduleBudget passportOuterAnalytical where
   round := passportOuterAnalytical_roundBudget
   transition := passportOuterAnalytical_transitionBudget
 
@@ -145,9 +150,14 @@ theorem goldilocksLookupAnalytical_transitionBudget (i : Fin 3) :
       goldilocksCubicFieldSize security
     exact goldilocksLookupWitness_transitionBudget 2
 
-/-- All local and adjacent-transition inequalities for both identical analytical lookup
-witnesses. -/
-theorem goldilocksLookupAnalytical_budget : ScheduleBudget goldilocksLookupAnalytical where
+/-- All local and adjacent-transition inequalities for both analytical lookup witnesses.
+
+The analytical first-row OOD count is an input distinct from the measured schedule. Lean proves
+the resulting local and transition inequalities, not an implementation measurement or global
+transcript union bound. -/
+theorem goldilocksLookupAnalytical_budget :
+    -- Package the exact phase-local obligations for the analytical schedule.
+    ScheduleBudget goldilocksLookupAnalytical where
   round := goldilocksLookupAnalytical_roundBudget
   transition := goldilocksLookupAnalytical_transitionBudget
 

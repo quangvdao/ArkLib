@@ -42,15 +42,20 @@ theorem fixedRatePartitionOrder_lineMCA {R δ : ℝ}
     -- Fix the quantitative choices before the field, code, and received words.
     let p := fixedRatePartitionFiniteParameters hR hδ
     ∀ (F : Type u) [Field F] (n k A : ℕ),
+      -- The code is long enough, has rate at most `R`, and realizes agreement between
+      -- `(R + δ)n` and `n`.
       ratePartitionMathematicalLength R (fixedRatePartitionOrder R δ) p.multiplicity ≤ n →
       0 < k →
       (k : ℝ) ≤ R * n → (R + δ) * n ≤ A → A ≤ n →
       -- domain is injective; f and g determine the received line f + z*g.
       ∀ (domain : Fin n ↪ F) (f g : Fin n → F),
+      -- Characteristic zero or above the message/order/jet thresholds is allowed;
+      -- field size is unrestricted.
       (ringChar F = 0 ∨ max (max (k - 1) (fixedRatePartitionOrder R δ))
         (ratePartitionJetBound R p.multiplicity) < ringChar F) →
       -- One set is chosen before either the challenge z or the candidate P.
       ∃ exceptional : Finset F,
+        -- The coefficient comes from the selected jet and finite-ratio height; the exponent is d+1.
         (exceptional.card : ℝ) ≤ polynomialCurveProductMCAConstant δ
           (ratePartitionJetBound R p.multiplicity)
           (ratePartitionHeight (ratePartitionJetBound R p.multiplicity)

@@ -111,12 +111,31 @@ Do not use `ArkLib.Data.CodingTheory.ReedSolomon.MutualCorrelatedAgreement.First
 for the headline row: that retained theorem has the older
 inverse-cubic and inverse-quintic dependence.
 
-For polynomial-curve batching,
+For polynomial-curve batching, the compatibility theorem
 `ReedSolomon.CurveCertificate.exists_exceptional_exact_powerAgreement_best`
-gives an actual recovery theorem for the minimum of the hybrid and squarefree envelopes.
+gives actual recovery for the minimum of the optimized-hybrid envelope and the historical
+factorwise-squarefree envelope with ordinary retention fixed at `L₀ = D+1`. The 32 application
+certificates use this unchanged expression so that their frozen arithmetic constants remain
+literal.
+
+The paper-exact theorem is
+`ReedSolomon.CurveCertificate.exists_exceptional_exact_powerAgreement_best_optimized`. Its
+`bestOptimizedCurveEnvelope` instead uses `squarefreeSharpOptimizedCurveEnvelope`, whose ordinary
+threshold is an attained minimum over all integers `D+1 ≤ L₀ ≤ A`, independently of the
+regular-family split `L`. The underlying raw theorem is
+`ReedSolomon.FirstOrder.Squarefree.exists_exceptional_retainedSquarefreeCurveMCA_sharp_optimized`;
+the explicit two-threshold form is
+`ReedSolomon.FirstOrder.Squarefree.exists_exceptional_retainedSquarefreeCurveMCA_sharp_at`.
+These are the formal counterparts of [DKTZ26, `lem:first-order-factorwise`] and its finite tuning.
+The comparison theorems `squarefreeSharpOptimizedCurveEnvelope_le_fixed` and
+`bestOptimizedCurveEnvelope_le_best` prove that this independent minimization cannot worsen the
+compatibility bound.
+
+The squarefree declarations above are the positive derivative-degree branch. Derivative degree
+zero is owned by the ordinary transfer, while
 `ReedSolomon.exists_baseExceptional_firstOrderCurve_optimized_with_endpoints` dispatches constant
-messages and
-the full code before the nontrivial characteristic-sensitive branch.
+messages and the full code before the nontrivial characteristic-sensitive branch. Thus the
+zero-order and `D+1=n` cases are not hidden inside the positive-order squarefree theorem.
 
 ## Through derivative order d
 
@@ -181,9 +200,22 @@ The local revised small-gap owners are
 uses the retained 1000-based route and the stronger compatibility premise `n <= ringChar F`; it is
 not the literal counterpart of the paper's branch-dependent characteristic guard.
 
-`ReedSolomon.uniformExactInterleavedPowerAgreement_of_scalar_arbitrary` transfers scalar exact
-power agreement
-to the arbitrary-field interleaved setting.
+## Interleaving and multilinear folds
+
+`ReedSolomon.uniformExactInterleavedPowerAgreement_of_scalar_arbitrary` is the arbitrary-field
+form of [DKTZ26, `lem:interleaving-mca` and `cor:interleaved-curve-mca`]. From one scalar theorem it
+obtains a width-independent exceptional set for an entire row-wise interleaving, and preserves the
+complete common agreement set rather than merely bounding its size.
+
+For multilinear folding, `TensorMCA.tensorFoldBad_card_le` proves the abstract shared-level union
+bound from [DKTZ26, `sec:tensor-folding`]: each level contributes its exceptional set only once,
+independently of the number of words at that level. The Reed--Solomon bridge
+`ReedSolomon.fullSetLevelWitness_interleaved_of_exactAgreement` turns exact interleaved agreement
+into the full-set level witness required by that theorem.
+`ReedSolomon.interleavedRS_tensorFoldBad_card_le_heightThree` then specializes the result to three
+folding levels, giving the displayed factor-three exceptional-count bound. These statements concern
+semantic recovery and bad-challenge counts; converting a finite-field count to error divides by the
+field size.
 
 ## Separate decoder development
 

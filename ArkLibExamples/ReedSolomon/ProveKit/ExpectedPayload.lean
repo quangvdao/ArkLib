@@ -123,8 +123,13 @@ theorem passportInternalSaving_interval :
     log2_32, log2_512, log2_1024, log2_2048, log2_4096, log2_8192,
     log2_16384, log2_32768, log2_65536, log2_131072, log2_262144]
 
-/-- A rational interval for the combined Passport saving, derived from its four contributions. -/
+/-- The modeled Passport expected raw saving lies strictly between the displayed rational bounds.
+
+This combines deterministic removed row/evaluation bytes with expected deduplicated Merkle hashes
+under independent uniform sampling with replacement (and the stated strided opening model). It is
+not a compressed-proof measurement or a serializer-correctness theorem. -/
 theorem passportExpectedSaving_interval :
+    -- Lower and upper bounds differ by `0.0003` raw bytes.
     (795647584 : ℚ) / 10000 < passportExpectedSaving ∧
       passportExpectedSaving < (795647587 : ℚ) / 10000 := by
   obtain ⟨ho, ho'⟩ := passportOrdinarySaving_interval
@@ -136,8 +141,13 @@ theorem passportExpectedSaving_interval :
 
 set_option maxHeartbeats 12000000 in
 -- Exact occupancy probabilities involve large rational powers across all Merkle levels.
-/-- The full lookup comparison saves approximately 24,234.60 expected raw bytes, net of OOD. -/
+/-- The modeled lookup comparison saves approximately 24,234.60 expected raw bytes, net of OOD.
+
+The expectation uses the recorded schedules and independent uniform-query occupancy model. The
+strict rational interval is proved; the recorded implementation inputs and any compressed output
+measurements are not. -/
 theorem goldilocksLookupExpectedSaving_interval :
+    -- These exact bounds bracket the expected raw-byte expression defined above.
     (242345980 : ℚ) / 10000 < goldilocksLookupExpectedSaving ∧
       goldilocksLookupExpectedSaving < (242345981 : ℚ) / 10000 := by
   norm_num [goldilocksLookupExpectedSaving, Schedule.expectedOpeningSaving,

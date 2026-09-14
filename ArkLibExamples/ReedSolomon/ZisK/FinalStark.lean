@@ -31,13 +31,20 @@ theorem batchingCount_eq :
     exceptionalCounts 2 + exceptionalCounts 4 = batchingCount := by decide
 
 open Classical in
-/-- The two actual powers challenges recover every original message outside one
-exceptional set of pairs, constructed from the received words before any candidate. -/
+/-- The two ZisK powers challenges recover every original message outside one bad pair set.
+
+The five inner groups share the degree-103 challenge, and the outer degree-four challenge is then
+composed with it. The received arrays are source-derived inputs. Lean constructs the exceptional
+set before `(u,v)` and `P`, bounds it by `|F| * (E₁₀₃ + E₄)`, and returns exact nested power
+agreement with the complete agreement set; it does not assert a whole-proof union bound. -/
 theorem exists_nested_exceptional
+    -- Fix the evaluation domain and all five received power curves first.
     (domain : Fin 524288 ↪ GoldilocksCubic)
     (values : (g : Fin 5) → Fin (innerDegree g + 1) → Fin 524288 → GoldilocksCubic) :
+    -- One pair set is selected before either challenge and every candidate.
     ∃ exceptional : Finset (GoldilocksCubic × GoldilocksCubic),
       exceptional.card ≤ fieldSize * batchingCount ∧
+      -- Outside it, every close degree-`<32768` candidate has exact nested witnesses.
       ∀ u v, (u, v) ∉ exceptional → ∀ P : GoldilocksCubic[X], P.degree < 32768 →
         124136 ≤ (polynomialAgreementSet domain
           (powerBatchedWord (fun g ↦ powerBatchedWord (values g) u) v) P).card →
@@ -102,8 +109,13 @@ theorem exists_fold_at_target (i : Fin 3)
   apply div_le_div_of_nonneg_right _ (by positivity)
   exact_mod_cast hcard
 
-/-- The exact finite agreement threshold permits 51 queries at the existing 22-bit hook. -/
+/-- The exact finite agreement threshold permits 51 queries at the recorded 22-bit hook.
+
+This is the rational query-survival inequality for the source-derived agreement fraction. It does
+not prove that the implementation samples this schedule or combine the separately checked error
+phases into a deployed-system claim. -/
 theorem queries_at_target :
+    -- Agreement survival with 22 grinding bits is at most the 128-bit target.
     (124136 / 524288 : ℚ) ^ 51 / 2 ^ 22 ≤ 1 / 2 ^ 128 := by decide +kernel
 
 /-- One fewer query misses the target for this exact agreement threshold and grinding hook. -/
@@ -127,10 +139,16 @@ theorem johnson_queries_fail (a : ℚ) (ha : 0 ≤ a)
     (1 / 2 ^ 128 : ℚ) < (249 / 1000 : ℚ) ^ 52 / 2 ^ 22)
     (div_lt_div_of_pos_right hp (by norm_num))
 
-/-- With all fixed payload retained, removing three responses saves exactly 11760 bytes. -/
+/-- With all other modeled payload fixed, removing three responses saves exactly 11,760 bytes.
+
+The response width and unchanged payload are source-derived accounting inputs. Lean proves these
+three natural-number identities; it does not verify the serializer or measure a proof artifact. -/
 theorem proof_size :
+    -- Baseline: 54 responses of 3,920 bytes plus 42,352 unchanged bytes.
     54 * 3920 + 42352 = (254032 : ℕ) ∧
+    -- Revised model: 51 responses and the same unchanged bytes.
     51 * 3920 + 42352 = (242272 : ℕ) ∧
+    -- The modeled difference is exactly 11,760 bytes.
     254032 - 242272 = (11760 : ℕ) := by decide
 
 end

@@ -30,11 +30,21 @@ open Polynomial MvPolynomial HiddenDerivative
 
 variable {F E : Type*} [Field F] [Field E] [DecidableEq E] {n r : ℕ}
 
-/-- Exact representation includes equality of the entire agreement set, not a subset. -/
+/-- Exact common-witness recovery for one affine-line challenge.
+
+For the received line `f + z*g`, the candidate `P` must split as `P₀ + z*P₁`, after mapping
+coefficients through `iota`, with both base-field messages of degree `< k`. The last equality says
+that every agreement of `P` is a simultaneous agreement of `P₀` with `f` and `P₁` with `g`, and
+conversely; it is stronger than exhibiting a common subset. The witnesses may depend on `z` and
+`P`. MCA theorems place their exceptional-set quantifier before both of those choices. -/
 def HasExactCorrelatedPair [DecidableEq F] (domain : Fin n ↪ F) (f g : Fin n → F)
     (iota : F →+* E) (k : ℕ) (z : E) (P : E[X]) : Prop :=
-  ∃ pair : F[X] × F[X], pair.1.degree < k ∧ pair.2.degree < k ∧
+  ∃ pair : F[X] × F[X],
+    -- Both constituents lie in the original degree-`< k` message space.
+    pair.1.degree < k ∧ pair.2.degree < k ∧
+    -- Their scalar-extended affine combination is the given candidate polynomial.
     P = correlatedPairSpecialization iota z pair ∧
+    -- The candidate's complete agreement set is exactly the common-witness set.
     polynomialAgreementSet (mappedDomain domain iota)
       (fun i ↦ iota (f i) + z * iota (g i)) P =
         commonPolynomialAgreementSet domain f g pair.1 pair.2

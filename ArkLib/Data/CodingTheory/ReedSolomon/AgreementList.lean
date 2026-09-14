@@ -29,10 +29,21 @@ noncomputable section
 
 open Polynomial
 
-/-- The set of degree-`< k` polynomials with at least `A` agreements. -/
+/-- The complete Reed--Solomon agreement list over an arbitrary field.
+
+`domain` embeds the `n` coordinate indices as distinct evaluation points, `received` is the word
+being decoded, `k` is the message dimension, and `A` is an integer agreement threshold. Membership
+means ordinary polynomial degree strictly below `k` together with agreement on at least `A`
+coordinates. This is a `Set`, so a theorem that bounds `Set.ncard` must also prove `.Finite` when
+the field is not assumed finite. -/
 def closePolynomialSet {F : Type*} [Field F] [DecidableEq F] {n : ℕ}
+    -- Fix the evaluation domain, received word, message dimension, and integral threshold.
     (domain : Fin n ↪ F) (received : Fin n → F) (k A : ℕ) : Set F[X] :=
-  {P | P.degree < k ∧ A ≤ (polynomialAgreementSet domain received P).card}
+  {P |
+    -- Candidate messages use degree `< k`, equivalently degree at most `k - 1` when `k > 0`.
+    P.degree < k ∧
+      -- The candidate agrees with the received word at at least `A` of the `n` coordinates.
+      A ≤ (polynomialAgreementSet domain received P).card}
 
 private lemma polynomial_eq_of_agrees_on
     {F : Type*} [Field F] [DecidableEq F] {n k : ℕ}

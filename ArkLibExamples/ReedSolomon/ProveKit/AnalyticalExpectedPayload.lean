@@ -40,8 +40,10 @@ theorem passportAnalyticalAdditionalSaving_interval :
     expectedAuthenticationHashes, Finset.sum_range_succ]
 
 /-- The complete analytical Passport expected raw saving rounds to 80,536.23 bytes at the
-precision displayed in the manuscript. -/
+precision displayed in the manuscript. This is an exact interval in the uniform-query occupancy
+model, not a measured compressed-proof or serializer claim. -/
 theorem passportAnalyticalExpectedSaving_interval :
+    -- The analytical schedule adds its modeled fifth-row saving to the proved base expectation.
     (8053623 : ℚ) / 100 < passportAnalyticalExpectedSaving ∧
       passportAnalyticalExpectedSaving < (8053624 : ℚ) / 100 := by
   obtain ⟨hc, hc'⟩ := passportExpectedSaving_interval
@@ -61,8 +63,12 @@ theorem goldilocksLookupAnalyticalAdditionalSaving_eq :
 def goldilocksLookupAnalyticalExpectedSaving : ℚ :=
   goldilocksLookupExpectedSaving + goldilocksLookupAnalyticalAdditionalSaving
 
-/-- The complete analytical lookup expected raw saving rounds to 24,282.60 bytes. -/
+/-- The analytical lookup expected raw saving rounds to 24,282.60 bytes.
+
+The theorem proves the rational occupancy-model interval after charging two changed OOD elements;
+the analytical schedule and element widths remain inputs rather than verified measurements. -/
 theorem goldilocksLookupAnalyticalExpectedSaving_interval :
+    -- The exact expectation lies strictly between these consecutive cent bounds.
     (2428259 : ℚ) / 100 < goldilocksLookupAnalyticalExpectedSaving ∧
       goldilocksLookupAnalyticalExpectedSaving < (2428260 : ℚ) / 100 := by
   obtain ⟨h, h'⟩ := goldilocksLookupExpectedSaving_interval

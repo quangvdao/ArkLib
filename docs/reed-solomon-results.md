@@ -24,25 +24,25 @@ complete deployed proof systems are outside scope. Decoder development continues
 
 These stable IDs are the author's watchlist. A result counts as readable only after both its
 docstring and its statement annotations have been checked against the standard below.
-Existing prose should be retained when it already meets that standard. “Review pending”
-does not mean that a proof is missing.
+Existing prose should be retained when it already meets that standard. Every row below has now
+completed that review.
 
 All declaration names below are relative to `ReedSolomon` unless another namespace is given.
 
 | ID | Result and paper role | Exact source and declarations | Readability status |
 |---|---|---|---|
-| R1 | Complete Johnson list bound, every characteristic | [Johnson/WeightedCertificate](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/Johnson/WeightedCertificate.lean): `closePolynomialSet_finite_and_ncard_le_johnsonPairwise` | Review pending |
-| R2 | Johnson MCA, including the sharper weighted certificate | [Johnson/Agreement](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/Johnson/Agreement.lean): `exists_exceptional_johnson_lineMCA_allChar`; [WeightedCertificate](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/Johnson/WeightedCertificate.lean): `exists_exceptional_weightedJohnsonMCA_fullAgreement` | Review pending |
-| R3 | Headline first-order list and MCA bounds, both rate branches | [FirstOrder/Branchwise](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/FirstOrder/Branchwise.lean): `FirstOrder.firstOrderBranch_finiteLength_finiteSlack_bounds`, `FirstOrder.firstOrderBranch_finiteLength_rate_bounds`, `FirstOrder.firstOrderBranch_finiteLength_mcaError_le` | Review pending; preserve existing annotations |
-| R4 | Finite first-order curve certificate used by the applications | [FirstOrder/HybridCurveProfile](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/FirstOrder/HybridCurveProfile.lean): `CurveCertificate.exists_exceptional_exact_powerAgreement_best`; [Squarefree/Sharp](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/FirstOrder/Squarefree/Sharp.lean): `FirstOrder.Squarefree.exists_exceptional_retainedSquarefreeCurveMCA_sharp` | Review pending; independent ordinary-threshold wrapper remains |
-| R5 | Fixed-order lists from the rate-dependent gate | [ListDecodability/Capacity/RatePartition](../ArkLib/Data/CodingTheory/ReedSolomon/ListDecodability/Capacity/RatePartition.lean): `exists_ratePartition_list_bound` | Review pending |
-| R6 | Fixed-order line MCA from the same gate | [MCA/Capacity/RatePartition](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/Capacity/RatePartition.lean): `exists_ratePartition_lineMCA_parameters` | Review pending |
-| R7 | Explicit derivative order at a fixed rate and gap: lists | [ListDecodability/Capacity/FixedRateExplicitGate](../ArkLib/Data/CodingTheory/ReedSolomon/ListDecodability/Capacity/FixedRateExplicitGate.lean): `fixedRatePartitionOrder_list_bound_selected`, `fixedRatePartitionOrder_list_bound` | Selected theorem annotated, source-reviewed, and compiled; wrapper readability review pending |
-| R8 | The same explicit fixed-rate order: line MCA | [MCA/Capacity/FixedRateExplicitGate](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/Capacity/FixedRateExplicitGate.lean): `fixedRatePartitionOrder_lineMCA` | Annotated, source-reviewed, and compiled |
-| R9 | List decoding up to capacity, uniformly over all rates | [ListDecodability/Capacity](../ArkLib/Data/CodingTheory/ReedSolomon/ListDecodability/Capacity.lean): `exists_rateCapacity_list` and the property `HasCapacityLists` | Review pending |
-| R10 | MCA up to capacity, uniformly over all rates | [MCA/Capacity](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/Capacity.lean): `sharpCapacity_lineAgreement`, `exists_sharpCapacity_lineAgreement`, and `HasSharpCapacityLineAgreement` | Review pending |
-| R11 | Affine families and powers batching | [MCA/Capacity](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/Capacity.lean): `sharpCapacity_affineAgreement_and_mcaError`, `sharpCapacity_powerBatchingAgreement`; R4 supplies the finite first-order powers bound | Review pending |
-| R12 | Interleaving and shared-level multilinear folds | [Interleaved/PowerAgreementArbitrary](../ArkLib/Data/CodingTheory/ReedSolomon/Interleaved/PowerAgreementArbitrary.lean): `uniformExactInterleavedPowerAgreement_of_scalar_arbitrary`; [BinaryTensorFoldAgreement](../ArkLib/Data/CodingTheory/ProximityGenerator/BinaryTensorFoldAgreement.lean): `TensorMCA.tensorFoldBad_card_le`; [RS specialization](../ArkLib/Data/CodingTheory/ReedSolomon/Interleaved/TensorFoldAgreement.lean) | Review pending |
+| R1 | Complete Johnson list bound, every characteristic | [Johnson/WeightedCertificate](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/Johnson/WeightedCertificate.lean): `closePolynomialSet_finite_and_ncard_le_johnsonPairwise` | Source-reviewed, annotated, and compiled |
+| R2 | Johnson MCA, including the sharper weighted certificate | [Johnson/Agreement](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/Johnson/Agreement.lean): `exists_exceptional_johnson_lineMCA_allChar`; [WeightedCertificate](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/Johnson/WeightedCertificate.lean): `exists_exceptional_weightedJohnsonMCA_fullAgreement` | Source-reviewed, annotated, and compiled |
+| R3 | Headline first-order list and MCA bounds, both rate branches | [FirstOrder/Branchwise](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/FirstOrder/Branchwise.lean): `FirstOrder.firstOrderBranch_finiteLength_finiteSlack_bounds`, `FirstOrder.firstOrderBranch_finiteLength_rate_bounds`, `FirstOrder.firstOrderBranch_finiteLength_mcaError_le` | Source-reviewed, annotated, and compiled |
+| R4 | Finite first-order curve certificate used by the applications | [FirstOrder/HybridCurveProfile](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/FirstOrder/HybridCurveProfile.lean): compatibility `CurveCertificate.exists_exceptional_exact_powerAgreement_best` and paper-exact `CurveCertificate.exists_exceptional_exact_powerAgreement_best_optimized`; [Squarefree/Sharp](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/FirstOrder/Squarefree/Sharp.lean): `FirstOrder.Squarefree.exists_exceptional_retainedSquarefreeCurveMCA_sharp_at`, `FirstOrder.Squarefree.exists_exceptional_retainedSquarefreeCurveMCA_sharp_optimized`, `CurveCertificate.exists_exceptional_exact_powerAgreement_squarefree_sharp_optimized` | Source-reviewed, annotated, and compiled |
+| R5 | Fixed-order lists from the rate-dependent gate | [ListDecodability/Capacity/RatePartition](../ArkLib/Data/CodingTheory/ReedSolomon/ListDecodability/Capacity/RatePartition.lean): `exists_ratePartition_list_bound` | Source-reviewed, annotated, and compiled |
+| R6 | Fixed-order line MCA from the same gate | [MCA/Capacity/RatePartition](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/Capacity/RatePartition.lean): `exists_ratePartition_lineMCA_parameters` | Source-reviewed, annotated, and compiled |
+| R7 | Explicit derivative order at a fixed rate and gap: lists | [ListDecodability/Capacity/FixedRateExplicitGate](../ArkLib/Data/CodingTheory/ReedSolomon/ListDecodability/Capacity/FixedRateExplicitGate.lean): `fixedRatePartitionOrder_list_bound_selected`, `fixedRatePartitionOrder_list_bound` | Source-reviewed, annotated, and compiled |
+| R8 | The same explicit fixed-rate order: line MCA | [MCA/Capacity/FixedRateExplicitGate](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/Capacity/FixedRateExplicitGate.lean): `fixedRatePartitionOrder_lineMCA` | Source-reviewed, annotated, and compiled |
+| R9 | List decoding up to capacity, uniformly over all rates | [ListDecodability/Capacity](../ArkLib/Data/CodingTheory/ReedSolomon/ListDecodability/Capacity.lean): `exists_rateCapacity_list` and the property `HasCapacityLists` | Source-reviewed, annotated, and compiled |
+| R10 | MCA up to capacity, uniformly over all rates | [MCA/Capacity](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/Capacity.lean): `sharpCapacity_lineAgreement`, `exists_sharpCapacity_lineAgreement`, and `HasSharpCapacityLineAgreement` | Source-reviewed, annotated, and compiled |
+| R11 | Affine families and powers batching | [MCA/Capacity](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/Capacity.lean): `sharpCapacity_affineAgreement_and_mcaError`, `sharpCapacity_powerBatchingAgreement`; R4 supplies the finite first-order powers bound | Source-reviewed, annotated, and compiled |
+| R12 | Interleaving and shared-level multilinear folds | [Interleaved/PowerAgreementArbitrary](../ArkLib/Data/CodingTheory/ReedSolomon/Interleaved/PowerAgreementArbitrary.lean): `uniformExactInterleavedPowerAgreement_of_scalar_arbitrary`; [BinaryTensorFoldAgreement](../ArkLib/Data/CodingTheory/ProximityGenerator/BinaryTensorFoldAgreement.lean): `TensorMCA.tensorFoldBad_card_le`; [RS specialization](../ArkLib/Data/CodingTheory/ReedSolomon/Interleaved/TensorFoldAgreement.lean): `fullSetLevelWitness_interleaved_of_exactAgreement`, `interleavedRS_tensorFoldBad_card_le_heightThree` | Source-reviewed, annotated, and compiled |
 
 The statement-reading pass must also cover the definitions that make these conclusions
 meaningful: `closePolynomialSet` in [AgreementList](../ArkLib/Data/CodingTheory/ReedSolomon/AgreementList.lean),
@@ -53,7 +53,9 @@ Also explain `firstOrderBranchThreshold`, `finiteLengthSlack`, `ratePartitionGam
 Do not make readers expand several definitions merely to discover the theorem's guarantee.
 
 Two application-facing connections are part of the same watchlist, not optional follow-ups:
-R4 includes `CurveCertificate.exists_exceptional_exact_powerAgreement_squarefree_sharp` in
+R4 retains the compatibility theorem
+`CurveCertificate.exists_exceptional_exact_powerAgreement_squarefree_sharp` and adds the
+paper-exact `CurveCertificate.exists_exceptional_exact_powerAgreement_squarefree_sharp_optimized` in
 [Squarefree/Sharp](../ArkLib/Data/CodingTheory/ReedSolomon/MutualCorrelatedAgreement/FirstOrder/Squarefree/Sharp.lean).
 R12 includes `fullSetLevelWitness_interleaved_of_exactAgreement` and
 `interleavedRS_tensorFoldBad_card_le_heightThree` in the
@@ -65,11 +67,11 @@ The [application guide](../ArkLibExamples/ReedSolomon/PaperGuide.lean) gives exa
 all 15 ProveKit, eight ZisK, and nine LambdaVM curve certificates. Review those families
 through their common wrappers rather than copying 32 near-identical explanations.
 
-| ID | Mathematical output | Primary source targets |
-|---|---|---|
-| A1 | ProveKit certificate coverage, allocated errors, expected payload savings | [CurveMigration](../ArkLibExamples/ReedSolomon/CurveMigration.lean), [ProveKit](../ArkLibExamples/ReedSolomon/ProveKit.lean), [AnalyticalBudgets](../ArkLibExamples/ReedSolomon/ProveKit/AnalyticalBudgets.lean), [AnalyticalExpectedPayload](../ArkLibExamples/ReedSolomon/ProveKit/AnalyticalExpectedPayload.lean); guide-listed budget and saving theorems |
-| A2 | ZisK composed exceptional sets, 51-query target, 11,760-byte reduction | [ZisK](../ArkLibExamples/ReedSolomon/ZisK.lean): `ArkLibExamples.ReedSolomon.ZisK.exists_nested_exceptional`, `queries_at_target`, `proof_size` (see imported owner modules) |
-| A3 | LambdaVM CPU budget, 208-query local error, nominal and expected savings | [LambdaVM](../ArkLibExamples/ReedSolomon/LambdaVM.lean): `ArkLibExamples.ReedSolomon.LambdaVM.CPU.exists_certified_cpu_budget`, `proof_size`, `expectedNetSaving_bounds` (see imported owner modules) |
+| ID | Mathematical output | Primary source targets | Readability status |
+|---|---|---|---|
+| A1 | ProveKit certificate coverage, allocated errors, expected payload savings | [CurveMigration](../ArkLibExamples/ReedSolomon/CurveMigration.lean), [ProveKit](../ArkLibExamples/ReedSolomon/ProveKit.lean), [AnalyticalBudgets](../ArkLibExamples/ReedSolomon/ProveKit/AnalyticalBudgets.lean), [AnalyticalExpectedPayload](../ArkLibExamples/ReedSolomon/ProveKit/AnalyticalExpectedPayload.lean); guide-listed budget and saving theorems | Source-reviewed, annotated, and compiled |
+| A2 | ZisK composed exceptional sets, 51-query target, 11,760-byte reduction | [ZisK](../ArkLibExamples/ReedSolomon/ZisK.lean): `ArkLibExamples.ReedSolomon.ZisK.exists_nested_exceptional`, `queries_at_target`, `proof_size` (see imported owner modules) | Source-reviewed, annotated, and compiled |
+| A3 | LambdaVM CPU budget, 208-query local error, nominal and expected savings | [LambdaVM](../ArkLibExamples/ReedSolomon/LambdaVM.lean): `ArkLibExamples.ReedSolomon.LambdaVM.CPU.exists_certified_cpu_budget`, `proof_size`, `expectedNetSaving_bounds` (see imported owner modules) | Source-reviewed, annotated, and compiled |
 
 For A1–A3, explain which quantities are measured inputs, which are assumptions about a
 protocol, and which inequalities or byte identities Lean proves. Preserve separate phase

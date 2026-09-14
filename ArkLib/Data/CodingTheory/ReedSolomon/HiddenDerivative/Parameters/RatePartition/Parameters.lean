@@ -32,7 +32,12 @@ noncomputable section
 
 namespace ReedSolomon.HiddenDerivative
 
-/-- The limiting source/rank ratio for the derivative-order partition support. -/
+/-- The limiting source/rank ratio for the derivative-order partition support.
+
+For rate bound `R`, target agreement fraction `a`, and derivative order `d`, the exact paper
+formula is `(27/20) * R * (d+1) / (6*d)^(R/a)`. The strict gate
+`1 < ratePartitionGamma R a d` is what permits a sufficiently large finite multiplicity; the
+definition itself makes no finite-length, field, or characteristic assertion. -/
 def ratePartitionGamma (R a : ℝ) (d : ℕ) : ℝ :=
   (27 / 20) * R * (d + 1) / (6 * d : ℝ) ^ (R / a)
 

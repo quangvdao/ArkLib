@@ -74,7 +74,13 @@ theorem ratePartitionGamma_gt_one_of_factor_six
   exact (lt_add_of_pos_right 1 (one_div_pos.mpr hd')).trans_le
     (ratePartitionGamma_ge_one_add_inv_of_factor_six hR hRa hd horder)
 
-/-- The manuscript's explicit fixed-rate ceiling, with the factor six already simplified. -/
+/-- The manuscript's explicit derivative order at fixed rate `R` and capacity gap `δ`.
+
+This is
+`ceil(max(500, (20/(27*R)) * exp(R*log(40/(9*R))/δ)))`.
+It depends only on `R` and `δ`, and is selected before any field, code length, evaluation domain,
+or received word. Under `0 < R`, `0 < δ`, and `R + δ < 1`, the accompanying theorem proves the
+strict gate `1 < ratePartitionGamma R (R+δ) (fixedRatePartitionOrder R δ)`. -/
 def fixedRatePartitionOrder (R δ : ℝ) : ℕ :=
   ⌈max 500 ((20 / (27 * R)) * Real.exp (R * Real.log (40 / (9 * R)) / δ))⌉₊
 

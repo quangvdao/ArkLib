@@ -84,7 +84,7 @@ theorem fromCMvPolynomial_translatePolynomial (c : F)
     fromCMvPolynomial (translatePolynomial c polynomial) =
       MvPolynomial.bind₁ (fun i ↦ MvPolynomial.X i + MvPolynomial.C c)
         (fromCMvPolynomial polynomial) := by
-  simp [translatePolynomial, fromCMvPolynomial_bind₁, MvPolynomial.aeval_eq_bind₁,
+  simp [translatePolynomial, fromCMvPolynomial_bind₁_aeval, MvPolynomial.aeval_eq_bind₁,
     CPoly.map_add, fromCMvPolynomial_X, fromCMvPolynomial_C]
 
 /-- Evaluation after symbolic translation equals evaluation at the
@@ -95,7 +95,7 @@ theorem eval₂_translatePolynomial
     (translatePolynomial c polynomial).eval₂ ι y =
       polynomial.eval₂ ι (inverseTranslatePoint (ι c) y) := by
   rw [CPoly.eval₂_equiv, CPoly.eval₂_equiv, translatePolynomial,
-    fromCMvPolynomial_bind₁, MvPolynomial.aeval_eq_bind₁]
+    fromCMvPolynomial_bind₁_aeval, MvPolynomial.aeval_eq_bind₁]
   change MvPolynomial.eval₂Hom ι y
       (MvPolynomial.bind₁
         (fun i ↦ fromCMvPolynomial (X i + C c)) (fromCMvPolynomial polynomial)) =

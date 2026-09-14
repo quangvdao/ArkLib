@@ -92,15 +92,20 @@ family's complete common agreement set.  Uniformity in the family type is what p
 challenge to be charged once per tensor level, independently of that level's width. -/
 def FullSetLevelWitness [DecidableEq A]
     (C : ModuleCode ι F A) (agreement exceptionalCount : ℕ) : Prop :=
+  -- The bound is uniform in every finite nonempty family opened at this level.
   ∀ (β : Type) [Fintype β] [Nonempty β] (u₀ u₁ : β → ι → A),
+    -- One bad set is chosen from the two child families before the challenge and parent family.
     ∃ exceptional : Finset F,
       exceptional.card ≤ exceptionalCount ∧
       ∀ r ∉ exceptional, ∀ c : β → ι → A, (∀ b, c b ∈ C) →
+        -- At least `agreement` common columns trigger simultaneous child recovery.
         agreement ≤ (familyAgreementSet c
           (fun b ↦ binaryLineFold r (u₀ b) (u₁ b))).card →
         ∃ c₀ c₁ : β → ι → A,
+          -- Every child remains a codeword and reconstructs its parent at the shared challenge.
           (∀ b, c₀ b ∈ C) ∧ (∀ b, c₁ b ∈ C) ∧
           (∀ b, c b = binaryLineFold r (c₀ b) (c₁ b)) ∧
+          -- Exactness preserves all common columns through the two child agreement sets.
           familyAgreementSet c (fun b ↦ binaryLineFold r (u₀ b) (u₁ b)) =
             familyAgreementSet c₀ u₀ ∩ familyAgreementSet c₁ u₁
 
@@ -109,8 +114,10 @@ root's complete agreement set. -/
 def HasFullTensorDecomposition [DecidableEq A]
     (C : ModuleCode ι F A) (agreement : ℕ) {h : ℕ}
     (r : Fin h → F) (u : (Fin h → Bool) → ι → A) : Prop :=
+  -- Every close root codeword decomposes into codeword leaves for this challenge tuple.
   ∀ c : ι → A, c ∈ C → agreement ≤ (fullAgreementSet c (binaryTensorFold r u)).card →
     ∃ leafCode : (Fin h → Bool) → ι → A,
+      -- The leaves reconstruct the root and preserve its complete agreement set.
       (∀ leaf, leafCode leaf ∈ C) ∧
       c = binaryTensorFold r leafCode ∧
       fullAgreementSet c (binaryTensorFold r u) =
@@ -454,12 +461,20 @@ private theorem tensorFoldFamilyBad_card_le [Fintype F] [DecidableEq A]
         _ ≤ (h + 1) * exceptionalCount * Fintype.card F ^ h :=
           levelFoldBound_succ (Fintype.card F) exceptionalCount h
 
-/-- A height-`h` shared-level fold has one event per level.  Each event fixes one challenge to
-one of at most `exceptionalCount` values and leaves the other `h - 1` levels free. -/
+/-- Count the bad challenge tuples for a height-`h` shared-level tensor fold.
+
+`FullSetLevelWitness` supplies at most `exceptionalCount` bad values at each level, uniformly in
+the entire family determined by later challenges. The union over levels therefore has cardinality
+at most `h * exceptionalCount * |F|^(h-1)`. This includes `h = 0`, where the bad set is empty.
+Outside `tensorFoldBad`, `hasFullTensorDecomposition_of_not_mem_bad` supplies the exact leaf
+decomposition and full agreement-set equality; this theorem is the cardinality half. -/
 theorem tensorFoldBad_card_le [Fintype F] [DecidableEq A]
     {C : ModuleCode ι F A} {agreement exceptionalCount h : ℕ}
+    -- The level witness fixes the uniform per-level exceptional count.
     (hlevel : FullSetLevelWitness C agreement exceptionalCount)
+    -- The full leaf family is fixed before the `h` shared challenges are sampled.
     (u : (Fin h → Bool) → ι → A) :
+    -- One level is bad while the other `h-1` field coordinates remain unrestricted.
     (tensorFoldBad hlevel u).card ≤
       h * exceptionalCount * Fintype.card F ^ (h - 1) := by
   simpa [tensorFoldBad] using

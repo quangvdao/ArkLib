@@ -26,9 +26,13 @@ It imports maintained concrete parameter instantiations without introducing a de
 `ArkLibExamples.ReedSolomon.CurveMigration` is the semantic owner for the 32 application curves
 used by the current paper. Every row applies
 `ReedSolomon.CurveCertificate.exists_exceptional_exact_powerAgreement_best`, so the returned bound
-is the
-minimum of independently proved optimized-hybrid and factorwise-squarefree envelopes and still has
-an exact power-agreement theorem.
+is the minimum of independently proved optimized-hybrid and factorwise-squarefree compatibility
+envelopes and still has an exact power-agreement theorem. The squarefree compatibility expression
+keeps the historical ordinary threshold `L₀ = D+1`, preserving the application constants already
+checked by the paper's arithmetic ledger. The reusable mathematical guide also exposes
+`exists_exceptional_exact_powerAgreement_best_optimized`, whose independently minimized ordinary
+threshold is the paper-exact factorwise objective and is proved no larger. The application rows
+deliberately do not replace their frozen constants with that potentially smaller value.
 
 * The 15 ProveKit curves are exposed by
   `ArkLibExamples.ReedSolomon.CurveMigration.ProveKit.passportOuter_exists_exceptional_best` for
@@ -46,6 +50,13 @@ an exact power-agreement theorem.
 
 ## Budget, query, and payload capstones
 
+These theorems separate inputs from deductions. Curve dimensions, field sizes, proof-system
+schedules, measured compressed sizes, and fitted compression ratios are explicit constants or
+protocol assumptions. Lean proves the exceptional-set inequalities, query arithmetic, interval
+bounds, and byte identities that follow from them. A phase-local certificate does not by itself
+claim security for a deployed transcript, and an expected payload calculation is not a serializer
+or a fresh measurement.
+
 * ProveKit schedule witnesses are
   `ArkLibExamples.ReedSolomon.ProveKit.passportOuterWitness_budget`,
   `ArkLibExamples.ReedSolomon.ProveKit.passportInternalZk_budget`,
@@ -57,8 +68,13 @@ an exact power-agreement theorem.
   `ArkLibExamples.ReedSolomon.ProveKit.goldilocksLookupExpectedSaving_interval`,
   `ArkLibExamples.ReedSolomon.ProveKit.passportAnalyticalExpectedSaving_interval`, and
   `ArkLibExamples.ReedSolomon.ProveKit.goldilocksLookupAnalyticalExpectedSaving_interval`, all in
-  `ArkLibExamples.ReedSolomon.ProveKit`.
-* `ArkLibExamples.ReedSolomon.ZisK.exists_nested_exceptional` composes the powers challenges.
+  `ArkLibExamples.ReedSolomon.ProveKit`. The budgets certify the stated phase allocations from the
+  supplied schedule and field assumptions. The payload theorems prove exact rational expectation
+  intervals from the checked tree model and supplied measurement inputs; they do not measure a
+  deployment or combine unrelated protocol phases.
+* `ArkLibExamples.ReedSolomon.ZisK.exists_nested_exceptional` composes the powers challenges fixed
+  by the stated final-STARK profile; it is a local algebraic error certificate, not an end-to-end
+  soundness theorem.
   `ArkLibExamples.ReedSolomon.ZisK.queries_at_target` proves the 51-query target and
   `ArkLibExamples.ReedSolomon.ZisK.proof_size` proves the 11,760-byte reduction.
 * `ArkLibExamples.ReedSolomon.LambdaVM.CPU.exists_certified_cpu_budget` combines the nine curve
@@ -66,7 +82,9 @@ an exact power-agreement theorem.
   error.
   `ArkLibExamples.ReedSolomon.LambdaVM.CPU.proof_size` proves the 55,992-byte nominal reduction,
   while `ArkLibExamples.ReedSolomon.LambdaVM.CPU.expectedNetSaving_bounds` places the
-  deduplicated expected saving strictly between 55,617 and 55,618 bytes.
+  deduplicated expected saving strictly between 55,617 and 55,618 bytes. The trace dimensions,
+  query schedule, and payload model are inputs; Lean proves the combined local bound and the
+  resulting arithmetic, not whole-VM or whole-proof-system security.
 
 ## Optional companion and regression examples
 

@@ -287,15 +287,23 @@ private theorem exists_exceptional_fullSetLine_interleaved_of_exactAgreement
     · rintro ⟨h0, h1⟩
       simp [hcEq, binaryLineFold, h0, h1]
 
-/-- A scalar exact-line certificate controls every finite family of lines over a nonempty
-row-wise interleaving.  The parent-family index and the original row index are combined into one
-larger interleaving, so the exceptional count is independent of both widths. -/
+/-- Lift a scalar full-agreement line bound to one shared interleaved tensor level.
+
+Over the finite field `F`, `hline` supplies one exceptional set for every scalar received line.
+Packing the finite parent family together with a nonempty row width lets the same bound open every
+parent simultaneously. The assumption `k ≤ agreement` makes equality on the retained columns
+determine degree-`< k` rows. The resulting `FullSetLevelWitness` keeps the original exceptional
+count and preserves the complete common column set, independently of both family sizes. -/
 theorem fullSetLevelWitness_interleaved_of_exactAgreement
     {F : Type} [Field F] [Fintype F] [DecidableEq F]
     {n k agreement exceptionalCount width : ℕ}
+    -- The scalar Reed--Solomon code uses `n` distinct evaluation points.
     (domain : Fin n ↪ F)
+    -- One scalar line bound is reused for every packed row and parent.
     (hline : LineExactAgreementBound domain k agreement exceptionalCount)
+    -- Nonempty width and `agreement ≥ k` make simultaneous interpolation injective.
     (hwidth : 0 < width) (hkAgreement : k ≤ agreement) :
+    -- Each tensor level has the same exceptional count and exact full-set conclusion.
     FullSetLevelWitness ((code domain k) ^⋈ (Fin width)) agreement exceptionalCount := by
   intro β _ _ u₀ u₁
   classical
@@ -363,14 +371,23 @@ theorem fullSetLevelWitness_interleaved_of_exactAgreement
       pack_fold, hpack₀, hpack₁]
     exact hset
 
-/-- Height three has three shared-level exceptional events, independent of interleaving width. -/
+/-- The height-three Reed--Solomon tensor fold has at most `3E|F|^2` bad challenge triples.
+
+The supplied scalar line theorem has exceptional count `E = exceptionalCount`. After division by
+the `|F|^3` uniformly sampled challenge space, this cardinality estimate becomes the paper's
+`3E/|F|` contribution, independent of interleaving width. Exact decomposition outside the bad set
+comes from the underlying `FullSetLevelWitness`; this declaration records its cardinality bound. -/
 theorem interleavedRS_tensorFoldBad_card_le_heightThree
     {F : Type} [Field F] [Fintype F] [DecidableEq F]
     {n k agreement exceptionalCount width : ℕ}
+    -- Fix the scalar code and its one-level exact-agreement theorem.
     (domain : Fin n ↪ F)
     (hline : LineExactAgreementBound domain k agreement exceptionalCount)
+    -- Width is nonzero and the common agreement threshold is interpolation-determining.
     (hwidth : 0 < width) (hkAgreement : k ≤ agreement)
+    -- The eight leaf arrays are fixed before the three shared level challenges.
     (u : (Fin 3 → Bool) → Fin n → Fin width → F) :
+    -- Three choices for the bad level leave two arbitrary field challenges.
     (tensorFoldBad
       (fullSetLevelWitness_interleaved_of_exactAgreement domain hline hwidth hkAgreement) u).card ≤
         3 * exceptionalCount * Fintype.card F ^ 2 := by

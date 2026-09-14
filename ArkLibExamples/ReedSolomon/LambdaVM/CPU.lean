@@ -95,16 +95,25 @@ theorem trace_fixed_before_lookup
     gap_admissible.1 (by decide) (by decide) cpu_threshold
     (widthThirtyEight_lambda_le domain) (by decide) s₁ s₂ hSampled hGood claimed₁ claimed₂
 
-/-- The actual nine curve sets and actual early collision fraction fit one CPU-local allocation.
-All received words are arbitrary. Curve sets precede their challenges and candidates; the main
-candidate family precedes the early points and subsequent lookup randomness. -/
+/-- The nine LambdaVM curve sets and early-anchor collision fit one CPU-local allocation.
+
+For arbitrary received data, Lean constructs the nine exceptional sets, bounds the complete main
+candidate list, and uses the actual two-anchor collision fraction in the displayed `localError`.
+Curve sets precede their challenges and candidates; the main candidate family precedes the early
+points and later lookup randomness. The AIR, OOD, query, and grinding charges inside `localError`
+are fixed modeled inputs, so this is not a full transcript or whole-system security theorem. -/
 theorem exists_certified_cpu_budget
+    -- Supply all nine distinct evaluation domains and arbitrary received power curves.
     (domains : ∀ i : Fin 9, Fin (profiles i).n ↪ GoldilocksCubic)
     (values : ∀ i : Fin 9, Fin ((profiles i).batchingDegree + 1) →
       Fin (profiles i).n → GoldilocksCubic)
+    -- This received matrix determines the complete main candidate family.
     (received : Matrix (Fin 65536) (Fin 38) GoldilocksCubic) :
+    -- Construct the actual curve sets before proving the list and local-error bounds.
     ∃ family : ExceptionalFamily domains values,
+      -- The complete main list has the certified bound used in collision accounting.
       (mainCandidates (domains 0) received).card ≤ listBound ∧
+      -- At the recorded 208-query schedule, the modeled CPU-local sum is below `2^-128`.
       localError (∑ i, (family.exceptional i).card) listBound 208
         (AnchoredAgreement.badAnchorRate (domains 0)
           (mainCandidates (domains 0) received)) < (1 / 2 ^ 128 : ℚ) := by

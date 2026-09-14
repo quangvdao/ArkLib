@@ -210,12 +210,18 @@ open Classical in
 
 The statement is field-independent and includes the zero polynomial.  Its hypotheses force the
 positive Johnson denominator, so the natural-number quotient is the literal floor used in the
-finite table. -/
+finite table.  This is the pairwise component `⌊n(A - D)/(A² - nD)⌋` of the paper's
+minimum; it does not supply the independent jet-count component. -/
 theorem closePolynomialSet_finite_and_ncard_le_johnsonPairwise
+    -- The field is arbitrary; `D` is the maximum degree and `A` the agreement threshold.
     {F : Type*} [Field F] {n D A : ℕ}
+    -- The embedding gives `n` distinct evaluation points over a possibly infinite field.
     (domain : Fin n ↪ F) (received : Fin n → F)
+    -- These hypotheses make the agreement surplus and Johnson denominator positive.
     (hDA : D + 1 ≤ A) (hpositive : n * D < A * A) :
+    -- Finiteness is explicit because `Set.ncard` alone is zero for an infinite set.
     (closePolynomialSet domain received (D + 1) A).Finite ∧
+      -- This quotient is exactly the paper's integral pairwise-Johnson component.
       (closePolynomialSet domain received (D + 1) A).ncard ≤
         johnsonPairwiseListFloor n D A := by
   classical
@@ -318,16 +324,31 @@ theorem exists_exceptional_weightedJohnsonMCA
       (RingHom.id F) z P (hgood z hz P hP hroot' hagreeFull)
 
 open Classical in
-/-- Full-agreement specialization of `exists_exceptional_weightedJohnsonMCA`. -/
+/-- Full-agreement weighted-certificate endpoint for mutual correlated agreement.
+
+The checked certificate `IsJohnsonWeightedCertificate n D A m B H` packages the weighted Johnson
+inequality and its certified exceptional-set threshold.  This theorem works over arbitrary fields,
+including infinite fields and all characteristics.  One exceptional set is chosen after the line
+but before the point and candidate; every degree-`< D + 1` candidate with at least `A` agreements
+outside it satisfies the base-field degree bound, affine identity, and equality of both full
+agreement sets recorded by `HasExactCorrelatedPair`.  Its exact bound is
+`johnsonWeightedSharpException`, rather than the closed-form `johnsonE0` bound. -/
 theorem exists_exceptional_weightedJohnsonMCA_fullAgreement
+    -- All parameters are integral, and the field is otherwise unrestricted.
     {F : Type*} [Field F] {n D A m B H : ℕ}
+    -- The affine line is given on the complete evaluation domain.
     (domain : Fin n ↪ F) (f g : Fin n → F)
+    -- The certificate and arithmetic guards make its weighted estimate applicable.
     (hcert : IsJohnsonWeightedCertificate n D A m B H)
     (hD : 1 ≤ D) (hDA : D + 1 ≤ A) (hAn : A ≤ n) (hBD : B ≤ D) :
+    -- The set depends on the line, but is fixed before the quantified point and candidate.
     ∃ exceptional : Finset F,
+      -- The certificate supplies this exact all-characteristic exceptional-set bound.
       (exceptional.card : ℚ) ≤ johnsonWeightedSharpException n D A B H ∧
       ∀ z ∉ exceptional, ∀ P : F[X], P.degree < D + 1 →
+        -- This is the candidate's complete agreement set, not a selected witness subset.
         A ≤ (polynomialAgreementSet domain (fun i ↦ f i + z * g i) P).card →
+        -- The endpoint includes the degree bounds, affine identity, and full-set equalities.
         HasExactCorrelatedPair domain f g (RingHom.id F) (D + 1) z P := by
   obtain ⟨exceptional, hcard, hgood⟩ :=
     exists_exceptional_weightedJohnsonMCA domain f g hcert hD hDA hAn hBD

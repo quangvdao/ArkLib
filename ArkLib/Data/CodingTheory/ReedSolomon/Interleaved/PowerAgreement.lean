@@ -60,14 +60,23 @@ def HasExactInterleavedPowerAgreement [DecidableEq F] {n width ℓ : ℕ}
     interleavedPolynomialAgreementSet domain (interleavedPowerBatchedWord values z) Q =
       interleavedCommonPowerAgreementSet domain values P
 
-/-- A single exceptional set works for every degree-bounded interleaved candidate tuple. -/
+/-- Uniform exact agreement for a row-wise interleaved power curve.
+
+One exceptional set of scalar challenges, with cardinality at most `exceptionalCount`, is chosen
+after the received array `values` but before `z` and the candidate tuple `Q`. Every good challenge
+and every row tuple of degree-`< k` polynomials with at least `agreement` simultaneous agreement
+coordinates has an exact constituent decomposition. The conclusion preserves the complete
+simultaneous agreement set, not merely `agreement` selected positions. -/
 def UniformExactInterleavedPowerAgreement [DecidableEq F] {n width ℓ : ℕ}
     (domain : Fin n ↪ F) (values : Fin (ℓ + 1) → Fin n → Fin width → F)
     (k agreement exceptionalCount : ℕ) : Prop :=
+  -- The same bad set controls every later scalar challenge and candidate row tuple.
   ∃ bad : Finset F, bad.card ≤ exceptionalCount ∧
     ∀ z ∉ bad, ∀ Q : Fin width → F[X], (∀ j, (Q j).degree < k) →
+      -- Agreement is counted by columns on which every row agrees simultaneously.
       agreement ≤
         (interleavedPolynomialAgreementSet domain (interleavedPowerBatchedWord values z) Q).card →
+      -- Exactness includes all constituent identities and equality of full column sets.
       HasExactInterleavedPowerAgreement domain values k z Q
 
 /-- Extend a finite tuple by zero to a larger width. -/

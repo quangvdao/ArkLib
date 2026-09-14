@@ -24,8 +24,15 @@ noncomputable section
 
 set_option autoImplicit false
 
-/-- The full piecewise first-order agreement threshold from the rate calculation. -/
+/-- The paper's piecewise first-order agreement curve `a₁(rho)`.
+
+Below `firstOrderRateSwitch = 11 - 3*sqrt 13`, this is the low-rate stationary value
+`sqrt(rho/2) * (1 + u)`, where the positive `u` satisfies
+`u^2 * (u + 3) = sqrt(rho/2)`. At and above the cutoff it is the clean upper-branch formula
+`(3*rho + 2*sqrt(rho*(5-rho)*(2-rho))) / (8-rho)`. Headline theorems require a strictly positive
+gap above this curve; this definition does not encode the removed zero-gap endpoint corollary. -/
 def firstOrderBranchThreshold (rho : ℝ) : ℝ :=
+  -- The strict comparison assigns the cutoff itself to the upper branch.
   if rho < firstOrderRateSwitch then firstOrderLowRateThreshold rho
   else firstOrderRateThreshold rho
 

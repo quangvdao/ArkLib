@@ -51,6 +51,20 @@ def hybridOptimizedCurveEnvelope (p : LineProfile) : ℝ :=
 def bestCurveEnvelope (p : LineProfile) (split : ℕ) : ℝ :=
   min (hybridOptimizedCurveEnvelope p) (squarefreeSharpCurveEnvelope p split : ℝ)
 
+/-- The paper-exact best envelope, using the independently minimized ordinary threshold in the
+factorwise-squarefree alternative. The compatibility `bestCurveEnvelope` remains unchanged for
+application rows whose arithmetic was frozen against the historical `L₀ = D+1` expression. -/
+def bestOptimizedCurveEnvelope (p : LineProfile) (split : ℕ) : ℝ :=
+  min (hybridOptimizedCurveEnvelope p) (squarefreeSharpOptimizedCurveEnvelope p split : ℝ)
+
+/-- Independent ordinary-threshold minimization can only improve the compatibility best bound. -/
+theorem bestOptimizedCurveEnvelope_le_best
+    (p : LineProfile) (split : ℕ) (hDA : p.D < p.agreement)
+    (hAn : p.agreement ≤ p.n) :
+    bestOptimizedCurveEnvelope p split ≤ bestCurveEnvelope p split := by
+  apply min_le_min le_rfl
+  exact_mod_cast squarefreeSharpOptimizedCurveEnvelope_le_fixed p split hDA hAn
+
 theorem bestCurveEnvelope_le_hybrid (p : LineProfile) (split : ℕ) :
     bestCurveEnvelope p split ≤ hybridOptimizedCurveEnvelope p := by
   exact min_le_left _ _
@@ -111,6 +125,7 @@ minimum, and every good challenge recovers exact power agreement with the comple
 theorem exists_exceptional_exact_powerAgreement_best
     {F E : Type u} [Field F] [Field E] [IsAlgClosed E]
     {p : LineProfile} (hp : p.CurveVerification)
+    -- Compatibility profile: `split` is also the frozen squarefree application parameter.
     (split : ℕ)
     (hsplit : p.k ≤ split ∧ split ≤ p.agreement ∧ p.agreement ≤ p.n)
     (hk : 2 ≤ p.k) (hell : 0 < p.batchingDegree)
@@ -121,9 +136,11 @@ theorem exists_exceptional_exact_powerAgreement_best
     (iota : F →+* E)
     (hchar : ringChar F = 0 ∨
       max p.D p.firstDerivativeCap < ringChar F) :
+    -- The winning semantic theorem fixes its exceptional set before every challenge and candidate.
     ∃ exceptional : Finset F,
       (exceptional.card : ℝ) ≤ bestCurveEnvelope p split ∧
       ∀ z ∉ exceptional, ∀ P : F[X], P.degree < p.k →
+        -- Exact power agreement uses the candidate's complete agreement set.
         p.agreement ≤
           (polynomialAgreementSet domain (powerBatchedWord values z) P).card →
         HasExactPowerAgreement domain values (RingHom.id F) p.k z P := by
@@ -145,6 +162,55 @@ theorem exists_exceptional_exact_powerAgreement_best
         (squarefreeSharpCurveEnvelope p split : ℝ) := by
       exact_mod_cast hcard
     simpa only [bestCurveEnvelope, min_eq_right hsquarefree] using hcardReal
+
+open Classical in
+/-- **Paper-exact best first-order curve envelope with semantic recovery.**
+
+The hybrid and factorwise-squarefree alternatives both carry complete agreement-set witnesses.
+In the squarefree branch, the ordinary threshold is attained independently of the regular split.
+The premise `p.k < p.agreement` is exactly what supplies `D ≤ n-2` for that free-retention
+ordinary transfer. -/
+theorem exists_exceptional_exact_powerAgreement_best_optimized
+    {F E : Type u} [Field F] [Field E] [IsAlgClosed E]
+    {p : LineProfile} (hp : p.CurveVerification)
+    -- The regular squarefree split is explicit; its ordinary split is independently minimized.
+    (split : ℕ)
+    (hsplit : p.k ≤ split ∧ split ≤ p.agreement ∧ p.agreement ≤ p.n)
+    (hk : 2 ≤ p.k) (hkA : p.k < p.agreement)
+    -- Positive-order factorwise premises; the hybrid owner layer handles derivative degree zero.
+    (hell : 0 < p.batchingDegree)
+    (hM : 1 ≤ p.firstDerivativeCap)
+    (hMB : p.firstDerivativeCap ≤ p.totalJetCap)
+    (domain : Fin p.n ↪ F)
+    (values : Fin (p.batchingDegree + 1) → Fin p.n → F)
+    (iota : F →+* E)
+    (hchar : ringChar F = 0 ∨
+      max p.D p.firstDerivativeCap < ringChar F) :
+    -- Whichever branch attains the minimum supplies one pre-challenge exceptional set.
+    ∃ exceptional : Finset F,
+      (exceptional.card : ℝ) ≤ bestOptimizedCurveEnvelope p split ∧
+      ∀ z ∉ exceptional, ∀ P : F[X], P.degree < p.k →
+        -- The conclusion is semantic recovery, not only an arithmetic envelope comparison.
+        p.agreement ≤
+          (polynomialAgreementSet domain (powerBatchedWord values z) P).card →
+        HasExactPowerAgreement domain values (RingHom.id F) p.k z P := by
+  by_cases hbest : hybridOptimizedCurveEnvelope p ≤
+      (squarefreeSharpOptimizedCurveEnvelope p split : ℝ)
+  · obtain ⟨exceptional, hcard, hgood⟩ :=
+      exists_exceptional_exact_powerAgreement_hybrid_optimized hp hk
+        (hsplit.1.trans hsplit.2.1) hsplit.2.2 hell domain values hchar
+    refine ⟨exceptional, ?_, hgood⟩
+    simpa only [bestOptimizedCurveEnvelope, min_eq_left hbest] using hcard
+  · have hsquarefree : (squarefreeSharpOptimizedCurveEnvelope p split : ℝ) ≤
+        hybridOptimizedCurveEnvelope p := le_of_not_ge hbest
+    obtain ⟨exceptional, hcard, hgood⟩ :=
+      exists_exceptional_exact_powerAgreement_squarefree_sharp_optimized hp split hsplit
+        hk hkA hell hM hMB domain values iota hchar
+    refine ⟨exceptional, ?_, hgood⟩
+    have hcardReal : (exceptional.card : ℝ) ≤
+        (squarefreeSharpOptimizedCurveEnvelope p split : ℝ) := by
+      exact_mod_cast hcard
+    simpa only [bestOptimizedCurveEnvelope, min_eq_right hsquarefree] using hcardReal
 
 end
 

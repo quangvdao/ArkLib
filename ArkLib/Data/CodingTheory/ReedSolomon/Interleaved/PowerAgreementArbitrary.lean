@@ -349,16 +349,27 @@ private theorem exactInterleavedPowerAgreement_of_not_projectionBad
     intro t _
     rw [hi t j]
 
-/-- A scalar uniform exact-power certificate lifts, over an arbitrary field, to every nonempty
-row-wise interleaving without increasing its exceptional count. -/
+/-- A scalar exact-power certificate lifts to arbitrary-width interleaving over any field.
+
+The scalar hypothesis must hold uniformly for every received power curve. A nonempty row width and
+`k ≤ agreement` let equality on the common agreement columns determine every row polynomial. The
+lift uses one scalar exceptional set, without multiplying its count by the width, and concludes
+`UniformExactInterleavedPowerAgreement`: exact constituent polynomials and equality of the full
+simultaneous agreement set. This is the arbitrary-field strengthening of the paper's interleaving
+transfer; finite-field counting is not assumed here. -/
 theorem uniformExactInterleavedPowerAgreement_of_scalar_arbitrary
     [DecidableEq F]
     {n k agreement exceptionalCount width ℓ : ℕ}
+    -- Distinct evaluation points are shared by every interleaved row.
     (domain : Fin n ↪ F)
+    -- Every scalar received curve has one exact-power exceptional set of the stated size.
     (hscalar : ∀ values : Fin (ℓ + 1) → Fin n → F,
       UniformExactPowerAgreement domain values k agreement exceptionalCount)
+    -- Width is nonzero, and the agreement threshold determines degree-`< k` polynomials.
     (hwidth : 0 < width) (hkAgreement : k ≤ agreement)
+    -- The interleaved received curve is arbitrary and does not alter the exceptional count.
     (values : Fin (ℓ + 1) → Fin n → Fin width → F) :
+    -- One bad scalar set works for every row tuple and preserves the full common column set.
     UniformExactInterleavedPowerAgreement domain values k agreement exceptionalCount := by
   classical
   obtain hfinite | hinfinite := finite_or_infinite F

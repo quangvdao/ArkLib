@@ -67,7 +67,7 @@ theorem fromCMvPolynomial_computableInitialJetEquation {r : ℕ} (center : F)
     (Q : CPoly.CMvPolynomial (r + 2) F) :
     CPoly.fromCMvPolynomial (computableInitialJetEquation center Q) =
       initialJetEquation center (semanticEquation Q) := by
-  rw [computableInitialJetEquation, CPoly.CMvPolynomial.fromCMvPolynomial_bind₁]
+  rw [computableInitialJetEquation, CPoly.CMvPolynomial.fromCMvPolynomial_bind₁_aeval]
   rw [initialJetEquation, semanticEquation, MvPolynomial.aeval_rename]
   have hsubstitution :
       (fun i => CPoly.fromCMvPolynomial (computableInitialJetSubstitution center r i)) =
@@ -84,7 +84,7 @@ theorem fromCMvPolynomial_computableInitialJetSeparant {r : ℕ} (center : F)
     (Q : CPoly.CMvPolynomial (r + 2) F) :
     CPoly.fromCMvPolynomial (computableInitialJetSeparant center Q) =
       initialJetSeparant center (semanticEquation Q) := by
-  rw [computableInitialJetSeparant, CPoly.CMvPolynomial.fromCMvPolynomial_bind₁]
+  rw [computableInitialJetSeparant, CPoly.CMvPolynomial.fromCMvPolynomial_bind₁_aeval]
   rw [CPoly.CMvPolynomial.fromCMvPolynomial_partialDerivative]
   unfold initialJetSeparant semanticEquation separant
   have hderivative := MvPolynomial.pderiv_rename (finToJetVariable_injective r)
@@ -156,7 +156,7 @@ theorem rename_fromCMvPolynomial_computableUniversalTaylorResidual {r : ℕ}
     MvPolynomial.rename (finToTaylorVariable K)
         (CPoly.fromCMvPolynomial (computableUniversalTaylorResidual K center Q)) =
       universalTaylorResidual K center (semanticEquation Q) := by
-  rw [computableUniversalTaylorResidual, CPoly.CMvPolynomial.fromCMvPolynomial_bind₁]
+  rw [computableUniversalTaylorResidual, CPoly.CMvPolynomial.fromCMvPolynomial_bind₁_aeval]
   rw [MvPolynomial.comp_aeval_apply]
   unfold universalTaylorResidual semanticEquation
   rw [MvPolynomial.aeval_rename]

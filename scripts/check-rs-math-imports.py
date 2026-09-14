@@ -37,6 +37,10 @@ GENERIC_ENTRY_POINTS = (
     "ArkLib.ToMathlib.Analysis.Simplex.Moments",
     "ArkLib.ToMathlib.AlgebraicGeometry.Incidence.ProductBounds",
 )
+GUIDE_ENTRY_POINTS = (
+    "ArkLib.Data.CodingTheory.ReedSolomon.PaperGuide",
+    "ArkLibExamples.ReedSolomon.PaperGuide",
+)
 
 
 @cache
@@ -52,7 +56,9 @@ def imports(module):
             dependency = Path(line).relative_to(LOCAL_LIBRARY)
         except ValueError:
             continue
-        if dependency.suffix == ".olean" and dependency.parts[0] == "ArkLib":
+        if dependency.suffix == ".olean" and dependency.parts[0] in (
+            "ArkLib", "ArkLibExamples"
+        ):
             local.append(".".join(dependency.with_suffix("").parts))
     return tuple(local)
 
@@ -65,6 +71,16 @@ def execution_module(module):
         word in module.rsplit(".", 1)[-1]
         for word in ("Machine", "Execution", "Cost", "Semantics", "Refinement")
     )
+
+
+def forbidden_guide_module(module):
+    """Classify the executable families excluded from the paper entrypoints."""
+    parts = module.split(".")
+    return ("ListDecoding" in parts or
+            "Computation" in parts or
+            "FastTaylor" in parts or
+            "Rojas" in parts or
+            module.startswith("ArkLib.ToCompPoly."))
 
 
 def main():
@@ -86,6 +102,26 @@ def main():
                 failed = True
             pending.extend((child, path) for child in imports(module))
         print(f"{root}: checked {len(seen)} local modules", flush=True)
+    for root in GUIDE_ENTRY_POINTS:
+        pending = [(root, [])]
+        seen = set()
+        while pending:
+            module, ancestors = pending.pop()
+            if module in seen:
+                continue
+            seen.add(module)
+            path = ancestors + [module]
+            if forbidden_guide_module(module):
+                print("Forbidden guide dependency: " + " -> ".join(path), file=sys.stderr)
+                failed = True
+            pending.extend((child, path) for child in imports(module))
+        production = sum(module.startswith("ArkLib.") for module in seen)
+        examples = sum(module.startswith("ArkLibExamples.") for module in seen)
+        print(
+            f"{root}: checked {len(seen)} local modules "
+            f"({production} production, {examples} example)",
+            flush=True,
+        )
     return int(failed)
 
 
