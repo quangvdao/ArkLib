@@ -54,8 +54,8 @@ example : (Producer.run 2 id (fun a => ZMod.pow_card a) chart monic 2 [1]).baseD
 example : (Producer.run 2 id (fun a => ZMod.pow_card a)
     { chart with separant := 0 } monic 2 [1]).components.isEmpty = true := by decide +kernel
 
-#print axioms Producer.representedBy_of_detected
-#print axioms Producer.decode_exact
+#print axioms Producer.Internal.representedBy_of_detected
+#print axioms Producer.Internal.decode_exact
 #print axioms Producer.run_dimension_le
 #print axioms ConstructorPoints.constructor_point_separant
 #print axioms ConstructorPoints.detected_of_constructor_threshold

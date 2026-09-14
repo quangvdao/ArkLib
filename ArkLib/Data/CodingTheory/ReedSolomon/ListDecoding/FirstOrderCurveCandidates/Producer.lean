@@ -92,7 +92,7 @@ theorem run_dimension_le (p : ℕ) [Fact p.Prime] [CharP E p]
 
 /-- The local geometric condition expected from the global component and agreement argument.
 It refers to the actual filter run and source coordinates, without recovery components. -/
-def WantedPointDetected (p : ℕ) [Fact p.Prime] (inverse : E → E)
+def Internal.WantedPointDetected (p : ℕ) [Fact p.Prime] (inverse : E → E)
     (chart : ChartData E 1 k) (A : ℕ) (gs : List (CPolynomial (CPolynomial E))) (P : E[X]) : Prop :=
   ∃ out u v, FilterCore.run p inverse A k (retained chart) gs = some out ∧
     out.thresholdPolynomial.toPoly.eval₂ (RingHom.id E) u = 0 ∧
@@ -114,12 +114,12 @@ private theorem degree_pos_of_point (h : CPolynomial (CPolynomial E)) (hm : h.mo
   exact one_ne_zero hz
 
 /-- Every detected source point enters an actual materialized producer component. -/
-theorem representedBy_of_detected (p : ℕ) [Fact p.Prime] [CharP E p]
+theorem Internal.representedBy_of_detected (p : ℕ) [Fact p.Prime] [CharP E p]
     (inverse : E → E) (hinverse : ∀ a, inverse a ^ p = a)
     (chart : ChartData E 1 k) (hh : (chartPolynomials chart).equation.monic)
     (hregular : DenominatorRegular chart) (A : ℕ)
     (gs : List (CPolynomial (CPolynomial E))) (P : E[X]) (hd : P.degree < k)
-    (hdet : WantedPointDetected p inverse chart A gs P) :
+    (hdet : Internal.WantedPointDetected p inverse chart A gs P) :
     AgreementRecovery.Tower.RepresentedBy (RingHom.id E) (RingHom.id E) k
       (run p inverse hinverse chart hh A gs).components P := by
   obtain ⟨out, u, v, hout, ht, hz, hs, hc⟩ := hdet
@@ -173,19 +173,20 @@ def recover (p : ℕ) [Fact p.Prime] [CharP E p]
     (run p inverse hinverse chart hh A gs).components
 
 /-- Concrete geometric point detection yields exact checked recovery. -/
-theorem recover_exact (p : ℕ) [Fact p.Prime] [CharP E p]
+theorem Internal.recover_exact (p : ℕ) [Fact p.Prime] [CharP E p]
     (inverse : E → E) (hinverse : ∀ a, inverse a ^ p = a)
     (chart : ChartData E 1 k) (hh : (chartPolynomials chart).equation.monic)
     (hregular : DenominatorRegular chart) (A : ℕ) (hAk : k ≤ A)
     (gs : List (CPolynomial (CPolynomial E)))
     (domain : Fin n ↪ E) (received : Fin n → E)
     (hdetect : ∀ P : E[X], P.degree < k → A ≤ Code.agree (evalOnPoints domain P) received →
-      WantedPointDetected p inverse chart A gs P) :
+      Internal.WantedPointDetected p inverse chart A gs P) :
     ExactOutput domain received k A (recover p inverse hinverse chart hh A gs domain received) := by
   apply AgreementRecovery.Tower.recoverAgreement_exact_of_coverage
     (RingHom.id E) (RingHom.id E) domain received k A hAk
   intro P hd ha
-  exact representedBy_of_detected p inverse hinverse chart hh hregular A gs P hd (hdetect P hd ha)
+  exact Internal.representedBy_of_detected p inverse hinverse chart hh hregular A gs P hd
+    (hdetect P hd ha)
 
 /-- Actual chart residuals retain the original received-position order. -/
 def agreementRows (chart : ChartData E 1 k) (domain : Fin n ↪ E) (received : Fin n → E) :
@@ -199,14 +200,14 @@ def decode (p : ℕ) [Fact p.Prime] [CharP E p]
     (A : ℕ) (domain : Fin n ↪ E) (received : Fin n → E) : List (List E) :=
   recover p inverse hinverse chart hh A (agreementRows chart domain received) domain received
 
-theorem decode_exact (p : ℕ) [Fact p.Prime] [CharP E p]
+theorem Internal.decode_exact (p : ℕ) [Fact p.Prime] [CharP E p]
     (inverse : E → E) (hinverse : ∀ a, inverse a ^ p = a)
     (chart : ChartData E 1 k) (hh : (chartPolynomials chart).equation.monic)
     (hregular : DenominatorRegular chart) (A : ℕ) (hAk : k ≤ A)
     (domain : Fin n ↪ E) (received : Fin n → E)
     (hdetect : ∀ P : E[X], P.degree < k → A ≤ Code.agree (evalOnPoints domain P) received →
-      WantedPointDetected p inverse chart A (agreementRows chart domain received) P) :
+      Internal.WantedPointDetected p inverse chart A (agreementRows chart domain received) P) :
     ExactOutput domain received k A (decode p inverse hinverse chart hh A domain received) :=
-  recover_exact p inverse hinverse chart hh hregular A hAk _ domain received hdetect
+  Internal.recover_exact p inverse hinverse chart hh hregular A hAk _ domain received hdetect
 
 end ReedSolomon.ListDecoding.FirstOrderCurveCandidates.Producer

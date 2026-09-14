@@ -88,7 +88,7 @@ theorem detected_of_source (p Bjet : ℕ) [Fact p.Prime] [CharP E p]
     (domain : Fin n ↪ E) (received : Fin n → E)
     (P : E[X]) (hd : P.degree < k) (hP : source.CoversSolution P)
     (hag : A ≤ Code.agree (evalOnPoints domain P) received) :
-    Producer.WantedPointDetected p inverse entry.chart A
+    Producer.Internal.WantedPointDetected p inverse entry.chart A
       (Producer.agreementRows entry.chart domain received) P := by
   classical
   obtain ⟨_, _, hchart⟩ := constructSource?_sound p 1 k Bjet values source entry hrun
@@ -185,9 +185,38 @@ theorem decode_exact_of_source_coverage (p Bjet : ℕ) [Fact p.Prime] [CharP E p
       source.CoversSolution P) :
     ExactOutput domain received k A
       (Producer.decode p inverse hinverse entry.chart hh A domain received) := by
-  apply Producer.decode_exact p inverse hinverse entry.chart hh hregular A hAk domain received
+  apply Producer.Internal.decode_exact p inverse hinverse entry.chart hh hregular A hAk
+    domain received
   intro P hd ha
   exact detected_of_source p Bjet inverse values source entry hrun hv hB hcomponent
     A hAk hAn domain received P hd (hcover P hd ha) ha
+
+/-- Monicity is obtained from the actual source constructor's normal forms. -/
+theorem source_monic (p Bjet : ℕ) [CharP E p] (values : List E)
+    (source : ChartSource E 1) (entry : ChartEntry E 1 k)
+    (hrun : constructSource? p 1 k Bjet values source = some entry)
+    (hv : 0 < (semanticEquation source.equation).weightedTotalDegree
+      (fun i => i.elim 0 (fun _ => 1)))
+    (hB : (semanticEquation source.equation).weightedTotalDegree
+      (fun i => i.elim 0 (fun _ => 1)) ≤ Bjet) :
+    (chartPolynomials entry.chart).equation.monic :=
+  equation_monic_of_normalForms entry.chart
+    (construct?_normalForms p 1 k Bjet source.center source.equation source.component values
+      hv hB entry.chart (constructSource?_sound p 1 k Bjet values source entry hrun).2.2)
+
+/-- The actual source constructor supplies denominator regularity at every geometric point. -/
+theorem source_denominatorRegular (p Bjet : ℕ) [CharP E p] (values : List E)
+    (source : ChartSource E 1) (entry : ChartEntry E 1 k)
+    (hrun : constructSource? p 1 k Bjet values source = some entry)
+    (hv : 0 < (semanticEquation source.equation).weightedTotalDegree
+      (fun i => i.elim 0 (fun _ => 1)))
+    (hB : (semanticEquation source.equation).weightedTotalDegree
+      (fun i => i.elim 0 (fun _ => 1)) ≤ Bjet) : DenominatorRegular entry.chart := by
+  intro u v hz hs
+  simp only [chartPolynomials, FirstOrderNormProducer.ChartPolynomials.ofChart,
+    FirstOrderNormProducer.evalNested_bivariatePolynomial] at hz hs ⊢
+  exact ComponentAgreementBound.construct_denominator_ne_zero p Bjet source.center
+    source.equation source.component values hv hB entry.chart
+    (constructSource?_sound p 1 k Bjet values source entry hrun).2.2 _ ![u, v] hz hs
 
 end ReedSolomon.ListDecoding.FirstOrderCurveCandidates.SourceCoverage

@@ -69,7 +69,7 @@ theorem detected_of_constructor_threshold (p Bjet : ℕ) [Fact p.Prime] [CharP E
     (P : E[X]) (hP : source.CoversSolution P)
     (hthreshold : out.thresholdPolynomial.toPoly.eval₂ (RingHom.id E)
       (entry.point (polynomialJet source.center P) 0) = 0) :
-    Producer.WantedPointDetected p inverse entry.chart A gs P := by
+    Producer.Internal.WantedPointDetected p inverse entry.chart A gs P := by
   let point := entry.point (polynomialJet source.center P)
   have hs := constructor_point_separant p Bjet values source entry hrun P hP
   have heq := (entry.covers_solution values source hrun hv hB P hP).1
