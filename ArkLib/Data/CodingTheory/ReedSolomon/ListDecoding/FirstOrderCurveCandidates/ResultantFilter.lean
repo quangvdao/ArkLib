@@ -109,6 +109,49 @@ theorem lowestCoefficient?_is_coefficient (chi : CPolynomial (CPolynomial E))
   obtain ⟨j, hj, heq⟩ := List.mem_map.mp (List.mem_of_find?_eq_some hc)
   exact ⟨j, by simpa using hj, heq⟩
 
+/-- The executable scan returns exactly the first nonzero coefficient, with its index. -/
+theorem lowestCoefficient?_eq_some_iff (chi : CPolynomial (CPolynomial E))
+    (c : CPolynomial E) :
+    lowestCoefficient? chi = some c ↔ c ≠ 0 ∧
+      ∃ j ≤ chi.natDegree, chi.coeff j = c ∧ ∀ i < j, chi.coeff i = 0 := by
+  simp only [lowestCoefficient?, List.find?_eq_some_iff_getElem]
+  simp
+  aesop
+
+/-- The indexed scan gives the exact generic order in `W`. -/
+theorem lowestCoefficient?_order (chi : CPolynomial (CPolynomial E))
+    (c : CPolynomial E) (hc : lowestCoefficient? chi = some c) :
+    ∃ j ≤ chi.natDegree, chi.coeff j = c ∧ Polynomial.X ^ j ∣ chi.toPoly ∧
+      ¬Polynomial.X ^ (j + 1) ∣ chi.toPoly := by
+  obtain ⟨hn, j, hj, hjc, hbefore⟩ := (lowestCoefficient?_eq_some_iff chi c).mp hc
+  refine ⟨j, hj, hjc, ?_, ?_⟩
+  · rw [Polynomial.X_pow_dvd_iff]
+    intro i hi
+    rw [← CPolynomial.coeff_toPoly, hbefore i hi]
+  · intro h
+    have hz := Polynomial.X_pow_dvd_iff.mp h j (by omega)
+    rw [← CPolynomial.coeff_toPoly, hjc] at hz
+    exact hn hz
+
+/-- At the first generic nonzero coefficient, specialization raises the order in `W`
+exactly when that coefficient vanishes. This holds for arbitrary ring specializations. -/
+theorem lowestCoefficient?_specialization_iff {K : Type*} [CommRing K]
+    (σ : CPolynomial E →+* K) (chi : CPolynomial (CPolynomial E))
+    (c : CPolynomial E) (hc : lowestCoefficient? chi = some c) :
+    ∃ j ≤ chi.natDegree, chi.coeff j = c ∧ (∀ i < j, chi.coeff i = 0) ∧
+      (Polynomial.X ^ (j + 1) ∣ chi.toPoly.map σ ↔ σ c = 0) := by
+  obtain ⟨_, j, hj, hjc, hbefore⟩ := (lowestCoefficient?_eq_some_iff chi c).mp hc
+  refine ⟨j, hj, hjc, hbefore, ?_⟩
+  rw [Polynomial.X_pow_dvd_iff]
+  constructor
+  · intro h
+    simpa only [Polynomial.coeff_map, ← CPolynomial.coeff_toPoly, hjc] using h j (by omega)
+  · intro hz i hi
+    rw [Polynomial.coeff_map, ← CPolynomial.coeff_toPoly]
+    by_cases hij : i = j
+    · simpa only [hij, hjc] using hz
+    · rw [hbefore i (by omega), map_zero]
+
 /-- A monic polynomial always supplies a coefficient to the scan. -/
 theorem lowestCoefficient?_exists (chi : CPolynomial (CPolynomial E)) (hm : chi.monic) :
     ∃ c, lowestCoefficient? chi = some c ∧ c ≠ 0 := by
@@ -134,6 +177,60 @@ def normalizedLowestCoefficient? (chi : CPolynomial (CPolynomial E)) :
 /-- The per-position polynomial filter; no products across received positions are formed. -/
 def residualFilter? (h g : CPolynomial (CPolynomial E)) : Option (CPolynomial E) :=
   normalizedLowestCoefficient? (characteristicPolynomial h g)
+
+/-- Monic normalization changes a coefficient by a unit and hence preserves its roots over
+every extension field. -/
+theorem monicNormalize_eval₂_eq_zero_iff {K : Type*} [Field K]
+    (phi : E →+* K) (u : K) (c : CPolynomial E) :
+    c.monicNormalize.toPoly.eval₂ phi u = 0 ↔ c.toPoly.eval₂ phi u = 0 := by
+  classical
+  rw [CPolynomial.monicNormalize_toPoly_eq_normalize]
+  have hu : IsUnit (Polynomial.eval₂ phi u (normUnit c.toPoly : Polynomial E)) :=
+    (normUnit c.toPoly).isUnit.map (Polynomial.eval₂RingHom phi u)
+  rw [normalize_apply, Polynomial.eval₂_mul, mul_eq_zero, or_iff_left hu.ne_zero]
+
+/-- The normalized filter detects precisely an increase beyond the first generic nonzero
+`W`-coefficient. The order-increase hypothesis remains explicit; this theorem does not claim
+that a geometric component forces such an increase. -/
+theorem residualFilter?_specialization_iff {K : Type*} [Field K]
+    (phi : E →+* K) (u : K) (h g : CPolynomial (CPolynomial E))
+    (c : CPolynomial E) (hc : residualFilter? h g = some c) :
+    ∃ j ≤ (characteristicPolynomial h g).natDegree,
+      (characteristicPolynomial h g).coeff j ≠ 0 ∧
+      c = ((characteristicPolynomial h g).coeff j).monicNormalize ∧
+      (∀ i < j, (characteristicPolynomial h g).coeff i = 0) ∧
+      (Polynomial.X ^ (j + 1) ∣ (characteristicPolynomial h g).toPoly.map
+        ((Polynomial.eval₂RingHom phi u).comp CPolynomial.toPolyRingHom) ↔
+        c.toPoly.eval₂ phi u = 0) := by
+  obtain ⟨a, ha, rfl⟩ := Option.map_eq_some_iff.mp hc
+  obtain ⟨j, hj, hja, hbefore, hiff⟩ := lowestCoefficient?_specialization_iff
+    ((Polynomial.eval₂RingHom phi u).comp CPolynomial.toPolyRingHom)
+      (characteristicPolynomial h g) a ha
+  refine ⟨j, hj, ?_, ?_, hbefore, ?_⟩
+  · rw [hja]
+    exact lowestCoefficient?_ne_zero _ _ ha
+  · rw [hja]
+  · rw [monicNormalize_eval₂_eq_zero_iff]
+    simpa only [RingHom.comp_apply, CPolynomial.toPolyRingHom_apply,
+      Polynomial.coe_eval₂RingHom] using hiff
+
+/-- For monic fibers the same order-increase criterion applies to the exact Sylvester
+resultant `Res_V(h, W - g)`. No reducedness or separability assumption is used. -/
+theorem residualFilter?_resultant_specialization_iff {K : Type*} [Field K]
+    (phi : E →+* K) (u : K) (h g : CPolynomial (CPolynomial E)) (hh : h.monic)
+    (c : CPolynomial E) (hc : residualFilter? h g = some c) :
+    ∃ j ≤ (characteristicPolynomial h g).natDegree,
+      (characteristicPolynomial h g).coeff j ≠ 0 ∧
+      c = ((characteristicPolynomial h g).coeff j).monicNormalize ∧
+      (∀ i < j, (characteristicPolynomial h g).coeff i = 0) ∧
+      (Polynomial.X ^ (j + 1) ∣
+        (Polynomial.resultant (h.toPoly.map Polynomial.C)
+          (Polynomial.C Polynomial.X - g.toPoly.map Polynomial.C)).map
+            ((Polynomial.eval₂RingHom phi u).comp CPolynomial.toPolyRingHom) ↔
+        c.toPoly.eval₂ phi u = 0) := by
+  obtain ⟨j, hj, hn, hcj, hbefore, hiff⟩ := residualFilter?_specialization_iff phi u h g c hc
+  refine ⟨j, hj, hn, hcj, hbefore, ?_⟩
+  rwa [characteristicPolynomial_eq_resultant h g hh] at hiff
 
 /-- The determinant scan cannot fail: its characteristic polynomial is monic. -/
 theorem residualFilter?_exists (h g : CPolynomial (CPolynomial E)) :
