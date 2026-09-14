@@ -207,6 +207,44 @@ import ArkLibTest.Data.MvPolynomial.TaylorReconstruction.UnivariateView
 import
   ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.ConfluentSample
 import ArkLibTest.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.FastTaylor.Validity
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.ComponentAgreementBound
+import
+  ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.ComponentRemoval
+import
+ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.FirstOrderCurveCandidates.ConstructorNonconstant
+import
+  ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.DirectAffine
+import
+  ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.RobustBallChart
+import
+  ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.RobustBallCoverage
+import
+  ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.RobustBallEnumeration
+import
+  ArkLibTest.Data.CodingTheory.ReedSolomon.ListDecoding.HigherOrderProducer.RobustBallGraph
+import
+  ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.CoveragePresentation
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.CoverageSearch
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.EquationGuard
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.EquationGuardBounds
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.GuardAssembly
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.IdealIdentity
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.IdealIdentityFinite
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.IdealIdentityReduced
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.OrdinaryDegreeBounds
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.OrdinaryFinalization
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.OrdinaryTail
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.Projection
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.ProjectionBounds
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.Runtime
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.SuppliedInput
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.TraceKernelSemantics
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.TraceProduct
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.TraceResidue
+import ArkLibTest.Data.Polynomial.FunctionFieldAlgorithms.CommonCenter.WindowSemantics
+import ArkLibTest.Data.Polynomial.Rojas.Producer.MacaulayEmptyMinor
+import ArkLibTest.Data.Polynomial.Rojas.Producer.MacaulayFactorization
 import Mathlib.Algebra.Field.ZMod
 
 /-!
@@ -407,6 +445,35 @@ def run : IO Unit := do
   UnivariateViewTests.run
   ZerothOrderBatchedCenterTests.run
   ZerothOrderOrdinaryTests.run
+  ComponentAgreementBoundTest.run
+  componentRemovalRegression
+  ConstructorNonconstantTest.run
+  DirectAffineTest.run
+  RobustBallChartTest.run
+  RobustBallCoverageTest.run
+  RobustBallEnumerationTest.run
+  RobustBallGraphTest.run
+  commonCenterCoveragePresentationStandaloneMain
+  commonCenterCoverageSearchStandaloneMain
+  CommonCenterEquationGuardTests.runTests
+  commonCenterEquationGuardBoundsStandaloneMain
+  CommonCenterGuardAssemblyTests.runTests
+  commonCenterIdealIdentityStandaloneMain
+  commonCenterIdealIdentityFiniteStandaloneMain
+  commonCenterIdealIdentityReducedStandaloneMain
+  CommonCenterOrdinaryDegreeBoundsTests.runTests
+  CommonCenterOrdinaryFinalizationTests.runTests
+  CommonCenterOrdinaryTailTests.runTests
+  commonCenterProjectionStandaloneMain
+  commonCenterProjectionBoundsStandaloneMain
+  commonCenterRuntimeStandaloneMain
+  CommonCenterSuppliedInputTests.runTests
+  commonCenterTraceKernelSemanticsStandaloneMain
+  commonCenterTraceProductStandaloneMain
+  commonCenterTraceResidueStandaloneMain
+  CommonCenterWindowTests.runTests
+  RojasMacaulayEmptyMinorTests.main
+  RojasMacaulayFactorizationTests.main
   check "constant-message balanced frequency map" <|
     ConstantDecoder.decode compare 3 ([4, 2, 4, 4, 2, 7] : List Nat) == [[4]]
   let x : CPolynomial (ZMod 5) := CPolynomial.X

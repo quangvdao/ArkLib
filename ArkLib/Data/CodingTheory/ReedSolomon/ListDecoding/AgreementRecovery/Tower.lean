@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 module
 
-public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.TowerAlgebra.SplitZeroUnit
+public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.TowerAlgebra.PrimaryTower
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.AgreementRecovery.ComponentScan
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.AgreementRecovery.TowerEvaluation
 public import ArkLib.Data.CodingTheory.ReedSolomon.ListDecoding.AgreementRecovery.TowerBatch
@@ -31,15 +31,23 @@ variable {F E : Type*} [Field F] [DecidableEq F] [BEq F] [LawfulBEq F]
 
 /-- A retained finite component with erased invariants established by its constructor. -/
 abbrev Component (E : Type*) [Field E] [BEq E] [LawfulBEq E] (k : ℕ) :=
+  {r : TowerRepresentation (F := E) // r.NonreducedWellFormed k}
+
+/-- Strong certificate retained for compatibility with reduced-tower constructors. -/
+abbrev ReducedComponent (E : Type*) [Field E] [BEq E] [LawfulBEq E] (k : ℕ) :=
   {r : TowerRepresentation (F := E) // r.WellFormed k}
+
+/-- Forget only the fiber squarefreeness certificate; executable coefficients are unchanged. -/
+def ofReduced {k : ℕ} (r : ReducedComponent E k) : Component E k :=
+  ⟨r.val, r.property.nonreduced⟩
 
 /-- Split one live component by its computed residual at a received position. -/
 def splitAt (base : F →+* E) (domain : Fin n ↪ F) (received : Fin n → F)
     (k : ℕ) (component : Component E k) (i : Fin n) : List (Bool × Component E k) :=
   let residual := component.val.residual (base (domain i)) (base (received i))
-  (splitZeroUnit component.val residual component.property).attach.map fun child =>
+  (splitZeroUnitPrimary component.val residual component.property).attach.map fun child =>
     (child.val.tag.isZero,
-      ⟨child.val.tower, splitZeroUnit_wellFormed component.val residual
+      ⟨child.val.tower, splitZeroUnitPrimary_nonreducedWellFormed component.val residual
         component.property child.val child.property⟩)
 
 /-- Run the collection scan on all supplied towers. Components are already positive-dimensional;
@@ -56,6 +64,11 @@ def recoverAgreement (base : F →+* E) (domain : Fin n ↪ F) (received : Fin n
     (k A : ℕ) (families : List (Component E k)) : List (List F) :=
   ((blocks base domain received k families).filterMap fun block =>
     checkedCandidate domain received k A block.positions.toFinset).dedup
+
+/-- Reduced-family compatibility wrapper around the shared nonreduced recovery engine. -/
+def recoverAgreementReduced (base : F →+* E) (domain : Fin n ↪ F) (received : Fin n → F)
+    (k A : ℕ) (families : List (ReducedComponent E k)) : List (List F) :=
+  recoverAgreement base domain received k A (families.map ofReduced)
 
 omit [DecidableEq F] [BEq F] [LawfulBEq F] in
 /-- The collection scan is exactly the ordered concatenation of the component scans, including

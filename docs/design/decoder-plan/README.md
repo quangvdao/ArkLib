@@ -1,150 +1,343 @@
-# Complete the paper decoder
+# Decoder status and remaining work
 
-This is the current coordination hub for the Reed–Solomon paper decoder on
-`quang/rs-capacity-and-correlated-agreement` in `quangvdao/ArkLib`.
-It replaces the completed A–E worker assignments and earlier decoder sprint notes.
+This is the single current handoff for the Reed–Solomon decoder on
+`quangvdao/ArkLib:quang/decoder-realign-p4-integration`. The four September 13
+workstreams are collected here. Collection does not mean that the public
+positive-order decoder is complete.
 
-The original foundation source baseline is
-[`3c67cb3fa669985b2add6c5d080a3060c4728789`](https://github.com/quangvdao/ArkLib/commit/3c67cb3fa669985b2add6c5d080a3060c4728789).
-The preceding accepted integration base is
-[`b626a599817381cfb84155f8b74d9cf6ff0c18a4`](https://github.com/quangvdao/ArkLib/commit/b626a599817381cfb84155f8b74d9cf6ff0c18a4).
-The [new backend/public collection](backend-public-checkpoint.md) records subsequent exact sources.
-The dedicated zeroth decoder is complete. The full positive-order symbolic decoder is not:
-`HiddenDerivativeDecoder.symbolicDecode` still returns `symbolicBackendUnavailable`.
+The public zeroth decoder now works over supplied effective fields. First-order
+filtering has chart-local exactness from actual source coverage. The largest
+remaining tasks are constructive common-center normalization and boundary
+production, unconditional dense root solving, and public composition.
 
-Read the [verified status](status.md), then the [shared contracts](contracts.md),
-[workstream assignments](workstreams.md), and [launch and acceptance workflow](workflow.md).
-The contracts describe required semantics. The first stored chart payload is implemented, and
-the [varying-order checkpoint](varying-order-checkpoint.md) now provides semantic traversal,
-canonical fuel and dependent dispatch. Concrete component production remains open. See also
-[the Taylor checkpoint](taylor-checkpoint.md).
+The paper specification is commit
+`24276c570658604e12dd9c3d119f2b6f3200b54d` of
+`quangvdao/rs-capacity-and-correlated-agreement`. Do not silently adopt a later
+algorithm change. The paper and its soft-locked abstract are outside this
+handoff's edit scope. Mathematical list/MCA extensions and application
+certificates will be handled separately.
 
-## Target and scope
+## Scope and completion contract
 
-Implement and prove correctness of the paper's eight procedures:
-`ExactHiddenDerivativeDecode`, `RecoverAgreement`, `FirstOrderNormCandidates`,
-`PairedCandidates` in both selection modes, `FastRegularTaylorFamily`, `SplitZeroUnit`,
-`PreprocessFiber`, and the dedicated `ZerothOrderDecode`.
+Finish the executed decoder and prove its correctness. Arithmetic, bit, RAM and
+native runtime analysis are excluded. Termination, no-failure proofs, field-size
+guards, and degree/dimension/cardinality bounds needed by finite searches remain
+in scope. So does correspondence with the prescribed algorithm: a correct slower
+backend can remain a named reference, but renaming it does not establish that the
+canonical program executes the paper's procedure.
 
-The final theorem concerns the actual executable program and the existing `ExactOutput` predicate.
-Valid input/options, with a supplied explaining equation or a valid support certificate, must
-produce the complete duplicate-free agreement list. A theorem about successful runs alone is
-insufficient. Constructor coverage and solver correctness must be proved for concrete producers.
+The final supplied-equation and certified-support entrypoints must return the
+existing `ReedSolomon.ListDecoding.ExactOutput`: all degree-`<k` messages with at
+least `A` agreements, no others, and no duplicate fixed-width coefficient vectors
+or polynomial images. Include the zero polynomial and impossible-agreement case.
 
-Termination, algebraic invariants, and correspondence with the named algorithms are in scope.
-Arithmetic, bit, RAM, and native running-time bounds are not. This exclusion does not authorize
-replacing Newton doubling, the norm decomposition, paired selection, or Rojas with another program.
-MCA/proof-system development and paper edits are outside these worker assignments.
+The supplied-equation theorem may assume its checked nonzero bounded equation
+vanishes on all wanted messages. The certified-support entrypoint must compute
+such an equation. Neither final theorem may assume a good center, candidate
+families, an internal successful run, solver factorization, unknown roots, or
+producer coverage. Intermediate theorems may expose these premises; final
+composition must discharge them from the executed producers.
 
-The paper-side specification is `docs/decoder-formalization-plan-2026-09-11.md` and the Taylor
-construction is `appendices/decoder-taylor.tex` in `quangvdao/rs-capacity-and-correlated-agreement`.
-At launch the coordinator supplies an immutable paper revision or accessible excerpts. Report
-inaccessible sources; do not invent paper details. The ArkLib plan records implementation status,
-while the paper defines the mathematical target.
+Do not replace symbolic reconstruction by exhaustive field/message enumeration.
+Keep exhaustive decoding only in justified bounded-instance branches or as an
+independent small-instance test oracle. Proof-only algebraic closures and
+factorizations are semantic tools, not executable inputs.
 
-## Adopted zeroth-order specification
+## Collected sources and history
 
-The revised zeroth-order paper pin is `b1be8b89069542faacac40a7e92068857b43e97a`.
-See [the split delivery plan](zeroth-supplied-field.md). This is a new supplied-field
-composition obligation, separate from the positive-order chart milestone below.
-The latter retains prime-field dispatch and characteristic-certified differential guards.
-It accepts supplied polynomial-basis F_q with q >= n,
-without a characteristic or extension-degree bound. Constructing a field from q alone is not
-required. Positive-order algorithms retain their prime-field scope. Large binary extensions
-must use the dedicated ordinary path, not the old small-characteristic fallback argument.
+| Source | Exact collected checkpoint | Contribution |
+| --- | --- | --- |
+| Integration baseline / P4 | `a9dde639a5c39797962cfed34659f7e72aec5706` | Checked Taylor preparation, public effective-field zeroth decoder, earlier integrated foundations |
+| P1 | `7e3087d143f99ac4d3ff113677ce752b94c2acbd` | Ordinary common-center path, finite normalization infrastructure, trace semantics and partial guard budgets |
+| P2 | `f8590d112eb0be4fb275372fb83761fe351cbb47` | Nonreduced recovery, chart-local curve filtering and source-coverage exactness |
+| P3 | `0ba900818a264b46f04836cd0ca111bfae7aef0f` | Robust/exhaustive chart selection, dense quotient and deformation foundations |
 
-## Current task board
+The union retains all four inputs as ancestors. Its baseline already contains
+P1 `46dd735e71c2ca0874faf752bf12ed4d92f839c6` and the reviewed P3 safe-map,
+deformation and root-data slices. Do not replay those commits. Toolchain,
+dependency pins and the axiom baseline are unchanged.
 
-Personal 4 coordinates integration and owns G03–G05 and G10. Personal 1 owns G01/G02/G06.
-Personal 3 owns G07–G09. All three teams have resumed under the revised zeroth-order
-specification. Personal 2 is unavailable. New worker checkpoints require separate collection
-review and validation before becoming integration dependencies.
-The [Personal 1 checkpoint](personal-1-checkpoint.md) records the earlier seven slices.
-The [normalization checkpoint](normalization-checkpoint.md) records the earlier executable slice.
-The [three-track collection](three-track-checkpoint.md) adds full generic normalization
-correctness, supplied-field arithmetic/centers and the completed one-chart Taylor contract.
-The [public zeroth-order checkpoint](public-zeroth-checkpoint.md) records their executed
-composition. The [fixed-order Taylor coverage checkpoint](positive-coverage-checkpoint.md)
-records the next positive-order assembly boundary. The [Personal 3 checkpoint](personal-3-checkpoint.md) records the six collected slices and their
-remaining obligations. Personal 4 remains the sole core integration owner.
+Integration preserves P4's unique standalone Rojas test names where incoming
+files used a shared root `main`. The legacy first-order pipeline explicitly
+uses `WellFormed.nonreduced` when passing its stronger squarefree-fiber output
+to the generalized recovery consumer; candidate execution is unchanged.
 
-| ID | Work | State | First action |
-| --- | --- | --- | --- |
-| I0 | Shared Lean interface freeze | Personal 4; fixed-order coverage and candidate APIs available | Freeze P1 component/constructor bridge and varying-order consumer signatures |
-| G01 | Function-field algebra and normalization | Generic normalization and first-order descent complete | Support concrete regular-component construction |
-| G02 | Full squarefree decomposition | Personal 1 backend collected; actual supplied-field success proved | Consume from concrete component/first-order integration |
-| G03 | Taylor geometry | P4 stage/order assembly complete; P1 owns concrete components | Produce regular components and sufficient centers from original inputs |
-| G04 | Taylor local algebra and lifting | One-chart lifting/success complete | Preserve characteristic guards through varying-order dispatch |
-| G05 | Taylor reconstruction | Semantic traversal and canonical fuel complete; global coverage conditional | Connect concrete components to varying-order solution coverage |
-| G06 | First-order norms | Concrete backend collected under chart premises | Discharge constructor premises and compose final recovery |
-| G07 | Explicit fields | Prepared supplied inverse and general extensions complete | Consume published constructors |
-| G08 | Rojas producer | Personal 3 actively continuing foundations | Resultant semantics, quotient identification and isolated-root factor theorem |
-| G09 | Higher-order selection | Conditional independence selection; P1 takes remaining proof lane | Preserve agreeing labels, prove exact energy bound, then compose G08 |
-| G10 | Supplied-field zeroth-order decoder | Public actual-run exactness complete | Preserve base/odd/binary public regression coverage |
-| I1 | Integration and independent review | Personal 4 | Collect exact producers and prove public positive-order exactness |
+The earlier plans and adoption ledger remain recoverable at the immutable
+[pre-consolidation documentation tree](https://github.com/quangvdao/ArkLib/tree/a9dde639a5c39797962cfed34659f7e72aec5706/docs/design/decoder-plan).
+They are historical evidence, not alternate task boards. This page supersedes
+their model policies, staffing proposals, deadlines and obsolete algorithms.
 
-At each launch record the lead, exact branch/base, owned files, first deliverable and acceptance
-check here or in the corresponding group section. Record explicit dependency commit SHAs as they land.
-Do not substitute a moving branch name for an agreed interface revision.
+The combined source gate checks 44,957 declarations across 1,826 modules, with
+289 unchanged historical `sorryAx` taints and no new or nonstandard-axiom taint.
+The adopted test delta has 49 executable suites and 29 compile-time-only clients;
+20 suites were already registered, and this integration registers the other 29.
+Standalone test names are unique and each suite runs once. Builds, warning
+budgets, source policy, runtime suites, imports, documentation and axiom checks
+are required together; the constituent worker gates do not replace this union gate.
 
-## Next substantial delivery wave
+## Completed interfaces to reuse
 
-The [backend/public collection](backend-public-checkpoint.md) records this wave's sources.
-The next targets are intentionally larger than individual helper lemmas:
+In the table, `RS/` means `ArkLib/Data/CodingTheory/ReedSolomon/`, `LD/` means
+`RS/ListDecoding/`, and `FT/` means `RS/HiddenDerivative/RootFinding/FastTaylor/`.
+These are path abbreviations, not Lean namespaces.
 
-- Personal 1: construct actual regular components and close constructor-to-first-order chart
-  premises, giving Personal 4 a usable producer. In a separate lane, repair G09 agreeing-label
-  capture and prove the exact graph energy estimate.
-- Personal 3: continue the already active G08 resultant and Rojas foundations. Do not restart
-  or duplicate that work. General extensions and prepared inverse Frobenius are completed.
-- Personal 4: cover varying active orders and semantic separant chains, then close the public
-  first-order decoder and compose higher-order producers as their exact contracts become available.
+| Component | Source and principal endpoint | Established boundary |
+| --- | --- | --- |
+| Public zeroth decoder | `LD/ZerothOrderDecoder/EffectivePublicDecoder.lean`: `run?_exists_exact`, `run?_ne_none` | Data-only interpolation, normalization, centers, transport and recovery under public `Valid`; no positive-order characteristic promise |
+| Effective fields | `ArkLib/Data/FiniteField/ExplicitConstruction/` | Supplied arithmetic, staged inverse Frobenius, relative quotients, effective extension/center search and transport |
+| Nonreduced towers | `LD/TowerRepresentation.lean`, `LD/TowerAlgebra/PrimarySplit.lean`, `LocalizeFiber.lean` | Powered splitting, full primary multiplicities, geometric partition and dimension accounting |
+| Shared recovery | `LD/AgreementRecovery/` | Exact interpolation/filtering/deduplication for represented families; tower and reduced multiplication-table consumers |
+| Curve candidate execution | `LD/FirstOrderCurveCandidates/Producer.lean` | Closed-component removal, lowest-resultant coefficients, threshold, one radical, localization, actual-denominator inversion and centered materialization |
+| Chart-local exactness | `LD/FirstOrderCurveCandidates/SourceCoverage.lean`: `decode_exact_of_source_coverage` | Exact output from an actual successful source constructor and source coverage; no threshold-root, candidate-membership, representation or payload oracle |
+| Candidate budgets | `LD/FirstOrderCurveCandidates/ProducerBudget.lean`: `run_base_degree_mul_le`, `run_dimension_mul_le` | Base-degree and full nonreduced-dimension bounds in terms of the computed coefficient-degree budget |
+| Checked Taylor preparation | `FT/TriangularPreparation.lean`, `TriangularChart.lean` | Division-free shift, actual initial root, checked separant inverse, characteristic-certified binomial units, recurrence and cleared-numerator provenance |
+| Existing chart constructor | `FT/Constructor.lean`, `Contract.lean`, `Coverage.lean` | Concrete one-chart construction and global agreement contract using the retained Newton backend |
+| Varying order | `FT/VaryingOrder.lean`, `SemanticTraversal.lean` | Dependent stage dispatch, input-derived fuel, strict descent, prefix identities and regular-stage coverage |
+| Ordinary common-center partition | `ArkLib/Data/Polynomial/FunctionFieldAlgorithms/CommonCenter/OrdinaryFinalization.lean`: `run_exists_partition`; `OrdinaryDegreeBounds.lean`: `run_exists_of_kappa` | Actual trivariate ordinary-tail/regular-curve partition and large-characteristic cutoff |
+| Robust selection | `LD/HigherOrderProducer/RobustBallCoverage.lean`, `RobustBallChart.lean` | Executable field-independent selection, agreeing full-span capture, actual equations/Jacobian/isolation under chart hypotheses |
+| Dense special cases | `ArkLib/Data/Polynomial/Rojas/Producer/MacaulayEmptyMinor.lean` | Unconditional quotient and perturbation success for univariate and affine-linear square systems |
+| General dense foundations | `ArkLib/Data/Polynomial/Rojas/Producer/` | Conditional safe maps, deformation and root-data results; general factorization and isolated-root coverage remain open |
 
-The remaining G09 energy estimate is a distinct analytic obligation. Current selection also
-needs its agreeing-label invariant exposed before common-zero capture can be composed.
+Preserve these distinctions at every consumer:
 
-Publish independently reviewed and fully validated checkpoints along the way. A checkpoint
-records progress; it does not close a larger target whose completeness obligations remain.
-All leads and subagents use GPT-5.6 Sol High. Preserve disjoint source/build ownership and
-use a nonauthor reviewer for substantial mathematical and integration changes.
+- Chart numerators store ascending Taylor coefficients at the center. Public
+  recovery consumes descending Horner coefficients in the original variable.
+  Use the proved translation/reversal in `CenteredMaterialize`, not a bare reversal.
+- The tower base is squarefree where required; the monic fiber may be nonreduced.
+  The split `gcd(h, e^r mod h)` retains complete primary factors. Do not run the
+  legacy fiber-radicalization path to satisfy an obsolete invariant.
+- Invert the actual stored denominator. Its geometric nonvanishing follows from
+  the chart identity; literal equality with an unreduced separant power is not needed.
+- P2's final source theorem still requires source scheduling/coverage, source
+  squarefreeness, positive weighted equation degree and its `Bjet` bound, the
+  agreement range `k <= A <= n`, and a certified executable inverse Frobenius.
+  It does not enumerate global charts or show one arbitrary chart covers every message.
+- Supplied cyclic Frobenius coordinates certify bijectivity and rotation, not
+  linear normal-basis structure unless that additional structure is supplied.
 
-## Parallel organization
+## Remaining work
 
-The ten groups support a proposed team of roughly 20–30 authors and reviewers once interfaces
-stabilize. This is a staffing proposal, not a measured optimum or a tool-concurrency promise.
-Split a group only when another worker has an independent deliverable and separate file ownership.
-Each group needs compilation capacity; uncompiled patches otherwise accumulate at integration.
+### 1. Switch the canonical Taylor constructor
 
-Use the completed algebra, fields and zeroth decoder as frozen dependencies. Split concrete
-component construction from varying-order coverage and final recovery. G08 foundations and the
-G09 analytic estimate can advance independently of first-order public completion.
+`FT/Constructor.lean` still calls `FundamentalMatrix.nonlinearNewton?`. The checked
+replacement exists in `TriangularPreparation` and `TriangularChart`; reuse it.
+Feed its recurrence output into local recovery and global normal-form
+reconstruction. Transfer `Contract` and `Coverage` using cleared-numerator
+provenance, preserving the projection, confluent sample, actual root, separant
+inverse and coefficient order. Equality with the old Newton output is unnecessary
+if the new executed path directly establishes the required semantic contract.
 
-| Consumer milestone | Required groups and already available components |
-| --- | --- |
-| Dedicated zeroth-order exact decoder | G10 + ordinary normalization from G01 + G07; reuse quotient Newton and recovery |
-| Closed first-order exact decoder | G03–G05 Taylor + G01/G02/G06 norm pipeline + G07; reuse tower preprocessing/materialization/recovery |
-| General-order all-subsets exact decoder | Taylor + G07 fields + G08 Rojas + G09 direct-system capture; reuse common recovery |
-| Complete paper decoder | Both higher-order selections, global separant/center loop, supplied-equation and certified-support success, public theorem and algorithm correspondence |
+Next connect the general dyadic block/cache schedule in `RelaxedConvolution` to
+the full recurrence and prove gate equivalence. The single quadratic cached
+example is not a general scheduler proof. Reconcile the rational boundary
+recurrence with the prescribed execution as well; its current inversion backend
+needs explicit accounting, not a runtime theorem.
 
-Rojas production and the expander spectral certificate need early feasibility checkpoints.
-More integration workers cannot remove those mathematical dependencies.
+Acceptance: the canonical constructor executes the new path and retains global
+agreement at every regular point, not only the chosen sample. Keep nonzero-center,
+nonidentity-projection, repeated-fiber and nonconstant-unit regressions, including
+`X^p` and `X^(p+1)` cases that reject factorial-based shifts.
 
-## Coordination ownership
+### 2. Compute the first-order normalization
 
-The coordinator owns shared contracts, top-level dispatch and correctness, public reader maps,
-umbrella generation, runtime-suite registration, dependency pins, and this task board.
-Groups own the source areas in [workstreams](workstreams.md); existing source owners remain read-only
-until an explicit transfer. An independent reviewer checks statements and algorithm correspondence.
+Work in `ArkLib/Data/Polynomial/FunctionFieldAlgorithms/CommonCenter/`. Its finite
+representations and conditional laws are not yet an integral-closure producer.
 
-Completion has separate stages: proposed, assigned, implemented, locally verified, integrated,
-and accepted. Only the last stage closes a work package. See [workflow](workflow.md).
+1. Derive `ProjectionGrid.BadSlopeControl` from the actual reduced equation,
+   separant, degree and characteristic hypotheses.
+2. Construct the projected order and actual bases/multiplication tables for its
+   finite windows and every intermediate order.
+3. Instantiate the trace-kernel converse on these actual algebras, deriving the
+   Artin decomposition, residue-field and characteristic facts it currently takes
+   as inputs. Compute a complete radical basis.
+4. Execute endomorphism enlargement, prove strict progress, and implement the
+   bounded iteration.
+5. Prove the Grauert–Remmert stabilization criterion applies and that the terminal
+   order is the integral closure.
+6. Extract the free basis and multiplication table with integrality, degree and
+   denominator-height bounds from the original input.
 
-## Superseded records
+The immediate bounded linear-algebra seam is the missing public theorem
+`homogeneousKernelBasis_span_eq_kernel`. Returned vectors are sound, but the
+normalization/coverage solver needs them to span the whole kernel. Prove this for
+the entire basis; the first returned witness cannot solve general affine
+constraints. Cover empty matrices, rank defects and free coordinates in the
+augmented-system adapter.
 
-Completed A–E assignments and their patch provenance remain in
-[the foundation checkpoint's history](https://github.com/quangvdao/ArkLib/tree/3c67cb3fa669985b2add6c5d080a3060c4728789/docs/design/decoder-workers).
-Earlier [algebraic-machine planning](https://github.com/quangvdao/ArkLib/blob/3c67cb3fa669985b2add6c5d080a3060c4728789/docs/design/rs-algebraic-machine-plan.md),
-[bit-cost planning](https://github.com/quangvdao/ArkLib/blob/3c67cb3fa669985b2add6c5d080a3060c4728789/docs/design/rs-bit-cost-backend.md),
-and [continuation logs](https://github.com/quangvdao/ArkLib/blob/3c67cb3fa669985b2add6c5d080a3060c4728789/PROGRESS.md)
-are historical evidence, not active instructions. Their source implementations remain available.
-A commit-pinned historical URL is immutable; current coordination lives only in this directory.
+Also finish the ordinary path's original-input denominator/cleared-degree bound
+and reconcile its initial content convention with the pinned paper. Reuse its
+actual partition rather than creating another ordinary-tail algorithm.
+
+Acceptance: compute normalization without a supplied normal order, radical basis
+or stabilization certificate. Include already-normal and genuinely nonnormal
+curves, not only supplied multiplication-table tests.
+
+### 3. Produce the common guard and single boundary family
+
+This depends on actual normalization, not just its abstract representation.
+
+- Construct the normalized derivation, `g = d*eta`, denominator ideal `I = (N:J)`,
+  generators `c_l` and cleared products `b_li`. Prove their coverage identity on
+  the actual normalization instead of assuming it in a supplied presentation.
+- Replace caller-supplied `later` factors in guard assembly by the computed
+  module, denominator, derivation, pivot and coverage factors. Prove that one
+  nonzero guard specializes the whole construction correctly, within its budget.
+- Construct `N_a / g_a N_a`, compute its reduced quotient, and build its algebra
+  presentation. Complete the trace and powered/inverse-Frobenius branches under
+  their respective characteristic hypotheses.
+- Compute the idempotent ideal, lifted coefficients, combined denominator `c_*`
+  and rational system. Prove its unit initial denominator and original-message
+  coordinate map; invoke the generic rational recurrence.
+- Prove coefficientwise coverage by this one finite boundary family.
+
+Acceptance: return the boundary family from computed normalization with no
+coverage or recurrence-success oracle. The cusp `Y^2 = (Z-1)^3` must exercise a
+point missed by the original-open chart. A combined test must distinguish
+ordinary-tail, original-open and boundary contributions.
+
+### 4. Assemble the first-order decoder
+
+Run common-center preparation, compute the base/quadratic center, and produce the
+ordinary tail, original-open Taylor curve and reduced boundary families. Apply
+P2's curve filter only to the open curve. Recover messages from the union using
+the shared consumer and final agreement check.
+
+Use `SourceCoverage.decode_exact_of_source_coverage` and its pointwise lemmas;
+threshold capture is already proved. Derive source squarefreeness, positive
+weighted degree and its `Bjet` bound, constructor success and scheduling from
+actual producers. Connect chart coefficient-degree
+bounds to `ProducerBudget` wherever a finite search or candidate bound uses them.
+The existing budget is in terms of computed filter degrees, not a complete
+original-input runtime estimate.
+
+Replace the legacy norm/universal-component pipeline as the canonical path;
+preserve it as a named compatibility implementation until its consumers move.
+Keep the new uniform threshold `t = A-k+1`, rather than the old component-specific
+threshold or a full multiplicity decomposition.
+
+Under the standing positive-order guard `p > k-1`, dispatch first order to the
+common-center path when `p > 2*(Bjet+1)^3`. Preserve the many-center route and
+bounded-message accounting in the intermediate characteristic regime. Bounded
+characteristic over an extension field does not imply bounded block length.
+
+Acceptance: an exact first-order supplied-equation run with no chart-family
+coverage premise, including extension transport, all three families, rejection,
+deduplication and characteristic-boundary tests.
+
+### 5. Close the general dense solver
+
+Use `ArkLib/Data/Polynomial/Rojas/Producer/`. Keep its completed univariate and
+affine-linear cases; they do not imply general nonlinear totality.
+
+1. Prove Macaulay-specific divisibility of `extraneousFactor system` into
+   `characteristic system`. `MacaulayFactorization` reduces this exactly to
+   polynomial descent of `fractionSchurDet`; the descent remains open.
+2. Derive `PerturbationFactorization` from the computed perturbation. Prove
+   complete isolated-root coverage over the algebraic closure, including
+   zero-coordinate roots beside positive-dimensional components. Nonsingular
+   base-field root divisibility after success is not this theorem.
+3. Execute coordinate recovery under `|E'| > (s+1)^2 D^(2s)`. Eliminate the caller's
+   `CrossCollisionSeparated` premise using actual isolated-root geometry or a
+   newly justified recovery construction.
+4. Prove general run success and representation of every required isolated root,
+   then expose that producer to both selection modes.
+
+Do not retry the disproved generic matrix/valuation argument. The current
+avoidance estimate has a cubic root-count term and does not establish the
+quadratic field guard. Reviewed counterexamples refute these generic bridges,
+not the paper's solver theorem: the prime-733 example breaks fixed-alpha
+subresultant safety, while prime-90001 breaks cardinality-only avoidance for
+arbitrary point lists. The latter lists cannot be the isolated roots of the
+claimed degree-bounded complete intersection. Exploit that geometry rather than
+silently strengthening the field guard.
+
+The scratch counterexamples are recorded in the historical P3 report. Before
+using them as regression dependencies, bring their exact source into reviewed
+durable tests; temporary files are not shipped theorems. A general sparse/toric
+library is not a separate completion requirement unless the chosen dense proof
+needs it. Any such dependency needs a precise theorem and consumer.
+
+### 6. Compose higher-order stages and public dispatch
+
+The robust selector is complete locally. Instantiate
+`RobustBallChart.exists_robust_selectedChartSystem_capture` with actual Taylor
+equations, nonzero normal, agreement zeros and tangent gap. Consume its actual
+selected systems, Jacobian and isolation result; do not reintroduce a supplied
+basis, expansion estimate or successful-selection oracle.
+
+Connect both all-subsets and robust modes to the completed dense solver. Localize
+its parameter algebra, substitute coefficient maps, apply the characteristic-safe
+radical where prescribed, materialize and recover. Existing varying-order
+traversal supplies dependent semantics and canonical fuel; finish concrete stage
+producers and their coverage.
+
+Replace `HiddenDerivativeDecoder.symbolicDecode`'s unavailable result. Generalize
+remaining legacy prime-only options to the advertised effective-field interface.
+Preserve separate guards for impossible agreement, constant messages, order and
+message bounds, finite grids, characteristic promises and justified bounded
+cases. Failure of a promise does not authorize unrestricted enumeration.
+
+Acceptance: exact supplied-equation and certified-support entrypoints for both
+selection modes and all emitted orders, without internal success or coverage
+premises. Test lower-positive and zeroth descendants, not only the top order,
+and extension-only parameters representing base-field messages.
+
+### 7. Finish prescribed interpolation correspondence
+
+Normalized local/global frames and Jordan actions are available under
+`RS/Computation/Interpolation/Module/`. Implement the prescribed shifted
+minimal-basis selection, connect its row to the support cutoff and constraints,
+and prove that it explains every wanted message. Record the ordinary backend's
+relation to the paper's fast GS interpolation separately.
+
+Keep current valid matrix and Lee–O'Sullivan/Mulders–Storjohann variants as named
+references. Exactness from a valid interpolant is not JNSV execution
+correspondence. This task can proceed independently of normalization and Rojas.
+
+### 8. Keep auxiliary variants explicit
+
+The deterministic decoder is the first target. A release claiming all decoder
+variants in the pinned paper must also cover:
+
+- Sampled centers: soundness for every sample, completeness on the coverage event,
+  and the finite independent-sampling/union bound. This is Monte Carlo completeness,
+  not unconditional exact output or a Las Vegas claim.
+- Bounded-input list recovery: position/symbol labels, distinct positions,
+  symbol-aware splitting and interpolation, full input-list checking, and
+  singleton compatibility. The mathematical labeled-incidence/rate theorem is
+  separate; do not hide that missing proof in an executable assumption.
+
+Do not silently add these to the deterministic milestone or omit them from a
+claim covering all variants. Full nested-tower CRT equivalences remain optional
+unless a concrete consumer needs them.
+
+## Continuation and acceptance
+
+Assign bounded tasks by source area and named consumer, not historical Personal
+numbers. One coordinator owns shared interfaces, public dispatch, generated
+imports and runtime registration. Use an independent nonauthor reviewer. The
+user chooses models and effort levels; this page imposes no staffing policy.
+
+The shortest independent next tasks are the canonical Taylor switch, complete
+kernel-span theorem and interpolation correspondence. Normalization/boundary and
+dense solving are the two deep parallel tracks. Global first-order and
+higher-order composition depend on their respective tracks, not on each other.
+
+Before publishing:
+
+1. Record the exact base, input heads, changed contracts and remaining premises.
+2. Stage new production/tests and run `./scripts/update-lib.sh`. Never hand-edit
+   the generated `ArkLib.lean` or omit new modules from the checked root.
+3. Register each executable regression once centrally. Keep compile-time clients
+   in `ArkLibTest`; compilation alone is not execution evidence.
+4. Run `LAKE_ARTIFACT_CACHE=false LAKE_NO_CACHE=true ./scripts/validate.sh --axioms`
+   on the combined candidate. Do not change pins or broaden the axiom baseline
+   to pass. Existing historical taint is not a new decoder axiom.
+5. Independently review executed contracts, input-derived coverage, merge
+   compatibility, tests and this page. Repair and rerun affected checks.
+6. Commit the reviewed tree, verify the exact-head gate, non-force push to the
+   authorized branch, and read back the remote SHA.
+
+The final integration handoff records the validation log and publication SHA.
+The command above remains the acceptance gate for each continuation. This source
+union does not claim public positive-order completion or formalized runtime analysis.

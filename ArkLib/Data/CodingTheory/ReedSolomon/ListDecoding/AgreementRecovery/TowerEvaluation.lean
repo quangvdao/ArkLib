@@ -119,8 +119,9 @@ theorem specialize_eq_base_map_of_shared_agreements {F I : Type*} [Field F]
 
 /-- Every retained positive-dimensional tower has a geometric point in an algebraically closed
 extension. The witnesses are proof-only; recovery interpolates without computing either root. -/
-theorem exists_point [IsAlgClosed L] (r : TowerRepresentation (F := E))
-    (ι : E →+* L) {k : ℕ} (hr : r.WellFormed k) :
+theorem exists_point_of_nonreducedWellFormed [IsAlgClosed L]
+    (r : TowerRepresentation (F := E))
+    (ι : E →+* L) {k : ℕ} (hr : r.NonreducedWellFormed k) :
     ∃ u v : L, r.Point ι u v := by
   have hG : r.modulus.toPoly.degree ≠ 0 := by
     apply ne_of_gt
@@ -136,6 +137,12 @@ theorem exists_point [IsAlgClosed L] (r : TowerRepresentation (F := E))
     simpa only [CPolynomial.natDegree_toPoly] using hr.2.2.2.2.1
   obtain ⟨v, hv⟩ := IsAlgClosed.exists_root (specializeFiberCPolynomial r.fiber ι u) hh
   exact ⟨u, v, hu, hv⟩
+
+/-- Compatibility adapter for a tower carrying the stronger historical certificate. -/
+theorem exists_point [IsAlgClosed L] (r : TowerRepresentation (F := E))
+    (ι : E →+* L) {k : ℕ} (hr : r.WellFormed k) :
+    ∃ u v : L, r.Point ι u v :=
+  r.exists_point_of_nonreducedWellFormed ι hr.nonreduced
 
 end
 end ReedSolomon.ListDecoding.TowerRepresentation

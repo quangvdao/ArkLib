@@ -43,8 +43,8 @@ home_page/            site assets and assembled website root
 ## Where To Start By Task
 
 - Extending foundational math or coding theory: start in `ArkLib/Data/`.
-- Continuing the paper decoder: use the [decoder plan](../design/decoder-plan/README.md) for
-  current status, shared interfaces, workstream ownership and acceptance gates.
+- Continuing the paper decoder: use the [single decoder handoff](../design/decoder-plan/README.md)
+  for collected sources, completed interfaces, remaining dependencies and acceptance gates.
 - Generic operational machines and their representation/refinement lemmas live in
   `ArkLib/Data/Computation/`. Reed–Solomon execution consumers stay under `ListDecoding/`;
   mathematical capacity entry points remain independent of that machinery. The retained lower-level

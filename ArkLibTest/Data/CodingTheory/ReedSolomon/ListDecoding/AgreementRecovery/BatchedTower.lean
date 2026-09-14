@@ -58,7 +58,7 @@ private theorem extensionTower_wellFormed : extensionTower.WellFormed 1 :=
     norm_num)
 
 private def packet : AgreementRecovery.Tower.Component F 1 :=
-  ⟨extensionTower, extensionTower_wellFormed⟩
+  ⟨extensionTower, extensionTower_wellFormed.nonreduced⟩
 
 private def domain : Fin 2 ↪ F :=
   ⟨fun i => i.val, by
@@ -151,7 +151,7 @@ private theorem branchingTower_wellFormed : branchingTower.WellFormed 2 := by
       · contradiction
 
 private def branchingPacket : AgreementRecovery.Tower.Component F 2 :=
-  ⟨branchingTower, branchingTower_wellFormed⟩
+  ⟨branchingTower, branchingTower_wellFormed.nonreduced⟩
 
 /-- The nonzero source residual `V` splits into two live descendants with a repeated base modulus
 and genuinely different fibers. -/
@@ -185,43 +185,51 @@ example (a b : AgreementRecovery.Tower.Component F 1)
       [a.val.modulus, a.val.modulus] := by
   simp [AgreementRecovery.BatchedTower.liveModuli, hmod]
 
-#print axioms AgreementRecovery.BatchedTower.recoverAgreement_represented_exact
-#print axioms AgreementRecovery.BatchedTower.mem_recoverAgreement_iff_tower
-#print axioms AgreementRecovery.BatchedTower.recoverAgreement_exact_of_coverage
-
 /-- Runtime checks for duplicate live moduli, empty batches, early stopping, extension-only roots,
 deduplication, and final agreement rejection. -/
-def run : IO Unit := do
+private def checks : Bool := Id.run do
   unless (AgreementRecovery.BatchedTower.liveModuli 1 duplicateLive ==
       [extensionG, extensionG]) do
-    throw (IO.userError "batched tower check 1 failed: duplicate live moduli")
+    return false
   unless ((AgreementRecovery.BatchedTower.advanceFamily
       (.naive : MulContext F) (.remainderOnly : ModContext F)
       (RingHom.id F) domain allOnes 1 packet (0 : Fin 2) []).isEmpty) do
-    throw (IO.userError "batched tower check 2 failed: empty batch")
+    return false
   unless (afterFirst.length == 2) do
-    throw (IO.userError "batched tower check 3 failed: live component count")
+    return false
   unless (afterFirst.all fun block => block.positions.length == 1) do
-    throw (IO.userError "batched tower check 4 failed: first agreement")
+    return false
   unless (afterSecond.map (fun block => block.positions) ==
       afterFirst.map (fun block => block.positions)) do
-    throw (IO.userError "batched tower check 5 failed: early stopping")
+    return false
   unless (AgreementRecovery.BatchedTower.recoverAgreementDefault
       (RingHom.id F) domain allOnes 1 2 [packet] == [[1]]) do
-    throw (IO.userError "batched tower check 6 failed: extension-only root recovery")
+    return false
   unless (AgreementRecovery.BatchedTower.recoverAgreementDefault
       (RingHom.id F) domain allOnes 1 2 [packet, packet] == [[1]]) do
-    throw (IO.userError "batched tower check 7 failed: output deduplication")
+    return false
   unless (AgreementRecovery.BatchedTower.recoverAgreementDefault
       (RingHom.id F) domain (fun i => i.val) 1 2 [packet] == []) do
-    throw (IO.userError "batched tower check 8 failed: final agreement rejection")
+    return false
   unless (fiberBranches.length == 2 &&
       (fiberBranches.map fun block => block.component.val.fiber).dedup.length == 2) do
-    throw (IO.userError "batched tower check 9 failed: distinct live fiber branches")
+    return false
   unless (AgreementRecovery.BatchedTower.liveModuli 2 fiberBranches ==
       [CPolynomial.X, CPolynomial.X]) do
-    throw (IO.userError "batched tower check 10 failed: repeated base for distinct fibers")
+    return false
   unless (afterFiberBatch.map (fun block => block.positions.length) == [1, 0]) do
-    throw (IO.userError "batched tower check 11 failed: branch-local fiber reductions")
+    return false
+  -- In F₃[V]/(V(V-1)), (V+1)² reduces to 1. The old raw-residual path stores V+1.
+  unless ((TowerAlgebra.splitState branchingTower (CPolynomial.X + 1)
+      branchingTower_wellFormed).divisor.toCPolynomial == 1) do
+    return false
+  return true
+
+example : checks = true := by decide +kernel
+
+/-- Entry point used by the compiled agreement-recovery runtime suite. -/
+def run : IO Unit := do
+  unless checks do
+    throw (IO.userError "batched tower runtime checks failed")
 
 end ArkLibTest.BatchedTower

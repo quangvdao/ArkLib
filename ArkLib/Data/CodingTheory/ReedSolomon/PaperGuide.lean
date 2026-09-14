@@ -182,9 +182,13 @@ the paper's named algorithms to their proved Lean endpoints. The central boundar
 * the coordinate capacity decoder is a retained correctness reference with a primitive-work ledger;
 * agreement recovery is exact relative to supplied finite representations and becomes an ordinary
   `ExactOutput` theorem when constructor coverage is proved;
-* the square-system decoder is conditional on an explicit torus-backend coverage contract; and
-* the first-order norm components do not yet form a top-level paper decoder or whole-decoder
-  bit/RAM theorem.
+* the effective-field zeroth decoder has data-only public exactness under its valid-input contract;
+* the new first-order curve filter has chart-local exactness from actual
+  constructor/source coverage;
+* robust and exhaustive direct-chart selection are proved, but the general dense solver remains
+  conditional; and
+* common-center normalization, boundary production and global positive-order composition remain
+  unfinished. No whole-decoder bit/RAM theorem is claimed.
 
 ## References
 

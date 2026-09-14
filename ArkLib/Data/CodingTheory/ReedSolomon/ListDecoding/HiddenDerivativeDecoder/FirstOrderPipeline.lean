@@ -124,9 +124,9 @@ def packetFamilies (p : ℕ) [Fact p.Prime]
     List (AgreementRecovery.Tower.Component (Carrier modulus) k) :=
   (firstOrderNormCandidates p modulus M D A packet.chart
       (receivedRows domain received)).attach.map fun candidate =>
-    ⟨candidate.1, firstOrderNormCandidates_wellFormed p modulus M D A packet.chart
+    ⟨candidate.1, (firstOrderNormCandidates_wellFormed p modulus M D A packet.chart
       (receivedRows domain received) packet.normalForms packet.equationDegree_lt_char
-      candidate.1 candidate.2⟩
+      candidate.1 candidate.2).nonreduced⟩
 
 /-- Flatten the real candidate families from every successful first-order chart. -/
 def candidateFamilies (p : ℕ) [Fact p.Prime]
