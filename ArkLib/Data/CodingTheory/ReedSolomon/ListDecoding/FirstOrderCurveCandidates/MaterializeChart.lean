@@ -84,10 +84,10 @@ private theorem eval_inverse (r : TowerRepresentation (F := E))
   exact he
 
 /-- Every specialized slot is its chart numerator divided by the actual denominator. -/
-theorem run_specialize (chart : ChartData E 1 k) (r out : TowerRepresentation (F := E))
+theorem run_specialize_coefficients (chart : ChartData E 1 k) (r out : TowerRepresentation (F := E))
     {width : ℕ} (hr : r.NonreducedWellFormed width) (hout : run chart r = some out)
     {K : Type} [Field K] (phi : E →+* K) (u v : K) (hp : r.Point phi u v) :
-    out.specialize phi u v = Polynomial.JetHornerMachine.coefficientPolynomial
+    out.coefficients.map (fun c => evalNested c phi u v) =
       ((List.ofFn (chartPolynomials chart).numerators).map fun numerator =>
         evalNested numerator phi u v /
           evalNested (chartPolynomials chart).denominator phi u v) := by
@@ -97,7 +97,6 @@ theorem run_specialize (chart : ChartData E 1 k) (r out : TowerRepresentation (F
     intro hz
     rw [hz, zero_mul] at he
     exact zero_ne_one he
-  apply congrArg Polynomial.JetHornerMachine.coefficientPolynomial
   simp only [withMaterializedCoefficients, List.map_map]
   apply List.map_congr_left
   intro numerator _
@@ -111,5 +110,16 @@ theorem run_specialize (chart : ChartData E 1 k) (r out : TowerRepresentation (F
         (evalNested (chartPolynomials chart).denominator phi u v *
           evalNested inverse phi u v) := by ring
     _ = evalNested numerator phi u v := by rw [he, mul_one]
+
+/-- The raw materialization retains the stored list order. -/
+theorem run_specialize (chart : ChartData E 1 k) (r out : TowerRepresentation (F := E))
+    {width : ℕ} (hr : r.NonreducedWellFormed width) (hout : run chart r = some out)
+    {K : Type} [Field K] (phi : E →+* K) (u v : K) (hp : r.Point phi u v) :
+    out.specialize phi u v = Polynomial.JetHornerMachine.coefficientPolynomial
+      ((List.ofFn (chartPolynomials chart).numerators).map fun numerator =>
+        evalNested numerator phi u v /
+          evalNested (chartPolynomials chart).denominator phi u v) :=
+  congrArg Polynomial.JetHornerMachine.coefficientPolynomial
+    (run_specialize_coefficients chart r out hr hout phi u v hp)
 
 end ReedSolomon.ListDecoding.FirstOrderCurveCandidates.MaterializeChart
