@@ -32,7 +32,7 @@ private theorem labels : ∀ a ∈ (ComponentDescent.run v gs).blocks,
 private theorem threshold_zero : out.thresholdPolynomial.toPoly.eval₂ (RingHom.id E) 0 = 0 := by
   apply ThresholdCoverage.run_threshold_vanishes_fin (RingHom.id E) 0 0 3 id 3 2 v gs
     (by decide +kernel) _ _ (by decide) (by decide) (by decide)
-    Finset.univ (by decide +kernel) _ labels out executed
+    Finset.univ (by decide +kernel) _ (fun a ha _ => labels a ha) out executed
   · rw [valueGlobal_eq_map]
     simpa [v, CPolynomial.X_toPoly] using
       (Polynomial.irreducible_X (R := RatFunc E)).squarefree

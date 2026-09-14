@@ -28,14 +28,15 @@ theorem coefficient_positions_bound {K : Type*} [Field K] (phi : E →+* K) (u v
     (hpoint : ComponentDescent.evalAt phi u v h = 0)
     (A k : ℕ) (hk : 0 < k) (hkA : k ≤ A) (S : Finset ℕ) (hcard : A ≤ S.card)
     (hagree : ∀ i ∈ S, ∃ g, gs[i]? = some g ∧ ComponentDescent.evalAt phi u v g = 0)
-    (huniversal : ∀ a ∈ (ComponentDescent.run h gs).blocks, a.universal.length ≤ k - 1)
+    (huniversal : ∀ a ∈ (ComponentDescent.run h gs).blocks,
+      ComponentDescent.evalAt phi u v a.modulus = 0 → a.universal.length ≤ k - 1)
     (cs : List (CPolynomial E)) (hcs : FilterCore.coefficients? h gs = some cs) :
     A - k + 1 ≤ (vanishingPositions phi u cs.toArray).card := by
   classical
   obtain ⟨a, ha, hav⟩ := ComponentDescent.run_allFiber_coverage phi u v h gs hh hpoint
   have hlabel : a.universal.toFinset.card ≤ k - 1 := by
     rw [List.toFinset_card_of_nodup (ComponentDescent.run_labels_nodup h gs a ha)]
-    exact huniversal a ha
+    exact huniversal a ha hav
   have hsub : S \ a.universal.toFinset ⊆ vanishingPositions phi u cs.toArray := by
     intro i hi
     obtain ⟨hiS, hiU⟩ := Finset.mem_sdiff.mp hi
@@ -64,7 +65,8 @@ theorem run_threshold_vanishes {K : Type*} [Field K] (phi : E →+* K) (u v : K)
     (hk : 0 < k) (hkA : k ≤ A) (hAn : A ≤ gs.length)
     (S : Finset ℕ) (hcard : A ≤ S.card)
     (hagree : ∀ i ∈ S, ∃ g, gs[i]? = some g ∧ ComponentDescent.evalAt phi u v g = 0)
-    (huniversal : ∀ a ∈ (ComponentDescent.run h gs).blocks, a.universal.length ≤ k - 1)
+    (huniversal : ∀ a ∈ (ComponentDescent.run h gs).blocks,
+      ComponentDescent.evalAt phi u v a.modulus = 0 → a.universal.length ≤ k - 1)
     (out : FilterCore.Trace E) (hout : FilterCore.run p inverse A k h gs = some out) :
     out.thresholdPolynomial.toPoly.eval₂ phi u = 0 := by
   obtain ⟨cs, H, hcs, hH, rfl⟩ := FilterCore.run_provenance p inverse A k h gs out hout
@@ -86,7 +88,8 @@ theorem run_threshold_vanishes_fin {K : Type*} [Field K] (phi : E →+* K) (u v 
     (hk : 0 < k) (hkA : k ≤ A) (hAn : A ≤ gs.length)
     (S : Finset (Fin gs.length)) (hcard : A ≤ S.card)
     (hagree : ∀ i ∈ S, ComponentDescent.evalAt phi u v gs[i] = 0)
-    (huniversal : ∀ a ∈ (ComponentDescent.run h gs).blocks, a.universal.length ≤ k - 1)
+    (huniversal : ∀ a ∈ (ComponentDescent.run h gs).blocks,
+      ComponentDescent.evalAt phi u v a.modulus = 0 → a.universal.length ≤ k - 1)
     (out : FilterCore.Trace E) (hout : FilterCore.run p inverse A k h gs = some out) :
     out.thresholdPolynomial.toPoly.eval₂ phi u = 0 := by
   classical
