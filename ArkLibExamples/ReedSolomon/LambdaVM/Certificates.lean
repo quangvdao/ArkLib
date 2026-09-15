@@ -156,6 +156,7 @@ theorem list_envelope_le :
   norm_num [_root_.ReedSolomon.CurveCertificate.squarefreeListEnvelope,
     listProfile, listBound, firstOrderCurveFiberStageOne,
     firstOrderTaylorTotalCap, firstOrderTaylorDerivativeCap,
+    hybridTau,
     FirstOrder.Squarefree.ordinaryDegreeEnvelope,
     AffineHilbert.fixedFiberDerivativeImageDegree]
 

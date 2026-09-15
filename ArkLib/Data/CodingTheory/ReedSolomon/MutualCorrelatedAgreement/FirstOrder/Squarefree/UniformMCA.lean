@@ -231,63 +231,72 @@ theorem uniformFirstOrderMCA_parameters (n k A : ℕ)
 
 set_option maxHeartbeats 2000000 in
 -- Expanding the four exact cap-sensitive stages needs more than the default budget.
-/-- Exact generic-fiber degree of the four regular stages. -/
-theorem uniformFirstOrderMCA_hybridB1_four (D : ℕ) (hD : 1 ≤ D) :
-    hybridB1 D 23 4 = 724 * D - 314 := by
+/-- Exact generic-fiber degree of the four regular stages at the identity-pair endpoint. -/
+theorem uniformFirstOrderMCA_hybridB1_four_one : hybridB1 1 23 4 = 86 := by
+  norm_num [hybridB1, Finset.sum_range_succ, hybridTau,
+    firstOrderCurveFiberStageOne, firstOrderTaylorTotalCap,
+    firstOrderTaylorDerivativeCap, AffineHilbert.fixedFiberDerivativeImageDegree]
+
+/-- Exact generic-fiber degree of the four regular stages for `D ≥ 2`. -/
+theorem uniformFirstOrderMCA_hybridB1_four (D : ℕ) (hD : 2 ≤ D) :
+    hybridB1 D 23 4 = 724 * (D - 2) + 486 := by
+  obtain ⟨d, rfl⟩ : ∃ d, D = d + 2 := ⟨D - 2, by omega⟩
   norm_num [hybridB1, Finset.sum_range_succ, hybridTau,
     firstOrderCurveFiberStageOne, firstOrderTaylorTotalCap,
     firstOrderTaylorDerivativeCap,
     AffineHilbert.fixedFiberDerivativeImageDegree]
   omega
 
-/-- Exact joint-family degree of the four regular stages. -/
-theorem uniformFirstOrderMCA_hybridJ1_four (D : ℕ) (hD : 1 ≤ D) :
-    hybridJ1 D 276 23 4 =
-      1149264 * D ^ 2 - 1045144 * D + 236180 := by
-  obtain ⟨d, rfl⟩ : ∃ d, D = d + 1 := ⟨D - 1, by omega⟩
-  have hrhs :
-      1149264 * (d + 1) ^ 2 - 1045144 * (d + 1) =
-        1149264 * d ^ 2 + 1253384 * d + 104120 := by
-    have hid :
-        1149264 * (d + 1) ^ 2 =
-          (1149264 * d ^ 2 + 1253384 * d + 104120) +
-            1045144 * (d + 1) := by ring
-    have hle : 1045144 * (d + 1) ≤ 1149264 * (d + 1) ^ 2 := by
-      rw [hid]
-      omega
-    exact (Nat.sub_eq_iff_eq_add hle).2 hid
-  rw [hrhs]
+/-- Exact joint-family degree at the identity-pair endpoint. -/
+theorem uniformFirstOrderMCA_hybridJ1_four_one : hybridJ1 1 276 23 4 = 1276 := by
   norm_num [hybridJ1, Finset.sum_range_succ,
     firstOrderCurveJointStageOne, firstOrderTaylorTotalCap,
     firstOrderTaylorDerivativeCap, firstOrderCurveFiberStageOne,
     hybridTau, AffineHilbert.mixedDerivativeImageDegree,
     AffineHilbert.fixedFiberDerivativeImageDegree]
-  have hτ : 2 * (d + 1) - 1 = 2 * d + 1 := by omega
+
+/-- Exact joint-family degree of the four regular stages for `D ≥ 2`. -/
+theorem uniformFirstOrderMCA_hybridJ1_four (D : ℕ) (hD : 2 ≤ D) :
+    hybridJ1 D 276 23 4 =
+      1149264 * (D - 2) ^ 2 + 1418984 * (D - 2) + 423252 := by
+  obtain ⟨d, rfl⟩ : ∃ d, D = d + 2 := ⟨D - 2, by omega⟩
+  norm_num [hybridJ1, Finset.sum_range_succ,
+    firstOrderCurveJointStageOne, firstOrderTaylorTotalCap,
+    firstOrderTaylorDerivativeCap, firstOrderCurveFiberStageOne,
+    hybridTau, AffineHilbert.mixedDerivativeImageDegree,
+    AffineHilbert.fixedFiberDerivativeImageDegree]
+  have hτ : 2 * (d + 2) - 3 = 2 * d + 1 := by omega
   simp only [hτ]
-  have hm1 : d + 1 ≤ 1 + (2 * d + 1) * 19 := by omega
-  have hm2 : 2 * d + 1 + (d + 1) ≤ 1 + (2 * d + 1) * 20 := by omega
-  have hm3 : (2 * d + 1) * 2 + (d + 1) ≤ 1 + (2 * d + 1) * 21 := by omega
-  have hm4 : (2 * d + 1) * 3 + (d + 1) ≤ 1 + (2 * d + 1) * 22 := by omega
+  have hm1 : d + 2 ≤ 1 + (2 * d + 1) * 19 := by omega
+  have hm2 : 2 * d + 1 + (d + 2) ≤ 1 + (2 * d + 1) * 20 := by omega
+  have hm3 : (2 * d + 1) * 2 + (d + 2) ≤ 1 + (2 * d + 1) * 21 := by omega
+  have hm4 : (2 * d + 1) * 3 + (d + 2) ≤ 1 + (2 * d + 1) * 22 := by omega
   simp only [min_eq_right hm1, min_eq_right hm2, min_eq_right hm3,
     min_eq_right hm4]
-  have hs1 : 1 + (2 * d + 1) * 19 - (d + 1) = 19 + 37 * d := by omega
-  have hs2 : 1 + (2 * d + 1) * 20 - (2 * d + 1 + (d + 1)) =
-      19 + 37 * d := by omega
-  have hs3 : 1 + (2 * d + 1) * 21 - ((2 * d + 1) * 2 + (d + 1)) =
-      19 + 37 * d := by omega
-  have hs4 : 1 + (2 * d + 1) * 22 - ((2 * d + 1) * 3 + (d + 1)) =
-      19 + 37 * d := by omega
+  have hs1 : 1 + (2 * d + 1) * 19 - (d + 2) = 18 + 37 * d := by omega
+  have hs2 : 1 + (2 * d + 1) * 20 - (2 * d + 1 + (d + 2)) =
+      18 + 37 * d := by omega
+  have hs3 : 1 + (2 * d + 1) * 21 - ((2 * d + 1) * 2 + (d + 2)) =
+      18 + 37 * d := by omega
+  have hs4 : 1 + (2 * d + 1) * 22 - ((2 * d + 1) * 3 + (d + 2)) =
+      18 + 37 * d := by omega
   simp only [hs1, hs2, hs3, hs4]
-  ring_nf
-  have ha1 : 40 + d * 116 + d ^ 2 * 76 - (1 + d * 2 + d ^ 2) =
-      39 + 114 * d + 75 * d ^ 2 := by omega
-  have ha2 : 84 + d * 286 + d ^ 2 * 240 - (4 + d * 12 + d ^ 2 * 9) =
-      80 + 274 * d + 231 * d ^ 2 := by omega
-  have ha3 : 132 + d * 472 + d ^ 2 * 420 - (9 + d * 30 + d ^ 2 * 25) =
-      123 + 442 * d + 395 * d ^ 2 := by omega
-  have ha4 : 184 + d * 674 + d ^ 2 * 616 - (16 + d * 56 + d ^ 2 * 49) =
-      168 + 618 * d + 567 * d ^ 2 := by omega
-  simp only [ha1, ha2, ha3, ha4]
+  have hsq {c t : ℕ} (hct : c ≤ t) : c ^ 2 ≤ 2 * t * c := by
+    rw [pow_two]
+    calc
+      c * c ≤ t * c := Nat.mul_le_mul_right c hct
+      _ ≤ (2 * t) * c := Nat.mul_le_mul_right c (by omega)
+      _ = 2 * t * c := by ring
+  have hle1 : (d + 2) ^ 2 ≤ 2 * (1 + (2 * d + 1) * 19) * (d + 2) := hsq hm1
+  have hle2 : (2 * d + 1 + (d + 2)) ^ 2 ≤
+      2 * (1 + (2 * d + 1) * 20) * (2 * d + 1 + (d + 2)) := hsq hm2
+  have hle3 : ((2 * d + 1) * 2 + (d + 2)) ^ 2 ≤
+      2 * (1 + (2 * d + 1) * 21) * ((2 * d + 1) * 2 + (d + 2)) := hsq hm3
+  have hle4 : ((2 * d + 1) * 3 + (d + 2)) ^ 2 ≤
+      2 * (1 + (2 * d + 1) * 22) * ((2 * d + 1) * 3 + (d + 2)) := hsq hm4
+  apply Nat.cast_injective (R := ℤ)
+  push_cast [Nat.cast_sub hle1, Nat.cast_sub hle2, Nat.cast_sub hle3,
+    Nat.cast_sub hle4]
   ring
 
 /-- The exact regular fiber sum is monotone in the actual derivative degree. -/
@@ -534,19 +543,26 @@ theorem uniformFirstOrderMCA_hybridERaw_le
         ring_nf at hconstant hsmall hdegree hlast ⊢
         linarith
   have hJNat : hybridJ1 D 276 23 e ≤ 1149264 * D ^ 2 := by
-    have hsub : 236180 ≤ 1045144 * D := by omega
-    have hlinear : 1045144 * D ≤ 1149264 * D ^ 2 := by
+    by_cases hDone : D = 1
+    · subst D
       calc
-        1045144 * D ≤ 1149264 * D := Nat.mul_le_mul_right D (by norm_num)
+        hybridJ1 1 276 23 e ≤ hybridJ1 1 276 23 4 := hybridJ1_mono he (by norm_num)
+        _ = 1276 := uniformFirstOrderMCA_hybridJ1_four_one
+        _ ≤ 1149264 * 1 ^ 2 := by norm_num
+    · have hDtwo : 2 ≤ D := by omega
+      calc
+        hybridJ1 D 276 23 e ≤ hybridJ1 D 276 23 4 := hybridJ1_mono he (by norm_num)
+        _ = 1149264 * (D - 2) ^ 2 + 1418984 * (D - 2) + 423252 :=
+          uniformFirstOrderMCA_hybridJ1_four D hDtwo
         _ ≤ 1149264 * D ^ 2 := by
-          gcongr
-          nlinarith
-    calc
-      hybridJ1 D 276 23 e ≤ hybridJ1 D 276 23 4 := hybridJ1_mono he (by norm_num)
-      _ = 1149264 * D ^ 2 - 1045144 * D + 236180 :=
-        uniformFirstOrderMCA_hybridJ1_four D hD
-      _ ≤ 1149264 * D ^ 2 - 1045144 * D + 1045144 * D := by gcongr
-      _ = 1149264 * D ^ 2 := Nat.sub_add_cancel hlinear
+          obtain ⟨d, rfl⟩ : ∃ d, D = d + 2 := ⟨D - 2, by omega⟩
+          norm_num
+          have hid :
+              1149264 * (d + 2) ^ 2 =
+                (1149264 * d ^ 2 + 1418984 * d + 423252) +
+                  (3178072 * d + 4173804) := by ring
+          rw [hid]
+          omega
   have hJ : (hybridJ1 D 276 23 e : ℝ) ≤ 1149264 * (D : ℝ) ^ 2 := by
     exact_mod_cast hJNat
   have hjoint : hybridLambdaOne n A L * theta * hybridJ1 D 276 23 e ≤
@@ -560,10 +576,17 @@ theorem uniformFirstOrderMCA_hybridERaw_le
         gcongr
       _ = (104750625 / 82 : ℝ) * (n : ℝ) ^ 2 := by ring
   have hBNat : hybridB1 D 23 e ≤ 724 * D := by
-    calc
-      hybridB1 D 23 e ≤ hybridB1 D 23 4 := hybridB1_mono hD he (by norm_num)
-      _ = 724 * D - 314 := uniformFirstOrderMCA_hybridB1_four D hD
-      _ ≤ 724 * D := Nat.sub_le _ _
+    by_cases hDone : D = 1
+    · subst D
+      calc
+        hybridB1 1 23 e ≤ hybridB1 1 23 4 := hybridB1_mono hD he (by norm_num)
+        _ = 86 := uniformFirstOrderMCA_hybridB1_four_one
+        _ ≤ 724 * 1 := by norm_num
+    · have hDtwo : 2 ≤ D := by omega
+      calc
+        hybridB1 D 23 e ≤ hybridB1 D 23 4 := hybridB1_mono hD he (by norm_num)
+        _ = 724 * (D - 2) + 486 := uniformFirstOrderMCA_hybridB1_four D hDtwo
+        _ ≤ 724 * D := by omega
   have hB : (hybridB1 D 23 e : ℝ) ≤ 724 * (D : ℝ) := by exact_mod_cast hBNat
   have hlambdaTwo0 : 0 ≤ hybridLambdaTwo n D L := by
     unfold hybridLambdaTwo

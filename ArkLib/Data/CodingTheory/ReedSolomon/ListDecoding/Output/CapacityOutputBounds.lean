@@ -73,7 +73,7 @@ theorem uniformFirstOrder_length_le (delta : ℝ) (hdelta : (6 / 25 : ℝ) ≤ d
     (domain : Fin n ↪ F) (received : Fin n → F) (out : List (List F))
     (hn : 23 ≤ n) (hk : 0 < k)
     (hgap : (k : ℝ) + delta * n ≤ A)
-    (hchar : 2 ≤ k → ringChar F = 0 ∨ max (k - 1) 4 < ringChar F)
+    (hchar : 2 ≤ k → ringChar F = 0 ∨ k - 1 < ringChar F)
     (he : ExactOutput domain received k A out) :
     out.length ≤ 307 * n := by
   by_cases hAn : A ≤ n

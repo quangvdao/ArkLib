@@ -234,12 +234,12 @@ private theorem
     [DecidableEq F] [DecidableEq E] [IsAlgClosed E]
     (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F) (iota : F →+* E)
     (center : E) (Q : DifferentialPolynomial E[X] 1) (K k L A v u τ : ℕ)
-    (hτ : TaylorExponentSufficient 1 K τ) (hτpos : 0 < τ)
-    (hK : 1 < K) (hkK : k ≤ K) (hk : 0 < k) (hkL : k ≤ L)
-    (hLA : L ≤ A) (hAn : A ≤ n)
-    (hu : 0 < u) (huv : u ≤ v)
-    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
-    (hderiv : Q.degreeOf (some 1) ≤ u)
+    (hτ : TaylorExponentSufficient 1 K τ)
+    (hkK : k ≤ K) (hkL : k ≤ L)
+    (htupleBound : ∀ T : Finset (Fin (ℓ + 1) → F[X]),
+      (∀ P ∈ T, IsAdmissibleChartTupleAtExponent domain w iota center Q K k L τ P) →
+      (T.card : ℚ) ≤ (firstOrderCurveFiberStageOne K v u τ : ℚ) *
+        (((n - k + 1 : ℕ) : ℚ) / ((L - k + 1 : ℕ) : ℚ)))
     (offBound : ℚ)
     (hsourceBound : ∀ S : Finset (Option (Fin 2) → E),
       (∀ x ∈ S, aeval x (symbolicSourceInitialEquation center Q) = 0 ∧
@@ -336,9 +336,7 @@ private theorem
           (hchart z hzc).2.2.1,
         (hchart z hzc).2.2.2.2]
       exact (Finset.mem_filter.mp hi).2
-  have htuplebound := admissibleChartTuples_card_le_derivativeCapped_of_exponent
-    domain w iota center Q K k L v u τ hτ hτpos hK hkK hk hkL (hLA.trans hAn)
-      hu huv hjet hderiv tuples htuple
+  have htuplebound := htupleBound tuples htuple
   have hexcbound : (exceptional.card : ℚ) ≤
       ((ℓ * (n - L) : ℕ) : ℚ) *
         (firstOrderCurveFiberStageOne K v u τ : ℚ) *
@@ -375,6 +373,121 @@ def regularSymbolicCurveMCADerivativeBoundTwo
     ((ℓ * (n - L) : ℕ) : ℚ) *
       (firstOrderCurveFiberStageOne K v u τ : ℚ) *
         (((n - k + 1 : ℕ) : ℚ) / ((L - k + 1 : ℕ) : ℚ))
+
+/-- A curve with one constituent has no accidental batching agreements. Any degree-`< k`
+extension-field candidate agreeing in `k` positions is the scalar extension of the unique
+base-field interpolant, and its complete agreement set is already exact. -/
+theorem hasExactPowerAgreement_zeroCurve
+    [DecidableEq E] (domain : Fin n ↪ F) (w : Fin 1 → Fin n → F) (iota : F →+* E)
+    (k : ℕ) (z : E) (Q : E[X]) (hdegree : Q.degree < k)
+    (hagree : k ≤ (polynomialAgreementSet (mappedDomain domain iota)
+      (powerBatchedWord (fun t i ↦ iota (w t i)) z) Q).card) :
+    HasExactPowerAgreement domain w iota k z Q := by
+  classical
+  obtain ⟨sample, hsample, hcard⟩ := Finset.exists_subset_card_eq hagree
+  obtain ⟨P, hPdegree, _hPsample, hrecognize⟩ :=
+    exists_polynomialGraph_of_sample domain w k sample hcard
+  have hQ : Q = powerBatchedPolynomial (fun t ↦ (P t).map iota) z := by
+    apply hrecognize iota z Q hdegree
+    intro i hi
+    have hi' := (Finset.mem_filter.mp (hsample hi)).2
+    simpa only [powerBatchedWord, mappedDomain, Function.Embedding.trans_apply,
+      Function.Embedding.coeFn_mk] using hi'
+  refine ⟨P, hPdegree, hQ, ?_⟩
+  ext i
+  simp only [polynomialAgreementSet, commonCurveAgreementSet, Finset.mem_filter,
+    Finset.mem_univ, true_and]
+  rw [hQ, powerBatchedPolynomial_eval]
+  simp [powerBatchedWord, mappedDomain, Polynomial.eval_map,
+    Polynomial.eval₂_at_apply, iota.injective.eq_iff]
+
+/-- Exact fixed-center bad-challenge bound for degree-one messages. The Taylor map is the
+identity on its initial pair, so the source presentation has degrees `(ell,1,1)` and the tuple
+term uses the exponent-zero identity-pair count. This theorem deliberately assumes `0 < ell`:
+the bidegree presentation needs a positive challenge-side degree. -/
+theorem finite_sourceCurve_bad_challenges_card_le_identityPair
+    [DecidableEq E] [IsAlgClosed E]
+    (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F) (iota : F →+* E)
+    (center : E) (Q : DifferentialPolynomial E[X] 1) (L A v u h : ℕ)
+    (hL : 2 ≤ L) (hLA : L ≤ A) (hAn : A ≤ n) (hℓ : 0 < ℓ) (hv : 0 < v)
+    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
+    (hheight : ChallengeHeightLE Q h)
+    (challenges : Finset E) (witness : E → E[X]) (jet : E → Fin 2 → E)
+    (hchart : ∀ z ∈ challenges,
+      let Qz := MvPolynomial.map (Polynomial.evalRingHom z) Q
+      (witness z).degree < 2 ∧
+        aeval (jet z) (initialJetEquation center Qz) = 0 ∧
+        aeval (jet z) (initialJetSeparant center Qz) ≠ 0 ∧
+        (∀ l : Fin 2, 2 ≤ l.val →
+          aeval (jet z) (commonTaylorNumerator center Qz 2 l (τ := 0)) = 0) ∧
+        rationalTaylorPolynomial center Qz 2 (jet z) = witness z)
+    (hagree : ∀ z ∈ challenges,
+      A ≤ (polynomialAgreementSet (mappedDomain domain iota)
+        (powerBatchedWord (fun t i ↦ iota (w t i)) z) (witness z)).card)
+    (hbad : ∀ z ∈ challenges,
+      ¬ HasExactPowerAgreement domain w iota 2 z (witness z)) :
+    (challenges.card : ℚ) ≤
+      regularSymbolicCurveMCADerivativeBoundTwo n ℓ 2 2 L A v u h 0 := by
+  classical
+  by_cases hempty : challenges = ∅
+  · subst challenges
+    simp only [Finset.card_empty, Nat.cast_zero]
+    unfold regularSymbolicCurveMCADerivativeBoundTwo
+    positivity
+  obtain ⟨z₀, hz₀⟩ := Finset.nonempty_iff_ne_empty.mpr hempty
+  have hinit := source_initial_ne_zero_of_regular center z₀ Q (jet z₀)
+    (hchart z₀ hz₀).2.2.1
+  have hτ : TaylorExponentSufficient 1 2 0 := by
+    simpa using taylorExponentSufficient_firstOrder_tight 1
+  unfold regularSymbolicCurveMCADerivativeBoundTwo
+  convert (finite_sourceCurve_bad_challenges_card_le_of_source_bound_derivativeCapped_of_exponent
+      domain w iota center Q 2 2 L A v u 0 hτ le_rfl hL
+      (fun T hT ↦ by
+        have hn : n - 2 + 1 = n - 1 := by omega
+        have hL' : L - 2 + 1 = L - 1 := by omega
+        simpa only [hn, hL'] using admissibleChartTuples_card_le_identityPair
+          domain w iota center Q L v u hL (hLA.trans hAn) hjet T hT)
+      ((mixedDerivativeImageDegree h v u
+          (sourceCurveCutChallengeDegree ℓ 2 h (τ := 0))
+          (sourceCurveCutJetDegree 2 v (τ := 0))
+          (sourceCurveCutDerivativeDegree 2 v u 0) : ℚ) *
+        (((n - L + 1 : ℕ) : ℚ) / ((A - L + 1 : ℕ) : ℚ)) *
+          (((n - 2 + 1 : ℕ) : ℚ) / ((A - 2 + 1 : ℕ) : ℚ)))
+      (fun S hS hA ↦ by
+        have hsource := finite_sourceCurve_points_off_tuples_card_le_hybrid_two_of_exponent
+          domain w iota center Q 2 2 L A v h 0 hτ (by
+            simpa [sourceCurveCutChallengeDegree] using hℓ) (by omega) le_rfl hL hLA hAn
+              hv hinit hjet hheight S hS hA
+        simp only [sourceCurveInitialMixedDegreeTwo, sourceCurveCutChallengeDegree,
+          sourceCurveCutJetDegree, sourceCurveCutDerivativeDegree,
+          mixedDerivativeImageDegree] at hsource ⊢
+        norm_num at hsource ⊢
+        convert hsource using 1
+        all_goals ring)
+      challenges witness jet hchart hagree hbad) using 1
+
+/-- Every finite set of regular bad challenges for degree-one messages is controlled by the
+exact exponent-zero source and tuple charges. -/
+theorem finite_regularSymbolicCurveBadChallenges_card_le_identityPair
+    [DecidableEq E] [IsAlgClosed E]
+    (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F) (iota : F →+* E)
+    (Q : DifferentialPolynomial E[X] 1) (L A v u h : ℕ)
+    (hL : 2 ≤ L) (hLA : L ≤ A) (hAn : A ≤ n) (hℓ : 0 < ℓ) (hv : 0 < v)
+    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
+    (hheight : ChallengeHeightLE Q h)
+    (S : Finset E)
+    (hS : ↑S ⊆ regularSymbolicCurveBadChallenges domain w iota Q 2 A) :
+    (S.card : ℚ) ≤ regularSymbolicCurveMCADerivativeBoundTwo n ℓ 2 2 L A v u h 0 := by
+  classical
+  have hτ : TaylorExponentSufficient 1 2 0 := by
+    simpa using taylorExponentSufficient_firstOrder_tight 1
+  apply finite_regularSymbolicCurveBadChallenges_card_le_of_fixedCenter_of_exponent
+    domain w iota Q 2 2 A 0 hτ le_rfl (by omega)
+      (regularSymbolicCurveMCADerivativeBoundTwo n ℓ 2 2 L A v u h 0) ?_ S hS
+  intro center challenges witness jet hchart hagree hbad
+  exact finite_sourceCurve_bad_challenges_card_le_identityPair
+    domain w iota center Q L A v u h hL hLA hAn hℓ hv hjet hheight
+      challenges witness jet hchart hagree hbad
 
 /-- Exact fixed-center first-order bad-challenge bound at a sufficient Taylor exponent.  The
 joint term uses the direct dimension-sensitive factor, while the persistent-tuple term uses the
@@ -420,8 +533,10 @@ theorem finite_sourceCurve_bad_challenges_card_le_derivativeCapped_of_exponent
     (hchart z₀ hz₀).2.2.1
   unfold regularSymbolicCurveMCADerivativeBoundTwo
   convert (finite_sourceCurve_bad_challenges_card_le_of_source_bound_derivativeCapped_of_exponent
-      domain w iota center Q K k L A v u τ hτ hτpos hK hkK hk hkL hLA hAn
-      hu huv hjet hderiv
+      domain w iota center Q K k L A v u τ hτ hkK hkL
+      (fun T hT ↦ admissibleChartTuples_card_le_derivativeCapped_of_exponent
+        domain w iota center Q K k L v u τ hτ hτpos hK hkK hk hkL (hLA.trans hAn)
+          hu huv hjet hderiv T hT)
       ((mixedDerivativeImageDegree h v u
           (sourceCurveCutChallengeDegree ℓ K h (τ := τ))
           (sourceCurveCutJetDegree K v (τ := τ))
@@ -469,6 +584,51 @@ private theorem set_finite_of_finset_card_le_rational {X : Type*} (T : Set X) (B
   have hb := hbound S hS
   rw [hcard] at hb
   exact (not_lt_of_ge hb) hN
+
+/-- A single exponent-zero exceptional set works for every regular degree-one solution. The
+identity-pair branch is separate from the positive-exponent derivative-image API. -/
+theorem exists_exceptional_regularSymbolicCurveMCA_identityPair
+    [DecidableEq E] [IsAlgClosed E]
+    (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F) (iota : F →+* E)
+    (Q : DifferentialPolynomial E[X] 1) (L A v u h : ℕ)
+    (hL : 2 ≤ L) (hLA : L ≤ A) (hAn : A ≤ n) (hv : 0 < v)
+    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
+    (hheight : ChallengeHeightLE Q h) :
+    ∃ exceptional : Finset E,
+      (exceptional.card : ℚ) ≤
+        regularSymbolicCurveMCADerivativeBoundTwo n ℓ 2 2 L A v u h 0 ∧
+      ∀ z ∉ exceptional, ∀ P : E[X], P.degree < 2 →
+        A ≤ (polynomialAgreementSet (mappedDomain domain iota)
+          (powerBatchedWord (fun t i ↦ iota (w t i)) z) P).card →
+        differentialSpecialization (challengeSpecialization Q z) P = 0 →
+        differentialSpecialization
+          (separant (challengeSpecialization Q z) (Fin.last 1)) P ≠ 0 →
+        HasExactPowerAgreement domain w iota 2 z P := by
+  classical
+  by_cases hℓzero : ℓ = 0
+  · subst ℓ
+    refine ⟨∅, ?_, ?_⟩
+    · simp only [Finset.card_empty, Nat.cast_zero]
+      unfold regularSymbolicCurveMCADerivativeBoundTwo
+      positivity
+    · intro z _ P hdegree hagree _ _
+      exact hasExactPowerAgreement_zeroCurve domain w iota 2 z P hdegree
+        (hL.trans (hLA.trans hagree))
+  have hℓ : 0 < ℓ := Nat.pos_of_ne_zero hℓzero
+  have hfinite :
+      (regularSymbolicCurveBadChallenges domain w iota Q 2 A).Finite := by
+    apply set_finite_of_finset_card_le_rational _
+      (regularSymbolicCurveMCADerivativeBoundTwo n ℓ 2 2 L A v u h 0)
+    exact finite_regularSymbolicCurveBadChallenges_card_le_identityPair
+      domain w iota Q L A v u h hL hLA hAn hℓ hv hjet hheight
+  refine ⟨hfinite.toFinset, ?_, ?_⟩
+  · apply finite_regularSymbolicCurveBadChallenges_card_le_identityPair
+      domain w iota Q L A v u h hL hLA hAn hℓ hv hjet hheight
+    exact fun z hz ↦ hfinite.mem_toFinset.mp hz
+  · intro z hz P hdegree hagree hsol hsep
+    by_contra hbad
+    apply hz
+    exact hfinite.mem_toFinset.mpr ⟨P, hdegree, hagree, hsol, hsep, hbad⟩
 
 /-- A single dimension-sensitively bounded exceptional set works for every regular first-order
 solution at the supplied Taylor exponent.  The conclusion retains the exact full agreement-set

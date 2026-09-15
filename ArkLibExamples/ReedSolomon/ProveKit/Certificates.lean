@@ -253,6 +253,55 @@ theorem goldilocksWitness_listEnvelopes_le (i : Fin 4) :
       (passportInternalZk.row 3).listSize
     exact passportInternal_listEnvelopes_le 3
 
+/-- For the second Goldilocks code, the successive-stage expression at the tight regular exponent
+has the exact rational value reported by the companion arithmetic artifact. The stored schedule
+remains a conservative ceiling and is not retuned by this identity. -/
+theorem goldilocksWitness_second_tightStageListExpression_eq :
+    firstOrderTightListWeight
+        (goldilocksWitnessProfiles 1).n (goldilocksWitnessProfiles 1).agreement
+        (goldilocksWitnessProfiles 1).k (goldilocksWitnessProfiles 1).k
+        (hybridTau ((goldilocksWitnessProfiles 1).k - 1))
+        (goldilocksWitnessProfiles 1).totalJetCap
+        (goldilocksWitnessProfiles 1).firstDerivativeCap =
+      (15314557817 : ℚ) / 163 := by
+  norm_num [firstOrderTightListWeight,
+    firstOrderCurveFiberStageOne, firstOrderTaylorTotalCap,
+    firstOrderTaylorDerivativeCap, hybridTau,
+    AffineHilbert.fixedFiberDerivativeImageDegree,
+    goldilocksWitnessProfiles]
+
+/-- Rounding the exact successive-stage value upward gives the artifact's integer bound. -/
+theorem goldilocksWitness_second_tightStageListExpression_ceil_eq :
+    ⌈((firstOrderTightListWeight
+        (goldilocksWitnessProfiles 1).n (goldilocksWitnessProfiles 1).agreement
+        (goldilocksWitnessProfiles 1).k (goldilocksWitnessProfiles 1).k
+        (hybridTau ((goldilocksWitnessProfiles 1).k - 1))
+        (goldilocksWitnessProfiles 1).totalJetCap
+        (goldilocksWitnessProfiles 1).firstDerivativeCap : ℚ) : ℝ)⌉₊ = 93954343 := by
+  rw [goldilocksWitness_second_tightStageListExpression_eq]
+  norm_num [Nat.ceil_eq_iff]
+
+/-- The tight regular-chart exponent gives the second Goldilocks code's exact squarefree
+list expression. This is kernel-checked arithmetic over the fixed profile, not a benchmark
+measurement or a serializer claim. -/
+theorem goldilocksWitness_second_squarefreeListEnvelope_eq :
+    squarefreeListEnvelope (goldilocksWitnessProfiles 1) =
+      (2659384185 : ℝ) / 326 := by
+  norm_num [squarefreeListEnvelope, firstOrderCurveFiberStageOne,
+    firstOrderTaylorTotalCap, firstOrderTaylorDerivativeCap, hybridTau,
+    FirstOrder.Squarefree.ordinaryDegreeEnvelope,
+    AffineHilbert.fixedFiberDerivativeImageDegree, goldilocksWitnessProfiles]
+
+/-- The integer-valued list cardinality may use the floor `8157620`; a consumer that rounds a
+real-valued bound upward obtains the generic ceiling `8157621`. -/
+theorem goldilocksWitness_second_squarefreeListEnvelope_rounding :
+    ⌊(squarefreeListEnvelope (goldilocksWitnessProfiles 1))⌋₊ = 8157620 ∧
+      ⌈(squarefreeListEnvelope (goldilocksWitnessProfiles 1))⌉₊ = 8157621 := by
+  rw [goldilocksWitness_second_squarefreeListEnvelope_eq]
+  constructor
+  · norm_num [Nat.floor_eq_iff]
+  · norm_num [Nat.ceil_eq_iff]
+
 theorem goldilocksBlind_listEnvelope_le :
     tightListEnvelope goldilocksBlindProfile ≤ (goldilocksLookupBlind.row 0).listSize := by
   norm_num [tightListEnvelope, firstOrderTightListWeight, firstOrderCurveFiberStageOne,
@@ -307,6 +356,26 @@ theorem goldilocksWitness_finiteListBound
     (by fin_cases i <;> decide) (by fin_cases i <;> decide)
     domain received hchar S hS).trans
   exact goldilocksWitness_listEnvelopes_le i
+
+/-- The maintained squarefree theorem turns the second Goldilocks profile's exact real bound
+into the sharper integer list-cardinality bound by flooring. The exceptional-set schedule and
+all protocol parameters remain unchanged. -/
+theorem goldilocksWitness_second_squarefree_finiteListBound
+    {F : Type u} [Field F]
+    (domain : Fin (goldilocksWitnessProfiles 1).n ↪ F)
+    (received : Fin (goldilocksWitnessProfiles 1).n → F)
+    (hchar : ringChar F = 0 ∨
+      max ((goldilocksWitnessProfiles 1).k - 1)
+        (goldilocksWitnessProfiles 1).firstDerivativeCap < ringChar F)
+    (S : Finset F[X])
+    (hS : ∀ P ∈ S, IsAgreementSolution domain received
+      (goldilocksWitnessProfiles 1).k (goldilocksWitnessProfiles 1).agreement P) :
+    S.card ≤ 8157620 := by
+  have hbound := finiteSquarefreeListBound_of_profile
+    (goldilocksWitnessProfiles_verified 1) (by decide) (by decide) (by decide) (by decide)
+      (by decide) (by decide) domain received hchar S hS
+  have hfloor := Nat.le_floor hbound
+  simpa only [goldilocksWitness_second_squarefreeListEnvelope_rounding.1] using hfloor
 
 theorem goldilocksBlind_finiteListBound
     {F : Type u} [Field F]

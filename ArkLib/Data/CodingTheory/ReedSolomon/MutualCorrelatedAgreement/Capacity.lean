@@ -60,8 +60,8 @@ first-order optimized and closed finite bounds under `char = 0` or `char > max(k
 
 The small-gap line and curve theorems use the rate-partition construction with derivative
 order `ceil(exp(3/(2δ)))`, the sharper uniform jet cap, and height `150ν`. Their public
-quantitative statements retain the exact product-counting constant. The existential wrappers
-below enlarge that constant by one to make positivity immediate.
+curve statements retain the exact product-counting constant.  The line and affine statements
+take its maximum with `343/3` to cover the characteristic-free Johnson branch.
 For lines and affine consequences, gaps from `6/25` to one half use the fixed height-276
 first-order certificate: from length `23`, the exceptional set has size at most
 `1325775 * n²`. The half-gap line theorem retains the sharper `2 * n` bound over every field.
@@ -209,13 +209,11 @@ theorem uniformFirstOrder_capacity_lineAgreement (δ : ℝ)
       have hnnonneg : (0 : ℝ) ≤ n := by positivity
       have hmul := mul_le_mul_of_nonneg_right huniform hnnonneg
       linarith
-    have hcharUniform : 2 ≤ k →
-        ringChar F = 0 ∨ max (k - 1) 4 < ringChar F := by
+    have hcharUniform : 2 ≤ k → ringChar F = 0 ∨ k - 1 < ringChar F := by
       intro hkTwo
       apply hchar.imp_right
       intro hnchar
-      have hmax : max (k - 1) 4 < n := by omega
-      exact hmax.trans_le hnchar
+      exact (by omega : k - 1 < n).trans_le hnchar
     obtain ⟨exceptional, hcard, hgood⟩ := exists_uniformFirstOrder_lineMCA
       n k A domain f g (by omega) hk hAn hgapUniform hcharUniform
     refine ⟨exceptional, hcard, ?_⟩
@@ -502,7 +500,7 @@ Fixing the real agreement gap `δ` fixes four quantities used by the line and af
 
 * `sharpCapacityDerivativeOrder δ` is the derivative order `d(δ)`.  The exceptional-count
   exponent is `d(δ) + 1`.
-* `sharpCapacityJetBound δ` is the paper's auxiliary bound `bδ` in the characteristic guard.
+* `sharpCapacityJetBound δ` is the paper's auxiliary interpolation bound `bδ`.
 * `sharpCapacityLengthThreshold δ` is the eventual block-length threshold `Nδ ≥ 4`.
 * `sharpCapacityLineConstant δ` is the coefficient `Cδ` in
   `Eδ(n) = Cδ * n ^ (d(δ) + 1)`.
@@ -510,8 +508,9 @@ Fixing the real agreement gap `δ` fixes four quantities used by the line and af
 Concretely, on the small-gap branch set
 `d = ceil(exp(3 / (2δ)))`, `m = ceil(300 d² log(6d))`, and
 `Bjet(δ) = ceil(m / δ²) - 1`.  These are natural-number ceilings.  The sharp line theorem uses
-`d` as its derivative order, `Bjet(δ)` as its jet and characteristic bound, and
-`Bjet(δ) + 1` as the underlying mathematical length threshold before normalization by `4`.
+`d` as its derivative order and `Bjet(δ)` as the interpolation jet cap.  Its underlying length
+threshold is `max(Bjet(δ) + 1, ceil(4 Bjet(δ) / δ²))` before normalization by `4`, and its
+coefficient is the maximum of the interpolation coefficient and `343/3`.
 
 All four depend only on `δ`: they do not depend on the block length `n`, message dimension `k`,
 field, evaluation points, received words, affine dimension, challenge, or candidate polynomial.
@@ -529,12 +528,13 @@ only on `δ`; `d + 1` is the exponent in the stated bound. -/
 def sharpCapacityDerivativeOrder (δ : ℝ) : ℕ :=
   if δ < (6 / 25 : ℝ) then HiddenDerivative.uniformRatePartitionOrder δ else 1
 
-/-- The paper's characteristic threshold `bδ`.
+/-- The paper's interpolation support cap `bδ`.
 
 It is the revised jet bound `Bjet(δ)` when `δ < 6/25` and the first-order support cap `4` when
-`δ ≥ 6/25`.  For a nonconstant code (`k ≠ 1`), the sharp theorems require characteristic zero
-or positive characteristic strictly greater than `max (k - 1) bδ`.  This definition itself is
-independent of `k` and of the field.  Explicitly, the small-gap branch sets
+`δ ≥ 6/25`.  This is the exact support cap consumed by the interpolation-certificate branches;
+the public line and affine theorems combine those branches with characteristic-free Johnson
+arguments and require only characteristic zero or characteristic greater than `k-1`.  This
+definition itself is independent of `k` and of the field.  Explicitly, the small-gap branch sets
 `d = ceil(exp(3 / (2δ)))`, then `m = ceil(300 d² log(6d))`, and finally
 `Bjet(δ) = ceil(m / δ²) - 1`. -/
 def sharpCapacityJetBound (δ : ℝ) : ℕ :=
@@ -545,25 +545,23 @@ def sharpCapacityJetBound (δ : ℝ) : ℕ :=
 /-- Eventual block-length threshold `Nδ` for the sharp line and affine theorems.
 
 The outer maximum records the paper's normalization `Nδ ≥ 4`. The small-gap branch uses the
-length supplied by the revised rate-partition theorem, namely `Bjet(δ) + 1` for
-`Bjet(δ) = ceil(m / δ²) - 1`; this facade chooses `23` on the first-order branch.
-These are sufficient thresholds depending only on `δ`; no minimality is asserted. -/
+maximum of the revised rate-partition length and `ceil(4 Bjet(δ) / δ²)`.  The latter term places
+the bounded-dimension fallback inside the Johnson regime.  This facade chooses `23` on the
+first-order branch.  These are sufficient thresholds depending only on `δ`; no minimality is
+asserted. -/
 def sharpCapacityLengthThreshold (δ : ℝ) : ℕ :=
   max 4 (if δ < (6 / 25 : ℝ) then
-    HiddenDerivative.uniformRatePartitionMathematicalLength δ else 23)
+    HiddenDerivative.uniformCapacityLengthThreshold300 δ else 23)
 
 /-- Gap-only coefficient `Cδ` in the sharp line and affine exceptional-count bound.
 
 Below `6/25`, the coefficient is the revised polynomial-curve product constant with jet bound
-`Bjet(δ)`, height parameter `150 * Bjet(δ)`, and derivative order `d(δ)`, plus one.  At and above
-`6/25`, it is the explicit first-order coefficient `1325775`.  The added one on the small-gap
-branch makes positivity immediate without changing the polynomial dependence on `n`. -/
+`Bjet(δ)`, height parameter `150 * Bjet(δ)`, and derivative order `d(δ)`, maximized with the
+Johnson coefficient `343/3`.  At and above `6/25`, it is the explicit first-order coefficient
+`1325775`. -/
 def sharpCapacityLineConstant (δ : ℝ) : ℝ :=
   if δ < (6 / 25 : ℝ) then
-    polynomialCurveProductMCAConstant δ
-      (HiddenDerivative.uniformRatePartitionMathematicalJetBound δ)
-      (150 * HiddenDerivative.uniformRatePartitionMathematicalJetBound δ)
-      (HiddenDerivative.uniformRatePartitionOrder δ) + 1
+    uniformCapacityLineConstant300 δ
   else 1325775
 
 /-- The sharp line/affine length threshold is at least four. -/
@@ -581,23 +579,18 @@ theorem sharpCapacityDerivativeOrder_pos {δ : ℝ} (hδ : 0 < δ) :
   · simp [sharpCapacityDerivativeOrder, hsmall]
 
 /-- The selected line constant is at least one, including on the revised small-gap branch. -/
-theorem one_le_sharpCapacityLineConstant {δ : ℝ} (hδ : 0 < δ) :
+theorem one_le_sharpCapacityLineConstant {δ : ℝ} :
     1 ≤ sharpCapacityLineConstant δ := by
   by_cases hsmall : δ < (6 / 25 : ℝ)
-  · have hbase : 0 ≤ polynomialCurveProductMCAConstant δ
-        (HiddenDerivative.uniformRatePartitionMathematicalJetBound δ)
-        (150 * HiddenDerivative.uniformRatePartitionMathematicalJetBound δ)
-        (HiddenDerivative.uniformRatePartitionOrder δ) := by
-      unfold polynomialCurveProductMCAConstant
-      positivity
-    simp only [sharpCapacityLineConstant, if_pos hsmall]
-    linarith
+  · simp only [sharpCapacityLineConstant, if_pos hsmall,
+      uniformCapacityLineConstant300]
+    exact (by norm_num : (1 : ℝ) ≤ 343 / 3).trans (le_max_right _ _)
   · simp [sharpCapacityLineConstant, hsmall]
 
 /-- The selected line constant is positive. -/
-theorem sharpCapacityLineConstant_pos {δ : ℝ} (hδ : 0 < δ) :
+theorem sharpCapacityLineConstant_pos {δ : ℝ} :
     0 < sharpCapacityLineConstant δ :=
-  lt_of_lt_of_le zero_lt_one (one_le_sharpCapacityLineConstant hδ)
+  lt_of_lt_of_le zero_lt_one one_le_sharpCapacityLineConstant
 
 private theorem constantCurveExceptionalBound_le_power
     {n A ell d : ℕ} (hn : 1 ≤ n) (hd : 1 ≤ d) :
@@ -657,15 +650,15 @@ The witnesses `F₀,G₀` may depend on `z` and `P`; the exceptional set may not
 
 The characteristic disjunction is exact: when `k = 1` there is no characteristic restriction.
 Otherwise `F` must have characteristic zero or characteristic strictly greater than
-`max (k - 1) (sharpCapacityJetBound δ)`.  Thresholds `A > n` are admitted by the interface and
-make the candidate premise impossible. -/
+`k - 1`.  Thresholds `A > n` are admitted by the interface and make the candidate premise
+impossible. -/
 def HasSharpCapacityLineAgreement (δ : ℝ) (N : ℕ) (E : ℕ → ℝ) : Prop :=
   -- The code parameters and agreement threshold are chosen after the gap-only data.
   ∀ (n k A : ℕ),
     N ≤ n → 0 < k → k ≤ n → (k : ℝ) + δ * n ≤ A →
-    -- Constant codes need no characteristic hypothesis; nonconstant codes use `bδ`.
+    -- Constant codes need no characteristic hypothesis; other codes only guard their degree.
     ∀ (F : Type u) [Field F] [DecidableEq F],
-      (k = 1 ∨ ringChar F = 0 ∨ max (k - 1) (sharpCapacityJetBound δ) < ringChar F) →
+      (k = 1 ∨ ringChar F = 0 ∨ k - 1 < ringChar F) →
       ∀ (domain : Fin n ↪ F) (f g : Fin n → F),
         -- This set is uniform over every subsequent challenge and close polynomial.
         ∃ exceptional : Finset F, (exceptional.card : ℝ) ≤ E n ∧
@@ -682,25 +675,28 @@ this facade's concrete sufficient parameter choices for the paper's capacity res
 
 * `Nδ = sharpCapacityLengthThreshold δ`, with `Nδ ≥ 4`;
 * `dδ = sharpCapacityDerivativeOrder δ`;
-* `bδ = sharpCapacityJetBound δ` in the characteristic guard; and
+* `bδ = sharpCapacityJetBound δ`, the internal interpolation support cap; and
 * `Eδ(n) = sharpCapacityLineConstant δ * n ^ (dδ + 1)`.
 
 When `δ < 6/25`, these are the revised mathematical rate-partition parameters.  When
 `δ ≥ 6/25`, the theorem uses the first-order result at gap `6/25`, so `dδ = 1`, `bδ = 4`, and
-the explicit coefficient is `1325775`.  The `k = 1` branch is proved separately and requires no
-characteristic hypothesis.  In every branch, the conclusion is the exact polynomial
+the explicit coefficient is `1325775`.  Positive characteristic need only exceed `k-1`; when the
+characteristic is too small for differential counting, a bounded-dimension Johnson argument
+supplies the same gap-only form of the estimate.  The `k = 1` branch is proved separately and
+requires no characteristic hypothesis.  In every branch, the conclusion is the exact polynomial
 decomposition and equality of the complete agreement sets described by
 `HasSharpCapacityLineAgreement`, for one exceptional set fixed before `z` and `P`.
 
 On the small-gap branch, the definitions expand to
 `dδ = ceil(exp(3 / (2δ)))`, `mδ = ceil(300 dδ² log(6dδ))`, and
-`bδ = ceil(mδ / δ²) - 1`.  Thus the displayed characteristic guard and the exponent in
-`Eδ(n)` can be read directly from this theorem without consulting the parameter modules.
+`bδ = ceil(mδ / δ²) - 1`.  The length threshold additionally contains
+`ceil(4 bδ / δ²)`, and the coefficient is the maximum of the interpolation coefficient and
+`343/3`.
 
 This is an algebraic agreement theorem over arbitrary fields; finiteness is needed only by the
 probability and affine-space corollaries below. -/
 theorem sharpCapacity_lineAgreement (δ : ℝ) (hδ : 0 < δ) :
-    -- The gap alone fixes the length threshold, characteristic cap, exponent, and coefficient.
+    -- The gap alone fixes the length threshold, support cap, exponent, and coefficient.
     HasSharpCapacityLineAgreement δ (sharpCapacityLengthThreshold δ)
       (fun n ↦ sharpCapacityLineConstant δ *
         (n : ℝ) ^ (sharpCapacityDerivativeOrder δ + 1)) := by
@@ -723,7 +719,7 @@ theorem sharpCapacity_lineAgreement (δ : ℝ) (hδ : 0 < δ) :
           (A := A) (ell := 1) hnOne (show 1 ≤ sharpCapacityDerivativeOrder δ by
             exact sharpCapacityDerivativeOrder_pos hδ)
         have hC : 1 ≤ sharpCapacityLineConstant δ := by
-          exact one_le_sharpCapacityLineConstant hδ
+          exact one_le_sharpCapacityLineConstant
         calc
           (exceptional.card : ℝ) ≤
               ((if A = 1 then 1 * n.choose 2 else 1 * n.choose 2 / (A - 1) : ℕ) : ℝ) := by
@@ -742,28 +738,22 @@ theorem sharpCapacity_lineAgreement (δ : ℝ) (hδ : 0 < δ) :
           (RingHom.id F) z P hp
     · -- Only the nonconstant branch consumes the characteristic premise.
       have hkTwo : 2 ≤ k := by omega
-      have hchar' : ringChar F = 0 ∨
-          max (k - 1) (sharpCapacityJetBound δ) < ringChar F :=
+      have hchar' : ringChar F = 0 ∨ k - 1 < ringChar F :=
         hchar.resolve_left hkOne
       by_cases hsmall : δ < (6 / 25 : ℝ)
       · -- Small gaps use the revised 300-based rate-partition theorem at the given `δ`.
-        have hnMath : HiddenDerivative.uniformRatePartitionMathematicalLength δ ≤ n := by
+        have hnMath : HiddenDerivative.uniformCapacityLengthThreshold300 δ ≤ n := by
           simp only [sharpCapacityLengthThreshold, if_pos hsmall] at hn
           omega
-        have hcharMath : ringChar F = 0 ∨
-            max (k - 1) (HiddenDerivative.uniformRatePartitionMathematicalJetBound δ) <
-              ringChar F := by
-          simpa only [sharpCapacityJetBound, if_pos hsmall] using hchar'
         obtain ⟨exceptional, hcard, hgood⟩ :=
           exists_mathematicalUniformRatePartition_lineMCA hδ hsmall hnMath hk hgap hAn
-            domain f g hcharMath
+            domain f g hchar'
         have hdec : (fun a b : F ↦ Classical.propDecidable (a = b)) = decF :=
           Subsingleton.elim _ _
         cases hdec
-        refine ⟨exceptional, hcard.trans ?_, hgood⟩
-        simp only [sharpCapacityLineConstant, sharpCapacityDerivativeOrder, if_pos hsmall]
-        gcongr
-        linarith
+        refine ⟨exceptional, ?_, hgood⟩
+        simpa only [sharpCapacityLineConstant, sharpCapacityDerivativeOrder, if_pos hsmall]
+          using hcard
       · -- Larger gaps inherit the uniform first-order theorem at the boundary gap `6/25`.
         have hlarge : (6 / 25 : ℝ) ≤ δ := le_of_not_gt hsmall
         have hn23 : 23 ≤ n := by
@@ -772,16 +762,14 @@ theorem sharpCapacity_lineAgreement (δ : ℝ) (hδ : 0 < δ) :
         have hgapLarge : (k : ℝ) + (6 / 25 : ℝ) * n ≤ A := by
           have := mul_le_mul_of_nonneg_right hlarge (Nat.cast_nonneg n)
           linarith
-        have hcharLarge : ringChar F = 0 ∨ max (k - 1) 4 < ringChar F := by
-          simpa only [sharpCapacityJetBound, if_neg hsmall] using hchar'
         obtain ⟨exceptional, hcard, hgood⟩ := exists_uniformFirstOrder_lineMCA
-          n k A domain f g (by omega) hk hAn hgapLarge (fun _ ↦ hcharLarge)
+          n k A domain f g (by omega) hk hAn hgapLarge (fun _ ↦ hchar')
         refine ⟨exceptional, ?_, hgood⟩
         simpa [sharpCapacityLineConstant, sharpCapacityDerivativeOrder, hsmall] using hcard
   · -- More than `n` agreements are impossible, so the empty exceptional set suffices.
     refine ⟨∅, ?_, ?_⟩
     · simp only [Finset.card_empty, Nat.cast_zero]
-      exact mul_nonneg (sharpCapacityLineConstant_pos hδ).le
+      exact mul_nonneg sharpCapacityLineConstant_pos.le
         (pow_nonneg (Nat.cast_nonneg n) _)
     intro z _ P _ hagree
     have hc : (polynomialAgreementSet domain (fun i ↦ f i + z * g i) P).card ≤ n :=
@@ -805,7 +793,7 @@ theorem exists_sharpCapacity_lineAgreement (δ : ℝ) (hδ : 0 < δ) :
       HasSharpCapacityLineAgreement δ N (fun n ↦ C * (n : ℝ) ^ (d + 1)) :=
   ⟨sharpCapacityLengthThreshold δ, sharpCapacityDerivativeOrder δ,
     sharpCapacityLineConstant δ, sharpCapacityLengthThreshold_ge_four δ,
-    sharpCapacityLineConstant_pos hδ, sharpCapacity_lineAgreement δ hδ⟩
+    sharpCapacityLineConstant_pos, sharpCapacity_lineAgreement δ hδ⟩
 
 open Classical in
 /-- Finite-field adapter from the sharp headline theorem to `LineExactAgreementBound`.
@@ -819,8 +807,7 @@ theorem lineExactAgreementBound_sharpCapacity
     {δ : ℝ} (hδ : 0 < δ) (n k A : ℕ)
     (hn : sharpCapacityLengthThreshold δ ≤ n) (hk : 0 < k) (hkn : k ≤ n)
     (hgap : (k : ℝ) + δ * n ≤ A) (domain : Fin n ↪ F)
-    (hchar : k = 1 ∨ ringChar F = 0 ∨
-      max (k - 1) (sharpCapacityJetBound δ) < ringChar F) :
+    (hchar : k = 1 ∨ ringChar F = 0 ∨ k - 1 < ringChar F) :
     LineExactAgreementBound domain k A
       (sharpCapacityLineConstant δ * (n : ℝ) ^ (sharpCapacityDerivativeOrder δ + 1)) := by
   intro f g
@@ -864,7 +851,7 @@ def HasSharpCapacityAffineAgreement (δ : ℝ) (N : ℕ) (E : ℕ → ℝ) : Pro
   -- The line parameters and characteristic guard remain unchanged.
   ∀ n k : ℕ, N ≤ n → 0 < k → k ≤ n →
     ∀ (F : Type) [Field F] [Fintype F] [DecidableEq F],
-      (k = 1 ∨ ringChar F = 0 ∨ max (k - 1) (sharpCapacityJetBound δ) < ringChar F) →
+      (k = 1 ∨ ringChar F = 0 ∨ k - 1 < ringChar F) →
       -- The affine dimension and all received words are fixed before the exceptional set.
       ∀ domain : Fin n ↪ F, ∀ s : ℕ, 1 ≤ s →
         ∀ (a : Fin n → F) (u : Fin s → Fin n → F),
@@ -895,14 +882,14 @@ distance radius to `1 - k/n - δ`.  The line MCA error is at most
 The last conjunct gives the stronger witness-level statement for every indexed affine family
 `U`: one exceptional set has the corresponding cardinality bound, every constituent has degree
 `< k`, the candidate is their exact affine combination, and the displayed pointwise
-biconditional identifies the complete agreement set.  All conclusions use the same piecewise
-jet bound and the same characteristic exception at `k = 1` as the line theorem. -/
+biconditional identifies the complete agreement set.  All conclusions use the line theorem's
+degree-only positive-characteristic guard and its characteristic-free `k = 1` endpoint. -/
 theorem sharpCapacity_affineAgreement_and_mcaError (δ : ℝ) (hδ : 0 < δ) :
     -- Fix a sufficiently long positive-dimensional code after the capacity gap.
     ∀ n k : ℕ, sharpCapacityLengthThreshold δ ≤ n → 0 < k → k ≤ n →
     -- Probability claims require a finite field; the characteristic guard is unchanged.
     ∀ (F : Type) [Field F] [Fintype F] [DecidableEq F],
-      (k = 1 ∨ ringChar F = 0 ∨ max (k - 1) (sharpCapacityJetBound δ) < ringChar F) →
+      (k = 1 ∨ ringChar F = 0 ∨ k - 1 < ringChar F) →
       ∀ domain : Fin n ↪ F,
         -- A uniformly sampled line challenge has denominator `|F|`.
         mcaError (AffineLineGenerator F) (code domain k) (1 - k / n - δ) ≤
@@ -998,7 +985,7 @@ theorem exists_sharpCapacity_affineAgreement (δ : ℝ) (hδ : 0 < δ) :
       HasSharpCapacityAffineAgreement δ N (fun n ↦ C * (n : ℝ) ^ (d + 1)) :=
   ⟨sharpCapacityLengthThreshold δ, sharpCapacityDerivativeOrder δ,
     sharpCapacityLineConstant δ, sharpCapacityLengthThreshold_ge_four δ,
-    sharpCapacityLineConstant_pos hδ, sharpCapacity_affineAgreement δ hδ⟩
+    sharpCapacityLineConstant_pos, sharpCapacity_affineAgreement δ hδ⟩
 
 /-- Paper-facing MCA error bounds under the sharp characteristic guard.
 
@@ -1006,11 +993,11 @@ At relative radius `1 - k/n - δ`, the line error has denominator `|F|`, while e
 dimensional affine-space error has denominator `|F| - 1`.  Both numerators are the same concrete
 `Eδ(n)`, and the affine estimate has no dependence on `s`.  The guard again disappears when
 `k = 1`; otherwise it is characteristic zero or characteristic greater than
-`max (k - 1) (sharpCapacityJetBound δ)`. -/
+`k - 1`. -/
 theorem sharpCapacity_mcaError (δ : ℝ) (hδ : 0 < δ) :
     ∀ n k : ℕ, sharpCapacityLengthThreshold δ ≤ n → 0 < k → k ≤ n →
     ∀ (F : Type) [Field F] [Fintype F],
-      (k = 1 ∨ ringChar F = 0 ∨ max (k - 1) (sharpCapacityJetBound δ) < ringChar F) →
+      (k = 1 ∨ ringChar F = 0 ∨ k - 1 < ringChar F) →
       ∀ domain : Fin n ↪ F,
         mcaError (AffineLineGenerator F) (code domain k) (1 - k / n - δ) ≤
           ENNReal.ofReal (sharpCapacityLineConstant δ *
@@ -1036,7 +1023,7 @@ theorem exists_sharpCapacity_mcaError (δ : ℝ) (hδ : 0 < δ) :
     ∃ N d : ℕ, ∃ C : ℝ, 4 ≤ N ∧ 0 < C ∧
       ∀ n k : ℕ, N ≤ n → 0 < k → k ≤ n →
       ∀ (F : Type) [Field F] [Fintype F],
-        (k = 1 ∨ ringChar F = 0 ∨ max (k - 1) (sharpCapacityJetBound δ) < ringChar F) →
+        (k = 1 ∨ ringChar F = 0 ∨ k - 1 < ringChar F) →
         ∀ domain : Fin n ↪ F,
           mcaError (AffineLineGenerator F) (code domain k) (1 - k / n - δ) ≤
             ENNReal.ofReal (C * (n : ℝ) ^ (d + 1) / (Fintype.card F : ℝ)) ∧
@@ -1046,7 +1033,7 @@ theorem exists_sharpCapacity_mcaError (δ : ℝ) (hδ : 0 < δ) :
                 ((Fintype.card F : ℝ) - 1)) :=
   ⟨sharpCapacityLengthThreshold δ, sharpCapacityDerivativeOrder δ,
     sharpCapacityLineConstant δ, sharpCapacityLengthThreshold_ge_four δ,
-    sharpCapacityLineConstant_pos hδ, sharpCapacity_mcaError δ hδ⟩
+    sharpCapacityLineConstant_pos, sharpCapacity_mcaError δ hδ⟩
 
 /-! ### Sharp powers-batching interface
 

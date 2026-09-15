@@ -355,8 +355,7 @@ theorem derivativeBidegreeHypersurface_source_incidence_off_excluded_hybrid_two
     have hold := bidegreeHypersurface_source_incidence_off_excluded_hybrid_two
       ha hc hLA hkA hAn g s hg0 hproper
       (mem_restrictBidegree_of_mem_restrictDerivativeBidegree hg)
-      (mem_restrictBidegree_of_mem_restrictDerivativeBidegree hgAB)
-      (mem_restrictBidegree_of_mem_restrictDerivativeBidegree hs) highCuts
+      highCuts
       (fun f hf ↦ mem_restrictBidegree_of_mem_restrictDerivativeBidegree (hhigh f hf))
       cuts (fun i ↦ mem_restrictBidegree_of_mem_restrictDerivativeBidegree (hcuts i))
       excluded hdimension hterminal S hS hA

@@ -92,9 +92,9 @@ def splits : Fin 9 → ℕ := ![32923, 16462, 8231, 4116, 2058, 1029, 514, 257, 
 
 /-- Integer ceilings for the actual exceptional sets constructed from the nine profiles. -/
 def exceptionalCounts : Fin 9 → ℕ := ![
-  2083866315591056321, 10327375567345557, 2495641113148010,
-  584404316685816, 137780487841264, 31012724900600,
-  6471554467790, 1219691220099, 153308775293
+  2083741775464763888, 10326141183903191, 2495044619189974,
+  584125012639091, 137648833362372, 30953495741653,
+  6446883670145, 1210413529297, 150999092734
 ]
 
 /-- Sum of the eight fold exceptional ceilings. -/
@@ -103,14 +103,14 @@ def foldExceptionalCount : ℕ :=
     exceptionalCounts 5 + exceptionalCounts 6 + exceptionalCounts 7 + exceptionalCounts 8
 
 /-- The generated fold ceilings sum to the paper artifact's fold numerator. -/
-theorem foldExceptionalCount_eq : foldExceptionalCount = 13584058764384429 := by
+theorem foldExceptionalCount_eq : foldExceptionalCount = 13581721441128457 := by
   decide
 
 /-- Initial powers ceiling plus all eight fold ceilings. -/
 def totalExceptionalCount : ℕ := exceptionalCounts 0 + foldExceptionalCount
 
 /-- Exact total of the initial and folding exceptional ceilings. -/
-theorem totalExceptionalCount_eq : totalExceptionalCount = 2097450374355440750 := by
+theorem totalExceptionalCount_eq : totalExceptionalCount = 2097323496905892345 := by
   decide
 
 /-- Finite profile used for the two-anchor CPU candidate list. -/
@@ -124,7 +124,7 @@ def listProfile : LineProfile :=
 def listSplit : ℕ := 32925
 
 /-- Integer ceiling for every finite list at the two-anchor CPU parameters. -/
-def listBound : ℕ := 113772416
+def listBound : ℕ := 113769033
 
 /-- Cardinality of the cubic Goldilocks challenge field. -/
 def fieldSize : ℕ := 6277101731002175853884774869567645561244584131361410908161

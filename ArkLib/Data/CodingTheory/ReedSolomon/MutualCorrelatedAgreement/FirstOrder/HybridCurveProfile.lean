@@ -51,9 +51,9 @@ def hybridOptimizedCurveEnvelope (p : LineProfile) : ℝ :=
 def bestCurveEnvelope (p : LineProfile) (split : ℕ) : ℝ :=
   min (hybridOptimizedCurveEnvelope p) (squarefreeSharpCurveEnvelope p split : ℝ)
 
-/-- The paper-exact best envelope, using the independently minimized ordinary threshold in the
-factorwise-squarefree alternative. The compatibility `bestCurveEnvelope` remains unchanged for
-application rows whose arithmetic was frozen against the historical `L₀ = D+1` expression. -/
+/-- The best envelope with an independently minimized ordinary threshold in the
+factorwise-squarefree alternative. In contrast, `bestCurveEnvelope` fixes `L₀ = D+1`.
+Both use the tight regular Taylor exponent; only the ordinary threshold differs. -/
 def bestOptimizedCurveEnvelope (p : LineProfile) (split : ℕ) : ℝ :=
   min (hybridOptimizedCurveEnvelope p) (squarefreeSharpOptimizedCurveEnvelope p split : ℝ)
 
@@ -128,7 +128,7 @@ challenge, candidate, and recovered constituents all live over `F`. -/
 theorem exists_exceptional_exact_powerAgreement_best
     {F E : Type u} [Field F] [Field E] [IsAlgClosed E]
     {p : LineProfile} (hp : p.CurveVerification)
-    -- Compatibility profile: `split` is also the frozen squarefree application parameter.
+    -- The squarefree term uses this regular threshold and fixes the ordinary threshold at D+1.
     (split : ℕ)
     (hsplit : p.k ≤ split ∧ split ≤ p.agreement ∧ p.agreement ≤ p.n)
     (hk : 2 ≤ p.k) (hell : 0 < p.batchingDegree)

@@ -61,7 +61,7 @@ def retainedSquarefreeCurveMCASharpRaw
     (theta : ℚ) (n D ell L A B M H : ℕ) : ℚ :=
   retainedSquarefreeOrdinaryCurveMCARaw theta n D ell B M H +
     regularSymbolicCurveMCADerivativeBoundTwo n ell (D + 1) (D + 1)
-      L A B M H (2 * D - 1)
+      L A B M H (hybridTau D)
 
 /-- The exact factorwise squarefree charge with independent ordinary (`L₀`) and regular (`L`)
 retention thresholds. -/
@@ -69,7 +69,7 @@ def retainedSquarefreeCurveMCASharpRawAt
     (n D ell L₀ L A B M H : ℕ) : ℚ :=
   retainedSquarefreeOrdinaryCurveMCAAt n D ell L₀ A B M H +
     regularSymbolicCurveMCADerivativeBoundTwo n ell (D + 1) (D + 1)
-      L A B M H (2 * D - 1)
+      L A B M H (hybridTau D)
 
 /-- Minimum ordinary content-resultant charge over the integer interval `D+1 ≤ L₀ ≤ A`. -/
 def retainedSquarefreeOrdinaryCurveMinimum
@@ -86,7 +86,7 @@ def retainedSquarefreeCurveMCASharpOptimizedRaw
     (n D ell L A B M H : ℕ) : ℚ :=
   retainedSquarefreeOrdinaryCurveMinimum n D ell A B M H +
     regularSymbolicCurveMCADerivativeBoundTwo n ell (D + 1) (D + 1)
-      L A B M H (2 * D - 1)
+      L A B M H (hybridTau D)
 
 /-- Every admissible ordinary retention threshold bounds the attained finite minimum. -/
 theorem retainedSquarefreeOrdinaryCurveMinimum_le
@@ -117,7 +117,7 @@ theorem exists_retainedSquarefreeOrdinaryCurveMinimum
     (Finset.mem_Icc.mp hL₀).2, ?_⟩
   simpa only [retainedSquarefreeOrdinaryCurveMinimum, dif_pos hDA] using heq
 
-/-- At `L₀ = D+1`, the explicit-retention formula is exactly the historical sharp expression. -/
+/-- At `L₀ = D+1`, explicit ordinary retention gives the fixed-threshold sharp expression. -/
 theorem retainedSquarefreeCurveMCASharpRawAt_succ_eq
     (n D ell L A B M H : ℕ) (hDA : D + 1 ≤ A) (hAn : A ≤ n) :
     retainedSquarefreeCurveMCASharpRawAt n D ell (D + 1) L A B M H =
@@ -128,7 +128,7 @@ theorem retainedSquarefreeCurveMCASharpRawAt_succ_eq
   rw [ordinaryUnifiedPowerFactorAt_succ_eq n D ell
     (ordinaryDegreeEnvelope B M) (resultantChallengeEnvelope H M) A hDA hAn]
 
-/-- Independent ordinary optimization can only improve the historical `L₀ = D+1` charge. -/
+/-- Independent ordinary optimization can only improve the fixed `L₀ = D+1` charge. -/
 theorem retainedSquarefreeCurveMCASharpOptimizedRaw_le_fixed
     {n D ell L A B M H : ℕ} (hDA : D < A) (hAn : A ≤ n) :
     retainedSquarefreeCurveMCASharpOptimizedRaw n D ell L A B M H ≤
@@ -153,6 +153,49 @@ private theorem natCast_ne_zero_of_sharp_char_guard
     omega
   · exact Nat.not_dvd_of_pos_of_lt hi
       ((hiD.trans (Nat.le_max_left D M)).trans_lt hpos) hdiv
+
+/-- Dispatch the regular positive product at the degree-one endpoint before entering the
+positive-exponent derivative-image API. -/
+private theorem exists_exceptional_positiveCurveEquation_regular
+    {F E : Type*} [Field F] [Field E] [DecidableEq E] [IsAlgClosed E]
+    {n D ell L A B M H : ℕ}
+    (domain : Fin n ↪ F) (values : Fin (ell + 1) → Fin n → F) (iota : F →+* E)
+    (Q : DifferentialPolynomial E[X] 1) (hQ : Q ≠ 0)
+    (hD : 1 ≤ D) (hDL : D + 1 ≤ L) (hLA : L ≤ A) (hAn : A ≤ n) (hell : 0 < ell)
+    (hM : 1 ≤ M) (hMB : M ≤ B) (hjet : jetWeight Q ≤ B)
+    (hderiv : Q.degreeOf (some 1) ≤ M) (hheight : ChallengeHeightLE Q H)
+    (htaylor : TaylorExponentSufficient 1 (D + 1) (hybridTau D))
+    (hbin : ∀ i, 1 < i → i < D + 1 → (i.choose 1 : E) ≠ 0) :
+    ∃ exceptional : Finset E,
+      (exceptional.card : ℚ) ≤ regularSymbolicCurveMCADerivativeBoundTwo
+        n ell (D + 1) (D + 1) L A B M H (hybridTau D) ∧
+      ∀ z ∉ exceptional, ∀ P : E[X], P.degree < D + 1 →
+        A ≤ (polynomialAgreementSet (mappedDomain domain iota)
+          (powerBatchedWord (fun t i ↦ iota (values t i)) z) P).card →
+        differentialSpecialization
+          (challengeSpecialization (positiveCurveEquation Q) z) P = 0 →
+        differentialSpecialization
+          (separant (challengeSpecialization (positiveCurveEquation Q) z) (Fin.last 1)) P ≠ 0 →
+        HasExactPowerAgreement domain values iota (D + 1) z P := by
+  by_cases hDone : D = 1
+  · subst D
+    convert exists_exceptional_regularSymbolicCurveMCA_identityPair
+        domain values iota (positiveCurveEquation Q) L A B M H hDL hLA hAn
+          (hM.trans hMB) ((positiveCurveEquation_jetWeight_le Q hQ).trans hjet)
+          (fun d ↦ (positiveCurveEquation_challengeHeightLE Q d).trans
+            ((Nat.le_add_left _ _).trans
+              (flattened_content_add_positive_challengeDegree_le Q hQ hheight))) using 1
+    all_goals norm_num [hybridTau]
+  · exact exists_exceptional_regularSymbolicCurveMCA_derivativeCapped_of_exponent
+      domain values iota (positiveCurveEquation Q)
+      (D + 1) (D + 1) L A B M H (hybridTau D)
+      htaylor (by unfold hybridTau; omega) (by omega) le_rfl (by omega) hDL hLA hAn
+      (Nat.add_pos_left hell H) (hM.trans hMB) hM hMB
+      ((positiveCurveEquation_jetWeight_le Q hQ).trans hjet)
+      (fun d ↦ (positiveCurveEquation_challengeHeightLE Q d).trans
+        ((Nat.le_add_left _ _).trans
+          (flattened_content_add_positive_challengeDegree_le Q hQ hheight)))
+      ((positiveCurveEquation_yOneDegree_le Q hQ).trans hderiv) hbin
 
 open Classical in
 /-- The retained squarefree decomposition with the exact ordinary content-resultant budget.
@@ -203,21 +246,11 @@ theorem exists_exceptional_retainedSquarefreeCurveMCA_sharp
     intro i hi hiD
     rw [Nat.choose_one_right]
     exact natCast_ne_zero_of_sharp_char_guard hcharE (by omega) (by omega)
-  have htaylor : TaylorExponentSufficient 1 (D + 1) (2 * D - 1) := by
-    convert taylorExponentSufficient_two_mul_sub_three 1
-      (K := D + 1) (by omega) using 1
-    all_goals omega
+  have htaylor : TaylorExponentSufficient 1 (D + 1) (hybridTau D) := by
+    simpa only [hybridTau] using taylorExponentSufficient_firstOrder_tight D
   obtain ⟨regularExceptional, hregularCard, hregularGood⟩ :=
-    exists_exceptional_regularSymbolicCurveMCA_derivativeCapped_of_exponent
-      domain values iota (positiveCurveEquation Q)
-      (D + 1) (D + 1) L A B M H (2 * D - 1)
-      htaylor (by omega) (by omega) le_rfl (by omega) hDL hLA hAn
-      (Nat.add_pos_left hell H) (hM.trans hMB) hM hMB
-      ((positiveCurveEquation_jetWeight_le Q hQ).trans hjet)
-      (fun d ↦ (positiveCurveEquation_challengeHeightLE Q d).trans
-        ((Nat.le_add_left _ _).trans
-          (flattened_content_add_positive_challengeDegree_le Q hQ hheight)))
-      ((positiveCurveEquation_yOneDegree_le Q hQ).trans hderiv) hbin
+    exists_exceptional_positiveCurveEquation_regular domain values iota Q hQ hD hDL hLA hAn
+      hell hM hMB hjet hderiv hheight htaylor hbin
   let exceptional := tailExceptional ∪ regularExceptional
   refine ⟨exceptional, ?_, ?_⟩
   · have hcard : (exceptional.card : ℚ) ≤
@@ -304,21 +337,11 @@ theorem exists_exceptional_retainedSquarefreeCurveMCA_sharp_at
     intro i hi hiD
     rw [Nat.choose_one_right]
     exact natCast_ne_zero_of_sharp_char_guard hcharE (by omega) (by omega)
-  have htaylor : TaylorExponentSufficient 1 (D + 1) (2 * D - 1) := by
-    convert taylorExponentSufficient_two_mul_sub_three 1
-      (K := D + 1) (by omega) using 1
-    all_goals omega
+  have htaylor : TaylorExponentSufficient 1 (D + 1) (hybridTau D) := by
+    simpa only [hybridTau] using taylorExponentSufficient_firstOrder_tight D
   obtain ⟨regularExceptional, hregularCard, hregularGood⟩ :=
-    exists_exceptional_regularSymbolicCurveMCA_derivativeCapped_of_exponent
-      domain values iota (positiveCurveEquation Q)
-      (D + 1) (D + 1) L A B M H (2 * D - 1)
-      htaylor (by omega) (by omega) le_rfl (by omega) hDL hLA hAn
-      (Nat.add_pos_left hell H) (hM.trans hMB) hM hMB
-      ((positiveCurveEquation_jetWeight_le Q hQ).trans hjet)
-      (fun d ↦ (positiveCurveEquation_challengeHeightLE Q d).trans
-        ((Nat.le_add_left _ _).trans
-          (flattened_content_add_positive_challengeDegree_le Q hQ hheight)))
-      ((positiveCurveEquation_yOneDegree_le Q hQ).trans hderiv) hbin
+    exists_exceptional_positiveCurveEquation_regular domain values iota Q hQ hD hDL hLA hAn
+      hell hM hMB hjet hderiv hheight htaylor hbin
   let exceptional := tailExceptional ∪ regularExceptional
   refine ⟨exceptional, ?_, ?_⟩
   · have hcard : (exceptional.card : ℚ) ≤
@@ -615,14 +638,14 @@ def squarefreeSharpCurveEnvelope (p : LineProfile) (split : ℕ) : ℚ :=
     p.n p.D p.batchingDegree split p.agreement p.totalJetCap
       p.firstDerivativeCap p.height
 
-/-- Paper-exact squarefree curve envelope with the ordinary threshold minimized independently
-of the supplied regular-family split. The historical `squarefreeSharpCurveEnvelope` remains the
-literal `L₀ = D+1` compatibility expression used by frozen application certificates. -/
+/-- Squarefree curve envelope with the ordinary threshold minimized independently of the
+supplied regular-family split. `squarefreeSharpCurveEnvelope` instead fixes `L₀ = D+1`.
+Both expressions use the tight regular Taylor exponent. -/
 def squarefreeSharpOptimizedCurveEnvelope (p : LineProfile) (split : ℕ) : ℚ :=
   retainedSquarefreeCurveMCASharpOptimizedRaw p.n p.D p.batchingDegree split
     p.agreement p.totalJetCap p.firstDerivativeCap p.height
 
-/-- The paper-exact independently optimized profile envelope is no larger than the historical
+/-- Independent ordinary-threshold optimization is no larger than the fixed-threshold
 expression, because `L₀ = D+1` is one admissible choice in the minimized range. -/
 theorem squarefreeSharpOptimizedCurveEnvelope_le_fixed
     (p : LineProfile) (split : ℕ) (hDA : p.D < p.agreement)
@@ -639,7 +662,7 @@ challenge, candidate, and recovered constituents all live over `F`. -/
 theorem exists_exceptional_exact_powerAgreement_squarefree_sharp
     {F E : Type u} [Field F] [Field E] [IsAlgClosed E]
     {p : LineProfile} (hp : p.CurveVerification)
-    -- Historical application split: both ordinary and regular arithmetic remain frozen.
+    -- Regular retention threshold; the ordinary threshold is fixed at D+1.
     (split : ℕ) (hsplit : p.k ≤ split ∧ split ≤ p.agreement ∧ p.agreement ≤ p.n)
     (hk : 2 ≤ p.k) (hell : 0 < p.batchingDegree)
     (hM : 1 ≤ p.firstDerivativeCap)

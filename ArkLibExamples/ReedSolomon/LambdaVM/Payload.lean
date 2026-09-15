@@ -14,8 +14,17 @@ import Mathlib.Tactic.Linarith
 Each query carries paired main, auxiliary, and composition values, followed by
 initial-tree and FRI authentication data. The early vectors contain 38 cubic-field
 values each. Counting these added values is necessary before asserting a net saving.
-The identities concern field elements and authentication hashes, with any enclosing
-proof data left arbitrary; they do not assert a serialization benchmark.
+The field-and-hash model and the serialized measurement have separate byte counts.
+`proof_size` and `expectedNetSaving_bounds` concern the former. `serialized_proof_size`
+checks the arithmetic of the recorded CPU-subproof and complete-proof measurements.
+Those file lengths are empirical inputs: Lean does not verify the serializer, rerun the
+benchmark, or establish whole-VM soundness or runtime bounds.
+
+## Measurement source
+
+The [public companion](https://github.com/quangvdao/rs-beyond-johnson) at revision
+`dba7cd1f9ef29baa5c2a2adac8981ebb63920634` records the experiment in
+`experiments/lambdavm-anchors/measurement.json`, including its implementation revisions.
 -/
 set_option maxRecDepth 4096
 
@@ -47,11 +56,30 @@ model inputs. Lean proves the two integer totals; it does not verify LambdaVM se
 measure an emitted proof. Together with `payload_reduction`, they give the nominal 55,992-byte
 reduction. -/
 theorem proof_size :
-    -- Recorded baseline: fixed payload plus 219 complete responses.
+    -- Field-and-hash model: fixed data plus 219 complete responses.
     fixedBytes + 219 * responseBytes = 1155704 ∧
-    -- Revised model: 208 responses plus the two-anchor payload.
+    -- Revised model: 208 responses plus the two early evaluations.
     fixedBytes + 208 * responseBytes + anchorBytes = 1099712 := by
   decide
+
+/-- The recorded serialized proofs are smaller by 59,832 bytes, all in the CPU subproof.
+
+The experiment records 5,608 bytes per query response and 1,856 bytes for the two early
+evaluations. Removing eleven responses therefore saves 61,688 bytes before charging those
+evaluations. The CPU subproof shrinks from 1,233,024 to 1,173,192 bytes, while the complete
+benchmark proof shrinks from 36,868,888 to 36,809,056 bytes by the same amount.
+
+These are integer identities about the supplied measurements, not a proof that a serializer
+emits those lengths. The non-CPU subproofs were unchanged in this experiment; the complete-proof
+identity does not measure savings from retuning every table. -/
+theorem serialized_proof_size :
+    -- Eleven removed responses pay for both added evaluations.
+    11 * (5608 : ℕ) = 1856 + 59832 ∧
+    -- The measured CPU subproof has exactly this net reduction.
+    (1233024 : ℕ) = 1173192 + 59832 ∧
+    -- The measured complete proof has the same reduction.
+    (36868888 : ℕ) = 36809056 + 59832 := by
+  norm_num
 
 /-- Expected net saving when each distinct paired query position is transmitted once.
 The original independent query draws are retained. -/

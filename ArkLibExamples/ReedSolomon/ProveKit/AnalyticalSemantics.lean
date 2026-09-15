@@ -167,6 +167,7 @@ theorem passportOuterList_envelope_le :
     squarefreeListEnvelope passportOuterListProfile ≤ 180429296 := by
   norm_num [squarefreeListEnvelope, firstOrderCurveFiberStageOne,
     firstOrderTaylorTotalCap, firstOrderTaylorDerivativeCap,
+    hybridTau,
     AffineHilbert.fixedFiberDerivativeImageDegree, passportOuterListProfile,
     FirstOrder.Squarefree.ordinaryDegreeEnvelope]
 
@@ -181,6 +182,7 @@ theorem goldilocksLookupList_envelope_le :
     squarefreeListEnvelope goldilocksLookupListProfile ≤ 39721253 := by
   norm_num [squarefreeListEnvelope, firstOrderCurveFiberStageOne,
     firstOrderTaylorTotalCap, firstOrderTaylorDerivativeCap,
+    hybridTau,
     AffineHilbert.fixedFiberDerivativeImageDegree, goldilocksLookupListProfile,
     FirstOrder.Squarefree.ordinaryDegreeEnvelope]
 

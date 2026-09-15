@@ -13,6 +13,10 @@ public import
 ArkLib.Data.CodingTheory.ReedSolomon.MutualCorrelatedAgreement.Capacity.SharpCountingBound
 public import
 ArkLib.Data.CodingTheory.ReedSolomon.MutualCorrelatedAgreement.PolynomialCurve.PowerToLine
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.MutualCorrelatedAgreement.Ordinary.PolynomialCurve.Recovery
+public import
+ArkLib.Data.CodingTheory.ReedSolomon.MutualCorrelatedAgreement.Johnson.Certificate
 public import ArkLib.Data.CodingTheory.ReedSolomon.MutualCorrelatedAgreement.LineToAffine
 /-!
 # Uniform first-order mutual correlated agreement at gap 6/25
@@ -22,8 +26,9 @@ exceptional set, chosen before the challenge and candidate polynomial, of size a
 `1325775 n^2`; outside the set the complete agreement set is the common agreement set of two
 degree-`< k` constituents.
 
-All interpolation and graded-rank inputs are constructed in this module.  The hypotheses contain
-only the code parameters, the gap inequality, and the field-characteristic condition.
+All interpolation and graded-rank inputs are constructed in this module.  Positive characteristic
+need only exceed the actual message degree `k-1`: when it is too small for the squarefree count,
+all-samples and Johnson arguments cover the resulting dimensions two and three.
 -/
 
 @[expose] public section
@@ -410,22 +415,195 @@ private theorem exists_uniformFirstOrder_lineMCA_one
         rw [hconstant, Polynomial.eval_C, hiEq, hfj', hgj']
         simp
 
-/-- At gap `6/25`, one exceptional set of at most `1325775 n^2` challenges works for every
-degree-`< k` candidate and preserves equality of the complete agreement set. -/
+/-- If the message degree is below a positive characteristic that does not clear the
+first-order support cap, the characteristic is two or three and the dimension is at most three. -/
+private theorem uniformFirstOrder_messageDim_le_three_of_small_characteristic
+    {F : Type*} [Field F] {k : ℕ} (hk : 2 ≤ k)
+    (hdegreeChar : k - 1 < ringChar F) (hsupportChar : ¬ 4 < ringChar F) :
+    k ≤ 3 := by
+  have hkPredPos : 0 < k - 1 := Nat.sub_pos_of_lt hk
+  have hpPos : 0 < ringChar F := hkPredPos.trans hdegreeChar
+  let _ : NeZero (ringChar F) := ⟨hpPos.ne'⟩
+  have hpPrime : (ringChar F).Prime := (CharP.char_is_prime_of_pos F (ringChar F)).out
+  have hpTwo : 2 ≤ ringChar F := hpPrime.two_le
+  have hpFour : ringChar F ≤ 4 := le_of_not_gt hsupportChar
+  have hpNeFour : ringChar F ≠ 4 := by
+    intro hp
+    rw [hp] at hpPrime
+    exact (Nat.not_prime_of_mul_eq (show 2 * 2 = 4 by norm_num) (by norm_num) (by norm_num))
+      hpPrime
+  omega
+
+/-- Below length `278`, retaining every pair interpolated on a `k`-subset costs less than
+`278² n²` when `k ≤ 3`.  Each retained pair contributes at most one bad challenge at each
+position outside its common interpolation sample. -/
+private theorem exists_uniformFirstOrder_lineMCA_allSamples
+    {F : Type u} [Field F] [DecidableEq F]
+    (n k A : ℕ) (domain : Fin n ↪ F) (f g : Fin n → F)
+    (hn : 2 ≤ n) (hk : 2 ≤ k) (hkThree : k ≤ 3)
+    (hgap : (k : ℝ) + (6 / 25 : ℝ) * n ≤ A) (hnSmall : n < 278) :
+    ∃ exceptional : Finset F,
+      (exceptional.card : ℝ) ≤ 77284 * (n : ℝ) ^ 2 ∧
+      ∀ z ∉ exceptional, ∀ P : F[X], P.degree < k →
+        A ≤ (polynomialAgreementSet domain (fun i ↦ f i + z * g i) P).card →
+        HasExactCorrelatedPair domain f g (RingHom.id F) k z P := by
+  classical
+  let values : Fin 2 → Fin n → F := ![f, g]
+  have hkA : k ≤ A := by
+    exact_mod_cast (show (k : ℝ) ≤ A by
+      exact hgap.trans' (le_add_of_nonneg_right (by positivity)))
+  obtain ⟨exceptional, hcard, hgood⟩ :=
+    uniformExactPowerAgreement_of_all_samples domain values hkA
+  refine ⟨exceptional, ?_, ?_⟩
+  · have hraw : n.choose k * (n - k) ≤ n ^ 4 := by
+      calc
+        n.choose k * (n - k) ≤ n ^ k * n := by
+          exact Nat.mul_le_mul (Nat.choose_le_pow n k) (Nat.sub_le n k)
+        _ ≤ n ^ 4 := by
+          have hnOne : 1 ≤ n := by omega
+          rw [← pow_succ]
+          exact pow_le_pow_right₀ hnOne (by omega)
+    have hrawR : (exceptional.card : ℝ) ≤ (n : ℝ) ^ 4 := by
+      have hcard' : exceptional.card ≤ n.choose k * (n - k) := by
+        simpa only [one_mul] using hcard
+      exact_mod_cast hcard'.trans hraw
+    calc
+      (exceptional.card : ℝ) ≤ (n : ℝ) ^ 4 := hrawR
+      _ ≤ 77284 * (n : ℝ) ^ 2 := by
+        have hnR : (n : ℝ) < 278 := by exact_mod_cast hnSmall
+        calc
+          (n : ℝ) ^ 4 = (n : ℝ) ^ 2 * (n : ℝ) ^ 2 := by ring
+          _ ≤ 77284 * (n : ℝ) ^ 2 := by
+            gcongr
+            nlinarith [sq_nonneg ((n : ℝ) + 278)]
+  · intro z hz P hdegree hagree
+    have hword : powerBatchedWord values z = fun i ↦ f i + z * g i := by
+      funext i
+      simp [values, powerBatchedWord, Fin.sum_univ_two]
+    have hpower := hgood z hz P hdegree (by rwa [hword])
+    simpa [values] using
+      (exactCorrelatedPair_of_powerAgreement_one domain values (RingHom.id F) z P hpower)
+
+/-- From length `278`, the required gap-`6/25` agreement in dimensions two and three exceeds the
+Johnson threshold for the characteristic-free rounded recipe.  Its multiplicity is exactly three,
+and its normalized exception estimate is strictly below `(343/3) n²`. -/
+private theorem exists_uniformFirstOrder_lineMCA_johnson
+    {F : Type u} [Field F] [decF : DecidableEq F]
+    (n k A : ℕ) (domain : Fin n ↪ F) (f g : Fin n → F)
+    (hn : 278 ≤ n) (hk : 2 ≤ k) (hkThree : k ≤ 3) (hAn : A ≤ n)
+    (hgap : (k : ℝ) + (6 / 25 : ℝ) * n ≤ A) :
+    ∃ exceptional : Finset F,
+      (exceptional.card : ℝ) < (343 / 3 : ℝ) * (n : ℝ) ^ 2 ∧
+      ∀ z ∉ exceptional, ∀ P : F[X], P.degree < k →
+        A ≤ (polynomialAgreementSet domain (fun i ↦ f i + z * g i) P).card →
+        HasExactCorrelatedPair domain f g (RingHom.id F) k z P := by
+  classical
+  have hdec : (fun a b : F ↦ Classical.propDecidable (a = b)) = decF :=
+    Subsingleton.elim _ _
+  cases hdec
+  let D := k - 1
+  let eta : ℝ := 3 / 20
+  have hD : 1 ≤ D := by omega
+  have hDtwo : D ≤ 2 := by omega
+  have hDn : D ≤ n - 2 := by omega
+  have heta : 0 < eta := by norm_num [eta]
+  have hnPos : (0 : ℝ) < n := by positivity
+  have hrhoBound : HiddenDerivative.johnsonRhoMinus n D ≤ (9 / 100 : ℝ) ^ 2 := by
+    unfold HiddenDerivative.johnsonRhoMinus
+    apply (div_le_iff₀ hnPos).2
+    have hDR : (D : ℝ) ≤ 2 := by exact_mod_cast hDtwo
+    have hnR : (278 : ℝ) ≤ n := by exact_mod_cast hn
+    norm_num
+    nlinarith
+  have hsqrt : √(HiddenDerivative.johnsonRhoMinus n D) ≤ 9 / 100 := by
+    rw [Real.sqrt_le_iff]
+    exact ⟨by norm_num, by simpa using hrhoBound⟩
+  have hthreshold : HiddenDerivative.johnsonAgreement n D eta * n ≤ A := by
+    unfold HiddenDerivative.johnsonAgreement
+    dsimp only [eta]
+    have hn0 : (0 : ℝ) ≤ n := hnPos.le
+    have hsqrtMul := mul_le_mul_of_nonneg_right hsqrt hn0
+    norm_num at hgap ⊢
+    nlinarith
+  have ha : HiddenDerivative.johnsonAgreement n D eta ≤ 1 := by
+    unfold HiddenDerivative.johnsonAgreement
+    dsimp only [eta]
+    linarith
+  have hM : HiddenDerivative.johnsonM n D eta = 3 := by
+    unfold HiddenDerivative.johnsonM
+    rw [max_eq_right]
+    apply Nat.ceil_le.mpr
+    dsimp only [eta]
+    norm_num
+    linarith
+  have hclosed := HiddenDerivative.johnsonE0_lt_closed
+    hD hDn heta ha hthreshold hAn
+  have hclosed' : HiddenDerivative.johnsonE0 n D A eta <
+      (343 / 3 : ℝ) * (n : ℝ) ^ 2 := by
+    unfold HiddenDerivative.johnsonT at hclosed
+    rw [hM] at hclosed
+    norm_num at hclosed
+    have hDPos : (0 : ℝ) < D := by exact_mod_cast hD
+    have hscale : (343 / 3 : ℝ) * (n : ℝ) ^ 2 / D ≤
+        (343 / 3 : ℝ) * (n : ℝ) ^ 2 := by
+      apply (div_le_iff₀ hDPos).2
+      have hDR : (1 : ℝ) ≤ D := by exact_mod_cast hD
+      nlinarith [sq_nonneg (n : ℝ)]
+    apply hclosed.trans_le
+    rw [show HiddenDerivative.johnsonRhoMinus n D = (D : ℝ) / n by rfl]
+    calc
+      (8 / 3 : ℝ) * n * (343 / 8) / ((D : ℝ) / n) =
+          (343 / 3 : ℝ) * n ^ 2 / D := by field_simp
+      _ ≤ _ := hscale
+  obtain ⟨exceptional, hcard, hgood⟩ := exists_exceptional_johnsonMCA
+    domain f g hD hDn heta ha hthreshold hAn
+  refine ⟨exceptional, hcard.trans_lt hclosed', ?_⟩
+  have hDk : D + 1 = k := by dsimp only [D]; omega
+  intro z hz P hdegree hagree
+  have hDcast : (D : WithBot ℕ) + 1 = (k : WithBot ℕ) := by
+    norm_cast
+  have hdegree' : P.degree < (D : WithBot ℕ) + 1 := by rwa [hDcast]
+  have hout := hgood z hz P hdegree' hagree
+  simpa only [hDk] using hout
+
+/-- At gap `6/25`, one exceptional set of at most `1325775 n²` challenges works for every
+degree-`< k` candidate and preserves equality of the complete agreement set.  The squarefree
+height-276 certificate supplies the main branch.  If its support guard fails, positive
+characteristic is two or three and the message dimension is at most three; an all-samples count
+handles `n < 278`, while a characteristic-free multiplicity-three Johnson certificate handles
+larger lengths.  Constant messages remain unrestricted. -/
 theorem exists_uniformFirstOrder_lineMCA
     {F : Type u} [Field F] [DecidableEq F]
     (n k A : ℕ) (domain : Fin n ↪ F) (f g : Fin n → F)
     (hn : 2 ≤ n) (hk : 0 < k) (hAn : A ≤ n)
     (hgap : (k : ℝ) + (6 / 25 : ℝ) * n ≤ A)
-    (hchar : 2 ≤ k → ringChar F = 0 ∨ max (k - 1) 4 < ringChar F) :
+    (hchar : 2 ≤ k → ringChar F = 0 ∨ k - 1 < ringChar F) :
     ∃ exceptional : Finset F,
       (exceptional.card : ℝ) ≤ 1325775 * (n : ℝ) ^ 2 ∧
       ∀ z ∉ exceptional, ∀ P : F[X], P.degree < k →
         A ≤ (polynomialAgreementSet domain (fun i ↦ f i + z * g i) P).card →
         HasExactCorrelatedPair domain f g (RingHom.id F) k z P := by
   by_cases hkTwo : 2 ≤ k
-  · exact exists_uniformFirstOrder_squarefree_lineMCA_of_two_le n k A domain f g
-      hn hkTwo hAn hgap (hchar hkTwo)
+  · by_cases hsupport : ringChar F = 0 ∨ max (k - 1) 4 < ringChar F
+    · exact exists_uniformFirstOrder_squarefree_lineMCA_of_two_le n k A domain f g
+        hn hkTwo hAn hgap hsupport
+    · have hdegreeChar := (hchar hkTwo).resolve_left (fun hzero ↦ hsupport (Or.inl hzero))
+      have hsupportChar : ¬ 4 < ringChar F := by
+        intro hfour
+        exact hsupport (Or.inr (max_lt hdegreeChar hfour))
+      have hkThree := uniformFirstOrder_messageDim_le_three_of_small_characteristic
+        hkTwo hdegreeChar hsupportChar
+      by_cases hnSmall : n < 278
+      · obtain ⟨exceptional, hcard, hgood⟩ := exists_uniformFirstOrder_lineMCA_allSamples
+          n k A domain f g hn hkTwo hkThree hgap hnSmall
+        refine ⟨exceptional, hcard.trans ?_, hgood⟩
+        have hn0 : (0 : ℝ) ≤ (n : ℝ) ^ 2 := sq_nonneg _
+        nlinarith
+      · obtain ⟨exceptional, hcard, hgood⟩ := exists_uniformFirstOrder_lineMCA_johnson
+          n k A domain f g (le_of_not_gt hnSmall) hkTwo hkThree hAn hgap
+        refine ⟨exceptional, hcard.le.trans ?_, hgood⟩
+        have hn0 : (0 : ℝ) ≤ (n : ℝ) ^ 2 := sq_nonneg _
+        nlinarith
   · have hkOne : k = 1 := by omega
     subst k
     have hA : 0 < A := by exact_mod_cast (show (0 : ℝ) < A by linarith)
@@ -437,7 +615,7 @@ theorem lineExactAgreementBound_uniformFirstOrder
     (n k A : ℕ) (domain : Fin n ↪ F)
     (hn : 2 ≤ n) (hk : 0 < k) (hAn : A ≤ n)
     (hgap : (k : ℝ) + (6 / 25 : ℝ) * n ≤ A)
-    (hchar : 2 ≤ k → ringChar F = 0 ∨ max (k - 1) 4 < ringChar F) :
+    (hchar : 2 ≤ k → ringChar F = 0 ∨ k - 1 < ringChar F) :
     LineExactAgreementBound domain k A (1325775 * (n : ℝ) ^ 2) := by
   intro f g
   obtain ⟨exceptional, hcard, hgood⟩ :=
@@ -456,7 +634,7 @@ theorem mcaError_affineLine_uniformFirstOrder_le
     (n k A : ℕ) (domain : Fin n ↪ F)
     (hn : 2 ≤ n) (hk : 0 < k) (hAn : A ≤ n)
     (hgap : (k : ℝ) + (6 / 25 : ℝ) * n ≤ A)
-    (hchar : 2 ≤ k → ringChar F = 0 ∨ max (k - 1) 4 < ringChar F)
+    (hchar : 2 ≤ k → ringChar F = 0 ∨ k - 1 < ringChar F)
     (radius : ℝ) (hthreshold : A ≤ ⌈(n : ℝ) * (1 - radius)⌉₊) :
     mcaError (AffineLineGenerator F) (code domain k) radius ≤
       ENNReal.ofReal
@@ -473,7 +651,7 @@ theorem mcaError_affineSpace_uniformFirstOrder_le
     (n k A s : ℕ) (domain : Fin n ↪ F)
     (hn : 2 ≤ n) (hk : 0 < k) (hAn : A ≤ n)
     (hgap : (k : ℝ) + (6 / 25 : ℝ) * n ≤ A)
-    (hchar : 2 ≤ k → ringChar F = 0 ∨ max (k - 1) 4 < ringChar F)
+    (hchar : 2 ≤ k → ringChar F = 0 ∨ k - 1 < ringChar F)
     (hs : 1 ≤ s) (radius : ℝ) (hthreshold : A ≤ ⌈(n : ℝ) * (1 - radius)⌉₊) :
     mcaError (AffineSpaceGenerator F s) (code domain k) radius ≤
       ENNReal.ofReal

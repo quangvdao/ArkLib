@@ -72,6 +72,24 @@ checks passed. The log is `/tmp/rs-math-publication-validation.log`, SHA-256
 This validates the immediate annotation/import changes, not the unfinished optimization
 wrapper or remaining readability tasks below.
 
+## Current release-candidate validation
+
+On September 15, 2026 at 15:11 EDT, the completed release-candidate source tree passed
+`./scripts/validate.sh --axioms`.  The gate built the full library and examples, built all
+compile-time acceptance clients, ran the maintained runtime suites, enforced the zero-warning
+source policy, checked generated umbrella imports and the Reed–Solomon mathematical import
+boundary, checked repository documentation, and ran the axiom regression audit.  The audit covered
+37,755 declarations across 1,568 modules: 289 declarations retained the unchanged historical
+`sorryAx` taint, no declaration used a nonstandard axiom, and no new taint was introduced.
+
+The complete 1,013-line validation log is
+`/tmp/arklib-rs-final-validate-20260915.log`, with SHA-256
+`e4627898ad90c34f024a75e923a5a73dfa69d2acd9b9753a09ceb5b24a022ec3`.  This evidence describes
+the candidate source immediately before this paragraph was added; this evidence-only documentation
+edit was then checked separately for valid links, knowledge-base structure, and whitespace.  It
+does not claim a final Git revision.  Record the immutable commit only after the validated content
+and this handoff are committed together.
+
 ## Task 1: finish the squarefree ordinary-threshold wrapper
 
 Paper contract: `core/first-order-counting-interface.tex`, `lem:first-order-factorwise`,

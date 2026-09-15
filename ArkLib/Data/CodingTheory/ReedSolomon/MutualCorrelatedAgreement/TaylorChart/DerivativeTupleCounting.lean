@@ -121,6 +121,114 @@ theorem admissibleChartTuples_card_le_derivativeCapped_of_exponent
       rw [Polynomial.eval_map, Polynomial.eval₂_at_apply, hi' t])
   rwa [hcard] at hbound
 
+/-- At message degree one, specialization is the identity on the initial Taylor pair.  The
+fixed-fiber degrees are therefore `b = c = 1`, and the sharp chart theorem applies at exponent
+zero without entering the positive-exponent derivative-image path. -/
+theorem admissibleChartTuples_card_le_identityPair
+    [DecidableEq F] [IsAlgClosed E]
+    (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F) (iota : F →+* E)
+    (center : E) (Q : DifferentialPolynomial E[X] 1) (L v u : ℕ)
+    (hL : 2 ≤ L) (hLn : L ≤ n)
+    (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
+    (tuples : Finset (Fin (ℓ + 1) → F[X]))
+    (htuples : ∀ P ∈ tuples,
+      IsAdmissibleChartTupleAtExponent domain w iota center Q 2 2 L 0 P) :
+    (tuples.card : ℚ) ≤ firstOrderCurveFiberStageOne 2 v u 0 *
+      (((n - 1 : ℕ) : ℚ) / ((L - 1 : ℕ) : ℚ)) := by
+  classical
+  by_cases hempty : tuples = ∅
+  · subst tuples
+    simp only [Finset.card_empty, Nat.cast_zero]
+    positivity
+  let auxiliary := tuples.image fun P ↦
+    chartTuplePullback iota center P (symbolicSourceSeparant center Q)
+  obtain ⟨z, _, hinj, havoid⟩ :=
+    exists_polynomialTuple_specialization_injective_avoiding_roots (ℓ := ℓ)
+      iota tuples ∅ auxiliary (by
+      intro R hR
+      obtain ⟨P, hP, rfl⟩ := Finset.mem_image.mp hR
+      exact (htuples P hP).regular)
+  let Qz := MvPolynomial.map (Polynomial.evalRingHom z) Q
+  let jets : Finset (Fin 2 → E) := tuples.image (chartTupleJet iota center z)
+  have htau : TaylorExponentSufficient 1 2 0 := by
+    simpa using taylorExponentSufficient_firstOrder_tight 1
+  have hspec (P : Fin (ℓ + 1) → F[X]) (hP : P ∈ tuples) :=
+    (htuples P hP).specialize htau le_rfl z
+      (havoid _ (Finset.mem_image.mpr ⟨P, hP, rfl⟩))
+  have hjetinj : Set.InjOn (chartTupleJet (r := 1) iota center z)
+      (tuples : Set (Fin (ℓ + 1) → F[X])) := by
+    intro P hP R hR heq
+    apply hinj hP hR
+    change powerBatchedPolynomial (fun t ↦ (P t).map iota) z =
+      powerBatchedPolynomial (fun t ↦ (R t).map iota) z
+    rw [← (hspec P hP).2.2.2, ← (hspec R hR).2.2.2, heq]
+  have hcard : jets.card = tuples.card := Finset.card_image_of_injOn hjetinj
+  obtain ⟨P₀, hP₀⟩ := Finset.nonempty_iff_ne_empty.mpr hempty
+  have hsep : initialJetSeparant center Qz ≠ 0 := by
+    intro hz
+    exact (hspec P₀ hP₀).2.1 (by rw [hz]; simp)
+  have hpositive :
+      0 < Qz.weightedTotalDegree (fun i ↦ i.elim (0 : ℕ) (fun _ ↦ 1)) := by
+    by_contra! hzero
+    have hdeg : (initialJetEquation center Qz).totalDegree = 0 :=
+      Nat.eq_zero_of_le_zero ((totalDegree_initialJetEquation_le center Qz).trans hzero)
+    have hconstant := MvPolynomial.totalDegree_eq_zero_iff_eq_C.mp hdeg
+    have hderivative := pderiv_initialJetEquation center Qz (Fin.last 1)
+    rw [hconstant, MvPolynomial.pderiv_C] at hderivative
+    exact hsep hderivative.symm
+  let domainE : Fin n ↪ E := mappedDomain domain iota
+  let received : Fin n → E := powerBatchedWord (fun t i ↦ iota (w t i)) z
+  have hbound := finite_regularHighCutJets_card_le_sharp_of_exponent
+    center Qz 2 2 0 htau (by omega) hsep hpositive domainE received (by omega) hL hLn jets
+    (by
+      intro jet hjetmem
+      obtain ⟨P, hP, rfl⟩ := Finset.mem_image.mp hjetmem
+      exact ⟨(hspec P hP).1, (hspec P hP).2.1,
+        fun l ↦ (hspec P hP).2.2.1 l.val l.property⟩)
+    (by
+      intro jet hjetmem
+      obtain ⟨P, hP, rfl⟩ := Finset.mem_image.mp hjetmem
+      apply (htuples P hP).common.trans
+      apply Finset.card_le_card
+      intro i hi
+      rw [mem_agreementIndices, taylorAgreementEquation_eq_zero_iff_of_exponent
+        _ _ _ 0 htau _ (hspec P hP).2.1, (hspec P hP).2.2.2]
+      have hi' : ∀ t, (P t).eval (domain i) = w t i := by
+        simpa only [commonCurveAgreementSet, Finset.mem_filter, Finset.mem_univ,
+          true_and] using hi
+      change (powerBatchedPolynomial (fun t ↦ (P t).map iota) z).eval
+          (iota (domain i)) = ∑ t, z ^ t.val * iota (w t i)
+      rw [powerBatchedPolynomial_eval]
+      apply Finset.sum_congr rfl
+      intro t _
+      congr 1
+      rw [Polynomial.eval_map, Polynomial.eval₂_at_apply, hi' t])
+  rw [hcard] at hbound
+  have hdegree :
+      Qz.weightedTotalDegree (fun i ↦ i.elim (0 : ℕ) (fun _ ↦ 1)) ≤ v := by
+    apply Finset.sup_le_iff.mpr
+    intro m hm
+    exact (le_weightedTotalDegree _
+      (support_map_subset (Polynomial.evalRingHom z) Q hm)).trans hjet
+  have hdegreeCast :
+      ((Qz.weightedTotalDegree (fun i ↦ i.elim (0 : ℕ) (fun _ ↦ 1)) : ℕ) : ℚ) ≤
+        (v : ℚ) := (Nat.cast_le (α := ℚ)).2 hdegree
+  have hratio : (0 : ℚ) ≤ ((n - 1 : ℕ) : ℚ) / (L - 1 : ℕ) := by positivity
+  have hn : n - 2 + 1 = n - 1 := by omega
+  have hL' : L - 2 + 1 = L - 1 := by omega
+  simp only [rationalTaylorCutDegreeBound, zero_mul, Nat.add_zero, hn, hL', pow_one,
+    mul_one] at hbound
+  calc
+    (tuples.card : ℚ) ≤
+        Qz.weightedTotalDegree (fun i ↦ i.elim (0 : ℕ) (fun _ ↦ 1)) *
+          (((n - 1 : ℕ) : ℚ) / (L - 1 : ℕ)) := hbound
+    _ ≤ v * (((n - 1 : ℕ) : ℚ) / (L - 1 : ℕ)) :=
+      mul_le_mul_of_nonneg_right hdegreeCast hratio
+    _ = firstOrderCurveFiberStageOne 2 v u 0 *
+        (((n - 1 : ℕ) : ℚ) / (L - 1 : ℕ)) := by
+      simp [firstOrderCurveFiberStageOne, firstOrderTaylorTotalCap,
+        firstOrderTaylorDerivativeCap, AffineHilbert.fixedFiberDerivativeImageDegree]
+
 /-- The complete admissible tuple family inherits the same derivative-degree bound. -/
 theorem admissibleChartTupleFamilyAtExponent_card_le_derivativeCapped
     [DecidableEq F] [IsAlgClosed E]

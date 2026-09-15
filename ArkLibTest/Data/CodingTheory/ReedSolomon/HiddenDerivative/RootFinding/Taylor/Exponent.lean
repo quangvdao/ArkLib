@@ -10,8 +10,8 @@ import
 /-!
 # Common Taylor exponent acceptance tests
 
-These examples exercise the natural-subtraction boundary and the tight `K = 2` exponent used by
-both order-zero and order-one finite clients.
+These examples distinguish the order-zero exponent one from the order-one exponent zero at
+`K = 2`. They also check the first reconstructed order-one coefficient and valid coarser padding.
 -/
 
 open PolynomialDifferential
@@ -36,11 +36,23 @@ example : 2 * ((0 : ℕ) - 1) - 1 = 0 := by
 example : TaylorExponentSufficient 0 2 1 := by
   simpa using taylorExponentSufficient_two_mul_sub_three 0 (by omega : 2 ≤ 2)
 
-/-- The same `K = 2` exponent covers every order-one chart coordinate. -/
+/-- Exponent one is also sufficient at order one, although zero already suffices. -/
 example : TaylorExponentSufficient 1 2 1 := by
   simpa using taylorExponentSufficient_two_mul_sub_three 1 (by omega : 2 ≤ 2)
 
-/-- Tight padding reconstructs every coefficient after clearing exactly one separant factor. -/
+/-- Degree-one messages use the zero-exponent identity chart. -/
+example : TaylorExponentSufficient 1 (1 + 1) (2 * 1 - 3) :=
+  taylorExponentSufficient_firstOrder_tight 1
+
+/-- The first reconstructed coefficient for degree two needs one separant power. -/
+example : TaylorExponentSufficient 1 (2 + 1) (2 * 2 - 3) :=
+  taylorExponentSufficient_firstOrder_tight 2
+
+/-- The tight exponent is bounded by the historical exponent at the degree-one boundary. -/
+example : 2 * 1 - 3 ≤ 2 * 1 - 1 :=
+  firstOrder_tight_exponent_le_legacy 1
+
+/-- Padding the initial pair by one separant factor still gives the correct coefficients. -/
 example (center : F) (Q : DifferentialPolynomial F 1) (jet : Fin 2 → F)
     (hS : aeval jet (initialJetSeparant center Q) ≠ 0) (l : Fin 2) :
     aeval jet (commonTaylorNumerator center Q 2 l (τ := 1)) =

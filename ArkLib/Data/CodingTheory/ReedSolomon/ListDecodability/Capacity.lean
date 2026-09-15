@@ -191,9 +191,9 @@ structure CapacityListBounds (δ : ℝ) (n k q A ℓ : ℕ) : Prop where
     ℓ ≤ 4 * weightedSupportMultiplicity δ * q ^ capacityDerivativeOrder δ
 
 /-- **Uniform first-order capacity lists from gap `6/25`.**  The squarefree-product
-certificate represents the exact list by at most `307 n` polynomials.  The threshold
-`n ≥ 23`, together with `n ≤ q`, supplies precisely the positive-characteristic condition
-`max (k - 1) 4 < q` when `k ≥ 2`; the elementary `k = 1` branch is characteristic-free.
+certificate, together with the low-characteristic Johnson fallback, represents the exact list by
+at most `307 n` polynomials.  The hypothesis `n ≤ q` supplies the message-degree condition
+`k - 1 < q` when `k ≥ 2`; the elementary `k = 1` branch is characteristic-free.
 
 This is a mathematical list theorem.  It does not change the derivative order, multiplicity,
 or runtime regimes of the executable capacity decoder. -/
@@ -207,12 +207,10 @@ theorem uniformFirstOrder_capacity_list (δ : ℝ) (hδ : (6 / 25 : ℝ) ≤ δ)
       have hnnonneg : (0 : ℝ) ≤ n := by positivity
       have hmul := mul_le_mul_of_nonneg_right hδ hnnonneg
       linarith
-    have hchar : 2 ≤ k →
-        ringChar (ZMod q) = 0 ∨ max (k - 1) 4 < ringChar (ZMod q) := by
+    have hchar : 2 ≤ k → ringChar (ZMod q) = 0 ∨ k - 1 < ringChar (ZMod q) := by
       intro hkTwo
       right
       rw [ringChar.eq (ZMod q) q]
-      have hn23 : 23 ≤ n := hn
       omega
     obtain ⟨list, hlist, hcard⟩ :=
       exists_uniformFirstOrder_list n k A domain received
@@ -289,34 +287,32 @@ theorem exists_capacity_list (δ : ℝ) (hδ : 0 < δ) (hδ_one : δ < 1) :
 For `δ ≥ 6/25`, this facade selects `n ≥ 23`; no minimality is asserted.
 For `0 < δ < 6/25`, put
 `d = ⌈exp(3/(2δ))⌉`, `m = ⌈300 d² log(6d)⌉`, and `ν = ⌈m/δ²⌉ - 1 = Bjet(δ)`.
-The threshold is then `ν + 1 = ⌈m/δ²⌉`. In particular, `n ≥ N(δ)` and prime `q ≥ n`
-give `ν < q`, the jet-degree part of the small-gap characteristic guard.
+The threshold is then `max(ν + 1, ⌈4ν/δ²⌉)`.  Its second term supports the
+characteristic-free Johnson branch when differential counting is unavailable.
 These parameters depend only on `δ`, uniformly over all code rates. -/
 def rateCapacityLengthThreshold (δ : ℝ) : ℕ :=
   -- The large-gap certificate uses only the first derivative.
   if (6 / 25 : ℝ) ≤ δ then 23 else
-    -- The strict total-jet cap Bjet(δ) plus one in the higher-order branch.
-    HiddenDerivative.uniformRatePartitionMathematicalLength δ
+    -- The higher-order interpolation and characteristic-free Johnson thresholds.
+    HiddenDerivative.uniformCapacityLengthThreshold300 δ
 
 /-- The paper's complete-list bound `L_δ(n)`, independent of the alphabet size.
 
-For `δ ≥ 6/25`, this is `307 n`. For `0 < δ < 6/25`, it is `ν² (2ν/δ)^d n^d`, with
+For `δ ≥ 6/25`, this is `307 n`. For `0 < δ < 6/25`, it is
+`max(ν² (2ν/δ)^d, 4/(3δ)) n^d`, with
 `d = ⌈exp(3/(2δ))⌉` and `ν = Bjet(δ)` as in `rateCapacityLengthThreshold`. Thus the
 small-gap coefficient and exponent depend only on the gap; neither depends on `k` or `q`.
 This is a cardinality bound, separate from the cost of producing the list. -/
 def rateCapacityListBound (δ : ℝ) (n : ℕ) : ℝ :=
   if (6 / 25 : ℝ) ≤ δ then 307 * n else
-    -- Squarefree differential-root counting contributes ν² and the d-th power.
-    (HiddenDerivative.uniformRatePartitionMathematicalJetBound δ : ℝ) ^ 2 *
-      (2 * HiddenDerivative.uniformRatePartitionMathematicalJetBound δ / δ) ^
-        HiddenDerivative.uniformRatePartitionOrder δ *
+    uniformCapacityListConstant300 δ *
       n ^ HiddenDerivative.uniformRatePartitionOrder δ
 
 /-- **All-rate exact capacity lists for the paper's revised parameter family.**
 
 This is the list-decoding part of the paper's gap-from-capacity result. Fix `δ > 0` first.
-For every `n ≥ N(δ)`, `1 ≤ k ≤ n`, prime `q ≥ n`, injective evaluation map into `𝔽_q`, and
-received word, the complete list at agreement threshold `A ≥ k + δn` has at most `L_δ(n)`
+For every `n ≥ N(δ)`, `1 ≤ k ≤ n`, prime `q ≥ n`, injective evaluation map into `𝔽_q`,
+and received word, the complete list at agreement threshold `A ≥ k + δn` has at most `L_δ(n)`
 members. There is no randomness or genericity assumption on the evaluation set.
 
 The two parameter regimes, spelled out in `rateCapacityLengthThreshold` and
@@ -324,7 +320,8 @@ The two parameter regimes, spelled out in `rateCapacityLengthThreshold` and
 
 * `δ ≥ 6/25`: `N(δ) = 23` and `L_δ(n) = 307 n` (the first-order certificate).
 * `0 < δ < 6/25`: `d = ⌈exp(3/(2δ))⌉`, `m = ⌈300 d² log(6d)⌉`,
-  `ν = ⌈m/δ²⌉ - 1`, `N(δ) = ν + 1`, and `L_δ(n) = ν² (2ν/δ)^d n^d`.
+  `ν = ⌈m/δ²⌉ - 1`, `N(δ) = max(ν + 1, ⌈4ν/δ²⌉)`, and
+  `L_δ(n) = max(ν² (2ν/δ)^d, 4/(3δ)) n^d`.
 
 All these choices precede `n, k, q, A` and the received word. The prime-field assumption and
 length cutoff supply the characteristic conditions internally. For the stronger arbitrary-field
@@ -351,15 +348,17 @@ theorem exists_rateCapacity_list
       (fun n _ _ _ card hb ↦ by
         simpa only [rateCapacityListBound, if_pos hlarge, Nat.cast_mul, Nat.cast_ofNat] using
           (show (card : ℝ) ≤ 307 * n by exact_mod_cast hb))
-  · intro n k q A hn hk _hkn hq hnq hgap _hAupper domain received
+  · intro n k q A hn hk hkn hq hnq hgap _hAupper domain received
     let _ : Fact q.Prime := ⟨hq⟩
     by_cases hAn : A ≤ n
-    · have hn' : HiddenDerivative.uniformRatePartitionMathematicalLength δ ≤ n := by
+    · have hn' : HiddenDerivative.uniformCapacityLengthThreshold300 δ ≤ n := by
         simpa only [rateCapacityLengthThreshold, if_neg hlarge] using hn
-      obtain ⟨hf, hb⟩ := mathematicalUniformRatePartition_close_list_bound_of_length_characteristic
-        hδ (lt_of_not_ge hlarge)
-        hn' hk hgap hAn domain received (Or.inr (by
-          simpa only [ringChar.eq (ZMod q) q] using hnq))
+      have hchar : ringChar (ZMod q) = 0 ∨ k - 1 < ringChar (ZMod q) := by
+        right
+        rw [ringChar.eq (ZMod q) q]
+        omega
+      obtain ⟨hf, hb⟩ := uniform_capacity_list_bound_300 δ hδ (lt_of_not_ge hlarge)
+        n k A hn' hk hgap hAn domain received hchar
       refine ⟨hf.toFinset, ?_, ?_, ?_⟩
       · intro P
         simp only [Set.Finite.mem_toFinset, closePolynomialSet]
@@ -381,7 +380,10 @@ theorem exists_rateCapacity_list
           have hc := Code.agree_le_card (u := fun i ↦ P.eval (domain i)) (v := received)
           exact hagree.trans (by simpa using hc)
       · simp only [Finset.card_empty, Nat.cast_zero, rateCapacityListBound, if_neg hlarge]
-        positivity
+        apply mul_nonneg
+        · unfold uniformCapacityListConstant300
+          exact (by positivity : (0 : ℝ) ≤ 4 / (3 * δ)).trans (le_max_right _ _)
+        · positivity
 
 
 end

@@ -43,7 +43,7 @@ theorem automaticSquarefreeListExpression_le
     let B := automaticJetDegree rho (automaticFirstOrderThreshold rho + eta)
     let M := automaticDerivativeCap rho (automaticFirstOrderThreshold rho + eta)
     let lambda := hybridTheta n D A
-    (firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) : ℝ) * lambda +
+    (firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) : ℝ) * lambda +
         ordinaryDegreeEnvelope B M ≤
       automaticSquarefreeListBoundConstant rho * n / eta ^ 2 := by
   dsimp only

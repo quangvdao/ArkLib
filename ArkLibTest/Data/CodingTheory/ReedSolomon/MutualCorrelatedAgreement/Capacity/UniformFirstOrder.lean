@@ -59,7 +59,7 @@ example {F : Type} [Field F] [Fintype F]
     (n k A s : ℕ) (domain : Fin n ↪ F)
     (hn : 2 ≤ n) (hk : 0 < k) (hAn : A ≤ n)
     (hgap : (k : ℝ) + (6 / 25 : ℝ) * n ≤ A)
-    (hchar : 2 ≤ k → ringChar F = 0 ∨ max (k - 1) 4 < ringChar F)
+    (hchar : 2 ≤ k → ringChar F = 0 ∨ k - 1 < ringChar F)
     (hs : 1 ≤ s) (radius : ℝ) (hthreshold : A ≤ ⌈(n : ℝ) * (1 - radius)⌉₊) :
     mcaError (AffineSpaceGenerator F s) (code domain k) radius ≤
       ENNReal.ofReal

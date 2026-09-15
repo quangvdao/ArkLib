@@ -91,7 +91,7 @@ theorem squarefreeListExpression_le_finiteLength
     (hD : 1 ≤ D) (hDn : D ≤ n) (hM : 1 ≤ M) (hMB : M ≤ B)
     (hlambda0 : 0 ≤ lambda) (hlambda : lambda ≤ C)
     (hB : (B : ℝ) ≤ C / finiteLengthSlack eta n) :
-    (firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) : ℝ) * lambda +
+    (firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) : ℝ) * lambda +
         ordinaryDegreeEnvelope B M ≤
       7 * C ^ 3 * n / finiteLengthSlack eta n ^ 2 := by
   let s := finiteLengthSlack eta n
@@ -104,7 +104,7 @@ theorem squarefreeListExpression_le_finiteLength
     dsimp only [q, s]
     simpa only [div_eq_mul_inv, one_mul] using hB
   have hstageNat :
-      firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) ≤ 4 * D * B * M := by
+      firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) ≤ 4 * D * B * M := by
     have hsharp := firstOrderCurveFiberStageOne_le_hybridEnvelope hD hM hMB
     apply hsharp.trans
     have hsub : 2 * B - M ≤ 2 * B := Nat.sub_le _ _
@@ -113,7 +113,7 @@ theorem squarefreeListExpression_le_finiteLength
         Nat.mul_le_mul_left _ hsub
       _ = 4 * D * B * M := by ring
   have hstage :
-      (firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) : ℝ) ≤
+      (firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) : ℝ) ≤
         4 * D * B * M := by
     exact_mod_cast hstageNat
   have htail : (ordinaryDegreeEnvelope B M : ℝ) ≤ B + 2 * B * M := by
@@ -121,7 +121,7 @@ theorem squarefreeListExpression_le_finiteLength
   have hM' : (M : ℝ) ≤ C * q := (Nat.cast_le.mpr hMB).trans hB'
   have hD' : (D : ℝ) ≤ n := by exact_mod_cast hDn
   have hraw :
-      (firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) : ℝ) * lambda +
+      (firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) : ℝ) * lambda +
           ordinaryDegreeEnvelope B M ≤
         4 * (D : ℝ) * B * M * lambda + 2 * (B : ℝ) * M + B := by
     have hproduct := mul_le_mul_of_nonneg_right hstage hlambda0
@@ -148,10 +148,10 @@ theorem squarefreeListExpression_le_finiteLength
       nlinarith [mul_nonneg (mul_nonneg hC0 hq0) (sub_nonneg.mpr hx)]
     exact hsquare.trans (by simpa only [pow_two] using htwo)
   have hbound :
-      (firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) : ℝ) * lambda +
+      (firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) : ℝ) * lambda +
           ordinaryDegreeEnvelope B M ≤ 7 * C ^ 3 * n * q ^ 2 := by
     calc
-      (firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) : ℝ) * lambda +
+      (firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) : ℝ) * lambda +
           ordinaryDegreeEnvelope B M ≤
         4 * (D : ℝ) * B * M * lambda + 2 * (B : ℝ) * M + B := hraw
       _ ≤ 4 * (n : ℝ) * (C * q) * (C * q) * C +

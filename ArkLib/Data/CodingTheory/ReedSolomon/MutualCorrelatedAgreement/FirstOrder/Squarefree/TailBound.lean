@@ -499,7 +499,7 @@ theorem finite_squarefree_agreement_solutions_card_le
     (hsol : ∀ P ∈ S, differentialSpecialization Q P = 0)
     (haccept : ∀ P ∈ S, IsAgreementSolution domain received (D + 1) A P) :
     (S.card : ℝ) ≤
-      (firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) : ℝ) *
+      (firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) : ℝ) *
           ((n - D : ℕ) : ℝ) / (A - D : ℕ) + ordinaryDegreeEnvelope B M := by
   have htailChar : ringChar F = 0 ∨ M < ringChar F := by
     rcases hchar with hzero | hpositive

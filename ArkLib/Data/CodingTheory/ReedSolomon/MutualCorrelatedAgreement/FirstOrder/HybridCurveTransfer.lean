@@ -189,9 +189,8 @@ theorem exists_exceptional_firstOrder_regularCurveStages
     rw [Nat.choose_one_right]
     exact natCast_ne_zero_of_max_char_guard (M := 0) (by simpa using hcharE) (by omega) (by omega)
   have hτ : TaylorExponentSufficient 1 (D + 1) (HiddenDerivative.hybridTau D) := by
-    convert taylorExponentSufficient_two_mul_sub_three 1 (K := D + 1) (by omega) using 1
-    unfold HiddenDerivative.hybridTau
-    omega
+    simpa only [HiddenDerivative.hybridTau] using
+      taylorExponentSufficient_firstOrder_tight D
   have hstage (j : Fin e) : ∃ exceptional : Finset E,
       (exceptional.card : ℝ) ≤
         HiddenDerivative.hybridLambdaOne n A L *
@@ -215,23 +214,38 @@ theorem exists_exceptional_firstOrder_regularCurveStages
     have hv : 0 < mu - j := by omega
     have hu : 0 < e - j := by omega
     have huv : e - j ≤ mu - j := Nat.sub_le_sub_right heμ j
-    obtain ⟨exceptional, hcard, hgood⟩ :=
-      exists_exceptional_regularSymbolicCurveMCA_derivativeCapped_of_exponent
-        domain values iota
-        (HiddenDerivative.firstOrderDerivativeStage Q j) (D + 1) (D + 1) L A
-        (mu - j) (e - j) h (HiddenDerivative.hybridTau D) hτ (by
-          unfold HiddenDerivative.hybridTau
-          omega) (by omega) le_rfl (by omega) (by omega) hLA hAn (by omega) hv hu huv
-        (descent.stage_jetWeight_le j (Nat.le_of_lt hj))
-        (descent.stage_challengeHeight_le j)
-        ((descent.stage_degree j (Nat.le_of_lt hj)).le)
-        hbin
-    refine ⟨exceptional, ?_, ?_⟩
-    · rw [← regularSymbolicCurveMCADerivativeBoundTwo_eq_hybrid_curve_stage hDL hLA hAn]
-      exact_mod_cast hcard
-    · intro z hz P hdegree hagree hroot hsep
-      apply hgood z hz P hdegree hagree hroot
-      simpa only [show (Fin.last 1 : Fin 2) = 1 by decide] using hsep
+    by_cases hDone : D = 1
+    · subst D
+      obtain ⟨exceptional, hcard, hgood⟩ :=
+        exists_exceptional_regularSymbolicCurveMCA_identityPair
+          domain values iota (HiddenDerivative.firstOrderDerivativeStage Q j) L A
+            (mu - j) (e - j) h (by omega) hLA hAn hv
+            (descent.stage_jetWeight_le j (Nat.le_of_lt hj))
+            (descent.stage_challengeHeight_le j)
+      refine ⟨exceptional, ?_, ?_⟩
+      · rw [← regularSymbolicCurveMCADerivativeBoundTwo_eq_hybrid_curve_stage hDL hLA hAn]
+        simpa only [HiddenDerivative.hybridTau, Nat.reduceMul, Nat.reduceSub] using
+          (show (exceptional.card : ℝ) ≤ _ by exact_mod_cast hcard)
+      · intro z hz P hdegree hagree hroot hsep
+        apply hgood z hz P hdegree hagree hroot
+        simpa only [show (Fin.last 1 : Fin 2) = 1 by decide] using hsep
+    · obtain ⟨exceptional, hcard, hgood⟩ :=
+        exists_exceptional_regularSymbolicCurveMCA_derivativeCapped_of_exponent
+          domain values iota
+          (HiddenDerivative.firstOrderDerivativeStage Q j) (D + 1) (D + 1) L A
+          (mu - j) (e - j) h (HiddenDerivative.hybridTau D) hτ (by
+            unfold HiddenDerivative.hybridTau
+            omega) (by omega) le_rfl (by omega) (by omega) hLA hAn (by omega) hv hu huv
+          (descent.stage_jetWeight_le j (Nat.le_of_lt hj))
+          (descent.stage_challengeHeight_le j)
+          ((descent.stage_degree j (Nat.le_of_lt hj)).le)
+          hbin
+      refine ⟨exceptional, ?_, ?_⟩
+      · rw [← regularSymbolicCurveMCADerivativeBoundTwo_eq_hybrid_curve_stage hDL hLA hAn]
+        exact_mod_cast hcard
+      · intro z hz P hdegree hagree hroot hsep
+        apply hgood z hz P hdegree hagree hroot
+        simpa only [show (Fin.last 1 : Fin 2) = 1 by decide] using hsep
   let stageExceptional : Fin e → Finset E := fun j ↦ Classical.choose (hstage j)
   let exceptional := Finset.univ.biUnion stageExceptional
   refine ⟨exceptional, ?_, ?_⟩

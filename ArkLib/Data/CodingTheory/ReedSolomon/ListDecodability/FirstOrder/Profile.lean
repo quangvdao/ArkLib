@@ -38,7 +38,7 @@ def tightListEnvelope (p : LineProfile) : ℚ :=
 /-- The reduced-product/resultant list envelope attached to a finite profile. -/
 def squarefreeListEnvelope (p : LineProfile) : ℝ :=
   (firstOrderCurveFiberStageOne p.k p.totalJetCap p.firstDerivativeCap
-      (2 * p.k - 3) : ℝ) *
+      (hybridTau (p.k - 1)) : ℝ) *
       ((p.n - p.k + 1 : ℕ) : ℝ) / (p.agreement - p.k + 1 : ℕ) +
     FirstOrder.Squarefree.ordinaryDegreeEnvelope p.totalJetCap p.firstDerivativeCap
 

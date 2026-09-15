@@ -104,23 +104,72 @@ namespace ReedSolomon.HiddenDerivative
 
 open SymbolicSeparantChain
 
+/-- At fixed reconstruction dimension, increasing the common denominator exponent increases
+the complete curve envelope. The ordinary block, joint regular block, and fixed-fiber regular
+block are compared separately; the direct joint factor must be nonnegative. -/
+theorem firstOrderCurveBound_mono_exponent
+    {n K k L A μ M ell h τ τ' : ℕ} {η : ℚ}
+    (hτ : τ ≤ τ') (hη : 0 ≤ η) :
+    firstOrderCurveBound n K k L A μ M ell h τ η ≤
+      firstOrderCurveBound n K k L A μ M ell h τ' η := by
+  have hzero : firstOrderCurveJointZero K μ M ell h τ ≤
+      firstOrderCurveJointZero K μ M ell h τ' := by
+    unfold firstOrderCurveJointZero
+    apply Finset.sum_le_sum
+    intro t _
+    gcongr
+  have hone : firstOrderCurveJointOne K μ M ell h τ ≤
+      firstOrderCurveJointOne K μ M ell h τ' := by
+    unfold firstOrderCurveJointOne
+    apply Finset.sum_le_sum
+    intro t _
+    by_cases hactive : μ - min M μ ≤ t
+    · simp only [hactive, if_true]
+      apply firstOrderCurveJointStageOne_mono_reconstruction (K := K) (K' := K)
+        (τ := τ) (τ' := τ') (by omega) le_rfl hτ
+    · simp only [hactive, if_false]
+      exact le_rfl
+  have hfiber : firstOrderCurveFiberOne K μ M τ ≤
+      firstOrderCurveFiberOne K μ M τ' := by
+    unfold firstOrderCurveFiberOne
+    apply Finset.sum_le_sum
+    intro t _
+    by_cases hactive : μ - min M μ ≤ t
+    · simp only [hactive, if_true]
+      apply firstOrderCurveFiberStageOne_mono_reconstruction (K := K) (K' := K)
+        (τ := τ) (τ' := τ') (by omega) le_rfl hτ
+    · simp only [hactive, if_false]
+      exact le_rfl
+  have hl₁ : (0 : ℚ) ≤ ((n - L + 1 : ℕ) : ℚ) / (A - L + 1 : ℕ) := by positivity
+  have hl₂ : (0 : ℚ) ≤ ((n - k + 1 : ℕ) : ℚ) / (L - k + 1 : ℕ) := by positivity
+  have hc : (0 : ℚ) ≤ ((ell * (n - L) : ℕ) : ℚ) := by positivity
+  have hfiberQ : (firstOrderCurveFiberOne K μ M τ : ℚ) ≤
+      firstOrderCurveFiberOne K μ M τ' := by exact_mod_cast hfiber
+  unfold firstOrderCurveBound
+  apply add_le_add
+  · apply add_le_add
+    · apply add_le_add le_rfl
+      exact mul_le_mul_of_nonneg_left (by exact_mod_cast hzero) hl₁
+    · exact mul_le_mul_of_nonneg_left (by exact_mod_cast hone) (mul_nonneg hl₁ hη)
+  · apply mul_le_mul_of_nonneg_left _ hc
+    exact add_le_add_right (mul_le_mul_of_nonneg_left hfiberQ hl₂) _
+
 /-- The full-stage curve envelope increases when both the permitted derivative degree and the
 ambient reconstruction dimension increase. The message dimension and incidence factors stay
 fixed. -/
 theorem firstOrderCurveBound_mono_ambient
-    {n k K L A μ e M ell H : ℕ}
+    {n k K L A μ e M ell H τ τ' : ℕ}
     (hk : 2 ≤ k) (hkK : k ≤ K) (heM : e ≤ M) (hMμ : M ≤ μ)
+    (hτ : τ ≤ τ')
     (hkL : k ≤ L) (hLA : L ≤ A) (hAn : A ≤ n) :
-    firstOrderCurveBound n k k L A μ e ell H (hybridTau (k - 1))
+    firstOrderCurveBound n k k L A μ e ell H τ
         (firstOrderCurveDirectRatio n k A) ≤
-      firstOrderCurveBound n K k L A μ M ell H (hybridTau (K - 1))
+      firstOrderCurveBound n K k L A μ M ell H τ'
         (firstOrderCurveDirectRatio n k A) := by
   let s := firstOrderCurveJointRatio n L A
   let t := firstOrderCurveFiberRatio n k L
   let η := firstOrderCurveDirectRatio n k A
   let c : ℚ := ((ell * (n - L) : ℕ) : ℚ)
-  let τ := hybridTau (k - 1)
-  let τ' := hybridTau (K - 1)
   let c₀ : ℕ → ℚ := fun j ↦ curveStageZero k ell H s c j τ
   let c₀' : ℕ → ℚ := fun j ↦ curveStageZero K ell H s c j τ'
   let c₁ : ℕ → ℕ → ℚ := fun j r ↦ curveStageOne k ell H s t c j r τ η
@@ -132,9 +181,6 @@ theorem firstOrderCurveBound_mono_ambient
   have ht0 : 0 ≤ t := le_trans (by norm_num) ht
   have hη0 : 0 ≤ η := le_trans (by norm_num) hη
   have hc0 : 0 ≤ c := by positivity
-  have hτ : τ ≤ τ' := by
-    dsimp only [τ, τ', hybridTau]
-    omega
   have hzero : ∀ j, c₀ j ≤ c₀' j := by
     intro j
     unfold c₀ c₀' curveStageZero
@@ -178,9 +224,9 @@ theorem firstOrderCurveBound_mono_ambient
     · intro j r q hrq hqj
       exact curveStageOne_mono_derivative_of_factors K ell H hs0 hη0 ht0 hc0 τ' hrq hqj
   rw [← firstOrderCurveStageCap_add_height_eq_of_factors
-      n k k L A μ e ell H (hybridTau (k - 1)) (firstOrderCurveDirectRatio n k A),
+      n k k L A μ e ell H τ (firstOrderCurveDirectRatio n k A),
     ← firstOrderCurveStageCap_add_height_eq_of_factors
-      n K k L A μ M ell H (hybridTau (K - 1)) (firstOrderCurveDirectRatio n k A)]
+      n K k L A μ M ell H τ' (firstOrderCurveDirectRatio n k A)]
   change (H : ℚ) + firstOrderStageCap c₀ c₁ μ e ≤
     (H : ℚ) + firstOrderStageCap c₀' c₁' μ M
   exact add_le_add_right (hsameCap.trans hupperCap) _
@@ -281,14 +327,15 @@ namespace ReedSolomon
 
 open HiddenDerivative
 
-/-- At a fixed actual derivative degree, fully differentiating the ordinary tail and adding the
-regular stages is exactly the retained full-stage evaluator at the actual message dimension. -/
-theorem hybridCurveFullAtDegree_eq_firstOrderCurveBound
+/-- At a fixed actual derivative degree, fully differentiating the ordinary tail with exponent
+`2k-3` and adding the tighter regular stages is bounded by the retained full-stage evaluator at
+that historical ordinary exponent. -/
+theorem hybridCurveFullAtDegree_le_firstOrderCurveBound
     {n k ell A H μ e L : ℕ}
     (hk : 1 ≤ k) (heμ : e ≤ μ) (hkL : k ≤ L) (hLA : L ≤ A) (hAn : A ≤ n) :
     hybridCurveFullTail n (k - 1) ell (μ - e) H A L +
-        hybridCurveRegular n (k - 1) ell A H μ e L =
-      ((firstOrderCurveBound n k k L A μ e ell H (hybridTau (k - 1))
+        hybridCurveRegular n (k - 1) ell A H μ e L ≤
+      ((firstOrderCurveBound n k k L A μ e ell H (2 * k - 3)
         (firstOrderCurveDirectRatio n k A) : ℚ) : ℝ) := by
   have hkpred : k - 1 + 1 = k := by omega
   have hnD : n - (k - 1) = n - k + 1 := by omega
@@ -298,18 +345,69 @@ theorem hybridCurveFullAtDegree_eq_firstOrderCurveBound
     (D := k - 1) (ell := ell) (H := H) heμ
   have hF := firstOrderCurveFiberOne_eq_hybridB1 (D := k - 1) heμ
   rw [hkpred] at hJ hF
-  unfold firstOrderCurveBound
-  dsimp only
-  rw [hJ, hF,
-    firstOrderCurveFiberZero_eq_triangular heμ,
-    firstOrderCurveJointZero_eq_full (ell := ell) (H := H)
-      (τ := hybridTau (k - 1)) heμ]
-  unfold hybridCurveFullTail hybridCurveRegular
-  simp only [firstOrderCurveDirectRatio,
-    hybridLambdaOne, hybridLambdaTwo, hybridTheta,
-    hybridTau, hnD, hAD, hLD]
-  push_cast
-  ring
+  have hτ : hybridTau (k - 1) ≤ 2 * k - 3 := by
+    unfold hybridTau
+    omega
+  have hJle : hybridCurveJ1 (k - 1) ell H μ e ≤
+      firstOrderCurveJointOne k μ e ell H (2 * k - 3) := by
+    rw [← hJ]
+    unfold firstOrderCurveJointOne
+    apply Finset.sum_le_sum
+    intro t _
+    by_cases hactive : μ - min e μ ≤ t
+    · simp only [hactive, if_true]
+      apply firstOrderCurveJointStageOne_mono_reconstruction (K := k) (K' := k)
+        (τ := hybridTau (k - 1)) (τ' := 2 * k - 3) (by omega) le_rfl hτ
+    · simp only [hactive, if_false]
+      exact le_rfl
+  have hFle : hybridB1 (k - 1) μ e ≤
+      firstOrderCurveFiberOne k μ e (2 * k - 3) := by
+    rw [← hF]
+    unfold firstOrderCurveFiberOne
+    apply Finset.sum_le_sum
+    intro t _
+    by_cases hactive : μ - min e μ ≤ t
+    · simp only [hactive, if_true]
+      apply firstOrderCurveFiberStageOne_mono_reconstruction (K := k) (K' := k)
+        (τ := hybridTau (k - 1)) (τ' := 2 * k - 3) (by omega) le_rfl hτ
+    · simp only [hactive, if_false]
+      exact le_rfl
+  have hlegacy : 2 * (k - 1) - 1 = 2 * k - 3 := by omega
+  have hJleR : (hybridCurveJ1 (k - 1) ell H μ e : ℝ) ≤
+      firstOrderCurveJointOne k μ e ell H (2 * k - 3) := by exact_mod_cast hJle
+  have hFleR : (hybridB1 (k - 1) μ e : ℝ) ≤
+      firstOrderCurveFiberOne k μ e (2 * k - 3) := by exact_mod_cast hFle
+  have hregular : hybridCurveRegular n (k - 1) ell A H μ e L ≤
+      firstOrderCurveJointRatio n L A * firstOrderCurveDirectRatio n k A *
+          firstOrderCurveJointOne k μ e ell H (2 * k - 3) +
+        ((ell * (n - L) : ℕ) : ℝ) * firstOrderCurveFiberRatio n k L *
+          firstOrderCurveFiberOne k μ e (2 * k - 3) := by
+    unfold hybridCurveRegular firstOrderCurveJointRatio firstOrderCurveDirectRatio
+      firstOrderCurveFiberRatio hybridLambdaOne hybridLambdaTwo hybridTheta
+    rw [hnD, hAD, hLD]
+    push_cast
+    apply add_le_add
+    · exact mul_le_mul_of_nonneg_left hJleR (by positivity)
+    · exact mul_le_mul_of_nonneg_left hFleR (by positivity)
+  calc
+    hybridCurveFullTail n (k - 1) ell (μ - e) H A L +
+        hybridCurveRegular n (k - 1) ell A H μ e L ≤
+      hybridCurveFullTail n (k - 1) ell (μ - e) H A L +
+        (firstOrderCurveJointRatio n L A * firstOrderCurveDirectRatio n k A *
+            firstOrderCurveJointOne k μ e ell H (2 * k - 3) +
+          ((ell * (n - L) : ℕ) : ℝ) * firstOrderCurveFiberRatio n k L *
+            firstOrderCurveFiberOne k μ e (2 * k - 3)) := add_le_add_right hregular _
+    _ = ((firstOrderCurveBound n k k L A μ e ell H (2 * k - 3)
+          (firstOrderCurveDirectRatio n k A) : ℚ) : ℝ) := by
+      unfold hybridCurveFullTail firstOrderCurveBound firstOrderCurveJointRatio
+        firstOrderCurveDirectRatio firstOrderCurveFiberRatio
+        hybridLambdaOne
+      rw [firstOrderCurveFiberZero_eq_triangular heμ,
+        firstOrderCurveJointZero_eq_full (ell := ell) (H := H)
+          (τ := 2 * k - 3) heμ]
+      simp only [hlegacy]
+      push_cast
+      ring
 
 end ReedSolomon
 
@@ -340,18 +438,6 @@ theorem hybridCurveAtDegree_le_fullDifferentiationEnvelope
   have hpair := hybridCurveAtDegree_le_pair
     (n := n) (D := k - 1) (ell := ell) (A := A) (H := H) (B := μ)
     (e := e) (L := L) (L₀ := L) hDL hLA hDL hLA
-  have hlower := firstOrderCurveBound_mono_ambient
-    (n := n) (k := k) (K := K) (L := L) (A := A) (μ := μ) (e := e) (M := M)
-    (ell := ell) (H := H) hk hkK heM hMμ hkL hLA hAn
-  have hlowerR :
-      ((firstOrderCurveBound n k k L A μ e ell H (hybridTau (k - 1))
-        (firstOrderCurveDirectRatio n k A) : ℚ) : ℝ) ≤
-      ((firstOrderCurveBound n K k L A μ M ell H (hybridTau (K - 1))
-        (firstOrderCurveDirectRatio n k A) : ℚ) : ℝ) := by
-    exact_mod_cast hlower
-  have hτK : hybridTau (K - 1) = 2 * K - 3 := by
-    unfold hybridTau
-    omega
   calc
     hybridCurveAtDegree n (k - 1) ell A H μ e ≤
         hybridCurveTail n (k - 1) ell (μ - e) H A L +
@@ -360,15 +446,18 @@ theorem hybridCurveAtDegree_le_fullDifferentiationEnvelope
           hybridCurveRegular n (k - 1) ell A H μ e L := by
         simpa only [add_comm] using
           add_le_add_right htail (hybridCurveRegular n (k - 1) ell A H μ e L)
-    _ = ((firstOrderCurveBound n k k L A μ e ell H (hybridTau (k - 1))
+    _ ≤ ((firstOrderCurveBound n k k L A μ e ell H (2 * k - 3)
           (firstOrderCurveDirectRatio n k A) : ℚ) : ℝ) :=
-        hybridCurveFullAtDegree_eq_firstOrderCurveBound
+        hybridCurveFullAtDegree_le_firstOrderCurveBound
           (by omega) (heM.trans hMμ) hkL hLA hAn
-    _ ≤ ((firstOrderCurveBound n K k L A μ M ell H (hybridTau (K - 1))
-          (firstOrderCurveDirectRatio n k A) : ℚ) : ℝ) := hlowerR
-    _ = hybridCurveFullDifferentiationEnvelope n k K ell A H μ M L := by
-      rw [hτK]
-      rfl
+    _ ≤ ((firstOrderCurveBound n K k L A μ M ell H (2 * K - 3)
+          (firstOrderCurveDirectRatio n k A) : ℚ) : ℝ) := by
+      have hmono := firstOrderCurveBound_mono_ambient
+        (n := n) (k := k) (K := K) (L := L) (A := A) (μ := μ) (e := e) (M := M)
+        (ell := ell) (H := H) (τ := 2 * k - 3) (τ' := 2 * K - 3)
+        hk hkK heM hMμ (by omega) hkL hLA hAn
+      exact_mod_cast hmono
+    _ = hybridCurveFullDifferentiationEnvelope n k K ell A H μ M L := rfl
 
 /-- Maximizing over all permitted actual derivative degrees preserves the pointwise comparison
 with every admissible full-differentiation threshold. -/

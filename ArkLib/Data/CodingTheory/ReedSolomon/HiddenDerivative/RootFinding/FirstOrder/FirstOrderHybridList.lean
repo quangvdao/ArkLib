@@ -84,6 +84,82 @@ theorem finite_regular_agreement_solutions_card_le_derivativeCapped_of_exponent
   rw [hcard] at hcount
   exact hcount
 
+open Classical in
+/-- Degree-one messages use the identity on their initial Taylor pair.  Since `K = k = 2`,
+there are no later Taylor coefficients and the common exponent is zero.  This route deliberately
+avoids the positive-exponent derivative-image API: its fixed-fiber image has degrees `b = c = 1`.
+-/
+theorem finite_regular_agreement_solutions_card_le_identityPair
+    {F : Type*} [Field F]
+    (Q : DifferentialPolynomial F 1) (j r : ℕ)
+    (hjet : jetTotalDegree Q ≤ j)
+    {n A : ℕ} (domain : Fin n ↪ F) (received : Fin n → F)
+    (hA : 2 ≤ A) (hAn : A ≤ n)
+    (S : Finset F[X])
+    (hdegree : ∀ P ∈ S, P.degree < 2)
+    (hsol : ∀ P ∈ S, differentialSpecialization Q P = 0)
+    (hsep : ∀ P ∈ S, differentialSpecialization (separant Q (Fin.last 1)) P ≠ 0)
+    (hagree : ∀ P ∈ S,
+      A ≤ (Finset.univ.filter fun i ↦ P.eval (domain i) = received i).card) :
+    (S.card : ℚ) ≤ firstOrderCurveFiberStageOne 2 j r 0 *
+      (((n - 1 : ℕ) : ℚ) / ((A - 1 : ℕ) : ℚ)) := by
+  let E := AlgebraicClosure F
+  let scalar : F →+* E := algebraMap F E
+  let QE := MvPolynomial.map scalar Q
+  have htau : TaylorExponentSufficient 1 2 0 := by
+    simpa using taylorExponentSufficient_firstOrder_tight 1
+  obtain ⟨center, jets, hcard, hjets⟩ := exists_regular_solution_jet_family_of_exponent
+    (A := A) scalar Q 2 2 0 htau le_rfl S domain received hdegree hsol hsep (by omega) hagree
+  by_cases hempty : jets = ∅
+  · have hScard : S.card = 0 := by simpa [hempty] using hcard.symm
+    rw [hScard, Nat.cast_zero]
+    positivity
+  have hsepE : initialJetSeparant center QE ≠ 0 := by
+    obtain ⟨jet, hjetmem⟩ := Finset.nonempty_iff_ne_empty.mpr hempty
+    intro hz
+    exact (hjets jet hjetmem).2.1 (by rw [hz, map_zero])
+  have hpositive : 0 < QE.weightedTotalDegree (fun i ↦ i.elim (0 : ℕ) (fun _ ↦ 1)) := by
+    by_contra! hzero
+    have hdeg : (initialJetEquation center QE).totalDegree = 0 :=
+      Nat.eq_zero_of_le_zero ((totalDegree_initialJetEquation_le center QE).trans hzero)
+    have hconstant := MvPolynomial.totalDegree_eq_zero_iff_eq_C.mp hdeg
+    have hderivative := pderiv_initialJetEquation center QE (Fin.last 1)
+    rw [hconstant, MvPolynomial.pderiv_C] at hderivative
+    exact hsepE hderivative.symm
+  have hdegreeE : QE.weightedTotalDegree (fun i ↦ i.elim (0 : ℕ) (fun _ ↦ 1)) ≤ j := by
+    dsimp only [QE]
+    rw [totalJetDegree_map_eq]
+    rw [← jetTotalDegree_eq_weightedTotalDegree_elim]
+    exact hjet
+  let domainE : Fin n ↪ E := domain.trans ⟨scalar, scalar.injective⟩
+  have hcount := finite_regularHighCutJets_card_le_sharp_of_exponent
+    center QE 2 2 0 htau (by omega) hsepE hpositive
+    domainE (fun i ↦ scalar (received i)) (by omega) hA hAn jets
+    (fun jet hjetmem ↦ ⟨(hjets jet hjetmem).1, (hjets jet hjetmem).2.1,
+      fun l ↦ (hjets jet hjetmem).2.2.1 l.val l.property⟩)
+    (fun jet hjetmem ↦ (hjets jet hjetmem).2.2.2)
+  rw [hcard] at hcount
+  have hdegreeCast :
+      ((QE.weightedTotalDegree (fun i ↦ i.elim (0 : ℕ) (fun _ ↦ 1)) : ℕ) : ℚ) ≤
+        (j : ℚ) := by
+    exact (Nat.cast_le (α := ℚ)).2 hdegreeE
+  have hratio : (0 : ℚ) ≤ ((n - 1 : ℕ) : ℚ) / (A - 1 : ℕ) :=
+    div_nonneg (by positivity) (by positivity)
+  have hn : n - 2 + 1 = n - 1 := by omega
+  have hA' : A - 2 + 1 = A - 1 := by omega
+  simp only [rationalTaylorCutDegreeBound, zero_mul, Nat.add_zero, hn, hA', pow_one, mul_one]
+    at hcount
+  calc
+    (S.card : ℚ) ≤
+        QE.weightedTotalDegree (fun i ↦ i.elim (0 : ℕ) (fun _ ↦ 1)) *
+          (((n - 1 : ℕ) : ℚ) / (A - 1 : ℕ)) := hcount
+    _ ≤ j * (((n - 1 : ℕ) : ℚ) / (A - 1 : ℕ)) :=
+      mul_le_mul_of_nonneg_right hdegreeCast hratio
+    _ = firstOrderCurveFiberStageOne 2 j r 0 *
+        (((n - 1 : ℕ) : ℚ) / (A - 1 : ℕ)) := by
+      simp [firstOrderCurveFiberStageOne, firstOrderTaylorTotalCap,
+        firstOrderTaylorDerivativeCap, AffineHilbert.fixedFiberDerivativeImageDegree]
+
 /-- The exact characteristic-free fact required of the specialized order-zero tail. -/
 def HasOrderZeroTailListBound
     {F : Type*} [Field F] {n D A b : ℕ} (domain : Fin n ↪ F)
@@ -459,9 +535,7 @@ theorem finite_firstOrder_hybrid_agreement_solutions_card_le_raw_of_tail
     rw [Nat.choose_one_right]
     exact natCast_ne_zero_of_max_char_guard hchar (by omega) (by omega)
   have htau : TaylorExponentSufficient 1 (D + 1) (hybridTau D) := by
-    convert taylorExponentSufficient_two_mul_sub_three 1 (K := D + 1) (by omega) using 1
-    unfold hybridTau
-    omega
+    simpa only [hybridTau] using taylorExponentSufficient_firstOrder_tight D
   let tailRoots := S.filter fun P ↦
     differentialSpecialization
       (MvPolynomial.map (Polynomial.evalRingHom z) descent.tail.equation) P = 0
@@ -494,18 +568,35 @@ theorem finite_firstOrder_hybrid_agreement_solutions_card_le_raw_of_tail
           e - j := by
       exact (degreeOf_map_le phi (some (1 : Fin 2)) _).trans_eq
         (descent.stage_degree j (Nat.le_of_lt hj))
-    have hbound := finite_regular_agreement_solutions_card_le_derivativeCapped_of_exponent
-      (MvPolynomial.map (Polynomial.evalRingHom z) (firstOrderDerivativeStage Q j))
-      (D + 1) (D + 1) (mu - j) (e - j) (hybridTau D)
-      htau (by unfold hybridTau; omega) (by omega) le_rfl hv hu huv hjet hderiv
-      domain received (by omega) hkA hAn (stageRoots j)
-      (fun P hP ↦ (haccept P (Finset.mem_filter.mp hP).1).1)
-      (fun P hP ↦ (Finset.mem_filter.mp hP).2.1)
-      (fun P hP ↦ by
-        simpa only [show (Fin.last 1 : Fin 2) = 1 by decide] using
-          (Finset.mem_filter.mp hP).2.2)
-      hbin
-      (fun P hP ↦ (haccept P (Finset.mem_filter.mp hP).1).2)
+    have hbound : ((stageRoots j).card : ℚ) ≤
+        firstOrderCurveFiberStageOne (D + 1) (mu - j) (e - j) (hybridTau D) *
+          (((n - (D + 1) + 1 : ℕ) : ℚ) / (A - (D + 1) + 1 : ℕ)) := by
+      by_cases hDone : D = 1
+      · subst D
+        have hn1 : n - 2 + 1 = n - 1 := by omega
+        have hA1 : A - 2 + 1 = A - 1 := by omega
+        simpa only [Nat.reduceAdd, hybridTau, Nat.reduceMul, Nat.reduceSub, hn1, hA1] using
+          finite_regular_agreement_solutions_card_le_identityPair
+            (MvPolynomial.map (Polynomial.evalRingHom z) (firstOrderDerivativeStage Q j))
+            (mu - j) (e - j) hjet domain received (by omega) hAn (stageRoots j)
+            (fun P hP ↦ (haccept P (Finset.mem_filter.mp hP).1).1)
+            (fun P hP ↦ (Finset.mem_filter.mp hP).2.1)
+            (fun P hP ↦ by
+              simpa only [show (Fin.last 1 : Fin 2) = 1 by decide] using
+                (Finset.mem_filter.mp hP).2.2)
+            (fun P hP ↦ (haccept P (Finset.mem_filter.mp hP).1).2)
+      · exact finite_regular_agreement_solutions_card_le_derivativeCapped_of_exponent
+          (MvPolynomial.map (Polynomial.evalRingHom z) (firstOrderDerivativeStage Q j))
+          (D + 1) (D + 1) (mu - j) (e - j) (hybridTau D)
+          htau (by unfold hybridTau; omega) (by omega) le_rfl hv hu huv hjet hderiv
+          domain received (by omega) hkA hAn (stageRoots j)
+          (fun P hP ↦ (haccept P (Finset.mem_filter.mp hP).1).1)
+          (fun P hP ↦ (Finset.mem_filter.mp hP).2.1)
+          (fun P hP ↦ by
+            simpa only [show (Fin.last 1 : Fin 2) = 1 by decide] using
+              (Finset.mem_filter.mp hP).2.2)
+          hbin
+          (fun P hP ↦ (haccept P (Finset.mem_filter.mp hP).1).2)
     have hnum : n - (D + 1) + 1 = n - D := by omega
     have hden : A - (D + 1) + 1 = A - D := by omega
     rw [hnum, hden] at hbound
@@ -633,9 +724,7 @@ theorem finite_firstOrder_field_hybrid_agreement_solutions_card_le_raw
     rw [Nat.choose_one_right]
     exact natCast_ne_zero_of_max_char_guard hchar (by omega) (by omega)
   have htau : TaylorExponentSufficient 1 (D + 1) (hybridTau D) := by
-    convert taylorExponentSufficient_two_mul_sub_three 1 (K := D + 1) (by omega) using 1
-    unfold hybridTau
-    omega
+    simpa only [hybridTau] using taylorExponentSufficient_firstOrder_tight D
   let tailRoots := S.filter fun P ↦
     differentialSpecialization descent.tail.equation P = 0
   let stageRoots : Fin e → Finset F[X] := fun j ↦ S.filter fun P ↦
@@ -666,18 +755,35 @@ theorem finite_firstOrder_field_hybrid_agreement_solutions_card_le_raw
       exact descent.stage_jetWeight_le j (Nat.le_of_lt hj)
     have hderiv : jetDegree (firstOrderFieldDerivativeStage Q j) 1 ≤ e - j :=
       (descent.stage_degree j (Nat.le_of_lt hj)).le
-    have hbound := finite_regular_agreement_solutions_card_le_derivativeCapped_of_exponent
-      (firstOrderFieldDerivativeStage Q j)
-      (D + 1) (D + 1) (mu - j) (e - j) (hybridTau D)
-      htau (by unfold hybridTau; omega) (by omega) le_rfl hv hu huv hjet hderiv
-      domain received (by omega) hkA hAn (stageRoots j)
-      (fun P hP ↦ (haccept P (Finset.mem_filter.mp hP).1).1)
-      (fun P hP ↦ (Finset.mem_filter.mp hP).2.1)
-      (fun P hP ↦ by
-        simpa only [show (Fin.last 1 : Fin 2) = 1 by decide] using
-          (Finset.mem_filter.mp hP).2.2)
-      hbin
-      (fun P hP ↦ (haccept P (Finset.mem_filter.mp hP).1).2)
+    have hbound : ((stageRoots j).card : ℚ) ≤
+        firstOrderCurveFiberStageOne (D + 1) (mu - j) (e - j) (hybridTau D) *
+          (((n - (D + 1) + 1 : ℕ) : ℚ) / (A - (D + 1) + 1 : ℕ)) := by
+      by_cases hDone : D = 1
+      · subst D
+        have hn1 : n - 2 + 1 = n - 1 := by omega
+        have hA1 : A - 2 + 1 = A - 1 := by omega
+        simpa only [Nat.reduceAdd, hybridTau, Nat.reduceMul, Nat.reduceSub, hn1, hA1] using
+          finite_regular_agreement_solutions_card_le_identityPair
+            (firstOrderFieldDerivativeStage Q j) (mu - j) (e - j) hjet
+            domain received (by omega) hAn (stageRoots j)
+            (fun P hP ↦ (haccept P (Finset.mem_filter.mp hP).1).1)
+            (fun P hP ↦ (Finset.mem_filter.mp hP).2.1)
+            (fun P hP ↦ by
+              simpa only [show (Fin.last 1 : Fin 2) = 1 by decide] using
+                (Finset.mem_filter.mp hP).2.2)
+            (fun P hP ↦ (haccept P (Finset.mem_filter.mp hP).1).2)
+      · exact finite_regular_agreement_solutions_card_le_derivativeCapped_of_exponent
+          (firstOrderFieldDerivativeStage Q j)
+          (D + 1) (D + 1) (mu - j) (e - j) (hybridTau D)
+          htau (by unfold hybridTau; omega) (by omega) le_rfl hv hu huv hjet hderiv
+          domain received (by omega) hkA hAn (stageRoots j)
+          (fun P hP ↦ (haccept P (Finset.mem_filter.mp hP).1).1)
+          (fun P hP ↦ (Finset.mem_filter.mp hP).2.1)
+          (fun P hP ↦ by
+            simpa only [show (Fin.last 1 : Fin 2) = 1 by decide] using
+              (Finset.mem_filter.mp hP).2.2)
+          hbin
+          (fun P hP ↦ (haccept P (Finset.mem_filter.mp hP).1).2)
     have hnum : n - (D + 1) + 1 = n - D := by omega
     have hden : A - (D + 1) + 1 = A - D := by omega
     rw [hnum, hden] at hbound

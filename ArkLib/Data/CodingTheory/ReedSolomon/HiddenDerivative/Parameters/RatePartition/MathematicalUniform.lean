@@ -38,6 +38,13 @@ def uniformRatePartitionMathematicalJetBound (δ : ℝ) : ℕ :=
 def uniformRatePartitionMathematicalLength (δ : ℝ) : ℕ :=
   uniformRatePartitionMathematicalJetBound δ + 1
 
+/-- Shared 300-based length threshold for characteristic-uniform list and line bounds.
+The first term supports interpolation; the second places jet-bounded message dimensions in the
+characteristic-free Johnson regime. -/
+def uniformCapacityLengthThreshold300 (δ : ℝ) : ℕ :=
+  max (uniformRatePartitionMathematicalLength δ)
+    ⌈(4 : ℝ) * uniformRatePartitionMathematicalJetBound δ / δ ^ 2⌉₊
+
 /-- On the admissible branch, the manuscript's `Bjet + 1` threshold is exactly the rounded
 multiplicity-to-gap ratio. -/
 theorem uniformRatePartitionMathematicalLength_eq_ceil {δ : ℝ}

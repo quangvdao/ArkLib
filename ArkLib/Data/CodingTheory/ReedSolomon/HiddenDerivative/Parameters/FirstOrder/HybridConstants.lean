@@ -49,8 +49,10 @@ noncomputable section
 
 /-! ## Regular-stage sums and their closed staircase bound -/
 
-/-- The denominator exponent `tau = 2D-1` used by first-order specialization. -/
-def hybridTau (D : ℕ) : ℕ := 2 * D - 1
+/-- The exact order-one regular-chart denominator exponent `tau_D = max(0, 2D-3)`, represented
+by natural subtraction. It is positive on the regular-chart path `2 ≤ D` and zero at the
+separate degree-one identity-pair endpoint. The ordinary/order-zero exponent remains `2D-1`. -/
+def hybridTau (D : ℕ) : ℕ := 2 * D - 3
 
 /-- The raw generic-fiber degree sum `B₁(e)` over the `e` regular derivative stages. -/
 def hybridB1 (D μ e : ℕ) : ℕ :=
@@ -127,22 +129,30 @@ theorem hybridMoment_cast_eq_hybridT {μ M : ℕ} (hMμ : M ≤ μ) :
 /-- The cleared total-coordinate degree at a regular stage is at most `2Dj`. -/
 theorem firstOrderTaylorTotalCap_le_two_mul {D j : ℕ} (hD : 1 ≤ D) (hj : 1 ≤ j) :
     firstOrderTaylorTotalCap j (hybridTau D) ≤ 2 * D * j := by
+  by_cases hDone : D = 1
+  · subst D
+    simp [firstOrderTaylorTotalCap, hybridTau]
+    omega
   unfold firstOrderTaylorTotalCap hybridTau
   rw [← Nat.cast_le (α := ℤ)]
-  push_cast [Nat.cast_sub (by omega : 1 ≤ 2 * D), Nat.cast_sub hj]
+  push_cast [Nat.cast_sub (by omega : 3 ≤ 2 * D), Nat.cast_sub hj]
   nlinarith
 
 /-- The cleared derivative-coordinate degree at a regular stage is at most `2Dq`. -/
 theorem firstOrderTaylorDerivativeCap_le_two_mul {D j q : ℕ}
     (hD : 1 ≤ D) (hq : 1 ≤ q) :
     firstOrderTaylorDerivativeCap (D + 1) j q (hybridTau D) ≤ 2 * D * q := by
+  by_cases hDone : D = 1
+  · subst D
+    simp [firstOrderTaylorDerivativeCap, hybridTau]
+    omega
   calc
     firstOrderTaylorDerivativeCap (D + 1) j q (hybridTau D) ≤
         hybridTau D * (q - 1) + ((D + 1) - 1) := min_le_right _ _
     _ ≤ 2 * D * q := by
       unfold hybridTau
       rw [← Nat.cast_le (α := ℤ)]
-      push_cast [Nat.cast_sub (by omega : 1 ≤ 2 * D), Nat.cast_sub hq]
+      push_cast [Nat.cast_sub (by omega : 3 ≤ 2 * D), Nat.cast_sub hq]
       nlinarith
 
 /-- A regular fixed-fiber degree is bounded by its cap-sensitive quadratic envelope. -/

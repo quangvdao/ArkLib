@@ -26,13 +26,13 @@ It imports maintained concrete parameter instantiations without introducing a de
 `ArkLibExamples.ReedSolomon.CurveMigration` is the semantic owner for the 32 application curves
 used by the current paper. Every row applies
 `ReedSolomon.CurveCertificate.exists_exceptional_exact_powerAgreement_best`, so the returned bound
-is the minimum of independently proved optimized-hybrid and factorwise-squarefree compatibility
-envelopes and still has an exact power-agreement theorem. The squarefree compatibility expression
-keeps the historical ordinary threshold `L₀ = D+1`, preserving the application constants already
-checked by the paper's arithmetic ledger. The reusable mathematical guide also exposes
+is the minimum of independently proved successive-stage and factorwise-squarefree bounds and
+still has an exact power-agreement theorem. The squarefree term uses the ordinary threshold
+`L₀ = D+1`. The reusable mathematical guide also exposes
 `exists_exceptional_exact_powerAgreement_best_optimized`, whose independently minimized ordinary
 threshold is the paper-exact factorwise objective and is proved no larger. The application rows
-deliberately do not replace their frozen constants with that potentially smaller value.
+keep their chosen code parameters and retention thresholds; ZisK and LambdaVM record exact
+squarefree ceilings using the tight Taylor exponent `max(0, 2D-3)`.
 
 * The 15 ProveKit curves are exposed by
   `ArkLibExamples.ReedSolomon.CurveMigration.ProveKit.passportOuter_exists_exceptional_best` for
@@ -48,13 +48,13 @@ deliberately do not replace their frozen constants with that potentially smaller
 * `ArkLibExamples.ReedSolomon.CurveMigration.LambdaVM.exists_exceptional_best` covers all nine
   LambdaVM CPU curves.
 
-## Budget, query, and payload capstones
+## Budget, query, and byte-count theorems
 
 These theorems separate inputs from deductions. Curve dimensions, field sizes, proof-system
 schedules, measured compressed sizes, and fitted compression ratios are explicit constants or
 protocol assumptions. Lean proves the exceptional-set inequalities, query arithmetic, interval
 bounds, and byte identities that follow from them. A phase-local certificate does not by itself
-claim security for a deployed transcript, and an expected payload calculation is not a serializer
+claim security for a deployed transcript, and an expected byte count is not a serializer
 or a fresh measurement.
 
 * ProveKit schedule witnesses are
@@ -63,13 +63,13 @@ or a fresh measurement.
   `ArkLibExamples.ReedSolomon.ProveKit.goldilocksLookupWitness_budget`, and
   `ArkLibExamples.ReedSolomon.ProveKit.goldilocksLookupBlind_budget`. The analytical alternatives
   are `ArkLibExamples.ReedSolomon.ProveKit.passportOuterAnalytical_budget` and
-  `ArkLibExamples.ReedSolomon.ProveKit.goldilocksLookupAnalytical_budget`. The current payload
+  `ArkLibExamples.ReedSolomon.ProveKit.goldilocksLookupAnalytical_budget`. The byte-count
   conclusions are `ArkLibExamples.ReedSolomon.ProveKit.passportExpectedSaving_interval`,
   `ArkLibExamples.ReedSolomon.ProveKit.goldilocksLookupExpectedSaving_interval`,
   `ArkLibExamples.ReedSolomon.ProveKit.passportAnalyticalExpectedSaving_interval`, and
   `ArkLibExamples.ReedSolomon.ProveKit.goldilocksLookupAnalyticalExpectedSaving_interval`, all in
   `ArkLibExamples.ReedSolomon.ProveKit`. The budgets certify the stated phase allocations from the
-  supplied schedule and field assumptions. The payload theorems prove exact rational expectation
+  supplied schedule and field assumptions. The byte-count theorems prove exact rational expectation
   intervals from the checked tree model and supplied measurement inputs; they do not measure a
   deployment or combine unrelated protocol phases.
   `ScheduleBudget` covers per-round and adjacent-transition obligations only. For the separate
@@ -83,15 +83,21 @@ or a fresh measurement.
   by the stated final-STARK profile; it is a local algebraic error certificate, not an end-to-end
   soundness theorem.
   `ArkLibExamples.ReedSolomon.ZisK.queries_at_target` proves the 51-query target and
-  `ArkLibExamples.ReedSolomon.ZisK.proof_size` proves the 11,760-byte reduction.
+  `ArkLibExamples.ReedSolomon.ZisK.proof_size` proves an 11,760-byte reduction in the
+  field-and-hash model. That analytical identity is separate from the measured compressed-proof
+  reduction reported in the paper.
 * `ArkLibExamples.ReedSolomon.LambdaVM.CPU.exists_certified_cpu_budget` combines the nine curve
   sets, the complete candidate list, the early-anchor collision bound, and the 208-query local
   error.
   `ArkLibExamples.ReedSolomon.LambdaVM.CPU.proof_size` proves the 55,992-byte nominal reduction,
   while `ArkLibExamples.ReedSolomon.LambdaVM.CPU.expectedNetSaving_bounds` places the
   deduplicated expected saving strictly between 55,617 and 55,618 bytes. The trace dimensions,
-  query schedule, and payload model are inputs; Lean proves the combined local bound and the
-  resulting arithmetic, not whole-VM or whole-proof-system security.
+  query schedule, and byte-count model are inputs.
+  `ArkLibExamples.ReedSolomon.LambdaVM.CPU.serialized_proof_size` separately checks the recorded
+  59,832-byte reduction in both the CPU subproof and the complete benchmark proof. Its file
+  lengths and serialized response widths are empirical inputs, not facts derived from a verified
+  serializer. Lean proves the local error bound and the stated arithmetic, not the measurements,
+  runtime behavior, or whole-proof-system security.
 
 ## Optional companion and regression examples
 
@@ -105,7 +111,8 @@ of the current main paper.
 `11/50` and `439/2000`. Their exact parameters do not occur in the current paper sources; treat them
 as artifact and regression certificates rather than current-paper application rows.
 
-These modules prove concrete mathematical certificates and explicit schedule or payload identities.
+These modules prove concrete mathematical certificates and explicit schedule or byte-count
+identities.
 They do not formalize complete deployed transcripts, serializers, or an integrated implementation
 of the paper's fast decoder.
 -/

@@ -60,12 +60,26 @@ theorem taylorExponentSufficient_two_mul (r K : ℕ) :
   intro l
   omega
 
-/-- Once the chart contains at least two coefficients, all exact recurrence exponents fit
-under `2K - 3`. This includes `K = 2`, where the common exponent is one. First-order
-clients use this bound uniformly for their order-zero and order-one stages. -/
+/-- Once the chart contains at least two coefficients, every differential order admits
+the common exponent `2K - 3`. At `K = 2` this gives one. For an order-one equation,
+`taylorExponentSufficient_firstOrder_tight` gives the smaller exponent `2K - 5`,
+with natural subtraction; in particular, the initial pair needs no denominator. -/
 theorem taylorExponentSufficient_two_mul_sub_three (r : ℕ) {K : ℕ} (hK : 2 ≤ K) :
     TaylorExponentSufficient r K (2 * K - 3) := by
   intro l
+  omega
+
+/-- For a first-order equation and messages of degree at most `D`, the exact common Taylor
+exponent is `2D - 3`. Natural subtraction gives exponent zero at `D = 1`, where no coefficient
+after the initial pair is reconstructed. -/
+theorem taylorExponentSufficient_firstOrder_tight (D : ℕ) :
+    TaylorExponentSufficient 1 (D + 1) (2 * D - 3) := by
+  intro l
+  omega
+
+/-- The tight first-order exponent is no larger than the historical `2D - 1` exponent. -/
+theorem firstOrder_tight_exponent_le_legacy (D : ℕ) :
+    2 * D - 3 ≤ 2 * D - 1 := by
   omega
 
 /-- The separant as a polynomial in the initial jet coordinates at a fixed center. -/

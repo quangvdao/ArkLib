@@ -5,12 +5,14 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.FirstOrder.StageSum
+import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.Parameters.FirstOrder.HybridConstants
 import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.Taylor.Numerator
 /-!
 # Tight first-order curve stage-charge acceptance tests
 
-These examples cover the common-exponent boundary and the degenerate cap schedules used by the
-finite first-order curve bound.
+These examples cover valid common-exponent padding and degenerate cap schedules for the
+finite first-order curve bound. The Taylor exponent tests separately check the tighter
+order-one identity-pair endpoint.
 -/
 
 open PolynomialDifferential
@@ -19,12 +21,30 @@ namespace ReedSolomon.HiddenDerivative
 
 open SymbolicSeparantChain
 
-/-- Natural subtraction gives the tight common exponent one when `K = 2`. -/
+/-- The order-independent exponent `2K - 3` equals one when `K = 2`. -/
 example : 2 * (2 : ℕ) - 3 = 1 := by omega
 
-/-- That tight exponent is sufficient for the order-one Taylor chart. -/
+/-- This exponent is sufficient for an order-one chart, whose initial pair also permits zero. -/
 example : TaylorExponentSufficient 1 2 (2 * 2 - 3) :=
   taylorExponentSufficient_two_mul_sub_three 1 (by omega)
+
+/-- At degree one, the maintained regular chart uses the identity-pair caps `(b,c) = (1,1)`. -/
+example :
+    firstOrderTaylorTotalCap 5 (hybridTau 1) = 1 ∧
+      firstOrderTaylorDerivativeCap 2 5 2 (hybridTau 1) = 1 := by
+  norm_num [firstOrderTaylorTotalCap, firstOrderTaylorDerivativeCap, hybridTau]
+
+/-- At degree two, the tight exponent one distinguishes total degree five from derivative
+degree three; this unequal-cap case exercises the mixed-degree rather than diagonal formula. -/
+example :
+    firstOrderTaylorTotalCap 5 (hybridTau 2) = 5 ∧
+      firstOrderTaylorDerivativeCap 3 5 2 (hybridTau 2) = 3 ∧
+      firstOrderCurveFiberStageOne 3 5 2 (hybridTau 2) = 19 ∧
+      firstOrderCurveJointStageOne 3 3 7 5 2 (hybridTau 2) = 527 := by
+  norm_num [firstOrderTaylorTotalCap, firstOrderTaylorDerivativeCap,
+    firstOrderCurveFiberStageOne, firstOrderCurveJointStageOne, hybridTau,
+    AffineHilbert.mixedDerivativeImageDegree,
+    AffineHilbert.fixedFiberDerivativeImageDegree]
 
 /-- At the full-triangle boundary, the order-one joint factor is `λ₁ * η`. -/
 example : curveStageOne 2 3 5 (2 : ℚ) 5 7 4 4 (τ := 1) (η := 3) = 2576 := by

@@ -35,7 +35,7 @@ universe u
 open Classical in
 /-- A positive-first-derivative finite certificate gives the squarefree fixed-word list bound.
 The underlying semantic theorem retains the actual degrees of the reduced positive product;
-this certificate-facing statement exposes the convenient source-cap envelope. -/
+this certificate-facing statement exposes the tight regular-chart source-cap envelope. -/
 theorem firstOrder_finite_agreement_solutions_card_le_squarefree
     {F : Type u} [Field F] {D A m M μ k h n N : ℕ}
     (domain : Fin n ↪ F) (received : Fin n → F)
@@ -48,7 +48,7 @@ theorem firstOrder_finite_agreement_solutions_card_le_squarefree
     (S : Finset F[X])
     (hS : ∀ P ∈ S, IsAgreementSolution domain received k A P) :
     (S.card : ℝ) ≤
-      (firstOrderCurveFiberStageOne k μ M (2 * k - 3) : ℝ) *
+      (firstOrderCurveFiberStageOne k μ M (hybridTau (k - 1)) : ℝ) *
           ((n - k + 1 : ℕ) : ℝ) / (A - k + 1 : ℕ) +
         ordinaryDegreeEnvelope μ M := by
   let φ := Polynomial.eval₂RingHom (RingHom.id F) 0
@@ -77,7 +77,7 @@ theorem firstOrder_finite_agreement_solutions_card_le_squarefree
     domain received Q hQ (D := k - 1) (A := A) (B := μ) (M := M)
       (by omega) (by omega) hAn (by omega) hM hMμ hdegreeQ hfirstQ hchar S hsol
       (fun P hP ↦ by simpa only [show k - 1 + 1 = k by omega] using hS P hP)
-  simpa only [show k - 1 + 1 = k by omega, show 2 * (k - 1) - 1 = 2 * k - 3 by omega,
+  simpa only [show k - 1 + 1 = k by omega,
     show n - (k - 1) = n - k + 1 by omega, show A - (k - 1) = A - k + 1 by omega]
     using hsquarefree
 

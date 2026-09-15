@@ -58,14 +58,14 @@ theorem retainedSquarefreeCurveMCARaw_balanced_line_le
       M * (2 * B - M) ≤ M * (2 * B) := Nat.mul_le_mul_left _ (Nat.sub_le _ _)
       _ = 2 * B * M := by ring
   have hjoint :
-      (firstOrderCurveJointStageOne (D + 1) 1 H B M (2 * D - 1) : ℝ) ≤
+      (firstOrderCurveJointStageOne (D + 1) 1 H B M (hybridTau D) : ℝ) ≤
         (24 * D ^ 2 * H + 8 * D : ℕ) * B * M := by
     have hjointCast :
-        (firstOrderCurveJointStageOne (D + 1) 1 H B M (2 * D - 1) : ℝ) ≤
+        (firstOrderCurveJointStageOne (D + 1) 1 H B M (hybridTau D) : ℝ) ≤
           ((12 * D ^ 2 * H + 4 * D) * (M * (2 * B - M)) : ℕ) := by
       exact_mod_cast hjointNat
     calc
-      (firstOrderCurveJointStageOne (D + 1) 1 H B M (2 * D - 1) : ℝ) ≤
+      (firstOrderCurveJointStageOne (D + 1) 1 H B M (hybridTau D) : ℝ) ≤
           ((12 * D ^ 2 * H + 4 * D) * (M * (2 * B - M)) : ℕ) := hjointCast
       _ ≤ ((12 * D ^ 2 * H + 4 * D) * (2 * B * M) : ℕ) := by
         exact_mod_cast Nat.mul_le_mul_left (12 * D ^ 2 * H + 4 * D) hmoment
@@ -73,16 +73,16 @@ theorem retainedSquarefreeCurveMCARaw_balanced_line_le
         push_cast
         ring
   have hfiber :
-      (firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) : ℝ) ≤
+      (firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) : ℝ) ≤
         (4 * D * B * M : ℕ) := by
     exact_mod_cast hfiberNat
   have hregularEq :
       (regularSymbolicCurveMCADerivativeBoundTwo n 1 (D + 1) (D + 1)
-          L A B M H (2 * D - 1) : ℝ) =
+          L A B M H (hybridTau D) : ℝ) =
         hybridLambdaOne n A L * theta *
-            firstOrderCurveJointStageOne (D + 1) 1 H B M (2 * D - 1) +
+            firstOrderCurveJointStageOne (D + 1) 1 H B M (hybridTau D) +
           (n - L : ℕ) * hybridLambdaTwo n D L *
-            firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) := by
+            firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) := by
     simpa only [Nat.sub_zero, hybridTau, L, theta] using
       (regularSymbolicCurveMCADerivativeBoundTwo_eq_hybrid_stage
         (n := n) (D := D) (A := A) (L := L) (h := H) (mu := B) (e := M) (j := 0)
@@ -94,22 +94,22 @@ theorem retainedSquarefreeCurveMCARaw_balanced_line_le
     unfold hybridLambdaTwo
     positivity
   have hjoint0 :
-      0 ≤ (firstOrderCurveJointStageOne (D + 1) 1 H B M (2 * D - 1) : ℝ) := by
+      0 ≤ (firstOrderCurveJointStageOne (D + 1) 1 H B M (hybridTau D) : ℝ) := by
     positivity
   have hfiber0 :
-      0 ≤ (firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) : ℝ) := by
+      0 ≤ (firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) : ℝ) := by
     positivity
   have hregular :
       (regularSymbolicCurveMCADerivativeBoundTwo n 1 (D + 1) (D + 1)
-          L A B M H (2 * D - 1) : ℝ) ≤
+          L A B M H (hybridTau D) : ℝ) ≤
         (48 * D ^ 2 * H + 16 * D : ℕ) * theta ^ 2 * B * M +
           (8 * D * (n - D - 1) : ℕ) * theta * B * M := by
     rw [hregularEq]
     calc
       hybridLambdaOne n A L * theta *
-            firstOrderCurveJointStageOne (D + 1) 1 H B M (2 * D - 1) +
+            firstOrderCurveJointStageOne (D + 1) 1 H B M (hybridTau D) +
           (n - L : ℕ) * hybridLambdaTwo n D L *
-            firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) ≤
+            firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) ≤
         (2 * theta) * theta * ((24 * D ^ 2 * H + 8 * D : ℕ) * B * M) +
           (n - D - 1 : ℕ) * (2 * theta) * (4 * D * B * M : ℕ) := by
             gcongr

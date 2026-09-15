@@ -24,7 +24,7 @@ open ConcreteFields
 noncomputable section
 
 /-- One degree-103 shared-inner bound plus the degree-four outer bound. -/
-def batchingCount : ℕ := 4073324287379922825
+def batchingCount : ℕ := 4073087021134687044
 
 /-- The shared inner curve is paid once, independently of the five group widths. -/
 theorem batchingCount_eq :

@@ -99,7 +99,7 @@ theorem finite_factorwise_agreement_solutions_card_le_actual
     (S.card : ℝ) ≤
       (firstOrderCurveFiberStageOne (D + 1)
           (jetTotalDegree (positiveEquation Q))
-          (jetDegree (positiveEquation Q) 1) (2 * D - 1) : ℝ) *
+          (jetDegree (positiveEquation Q) 1) (hybridTau D) : ℝ) *
           ((n - D : ℕ) : ℝ) / (A - D : ℕ) + ordinaryDegreeEnvelope B M := by
   let regularRoots := S.filter fun P ↦
     differentialSpecialization (positiveEquation Q) P = 0 ∧
@@ -113,9 +113,8 @@ theorem finite_factorwise_agreement_solutions_card_le_actual
     intro i hi hiK
     rw [Nat.choose_one_right]
     exact natCast_ne_zero_of_factorwise_char_guard hchar (by omega) (by omega)
-  have htau : TaylorExponentSufficient 1 (D + 1) (2 * D - 1) := by
-    convert taylorExponentSufficient_two_mul_sub_three 1 (K := D + 1) (by omega) using 1
-    omega
+  have htau : TaylorExponentSufficient 1 (D + 1) (hybridTau D) := by
+    simpa only [hybridTau] using taylorExponentSufficient_firstOrder_tight D
   let j := jetTotalDegree (positiveEquation Q)
   let r := jetDegree (positiveEquation Q) (1 : Fin 2)
   have hrj : r ≤ j := jetDegree_le_total (positiveEquation Q) 1
@@ -124,7 +123,7 @@ theorem finite_factorwise_agreement_solutions_card_le_actual
   have hpositiveDerivative : r ≤ M :=
     (positiveEquation_yOneDegree_le Q hQ).trans hderiv
   have hregularCardQ : (regularRoots.card : ℚ) ≤
-      firstOrderCurveFiberStageOne (D + 1) j r (2 * D - 1) *
+      firstOrderCurveFiberStageOne (D + 1) j r (hybridTau D) *
         (((n - (D + 1) + 1 : ℕ) : ℚ) / ((A - (D + 1) + 1 : ℕ) : ℚ)) := by
     by_cases hr : r = 0
     · have hempty : regularRoots = ∅ := by
@@ -147,22 +146,35 @@ theorem finite_factorwise_agreement_solutions_card_le_actual
         · simp
       rw [hempty]
       positivity
-    · apply finite_regular_agreement_solutions_card_le_derivativeCapped_of_exponent
-        (positiveEquation Q) (D + 1) (D + 1) j r (2 * D - 1)
-        htau (by omega) (by omega) le_rfl (by omega) (by omega) hrj le_rfl le_rfl
-        domain received (by omega) hkA hAn regularRoots
-      · intro P hP
-        exact (haccept P (Finset.mem_filter.mp hP).1).1
-      · intro P hP
-        exact (Finset.mem_filter.mp hP).2.1
-      · intro P hP
-        simpa only [show (Fin.last 1 : Fin 2) = 1 by decide] using
-          (Finset.mem_filter.mp hP).2.2
-      · exact hbin
-      · intro P hP
-        exact (haccept P (Finset.mem_filter.mp hP).1).2
+    · by_cases hDone : D = 1
+      · subst D
+        have hn : n - 2 + 1 = n - 1 := by omega
+        have hA' : A - 2 + 1 = A - 1 := by omega
+        simpa only [Nat.reduceAdd, hybridTau, Nat.reduceMul, Nat.reduceSub, hn, hA'] using
+          finite_regular_agreement_solutions_card_le_identityPair
+            (positiveEquation Q) j r le_rfl domain received (by omega) hAn regularRoots
+            (fun P hP ↦ (haccept P (Finset.mem_filter.mp hP).1).1)
+            (fun P hP ↦ (Finset.mem_filter.mp hP).2.1)
+            (fun P hP ↦ by
+              simpa only [show (Fin.last 1 : Fin 2) = 1 by decide] using
+                (Finset.mem_filter.mp hP).2.2)
+            (fun P hP ↦ (haccept P (Finset.mem_filter.mp hP).1).2)
+      · apply finite_regular_agreement_solutions_card_le_derivativeCapped_of_exponent
+          (positiveEquation Q) (D + 1) (D + 1) j r (hybridTau D)
+          htau (by unfold hybridTau; omega) (by omega) le_rfl (by omega) (by omega) hrj le_rfl
+          le_rfl domain received (by omega) hkA hAn regularRoots
+        · intro P hP
+          exact (haccept P (Finset.mem_filter.mp hP).1).1
+        · intro P hP
+          exact (Finset.mem_filter.mp hP).2.1
+        · intro P hP
+          simpa only [show (Fin.last 1 : Fin 2) = 1 by decide] using
+            (Finset.mem_filter.mp hP).2.2
+        · exact hbin
+        · intro P hP
+          exact (haccept P (Finset.mem_filter.mp hP).1).2
   have hregularCard : (regularRoots.card : ℝ) ≤
-      (firstOrderCurveFiberStageOne (D + 1) j r (2 * D - 1) : ℝ) *
+      (firstOrderCurveFiberStageOne (D + 1) j r (hybridTau D) : ℝ) *
         ((n - D : ℕ) : ℝ) / (A - D : ℕ) := by
     have hcast := (Rat.cast_le (K := ℝ)).mpr hregularCardQ
     have hnum : n - (D + 1) + 1 = n - D := by omega
@@ -198,7 +210,7 @@ theorem finite_factorwise_agreement_solutions_card_le_actual
         _ ≤ regularRoots.card + tailRoots.card := Finset.card_union_le _ _)
   calc
     (S.card : ℝ) ≤ regularRoots.card + tailRoots.card := hcard
-    _ ≤ (firstOrderCurveFiberStageOne (D + 1) j r (2 * D - 1) : ℝ) *
+    _ ≤ (firstOrderCurveFiberStageOne (D + 1) j r (hybridTau D) : ℝ) *
           ((n - D : ℕ) : ℝ) / (A - D : ℕ) + ordinaryDegreeEnvelope B M :=
       add_le_add hregularCard htailCard
 
@@ -218,24 +230,24 @@ theorem finite_factorwise_agreement_solutions_card_le
     (hsol : ∀ P ∈ S, differentialSpecialization Q P = 0)
     (haccept : ∀ P ∈ S, IsAgreementSolution domain received (D + 1) A P) :
     (S.card : ℝ) ≤
-      (firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) : ℝ) *
+      (firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) : ℝ) *
           ((n - D : ℕ) : ℝ) / (A - D : ℕ) + ordinaryDegreeEnvelope B M := by
   let j := jetTotalDegree (positiveEquation Q)
   let r := jetDegree (positiveEquation Q) (1 : Fin 2)
   have hrj : r ≤ j := jetDegree_le_total (positiveEquation Q) 1
   have hjB : j ≤ B := (positiveEquation_jetTotalDegree_le Q hQ).trans hjet
   have hrM : r ≤ M := (positiveEquation_yOneDegree_le Q hQ).trans hderiv
-  have hstage : firstOrderCurveFiberStageOne (D + 1) j r (2 * D - 1) ≤
-      firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) :=
+  have hstage : firstOrderCurveFiberStageOne (D + 1) j r (hybridTau D) ≤
+      firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) :=
     (firstOrderCurveFiberStageOne_mono_total hrj hjB).trans
       (firstOrderCurveFiberStageOne_mono_derivative hrM hMB)
   have hactual := finite_factorwise_agreement_solutions_card_le_actual domain received Q hQ
     hD hkA hAn hB hM hMB hjet hderiv hchar tail S hsol haccept
   calc
     (S.card : ℝ) ≤
-        (firstOrderCurveFiberStageOne (D + 1) j r (2 * D - 1) : ℝ) *
+        (firstOrderCurveFiberStageOne (D + 1) j r (hybridTau D) : ℝ) *
             ((n - D : ℕ) : ℝ) / (A - D : ℕ) + ordinaryDegreeEnvelope B M := hactual
-    _ ≤ (firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) : ℝ) *
+    _ ≤ (firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) : ℝ) *
           ((n - D : ℕ) : ℝ) / (A - D : ℕ) + ordinaryDegreeEnvelope B M := by
       gcongr
 

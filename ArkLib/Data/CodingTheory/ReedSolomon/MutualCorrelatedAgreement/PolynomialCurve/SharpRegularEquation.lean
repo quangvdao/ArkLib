@@ -375,9 +375,10 @@ theorem finite_sourceCurve_points_off_tuples_card_le_hybrid_two_of_exponent
     [DecidableEq F] [IsAlgClosed E]
     (domain : Fin n ↪ F) (w : Fin (ℓ + 1) → Fin n → F) (iota : F →+* E)
     (center : E) (Q : DifferentialPolynomial E[X] 1) (K k L A v h τ : ℕ)
-    (hτ : TaylorExponentSufficient 1 K τ) (hτpos : 0 < τ)
+    (hτ : TaylorExponentSufficient 1 K τ)
+    (ha : 0 < sourceCurveCutChallengeDegree ℓ K h (τ := τ))
     (hK : 1 < K) (hkK : k ≤ K) (hkL : k ≤ L) (hLA : L ≤ A) (hAn : A ≤ n)
-    (hD : 0 < ℓ + h) (hv : 0 < v)
+    (hv : 0 < v)
     (hinit : symbolicSourceInitialEquation center Q ≠ 0)
     (hjet : Q.weightedTotalDegree (fun i ↦ i.elim 0 (fun _ ↦ 1)) ≤ v)
     (hheight : ChallengeHeightLE Q h)
@@ -405,12 +406,6 @@ theorem finite_sourceCurve_points_off_tuples_card_le_hybrid_two_of_exponent
   let cuts : Fin n → MvPolynomial (Option (Fin 2)) E := fun i ↦
     symbolicSourceCurveAgreement_of_exponent center Q K τ (iota (domain i))
       (fun t ↦ iota (w t i))
-  have ha : 0 < sourceCurveCutChallengeDegree ℓ K h (τ := τ) := by
-    unfold sourceCurveCutChallengeDegree
-    by_cases hℓ : 0 < ℓ
-    · omega
-    · have hh : 0 < h := by omega
-      exact Nat.add_pos_right ℓ (Nat.mul_pos hτpos hh)
   have hb : 0 < sourceCurveCutJetDegree K v (τ := τ) := by
     simp only [sourceCurveCutJetDegree]
     omega
@@ -419,10 +414,6 @@ theorem finite_sourceCurve_points_off_tuples_card_le_hybrid_two_of_exponent
   apply bidegreeHypersurface_source_incidence_off_excluded_hybrid_two
     ha hb hLA (hkL.trans hLA) hAn g s hinit hproper
       (symbolicSourceInitialEquation_mem_restrictBidegree center Q h v hheight hjet)
-      (symbolicSourceInitialEquation_mem_sourceCurveCutBidegree_of_exponent
-        center Q ℓ K h v τ hτpos hv hheight hjet)
-      (symbolicSourceSeparant_mem_sourceCurveCutBidegree_of_exponent
-        center Q ℓ K h v τ hτpos hheight hjet)
       high ?_ cuts ?_
       (sourceCurveTupleLocus_of_exponent domain w iota center Q K k L τ) ?_ ?_ S ?_ ?_
   · exact sourceCurveHighCuts_mem_sourceCurveCutBidegree_of_exponent
@@ -629,6 +620,12 @@ theorem finite_sourceCurve_bad_challenges_card_le_hybrid_two_of_exponent
   obtain ⟨z₀, hz₀⟩ := Finset.nonempty_iff_ne_empty.mpr hempty
   have hinit := sharp_source_initial_ne_zero_of_regular center z₀ Q (jet z₀)
     (hchart z₀ hz₀).2.2.1
+  have ha : 0 < sourceCurveCutChallengeDegree ℓ K h (τ := τ) := by
+    unfold sourceCurveCutChallengeDegree
+    by_cases hℓ : 0 < ℓ
+    · omega
+    · have hh : 0 < h := by omega
+      exact Nat.add_pos_right ℓ (Nat.mul_pos hτpos hh)
   unfold regularSymbolicCurveMCASharpBoundTwo
   convert (finite_sourceCurve_bad_challenges_card_le_of_source_bound_of_exponent
       domain w iota center Q K k L A v τ hτ hK hkK hk hkL hLA hAn hjet
@@ -636,7 +633,7 @@ theorem finite_sourceCurve_bad_challenges_card_le_hybrid_two_of_exponent
         (((n - L + 1 : ℕ) : ℚ) / ((A - L + 1 : ℕ) : ℚ)) *
           (((n - k + 1 : ℕ) : ℚ) / ((A - k + 1 : ℕ) : ℚ)))
       (fun S hS hA ↦ finite_sourceCurve_points_off_tuples_card_le_hybrid_two_of_exponent
-        domain w iota center Q K k L A v h τ hτ hτpos hK hkK hkL hLA hAn hD hv
+        domain w iota center Q K k L A v h τ hτ ha hK hkK hkL hLA hAn hv
           hinit hjet hheight S hS hA)
       challenges witness jet hchart hagree hbad) using 1
   simp only [dimensionSensitiveIncidenceProduct_one, Nat.mul_one]

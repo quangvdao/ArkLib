@@ -445,14 +445,14 @@ theorem bidegreeHypersurface_hilbertPolynomial_natDegree [Finite σ]
       bidegreeHypersurfaceIdeal a b g)
       (MvPolynomial (Option σ) F ⧸ Ideal.span {g})) e₀.surjective
 
-/-- A bounded source hypersurface pulls back to the linear lift modulo the
-prime ideal of the rectangle presentation. -/
-theorem bidegreeHypersurfaceIdeal_eq_sup (a b : ℕ)
-    (g : MvPolynomial (Option σ) F)
-    (hg : g ∈ restrictBidegree (F := F) (σ := σ) a b)
+/-- Any chosen preimage of a source equation cuts out its pulled-back hypersurface modulo the
+prime ideal of the rectangle presentation. The preimage need not be a bounded linear lift. -/
+theorem bidegreeHypersurfaceIdeal_eq_sup_of_map_eq (a b : ℕ)
+    (g : MvPolynomial (Option σ) F) (gl : MvPolynomial (BidegreeIndex a b σ) F)
+    (hgl : bidegreeMap a b gl = g)
     (ha : 0 < a) (hb : 0 < b) :
     bidegreeHypersurfaceIdeal a b g =
-      bidegreeIdeal a b ⊔ Ideal.span {bidegreeLift a b g hg} := by
+      bidegreeIdeal a b ⊔ Ideal.span {gl} := by
   apply le_antisymm
   · intro P hP
     change Ideal.Quotient.mk (Ideal.span {g}) (bidegreeMap a b P) = 0 at hP
@@ -460,14 +460,14 @@ theorem bidegreeHypersurfaceIdeal_eq_sup (a b : ℕ)
     obtain ⟨r, hr⟩ := hP
     obtain ⟨R, hR⟩ := bidegreeMap_surjective (F := F) a b ha hb r
     rw [← hR] at hr
-    have hk : P - R * bidegreeLift a b g hg ∈ bidegreeIdeal a b := by
-      change bidegreeMap a b (P - R * bidegreeLift a b g hg) = 0
-      rw [map_sub, map_mul, bidegreeMap_bidegreeLift, hr, sub_self]
-    have hl : R * bidegreeLift a b g hg ∈ Ideal.span {bidegreeLift a b g hg} :=
-      (Ideal.span {bidegreeLift a b g hg}).mul_mem_left R
+    have hk : P - R * gl ∈ bidegreeIdeal a b := by
+      change bidegreeMap a b (P - R * gl) = 0
+      rw [map_sub, map_mul, hgl, hr, sub_self]
+    have hl : R * gl ∈ Ideal.span {gl} :=
+      (Ideal.span {gl}).mul_mem_left R
         (Ideal.subset_span (Set.mem_singleton _))
-    rw [show P = (P - R * bidegreeLift a b g hg) + R * bidegreeLift a b g hg by ring]
-    exact (bidegreeIdeal a b ⊔ Ideal.span {bidegreeLift a b g hg}).add_mem
+    rw [show P = (P - R * gl) + R * gl by ring]
+    exact (bidegreeIdeal a b ⊔ Ideal.span {gl}).add_mem
       (Ideal.mem_sup_left hk) (Ideal.mem_sup_right hl)
   · apply sup_le
     · intro P hP
@@ -479,10 +479,20 @@ theorem bidegreeHypersurfaceIdeal_eq_sup (a b : ℕ)
       intro P hP
       simp only [Set.mem_singleton_iff] at hP
       subst P
-      change Ideal.Quotient.mk (Ideal.span {g})
-        (bidegreeMap a b (bidegreeLift a b g hg)) = 0
-      rw [bidegreeMap_bidegreeLift, Ideal.Quotient.eq_zero_iff_mem]
-      exact Ideal.subset_span (Set.mem_singleton g)
+      change Ideal.Quotient.mk (Ideal.span {g}) (bidegreeMap a b gl) = 0
+      rw [hgl, Ideal.Quotient.eq_zero_iff_mem]
+      exact Ideal.subset_span (Set.mem_singleton _)
+
+/-- A bounded source hypersurface pulls back to its canonical linear lift modulo the prime
+ideal of the rectangle presentation. -/
+theorem bidegreeHypersurfaceIdeal_eq_sup (a b : ℕ)
+    (g : MvPolynomial (Option σ) F)
+    (hg : g ∈ restrictBidegree (F := F) (σ := σ) a b)
+    (ha : 0 < a) (hb : 0 < b) :
+    bidegreeHypersurfaceIdeal a b g =
+      bidegreeIdeal a b ⊔ Ideal.span {bidegreeLift a b g hg} := by
+  exact bidegreeHypersurfaceIdeal_eq_sup_of_map_eq a b g (bidegreeLift a b g hg)
+    (bidegreeMap_bidegreeLift a b g hg) ha hb
 
 /-- The ordinary degree-`N` filtration of the lifted hypersurface injects into its
 source rectangle of bidegree `(a*N,b*N)`. -/
@@ -705,8 +715,7 @@ the actual degree of the pulled-back ideal. -/
 theorem bidegreeHypersurface_sum_minimalPrimes_affineDegree_le [Finite σ]
     {a b : ℕ} {g : MvPolynomial (Option σ) F}
     (ha : 0 < a) (hb : 0 < b) (hne : g ≠ 0)
-    (hproper : Ideal.span ({g} : Set (MvPolynomial (Option σ) F)) ≠ ⊤)
-    (hg : g ∈ restrictBidegree (F := F) (σ := σ) a b) :
+    (hproper : Ideal.span ({g} : Set (MvPolynomial (Option σ) F)) ≠ ⊤) :
     ∑ Q ∈ minimalPrimesFinset (bidegreeHypersurfaceIdeal a b g), affineDegree Q ≤
       affineDegree (bidegreeHypersurfaceIdeal a b g) := by
   let d := (hilbertPolynomial (Ideal.span {g})).natDegree
@@ -714,16 +723,17 @@ theorem bidegreeHypersurface_sum_minimalPrimes_affineDegree_le [Finite σ]
     bidegreeHypersurface_hilbertPolynomial_natDegree a b g ha hb hproper
   have hbase := bidegreeIdeal_hilbertPolynomial_natDegree (F := F) (σ := σ) a b ha hb
   have hsource := hilbertPolynomial_span_singleton_natDegree_add_one hne hproper
-  have hlift : bidegreeLift a b g hg ∉ bidegreeIdeal a b := by
+  obtain ⟨gl, hgl⟩ := bidegreeMap_surjective (F := F) a b ha hb g
+  have hlift : gl ∉ bidegreeIdeal a b := by
     intro h
-    change bidegreeMap a b (bidegreeLift a b g hg) = 0 at h
-    rw [bidegreeMap_bidegreeLift] at h
+    change bidegreeMap a b gl = 0 at h
+    rw [hgl] at h
     exact hne h
   apply sum_minimalPrimes_affineDegree_le_of_equidimensional
     (bidegreeHypersurfaceIdeal a b g) d hJdeg
   intro Q hQ
-  have hQ' : Q ∈ (bidegreeIdeal a b ⊔ Ideal.span {bidegreeLift a b g hg}).minimalPrimes := by
-    rw [← bidegreeHypersurfaceIdeal_eq_sup a b g hg ha hb]
+  have hQ' : Q ∈ (bidegreeIdeal a b ⊔ Ideal.span {gl}).minimalPrimes := by
+    rw [← bidegreeHypersurfaceIdeal_eq_sup_of_map_eq a b g gl hgl ha hb]
     exact mem_minimalPrimesFinset.mp hQ
   have hpure := principalCut_component_hilbertPolynomial_natDegree_add_one
     (bidegreeIdeal_isPrime a b) hlift hQ'
@@ -735,22 +745,20 @@ theorem bidegreeHypersurface_sum_minimalPrimes_affineDegree_le_one
     {a b h v : ℕ} {g : MvPolynomial (Option (Fin 1)) F}
     (ha : 0 < a) (hb : 0 < b) (hne : g ≠ 0)
     (hproper : Ideal.span ({g} : Set (MvPolynomial (Option (Fin 1)) F)) ≠ ⊤)
-    (hg : g ∈ restrictBidegree (F := F) (σ := Fin 1) h v)
-    (hgAB : g ∈ restrictBidegree (F := F) (σ := Fin 1) a b) :
+    (hg : g ∈ restrictBidegree (F := F) (σ := Fin 1) h v) :
     ∑ Q ∈ minimalPrimesFinset (bidegreeHypersurfaceIdeal a b g), affineDegree Q ≤
       (h * b + v * a : ℕ) :=
-  (bidegreeHypersurface_sum_minimalPrimes_affineDegree_le ha hb hne hproper hgAB).trans
+  (bidegreeHypersurface_sum_minimalPrimes_affineDegree_le ha hb hne hproper).trans
     (bidegreeHypersurface_affineDegree_le_one ha hb hne hproper hg)
 
 theorem bidegreeHypersurface_sum_minimalPrimes_affineDegree_le_two
     {a b h v : ℕ} {g : MvPolynomial (Option (Fin 2)) F}
     (ha : 0 < a) (hb : 0 < b) (hne : g ≠ 0)
     (hproper : Ideal.span ({g} : Set (MvPolynomial (Option (Fin 2)) F)) ≠ ⊤)
-    (hg : g ∈ restrictBidegree (F := F) (σ := Fin 2) h v)
-    (hgAB : g ∈ restrictBidegree (F := F) (σ := Fin 2) a b) :
+    (hg : g ∈ restrictBidegree (F := F) (σ := Fin 2) h v) :
     ∑ Q ∈ minimalPrimesFinset (bidegreeHypersurfaceIdeal a b g), affineDegree Q ≤
       (h * b ^ 2 + 2 * v * a * b : ℕ) :=
-  (bidegreeHypersurface_sum_minimalPrimes_affineDegree_le ha hb hne hproper hgAB).trans
+  (bidegreeHypersurface_sum_minimalPrimes_affineDegree_le ha hb hne hproper).trans
     (bidegreeHypersurface_affineDegree_le_two ha hb hne hproper hg)
 
 end AffineHilbert

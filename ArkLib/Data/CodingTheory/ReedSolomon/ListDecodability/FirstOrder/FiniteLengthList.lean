@@ -146,8 +146,7 @@ theorem closePolynomialSet_finite_and_card_le_finiteLength_of_certificate
     have hnumeric := squarefreeListExpression_le_finiteLength
       hC heta (show 1 ≤ n by omega) hsOne (show 1 ≤ k - 1 by omega)
       (show k - 1 ≤ n by omega) hM hMmu hlambda0 (by simpa only [lambda] using hlambda) hmu
-    simpa only [lambda, bound, show k - 1 + 1 = k by omega,
-      show 2 * (k - 1) - 1 = 2 * k - 3 by omega, mul_div_assoc] using hnumeric
+    simpa only [lambda, bound, show k - 1 + 1 = k by omega, mul_div_assoc] using hnumeric
   have hfinite : T.Finite := closePolynomialSet_finite domain received hkA
   refine ⟨hfinite, ?_⟩
   rw [Set.ncard_eq_toFinset_card _ hfinite]

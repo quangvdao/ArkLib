@@ -14,10 +14,11 @@ public import ArkLib.Data.CodingTheory.ReedSolomon.HiddenDerivative.RootFinding.
 The first `K` Taylor coefficients admit any common denominator `S^τ` whose exponent
 dominates their exact recurrence exponents. Literal numerators then have total degree at
 most `1 + τ(v-1)`, where `S` is the initial separant and `v` is the total jet degree.
-The default `τ = 2K` keeps the arbitrary-order and `K < 2` interface. For `K ≥ 2`, the
-sharper `τ = 2K - 3` is sufficient at every order; finite first-order clients use it
-uniformly for their order-zero and order-one stages. The chart retains the initial coordinates
-and contains all regular solutions with invertible binomial pivots.
+The default `τ = 2K` covers arbitrary order, including `K < 2`. For `K ≥ 2`,
+`τ = 2K - 3` suffices at every order. An order-one equation admits the tighter
+`τ = max(0, 2K - 5)`: at `K = 2`, the chart is the identity on its initial pair.
+The chart retains the initial coordinates and contains all regular solutions with
+invertible binomial pivots.
 -/
 
 @[expose] public section

@@ -11,21 +11,22 @@ import ArkLibExamples.ReedSolomon.ZisK.Interpolation
 import ArkLibExamples.ReedSolomon.LambdaVM.Certificates
 
 /-!
-# Application migration to optimized hybrid curve recovery
+# Exact curve recovery for the application parameters
 
-The application profiles retain their independently proved squarefree recovery theorem and add
-optimized hybrid recovery.  Their new semantic envelope is the minimum of those two proved
-bounds, so it is automatically no worse than every existing squarefree application budget.
+Each application profile has independently proved squarefree and optimized successive-stage
+recovery bounds. Its semantic envelope is the minimum of those bounds and therefore also fits
+any certified squarefree budget.
 
-The ProveKit exceptional counts were conservatively stored from the older curve expression.  We
-record exact ceiling equalities for that literal legacy expression separately; unlike the ZisK
-and LambdaVM tables, they are not claimed to be exact ceilings of the smaller squarefree bound.
+The ProveKit exceptional counts are conservative upper bounds, not exact ceilings of this
+minimum. Their separate historical-comparison equalities concern the literal legacy expression.
+For ZisK and LambdaVM, the stored counts are exact ceilings of the squarefree bound with common
+Taylor exponent `max(0, 2D-3)`.
 
 The profiles and stored schedules are source-derived inputs, not measurements proved by Lean.
 The declarations below construct actual exceptional sets, prove their stored cardinality budgets,
 and return exact full-set power agreement. They do not verify a complete protocol transcript,
 serializer, or deployed system. The 15 ProveKit rows, eight ZisK rows, and nine LambdaVM rows are
-handled through their common family wrappers rather than 32 duplicated proofs.
+handled through common theorem families rather than 32 duplicated proofs.
 -/
 
 open Polynomial ReedSolomon

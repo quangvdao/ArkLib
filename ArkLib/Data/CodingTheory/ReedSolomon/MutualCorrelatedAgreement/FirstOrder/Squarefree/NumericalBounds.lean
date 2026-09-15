@@ -26,10 +26,10 @@ open ReedSolomon.HiddenDerivative
 /-- The regular fixed-word image costs at most `4 D B M`. -/
 theorem firstOrderCurveFiberStageOne_le_four_mul
     {D B M : ℕ} (hD : 1 ≤ D) (hM : 1 ≤ M) (hMB : M ≤ B) :
-    firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) ≤ 4 * D * B * M := by
+    firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) ≤ 4 * D * B * M := by
   have hsharp := firstOrderCurveFiberStageOne_le_hybridEnvelope hD hM hMB
   calc
-    firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) ≤
+    firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) ≤
         2 * D * M * (2 * B - M) := by
       simpa only [hybridTau] using hsharp
     _ ≤ 4 * D * B * M := by
@@ -44,10 +44,10 @@ theorem firstOrderCurveFiberStageOne_le_four_mul
 theorem squarefreeListExpression_le
     {D B M : ℕ} {lambda : ℝ}
     (hD : 1 ≤ D) (hM : 1 ≤ M) (hMB : M ≤ B) (hlambda : 0 ≤ lambda) :
-    (firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) : ℝ) * lambda +
+    (firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) : ℝ) * lambda +
         ordinaryDegreeEnvelope B M ≤
       4 * D * B * M * lambda + 2 * B * M + B := by
-  have hstage : (firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) : ℝ) ≤
+  have hstage : (firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) : ℝ) ≤
       4 * D * B * M := by
     exact_mod_cast firstOrderCurveFiberStageOne_le_four_mul hD hM hMB
   have htail : (ordinaryDegreeEnvelope B M : ℝ) ≤ B + 2 * B * M := by
@@ -61,7 +61,7 @@ theorem squarefreeListExpression_le_rate_envelope
     (hC : 1 ≤ C) (hq : 1 ≤ q) (hn : 1 ≤ n) (hD : 1 ≤ D) (hDn : D ≤ n)
     (hM : 1 ≤ M) (hMB : M ≤ B) (hlambda0 : 0 ≤ lambda) (hlambda : lambda ≤ C)
     (hB : (B : ℝ) ≤ C * q) :
-    (firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) : ℝ) * lambda +
+    (firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) : ℝ) * lambda +
         ordinaryDegreeEnvelope B M ≤
       7 * C ^ 3 * n * q ^ 2 := by
   have hraw := squarefreeListExpression_le hD hM hMB hlambda0
@@ -89,7 +89,7 @@ theorem squarefreeListExpression_le_rate_envelope
       nlinarith [mul_nonneg (mul_nonneg hC0 hq0) (sub_nonneg.mpr hx)]
     exact hsquare.trans (by simpa only [pow_two] using htwo)
   calc
-    (firstOrderCurveFiberStageOne (D + 1) B M (2 * D - 1) : ℝ) * lambda +
+    (firstOrderCurveFiberStageOne (D + 1) B M (hybridTau D) : ℝ) * lambda +
           ordinaryDegreeEnvelope B M ≤
         4 * (D : ℝ) * B * M * lambda + 2 * (B : ℝ) * M + B := by
       simpa only [Nat.cast_mul, Nat.cast_ofNat] using hraw

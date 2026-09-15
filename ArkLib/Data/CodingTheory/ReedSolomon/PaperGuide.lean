@@ -114,12 +114,13 @@ inverse-cubic and inverse-quintic dependence.
 
 For polynomial-curve batching, the compatibility theorem
 `ReedSolomon.CurveCertificate.exists_exceptional_exact_powerAgreement_best`
-gives actual recovery for the minimum of the optimized-hybrid envelope and the historical
-factorwise-squarefree envelope with ordinary retention fixed at `L₀ = D+1`. The 32 application
-certificates use this unchanged expression so that their frozen arithmetic constants remain
-literal.
+gives actual recovery for the minimum of the optimized-hybrid envelope and the tightened
+factorwise-squarefree envelope with ordinary retention fixed at `L₀ = D+1`.  The squarefree
+branch now uses `tau = max(0, 2D-3)`, including a separate identity-pair argument when `D = 1`.
+The ZisK and LambdaVM accounting consumes the tightened bound; the published ProveKit budgets
+remain valid conservative estimates.
 
-The paper-exact theorem is
+The further `L₀`-optimized theorem is
 `ReedSolomon.CurveCertificate.exists_exceptional_exact_powerAgreement_best_optimized`. Its
 `bestOptimizedCurveEnvelope` instead uses `squarefreeSharpOptimizedCurveEnvelope`, whose ordinary
 threshold is an attained minimum over all integers `D+1 ≤ L₀ ≤ A`, independently of the
@@ -172,7 +173,9 @@ the certified
 first-order branch when `6/25 <= delta` and the revised 300-based mathematical branch when
 `delta < 6/25`. `ReedSolomon.uniform_capacity_list_bound_300` exposes the latter branch's explicit
 parameters
-and sharp arbitrary-field characteristic guard.
+and arbitrary-field characteristic guard `ringChar F = 0` or `k-1 < ringChar F`.  Its enlarged
+length threshold is `max(Ndelta, ceil(4*bdelta/delta^2))`, and its coefficient is the maximum of
+the interpolation coefficient and `4/(3*delta)`.
 
 For MCA, `ReedSolomon.sharpCapacity_lineAgreement` is the paper-aligned all-gap assembly. Its
 existential form
@@ -180,10 +183,12 @@ is `ReedSolomon.exists_sharpCapacity_lineAgreement`. The piecewise functions
 `ReedSolomon.sharpCapacityDerivativeOrder`,
 `ReedSolomon.sharpCapacityJetBound`, `ReedSolomon.sharpCapacityLengthThreshold`, and
 `ReedSolomon.sharpCapacityLineConstant` expose the
-order, characteristic threshold, length cutoff, and exceptional-set constant. The theorem dispatches
+order, interpolation support cap, length cutoff, and exceptional-set constant. The small-gap length
+is the maximum of the interpolation threshold and `ceil(4*bdelta/delta^2)`, while the exceptional
+coefficient is the maximum of the interpolation coefficient and `343/3`. The theorem dispatches
 the characteristic-free constant-code endpoint, the first-order large-gap theorem, and the revised
 300-based small-gap theorem. Its characteristic premise is exactly `k = 1`, characteristic zero, or
-`max (k-1) (sharpCapacityJetBound delta) < ringChar F`.
+`k-1 < ringChar F`; no support-dependent cutoff remains in the public line or affine statements.
 
 `ReedSolomon.sharpCapacity_affineAgreement_and_mcaError` supplies the finite-field line error,
 affine-space
@@ -196,7 +201,10 @@ gap selector whose characteristic guard is independent of the batching degree.
 
 The local revised small-gap owners are
 `ReedSolomon.exists_mathematicalUniformRatePartition_baseCurveMCA` and
-`ReedSolomon.exists_mathematicalUniformRatePartition_lineMCA`. The older
+`ReedSolomon.exists_mathematicalUniformRatePartition_lineMCA`. The
+base-curve theorem retains the differential support guard needed by its polynomial-curve proof;
+only the line theorem and its affine consequences use the Johnson fallback to remove that extra
+cutoff. The older
 `ReedSolomon.exists_capacity_lineAgreement` family
 uses the retained 1000-based route and the stronger compatibility premise `n <= ringChar F`; it is
 not the literal counterpart of the paper's branch-dependent characteristic guard.

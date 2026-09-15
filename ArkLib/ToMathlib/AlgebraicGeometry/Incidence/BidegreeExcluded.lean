@@ -75,7 +75,7 @@ theorem bidegreeHypersurface_source_incidence_off_excluded_sharp
     exact ((Ideal.mem_retainedMinimalPrimes _ _ _).mp hP).2
   have hsum : ∑ P ∈ T₀, affineDegree P ≤ affineDegree J := by
     apply le_trans (Finset.sum_le_sum_of_subset_of_nonneg ?_ ?_)
-      (bidegreeHypersurface_sum_minimalPrimes_affineDegree_le ha hb hg0 hproper hg)
+      (bidegreeHypersurface_sum_minimalPrimes_affineDegree_le ha hb hg0 hproper)
     · intro P hP
       exact mem_minimalPrimesFinset.mpr ((Ideal.mem_retainedMinimalPrimes _ _ _).mp hP).1
     · intro P _ _
@@ -85,14 +85,14 @@ theorem bidegreeHypersurface_source_incidence_off_excluded_sharp
     have hmin := ((Ideal.mem_retainedMinimalPrimes _ _ _).mp hP).1
     have hbase := bidegreeIdeal_hilbertPolynomial_natDegree (F := F) (σ := σ) a b ha hb
     have hsource := hilbertPolynomial_span_singleton_natDegree_add_one hg0 hproper
-    have hgl : gl ∉ bidegreeIdeal a b := by
+    have hglNot : gl ∉ bidegreeIdeal a b := by
       intro h
       change bidegreeMap a b gl = 0 at h
       dsimp only [gl] at h
       rw [bidegreeMap_bidegreeLift] at h
       exact hg0 h
     have hp := principalCut_component_hilbertPolynomial_natDegree_add_one
-      (bidegreeIdeal_isPrime a b) hgl (by
+      (bidegreeIdeal_isPrime a b) hglNot (by
         rw [← bidegreeHypersurfaceIdeal_eq_sup a b g hg ha hb]
         exact hmin)
     dsimp only [d]
@@ -307,7 +307,7 @@ theorem bidegreeHypersurface_source_incidence_off_excluded_hybrid
     exact ((Ideal.mem_retainedMinimalPrimes _ _ _).mp hP).2
   have hsum : ∑ P ∈ T₀, affineDegree P ≤ affineDegree J := by
     apply le_trans (Finset.sum_le_sum_of_subset_of_nonneg ?_ ?_)
-      (bidegreeHypersurface_sum_minimalPrimes_affineDegree_le ha hb hg0 hproper hgAB)
+      (bidegreeHypersurface_sum_minimalPrimes_affineDegree_le ha hb hg0 hproper)
     · intro P hP
       exact mem_minimalPrimesFinset.mpr ((Ideal.mem_retainedMinimalPrimes _ _ _).mp hP).1
     · intro P _ _
@@ -525,8 +525,6 @@ theorem bidegreeHypersurface_source_incidence_off_excluded_hybrid_two
     (g s : MvPolynomial (Option (Fin 2)) F) (hg0 : g ≠ 0)
     (hproper : Ideal.span ({g} : Set (MvPolynomial (Option (Fin 2)) F)) ≠ ⊤)
     (hg : g ∈ restrictBidegree (F := F) (σ := Fin 2) h v)
-    (hgAB : g ∈ restrictBidegree (F := F) (σ := Fin 2) a b)
-    (hs : s ∈ restrictBidegree (F := F) (σ := Fin 2) a b)
     (highCuts : List (MvPolynomial (Option (Fin 2)) F))
     (hhigh : ∀ f ∈ highCuts, f ∈ restrictBidegree (F := F) (σ := Fin 2) a b)
     (cuts : Fin n → MvPolynomial (Option (Fin 2)) F)
@@ -550,9 +548,9 @@ theorem bidegreeHypersurface_source_incidence_off_excluded_hybrid_two
       (((n - L + 1 : ℕ) : ℚ) / ((A - L + 1 : ℕ) : ℚ)) *
         (((n - k + 1 : ℕ) : ℚ) / ((A - k + 1 : ℕ) : ℚ)) := by
   classical
+  obtain ⟨gl, hgl⟩ := bidegreeMap_surjective (F := F) a b ha hb g
+  obtain ⟨sl, hsl⟩ := bidegreeMap_surjective (F := F) a b ha hb s
   let J := bidegreeHypersurfaceIdeal (F := F) a b g
-  let gl := bidegreeLift a b g hgAB
-  let sl := bidegreeLift a b s hs
   let highCuts' : List (MvPolynomial (BidegreeIndex a b (Fin 2)) F) :=
     highCuts.attach.map fun f ↦ bidegreeLift a b f.1 (hhigh f.1 f.2)
   let cuts' : Fin n → MvPolynomial (BidegreeIndex a b (Fin 2)) F :=
@@ -569,7 +567,7 @@ theorem bidegreeHypersurface_source_incidence_off_excluded_hybrid_two
     exact ((Ideal.mem_retainedMinimalPrimes _ _ _).mp hP).2
   have hsum : ∑ P ∈ T₀, affineDegree P ≤ affineDegree J := by
     apply le_trans (Finset.sum_le_sum_of_subset_of_nonneg ?_ ?_)
-      (bidegreeHypersurface_sum_minimalPrimes_affineDegree_le ha hb hg0 hproper hgAB)
+      (bidegreeHypersurface_sum_minimalPrimes_affineDegree_le ha hb hg0 hproper)
     · intro P hP
       exact mem_minimalPrimesFinset.mpr ((Ideal.mem_retainedMinimalPrimes _ _ _).mp hP).1
     · intro P _ _
@@ -580,15 +578,14 @@ theorem bidegreeHypersurface_source_incidence_off_excluded_hybrid_two
     have hbase := bidegreeIdeal_hilbertPolynomial_natDegree
       (F := F) (σ := Fin 2) a b ha hb
     have hsource := hilbertPolynomial_span_singleton_natDegree_add_one hg0 hproper
-    have hgl : gl ∉ bidegreeIdeal a b := by
+    have hglNot : gl ∉ bidegreeIdeal a b := by
       intro hmem
       change bidegreeMap a b gl = 0 at hmem
-      dsimp only [gl] at hmem
-      rw [bidegreeMap_bidegreeLift] at hmem
+      rw [hgl] at hmem
       exact hg0 hmem
     have hp := principalCut_component_hilbertPolynomial_natDegree_add_one
-      (bidegreeIdeal_isPrime a b) hgl (by
-        rw [← bidegreeHypersurfaceIdeal_eq_sup a b g hgAB ha hb]
+      (bidegreeIdeal_isPrime a b) hglNot (by
+        rw [← bidegreeHypersurfaceIdeal_eq_sup_of_map_eq a b g gl hgl ha hb]
         exact hmin)
     have hbase' :
         (hilbertPolynomial (bidegreeIdeal (F := F) (σ := Fin 2) a b)).natDegree = 3 := by
@@ -618,7 +615,7 @@ theorem bidegreeHypersurface_source_incidence_off_excluded_hybrid_two
     have hbaseQ : bidegreeIdeal a b ≤ Q := by
       apply le_trans _ (hPJ.trans hPQ)
       dsimp only [J]
-      rw [bidegreeHypersurfaceIdeal_eq_sup a b g hgAB ha hb]
+      rw [bidegreeHypersurfaceIdeal_eq_sup_of_map_eq a b g gl hgl ha hb]
       exact le_sup_left
     let K : Ideal (MvPolynomial (Option (Fin 2)) F) :=
       Q.map (bidegreeMap a b).toRingHom
@@ -635,19 +632,17 @@ theorem bidegreeHypersurface_source_incidence_off_excluded_hybrid_two
       intro hsK
       have hsl : sl ∈ K.comap (bidegreeMap a b).toRingHom := by
         change bidegreeMap a b sl ∈ K
-        dsimp only [sl]
-        rwa [bidegreeMap_bidegreeLift]
+        rwa [hsl]
       rw [hcomap] at hsl
       exact hsQ hsl
     have hgK : g ∈ K := by
-      rw [← bidegreeMap_bidegreeLift a b g hgAB]
+      rw [← hgl]
       apply Ideal.mem_map_of_mem (bidegreeMap a b).toRingHom
       apply hPQ
       apply hPJ
-      dsimp only [J, gl]
-      rw [bidegreeHypersurfaceIdeal_eq_sup a b g hgAB ha hb]
-      exact (le_sup_right : Ideal.span {bidegreeLift a b g hgAB} ≤
-        bidegreeIdeal a b ⊔ Ideal.span {bidegreeLift a b g hgAB})
+      dsimp only [J]
+      rw [bidegreeHypersurfaceIdeal_eq_sup_of_map_eq a b g gl hgl ha hb]
+      exact (le_sup_right : Ideal.span {gl} ≤ bidegreeIdeal a b ⊔ Ideal.span {gl})
           (Ideal.subset_span (Set.mem_singleton _))
     have hhighK : ∀ f ∈ highCuts, f ∈ K := by
       intro f hf
@@ -743,7 +738,7 @@ theorem bidegreeHypersurface_source_incidence_off_excluded_hybrid_two
     have hbaseQ : bidegreeIdeal a b ≤ Q := by
       apply le_trans _ (hPJ.trans hPQ)
       dsimp only [J]
-      rw [bidegreeHypersurfaceIdeal_eq_sup a b g hgAB ha hb]
+      rw [bidegreeHypersurfaceIdeal_eq_sup_of_map_eq a b g gl hgl ha hb]
       exact le_sup_left
     have hzbase : z ∈ zeroLocus F (bidegreeIdeal (F := F) (σ := Fin 2) a b) :=
       zeroLocus_anti_mono hbaseQ hz.1
@@ -758,7 +753,7 @@ theorem bidegreeHypersurface_source_incidence_off_excluded_hybrid_two
       rw [← aeval_bidegreePoint]
       exact hz.1 q hq
     have hxs : aeval x s ≠ 0 := by
-      rw [← bidegreeMap_bidegreeLift a b s hs, ← aeval_bidegreePoint]
+      rw [← hsl, ← aeval_bidegreePoint]
       exact hz.2
     exact ⟨x, hsource ⟨hxK, hxs⟩, rfl⟩
   · intro z hz
@@ -766,8 +761,9 @@ theorem bidegreeHypersurface_source_incidence_off_excluded_hybrid_two
     obtain ⟨x, hx, rfl⟩ := hz
     have hxJ := (mem_zeroLocus_bidegreeHypersurfaceIdeal_iff a b ha hb g x).2
       (hS x hx).1
-    have hxsl : aeval (bidegreePoint (F := F) a b x) sl ≠ 0 :=
-      (not_congr (aeval_bidegreeLift_iff a b x s hs)).mpr (hS x hx).2.1
+    have hxsl : aeval (bidegreePoint (F := F) a b x) sl ≠ 0 := by
+      rw [aeval_bidegreePoint, hsl]
+      exact (hS x hx).2.1
     refine ⟨?_, hxsl, ?_, ?_⟩
     · obtain ⟨P, hP, hxP⟩ := exists_retainedMinimalPrime_of_mem_zeroLocus J sl
         (bidegreePoint (F := F) a b x) hxJ hxsl

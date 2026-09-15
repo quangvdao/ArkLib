@@ -8,10 +8,10 @@ import ArkLibExamples.ReedSolomon.Fields
 /-!
 # Parameters of the compressed ZisK final STARK
 
-These are the eight positive-degree curves for `vadcop_final_compressed` in the
-September 10, 2026 artifact audit: four inner opening groups, the outer combination,
+These are the eight positive-degree curves for `vadcop_final_compressed`:
+four inner opening groups, the outer combination,
 and three folds. The fifth inner group is a singleton and needs no interpolation.
-The proposed change reduces 54 queries to 51 and preserves the existing 22-bit hook.
+The selected configuration uses 51 queries and the 22-bit hook.
 -/
 namespace ArkLibExamples.ReedSolomon.ZisK
 open _root_.ReedSolomon.CurveProfile
@@ -61,9 +61,9 @@ def splits : Fin 8 → ℕ := ![36978, 36978, 36978, 36978, 36978, 4623, 579, 74
 
 /-- Integer ceilings, subsequently proved to bound actual exceptional sets. -/
 def exceptionalCounts : Fin 8 → ℕ := ![
-  38067076574628351, 76134153149256701, 3921055981081409424,
-  913609837791080406, 152268306298513401, 4133214248655057,
-  60416130086406, 616878212719]
+  38064859214724847, 76129718429449693, 3920827584275787659,
+  913556621153396306, 152259436858899385, 4131288205332104,
+  60190912301026, 598447957400]
 
 /-- Cardinality of the actual cubic Goldilocks challenge field. -/
 def fieldSize : ℕ := 6277101731002175853884774869567645561244584131361410908161

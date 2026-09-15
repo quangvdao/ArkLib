@@ -404,7 +404,6 @@ theorem automatic_first_order_squarefree_list_bound_of_slack
     rw [hncard]
     exact hcard.trans (by simpa only [D, M, B, a, hybridTheta, mul_div_assoc,
       (show k - 1 + 1 = k by omega),
-      (show 2 * (k - 1) - 1 = 2 * k - 3 by omega),
       (show n - k + 1 = n - (k - 1) by omega),
       (show A - k + 1 = A - (k - 1) by omega)] using hbound)
 

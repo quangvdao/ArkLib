@@ -46,7 +46,7 @@ def retainedSquarefreeCurveMCARaw
     (lambda : ℝ) (n D ell L A B M H : ℕ) : ℝ :=
   retainedOrdinaryMCARaw lambda n D ell B M H +
     (regularSymbolicCurveMCADerivativeBoundTwo n ell (D + 1) (D + 1)
-      L A B M H (2 * D - 1) : ℝ)
+      L A B M H (hybridTau D) : ℝ)
 
 /-- The order-zero interface used by the retained-product union.  Its conclusion is exact
 power agreement, including equality with the candidate's complete agreement set. -/
@@ -109,21 +109,40 @@ theorem exists_exceptional_retainedSquarefreeCurveMCA_of_tail
     intro i hi hiD
     rw [Nat.choose_one_right]
     exact natCast_ne_zero_of_retained_char_guard hcharE (by omega) (by omega)
-  have htaylor : TaylorExponentSufficient 1 (D + 1) (2 * D - 1) := by
-    convert taylorExponentSufficient_two_mul_sub_three 1
-      (K := D + 1) (by omega) using 1
-    all_goals omega
-  obtain ⟨regularExceptional, hregularCard, hregular⟩ :=
-    exists_exceptional_regularSymbolicCurveMCA_derivativeCapped_of_exponent
-      domain values iota (positiveCurveEquation Q)
-      (D + 1) (D + 1) L A B M H (2 * D - 1)
-      htaylor (by omega) (by omega) le_rfl (by omega) hDL hLA hAn
-      hellH (hM.trans hMB) hM hMB
-      ((positiveCurveEquation_jetWeight_le Q hQ).trans hjet)
-      (fun d ↦ (positiveCurveEquation_challengeHeightLE Q d).trans
-        ((Nat.le_add_left _ _).trans
-          (flattened_content_add_positive_challengeDegree_le Q hQ hheight)))
-      ((positiveCurveEquation_yOneDegree_le Q hQ).trans hderiv) hbin
+  have htaylor : TaylorExponentSufficient 1 (D + 1) (hybridTau D) := by
+    simpa only [hybridTau] using taylorExponentSufficient_firstOrder_tight D
+  obtain ⟨regularExceptional, hregularCard, hregular⟩ :
+      ∃ regularExceptional : Finset E,
+        (regularExceptional.card : ℚ) ≤
+          regularSymbolicCurveMCADerivativeBoundTwo n ell (D + 1) (D + 1)
+            L A B M H (hybridTau D) ∧
+        ∀ z ∉ regularExceptional, ∀ P : E[X], P.degree < D + 1 →
+          A ≤ (polynomialAgreementSet (mappedDomain domain iota)
+            (powerBatchedWord (fun t i ↦ iota (values t i)) z) P).card →
+          differentialSpecialization
+            (challengeSpecialization (positiveCurveEquation Q) z) P = 0 →
+          differentialSpecialization
+            (separant (challengeSpecialization (positiveCurveEquation Q) z) (Fin.last 1)) P ≠ 0 →
+          HasExactPowerAgreement domain values iota (D + 1) z P := by
+    by_cases hDone : D = 1
+    · subst D
+      convert exists_exceptional_regularSymbolicCurveMCA_identityPair
+          domain values iota (positiveCurveEquation Q) L A B M H hDL hLA hAn
+            (hM.trans hMB) ((positiveCurveEquation_jetWeight_le Q hQ).trans hjet)
+            (fun d ↦ (positiveCurveEquation_challengeHeightLE Q d).trans
+              ((Nat.le_add_left _ _).trans
+                (flattened_content_add_positive_challengeDegree_le Q hQ hheight))) using 1
+      all_goals norm_num [hybridTau]
+    · exact exists_exceptional_regularSymbolicCurveMCA_derivativeCapped_of_exponent
+        domain values iota (positiveCurveEquation Q)
+        (D + 1) (D + 1) L A B M H (hybridTau D)
+        htaylor (by unfold hybridTau; omega) (by omega) le_rfl (by omega) hDL hLA hAn
+        hellH (hM.trans hMB) hM hMB
+        ((positiveCurveEquation_jetWeight_le Q hQ).trans hjet)
+        (fun d ↦ (positiveCurveEquation_challengeHeightLE Q d).trans
+          ((Nat.le_add_left _ _).trans
+            (flattened_content_add_positive_challengeDegree_le Q hQ hheight)))
+        ((positiveCurveEquation_yOneDegree_le Q hQ).trans hderiv) hbin
   obtain ⟨tailExceptional, htailCard, htailGood⟩ := htail
   let exceptional := tailExceptional ∪ regularExceptional
   refine ⟨exceptional, ?_, ?_⟩
