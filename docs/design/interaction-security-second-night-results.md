@@ -1,8 +1,9 @@
 # Second interaction-security run: evidence and progress
 
-Status: final integration checks underway. Both MUSTs and every SHOULD are proved,
+Status: complete. Both MUSTs and every SHOULD are proved,
 independently reviewed, fully validated in their publication slices, and preserved in substantial
-PRs. The HOPE design note records the unresolved guarded-adapter choices. The [authorized contract](interaction-security-next-night-contract.md)
+PRs. The final combined integration also passed full validation and independent audit.
+The HOPE design note records the unresolved guarded-adapter choices. The [authorized contract](interaction-security-next-night-contract.md)
 controls scope. Historical checkpoints below are retained as an evidence trail.
 
 Current accepted PRs: VCVio [#824](https://github.com/Verified-zkEVM/VCVio/pull/824),
@@ -352,3 +353,38 @@ with axioms, lint and tests passed in 344.2 seconds: 22,168 declarations across 
 ArkLib validation with axioms passed against this final pin in 250.4 seconds: 18,781 declarations
 across 940 modules, 286 unchanged sorry taints and zero nonstandard axioms. All eight publication
 PRs had green CI at the final snapshot at 20:56 UTC, with the exact reviewed heads unchanged.
+
+## Final outcome and handoff
+
+Technical acceptance completed at approximately 20:59 UTC on October 3, about 3 hours
+25 minutes after the start and within the eight-hour limit. There is no remaining authorized
+implementation obligation in this contract. The deadline timer is stopped when the final
+record is pushed; the original deadline is retained above as the time-box boundary.
+
+- Both MUST targets, the principal Merkle SHOULD, and all three further SHOULD targets are
+  accepted, with general theorem statements, proved execution correspondences, and independent
+  reviews. The HOPE deliverable is the reviewed design note, not a generic guarded-adapter proof.
+- Final validated ArkLib source checkpoint: `e3a1793a45a461b42ab7b8845d6c3c8120ba0e75` on
+  `integration/interaction-second-night-20261003`, pushed to `quangvdao/ArkLib`.
+  The closing commit after that checkpoint changes documentation only.
+- Final VCVio integration: `6bf6c91b66dfa159342c355a4b81d65b55cb54a4` on
+  `feat/random-oracle-finite-support`, pushed to `Verified-zkEVM/VCVio` and verified remotely.
+  ArkLib pins that exact revision in a clean cache entry.
+- The consolidation snapshot contains ArkLib main `ace55c3e2` and VCVio main `3e4d6ecc`
+  as fetched at 20:45 UTC. Publication PRs retain their narrower reviewed dependencies.
+- Final full validation passed for both repositories, including production/test builds,
+  applicable runtime, source-policy, probability-retirement, lint and axiom gates. Existing
+  sorry debt is unchanged; nonstandard-axiom taint is zero. No lint baseline was expanded.
+- The [final independent audit](reviews/final-contract-second-night.md) approves the exact
+  combined source and pin with no P0–P2 finding. The earlier ideal-game review finding was
+  repaired and independently rechecked before acceptance.
+- All eight PRs are open and had green CI at 20:56 UTC. No PR was merged, and neither
+  repository's main branch was modified by this run. Worker and publication worktrees remain available; useful source is retained
+  in the PRs and combined integration, with no uncommitted partial proof left behind.
+
+The unresolved research directions remain explicit: general early-rejection restoration and
+its cache/cost contract; substantive witness reconstruction; source-specific challenge erasure;
+machine/PPT extraction; arbitrary dependent oracle lowering; encoded/salted payload extraction;
+hash-chain and duplex Fiat–Shamir; and the full Funky/FIOP and textbook compiler pipeline.
+The [research note](guarded-restoration-open-questions.md) separates candidate obligations
+from interface decisions that still need discussion.
