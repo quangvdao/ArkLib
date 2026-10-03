@@ -342,3 +342,13 @@ axioms, lint and tests passed in 228.4 seconds: 22,165 declarations across 787 m
 downstream ArkLib validation with axioms passed against that exact pin in 136.5 seconds:
 18,781 declarations across 940 modules, 286 unchanged sorry taints and zero nonstandard
 axioms. ArkLib main remains `ace55c3e2`.
+
+The consolidation fetch at 20:45 UTC also found VCVio main `3e4d6ecc` (#816). It adds
+reusable cache, StateT and query-cost lemmas and replaces duplicated proofs; it changes no
+definition or existing statement used by the run's main theorems. The clean merge yields
+VCVio integration `6bf6c91b`, containing that latest fetched main snapshot. Full validation
+with axioms, lint and tests passed in 344.2 seconds: 22,168 declarations across 787 modules,
+14 unchanged sorry taints, zero nonstandard axioms, unchanged lint baseline. Full downstream
+ArkLib validation with axioms passed against this final pin in 250.4 seconds: 18,781 declarations
+across 940 modules, 286 unchanged sorry taints and zero nonstandard axioms. All eight publication
+PRs had green CI at the final snapshot at 20:56 UTC, with the exact reviewed heads unchanged.
