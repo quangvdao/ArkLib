@@ -17,6 +17,15 @@ VCVio revisions recorded in the textbook comparison. This is source research, no
 or transitive axiom audit. The [roadmap](../../design/05-roadmap.md#bounded-interaction-theory-investigation)
 owns implementation sequencing.
 
+Implementation follow-up, October 3, 2026: the
+[second-run results](../../design/interaction-security-second-night-results.md) now include
+actual expected-query security, randomized fixed-round restoration knowledge bounds,
+ordinary Sumcheck restoration, and fixed/adaptive terminal-batch Merkle transfers. This is
+progress in ArkLib's language toward the literature-guided pipeline. It is not yet a full
+specialization of any paper's compiler or machine-efficiency theorem. The comparisons below
+retain their stated source revisions, and duplex FS, functional compilers, challenge-erased
+extraction, and substantive witness applications remain open.
+
 ## Source map and chronology
 
 The ePrint identifier's year is not the date of the inspected revision. Several important

@@ -1,18 +1,39 @@
 # Second interaction-security run: evidence and progress
 
-Status: active. Both MUSTs, the principal Merkle SHOULD, and the Sumcheck SHOULD are proved,
-independently reviewed, fully validated, and preserved in substantial PRs. The causal terminal
-query-program and fixed-initial-cache extensions remain in progress under their separate
-precise contracts. The [authorized contract](interaction-security-next-night-contract.md)
+Status: final integration checks underway. Both MUSTs and every SHOULD are proved,
+independently reviewed, fully validated in their publication slices, and preserved in substantial
+PRs. The HOPE design note records the unresolved guarded-adapter choices. The [authorized contract](interaction-security-next-night-contract.md)
 controls scope. Historical checkpoints below are retained as an evidence trail.
 
-Current accepted PRs: VCVio [#824](https://github.com/Verified-zkEVM/VCVio/pull/824) and
-[#825](https://github.com/Verified-zkEVM/VCVio/pull/825); ArkLib
+Current accepted PRs: VCVio [#824](https://github.com/Verified-zkEVM/VCVio/pull/824),
+[#825](https://github.com/Verified-zkEVM/VCVio/pull/825), and
+[#826](https://github.com/Verified-zkEVM/VCVio/pull/826); ArkLib
 [#1267](https://github.com/Verified-zkEVM/ArkLib/pull/1267),
 [#1268](https://github.com/Verified-zkEVM/ArkLib/pull/1268),
 [#1269](https://github.com/Verified-zkEVM/ArkLib/pull/1269), and
-[#1270](https://github.com/Verified-zkEVM/ArkLib/pull/1270).
+[#1270](https://github.com/Verified-zkEVM/ArkLib/pull/1270), and
+[#1271](https://github.com/Verified-zkEVM/ArkLib/pull/1271).
 No PR has been merged by this run.
+
+## Publication and dependency order
+
+| PR | Main contribution | Review head | Base | GitHub changed lines |
+| --- | --- | --- | --- | ---: |
+| VCVio #824 | Actual expected distinct-query bound with interleaved private randomness | `e417e35a` | main | 1,355 |
+| VCVio #825 | Native-measure Merkle owner bound, unchanged constants | `7ec28e1d` | main | 166 |
+| VCVio #826 | Arbitrary-domain new-key bound from a fixed initial cache | `c50275fb` | #824 | 430 |
+| ArkLib #1267 | Actual cached randomized restoration games and query accounting | `0815f8c74` | prior #1264 | 1,193 |
+| ArkLib #1268 | Scalar and closed-output expected knowledge-security bounds | `8e290aa71` | #1267 | 817 |
+| ArkLib #1269 | Sumcheck ordinary restoration soundness and native output replay | `afe42b588` | #1268 | 669 |
+| ArkLib #1270 | Native terminal-batch Merkle real-to-ideal transfer | `f6d8d94cf` | main | 1,447 |
+| ArkLib #1271 | Causal terminal query programs and adaptive path agreement | `e9ee95267` | #1270 | 790 |
+
+The two smaller VCVio PRs are complete, independently useful units. The initial-cache proof
+generalizes existing code, so its net addition is smaller than a duplicated probability proof.
+The native-measure owner migration is the prerequisite for the two Merkle consumers.
+VCVio #824 and #825 can be reviewed independently; #826 follows #824. The restoration chain
+is #1264 → #1267 → #1268 → #1269. The Merkle chain is #1270 → #1271 and uses VCVio #825.
+Exact downstream pins are retained until a separately validated move to merged upstream.
 
 ## Run and ownership
 
@@ -257,3 +278,48 @@ ArkLib [#1270](https://github.com/Verified-zkEVM/ArkLib/pull/1270) publishes the
 transfer against main. ArkLib main was rechecked as `ace55c3e2` and VCVio main as `bc3433e3`
 after the primary integration check. Ongoing extension work is isolated in
 `ArkLib-merkle-adaptive` and `VCVio-initial-cache`; it is not counted as accepted yet.
+
+### Causal terminal programs accepted
+
+[ArkLib #1271](https://github.com/Verified-zkEVM/ArkLib/pull/1271) adds the general finite
+`QueryProgram`, exact terminal transcript checking, recursive real/extracted path agreement,
+native execution marginals, and the ROM and eta transfers. Its ideal program depends only on
+the public roots and immutable extracted vectors. A proved Boolean marginal erases the entire
+malicious terminal-opening and honest verification suffix. This is causal evaluation of a
+terminal batch, not online opening exchange.
+
+The frozen code `3e643980c` passed full `./scripts/validate.sh --axioms` in 150.7 seconds:
+18,272 declarations, 923 modules, unchanged existing sorry debt, zero nonstandard-axiom taint.
+Fresh blind readback and subsequent strict contract/proof review approved the slice without
+actionable findings; see [adaptive-terminal-second-night.md](reviews/adaptive-terminal-second-night.md).
+Publication head `e9ee95267` has the identical complete source tree after incorporating its
+parent's import-order fix. The PR is 790 added lines on #1270. Integration cherry-pick
+`a2f8a8ee8` preserves the reviewed source and regenerates the combined umbrella.
+
+The fixed-initial-cache extension `c50275fb` has passed `validate.sh --axioms --lint --test`
+in 222.8 seconds, with 22,159 declarations across 786 modules, unchanged exact lint baseline,
+and no new axiom/sorry taint. Its fresh blind review is pending, so it is not yet accepted.
+
+The HOPE design work is recorded in [early rejection and restoration](guarded-restoration-open-questions.md).
+It distinguishes the proved Sumcheck replay from candidate generic obligations and keeps
+execution, cache handoff, padding costs, challenge carriers, and witness reconstruction open.
+
+### Fixed initial-cache extension accepted
+
+[VCVio #826](https://github.com/Verified-zkEVM/VCVio/pull/826), stacked on #824, publishes
+`prEvent_randomOracle_le_expectedNewQueryCharge` at `c50275fb`. It generalizes the existing
+per-key proof, retains the old empty-cache API, and proves the arbitrary-domain result through
+the actual joint-run finite-support bridge. The charge counts distinct queried keys absent
+from the supplied initial cache. The trace hypothesis must identify a bad key among those
+newly sampled keys; an initially cached bad answer alone is not covered.
+
+A fresh mathematical readback followed by contract, proof and API review approved the exact
+head with no findings. The review also checked the author's complete validation log; see
+[initial-cache-second-night.md](reviews/initial-cache-second-night.md). GitHub reports 393 insertions
+and 37 deletions across three files. VCVio combined integration `7aa43ec4` retains this source
+byte-for-byte together with the native Merkle owner migration. Its full combined validation
+and the final downstream pin check are in progress.
+
+The HOPE note passed a separate ordinary review. Two precision improvements were applied:
+rejected runs can differ in cache/log state, and output replay alone does not establish
+prefix effect agreement. See [the note review](reviews/guarded-restoration-note-second-night.md).

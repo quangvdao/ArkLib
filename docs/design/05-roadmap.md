@@ -441,7 +441,13 @@ raw-digest vectors, immutable commitment-time extraction, and terminal batch ver
 it supplies a restricted AR-11 capability, not the general oracle-elimination compiler.
 Sumcheck proves ordinary soundness with the native aborting output correspondence.
 
-Further work in this run is governed by the exact [causal terminal query-program contract](adaptive-terminal-query-contract.md)
-and [fixed-initial-cache query contract](initial-cache-query-contract.md). Neither extension
-is counted as complete until its own statements, proofs, validation and independent review pass.
-The other open questions in the eight-hour contract remain open.
+The [causal terminal query-program extension](adaptive-terminal-query-contract.md) has also
+passed its proofs, full validation, and independent review. It supplies recursive path
+agreement and a clean ideal program whose terminal-opening phase can be erased. The
+[fixed-initial-cache query extension](initial-cache-query-contract.md) has also passed full
+validation and independent review. Its arbitrary-domain bound charges only distinct keys
+absent from the fixed initial cache and retains the explicit same-run fresh bad-key witness.
+
+The [early-rejection research note](guarded-restoration-open-questions.md) records the next
+generic-adapter obligations without selecting unresolved interfaces. The other open questions
+in the eight-hour contract remain open.

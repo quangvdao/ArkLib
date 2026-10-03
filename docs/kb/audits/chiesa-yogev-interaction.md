@@ -32,6 +32,16 @@ Proposed theorems and counterexamples below have not been formalized by this inv
 The archived pre-split oracle-reduction audit is historical: its missing-runtime and missing-log
 claims must not be copied into a description of current native code.
 
+Implementation follow-up, October 3, 2026: the
+[first](../../design/interaction-security-night-results.md) and
+[second](../../design/interaction-security-second-night-results.md) authorized runs have since
+proved native security and fixed-round restoration theory, actual expected-query bounds,
+a Sumcheck restoration application, and restricted native Merkle transfers. Their records
+own current proof/review status. The source comparison and coverage table below retain the
+inspected baseline; they are not a claim that those subsequently proved components are absent.
+Full textbook coverage still requires source-specific specialization theorems and the remaining
+compiler, observation, and efficiency obligations.
+
 ## Where progress stands
 
 The native C1-C8 foundation sequence is implemented: execution and continuation access,
@@ -51,9 +61,10 @@ Sources: [protocol and output relation][sumcheck-protocol],
 [ordinary soundness][sumcheck-soundness], [computable soundness][sumcheck-computable],
 [computable completeness][sumcheck-completeness].
 
-The central missing layer is the precise security theory connecting those native executions
+At the inspected baseline, the central missing layer was the precise security theory connecting those native executions
 to arbitrary-prefix games, state restoration, extraction and the compiler. Existing execution
-infrastructure makes that work possible; it does not itself prove those connections.
+infrastructure made that work possible. The subsequent runs linked above prove specified parts
+of those connections; they do not yet establish the complete compiler pipeline.
 
 ## Whole-book direction, without a false coverage claim
 
