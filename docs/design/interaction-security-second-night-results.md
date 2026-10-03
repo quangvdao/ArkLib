@@ -201,3 +201,34 @@ The restoration publication branches now pin `e417e35a`: #1267 head `0815f8c74`,
 `8e290aa71`. Each complete ArkLib source build passed again after that pin-only update;
 the reviewed theorem source files are unchanged. The expected-query lint repair itself
 passed the complete environment linter at its exact head.
+
+
+### Principal Merkle and Sumcheck milestones accepted
+
+The Merkle clean-ideal repair `daa80f50e` passed an independent follow-up review; the public
+numerical and eta bounds now use the verifier-free ideal experiment, with equality proved
+for every Boolean event. Honest verification can change cache/log state, and no full-state
+equality is claimed. The repair review is saved in
+[merkle-ideal-repair-second-night.md](reviews/merkle-ideal-repair-second-night.md).
+
+The clean-main publication slice needed the existing `executeStrategies_done` and
+`executeStrategies_public_sender` owner lemmas from the earlier theory stack. They were copied
+byte-for-byte, independently checked for effect order and retained dependent outputs, and
+built on main. Initial clean-base builds exposed these missing helpers and an out-of-order
+umbrella import; both packaging issues were repaired. Final `./scripts/validate.sh --axioms`
+on `f6d8d94cf` passed in 93.3 seconds: 18,190 declarations, 922 modules, unchanged 286 sorry
+debt and zero nonstandard axioms. Its complete publication diff is 1,447 changed lines.
+
+[ArkLib #1269](https://github.com/Verified-zkEVM/ArkLib/pull/1269) is the Sumcheck application,
+669 added lines on #1268. Publication head `afe42b588` passed full validation with axioms
+(201.6 seconds including setup; 18,338 declarations, 935 modules, unchanged debt). Its
+source is identical to worker `de806e13c`. Both an ordinary independent review and a fresh
+blind readback of the frozen probability statements approved the milestone. The fresh
+readback is saved in [sumcheck-restoration-final-blind-second-night.md](reviews/sumcheck-restoration-final-blind-second-night.md).
+
+The two remaining Further SHOULD lanes have exact durable contracts:
+[causal terminal queries](adaptive-terminal-query-contract.md) and
+[new queries outside a fixed initial cache](initial-cache-query-contract.md).
+These are extensions; the accepted MUST results and completed Sumcheck/Merkle statements
+are preserved independently. No online-opening compiler, arbitrary guarded restoration,
+substantive new witness reconstruction, or machine-efficiency result has been asserted.
