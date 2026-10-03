@@ -57,3 +57,27 @@ force the new representation everywhere.
 - If a reusable native verifier parameterization is needed, explain its semantic boundary before
   implementing it. If the task reveals an unresolved compiler design choice, preserve the
   strongest checked theorem and report the unresolved choice instead of fixing it by fiat.
+
+## Statement freeze for the implementation lane
+
+`QueryProgram config rounds Y depth` has two constructors: `done accepted` at any depth,
+and `request site next` at depth `d+1`, where `next : List Y → QueryProgram config rounds Y d`.
+The depth is a uniform upper bound and early termination is allowed. Responses are selected
+leaf values in canonical order; the real transcript checker validates their exact shape
+before choosing the continuation. A fixed public program suffices for this milestone.
+
+`checkTranscript` consumes exactly one opening per request and requires an empty remaining
+list at `done`. It checks the public slot, configuration, selectors, and answer length.
+`idealDecision` runs the same program using only public roots and commitment-time extracted
+values. The actual verifier checks every supplied Merkle proof before calling the transcript
+checker. The principal new mathematical obligation is recursive path agreement: on an
+accepting transcript outside checkpoint disagreement, each real answer equals the corresponding
+ideal answer, so the next request and final decision agree.
+
+Implementation ownership is the new `MerkleAdaptiveTerminal.lean` module and its generated
+root import. Existing `MerkleTerminalBatch` interfaces are preserved. Reuse its native protocol,
+malicious prover, owner adversary image, coupling, and clean suffix-erasure laws; prove the new
+native verifier's source equality. The probability headline uses the unchanged owning VCVio
+numerator and resource premises. Erasing the malicious terminal phase from the ideal Boolean
+marginal is permitted because this new ideal decision does not inspect that phase's output;
+this does not assert equality of final caches or logs.
