@@ -1,7 +1,18 @@
 # Second interaction-security run: evidence and progress
 
-Status: active. The [authorized contract](interaction-security-next-night-contract.md)
-controls scope; no main theorem is declared complete by this progress record.
+Status: active. Both MUSTs, the principal Merkle SHOULD, and the Sumcheck SHOULD are proved,
+independently reviewed, fully validated, and preserved in substantial PRs. The causal terminal
+query-program and fixed-initial-cache extensions remain in progress under their separate
+precise contracts. The [authorized contract](interaction-security-next-night-contract.md)
+controls scope. Historical checkpoints below are retained as an evidence trail.
+
+Current accepted PRs: VCVio [#824](https://github.com/Verified-zkEVM/VCVio/pull/824) and
+[#825](https://github.com/Verified-zkEVM/VCVio/pull/825); ArkLib
+[#1267](https://github.com/Verified-zkEVM/ArkLib/pull/1267),
+[#1268](https://github.com/Verified-zkEVM/ArkLib/pull/1268),
+[#1269](https://github.com/Verified-zkEVM/ArkLib/pull/1269), and
+[#1270](https://github.com/Verified-zkEVM/ArkLib/pull/1270).
+No PR has been merged by this run.
 
 ## Run and ownership
 
@@ -86,7 +97,7 @@ pinned dependency and validated again. The Merkle worker has checked actual nati
 execution and public/private verification correspondence; event and probability transfer
 remain in progress.
 
-## Current proof frontier
+## First-hour proof frontier (historical)
 
 The interleaved own-cell bad-query probability bound is the central remaining VCVio step.
 Its finite-domain expected bound then transfers through the checked finite-support bridge.
@@ -232,3 +243,17 @@ The two remaining Further SHOULD lanes have exact durable contracts:
 These are extensions; the accepted MUST results and completed Sumcheck/Merkle statements
 are preserved independently. No online-opening compiler, arbitrary guarded restoration,
 substantive new witness reconstruction, or machine-efficiency result has been asserted.
+
+
+### Combined primary integration checkpoint
+
+All accepted second-night source changes now coexist in the integration branch. Full
+`./scripts/validate.sh --axioms` passed in 139.3 seconds on source checkpoint `f0a7268c0`,
+with 18,699 declarations across 939 modules, unchanged 286 sorry-tainted declarations,
+and zero nonstandard-axiom taint. Later commits at this checkpoint only update research and
+review records. The integration VCVio pin is the fully validated combined `034aa6938`.
+
+ArkLib [#1270](https://github.com/Verified-zkEVM/ArkLib/pull/1270) publishes the native Merkle
+transfer against main. ArkLib main was rechecked as `ace55c3e2` and VCVio main as `bc3433e3`
+after the primary integration check. Ongoing extension work is isolated in
+`ArkLib-merkle-adaptive` and `VCVio-initial-cache`; it is not counted as accepted yet.
