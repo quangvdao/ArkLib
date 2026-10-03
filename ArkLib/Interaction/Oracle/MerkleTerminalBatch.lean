@@ -1188,13 +1188,12 @@ theorem prob_realAcceptance_le_ideal_add_checkpointBad
 
 /-- Principal native terminal-batch Merkle ROM transfer. The resource premises are imposed on
 the exact checkpoint-attaching image of the native adversary, so they bound its real adaptive
-commitment and terminal opening program and every honest verification path. The explicit
-`IsUniformSpec` premise is inherited from the pinned VCVio numerical theorem. Its legacy
-probability expression is connected to this native measure event by the coherence lemma
-`probOutput_true_eq_probEvent` only inside the proof. -/
+commitment and terminal opening program and every honest verification path. The uniform-measure
+premise matches the owning VCVio numerical theorem and fixes the oracle's native semantics. -/
 theorem realAcceptance_rom_bound_of_prefixQueryBound
     [DecidableEq Cfg] [DecidableEq Query] [DecidableEq Address] [DecidableEq Y]
-    [Finite Y] [Inhabited Y] [IsUniformSpec (Query →ₒ Y)]
+    [Finite Y] [Inhabited Y] [MeasurableSpace Y] [DiscreteMeasurableSpace Y]
+    [IsUniformMeasureSpec (Query →ₒ Y)]
     (model : MerkleTreeExtractability.NodeQueryModel Query Address Y)
     (config : Configuration Cfg Address) (rounds : ℕ)
     (plan : QueryPlan config rounds Y) (fallback : Y)
@@ -1218,7 +1217,6 @@ theorem realAcceptance_rom_bound_of_prefixQueryBound
       transcript.HasAnyCheckpointExtractionDisagreement model] ≤
       (multiCheckpointROMErrorNumerator nodeBudget checkpointCount verifierOverhead
         queryBound : ENNReal) * (Nat.card Y : ENNReal)⁻¹ := by
-    rw [probOutput_true_eq_probEvent]
     exact anyCheckpointDisagreement_rom_bound_of_prefixQueryBound model config rounds
       (toOwningAdversary config rounds fallback adversary) queryBound nodeBudget
       checkpointCount verifierOverhead perCheckpoint hquery hverifier hconfig hnodes
@@ -1230,7 +1228,8 @@ theorem realAcceptance_rom_bound_of_prefixQueryBound
 public verifier has the same quantitative upper bound plus the explicit ROM error. -/
 theorem realAcceptance_le_eta_add_romError
     [DecidableEq Cfg] [DecidableEq Query] [DecidableEq Address] [DecidableEq Y]
-    [Finite Y] [Inhabited Y] [IsUniformSpec (Query →ₒ Y)]
+    [Finite Y] [Inhabited Y] [MeasurableSpace Y] [DiscreteMeasurableSpace Y]
+    [IsUniformMeasureSpec (Query →ₒ Y)]
     (model : MerkleTreeExtractability.NodeQueryModel Query Address Y)
     (config : Configuration Cfg Address) (rounds : ℕ)
     (plan : QueryPlan config rounds Y) (fallback : Y)
