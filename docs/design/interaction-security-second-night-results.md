@@ -129,3 +129,12 @@ proofs use only standard Lean axioms. The terminal certificate relation now agre
 the checked fixed-round evaluation in an exploratory proof. The actual aborting native
 execution correspondence and final restoration application remain unfinished. The Unit
 witness encodes ordinary truth and does not claim substantive witness extraction.
+
+
+### First accepted PR
+
+[VCVio #824](https://github.com/Verified-zkEVM/VCVio/pull/824) contains the complete general
+expected-charge theorem (1,351 changed lines). Independent blind readback and contract/proof
+review recommend approve with no blocking findings; the durable evidence is
+[expected-query-second-night.md](reviews/expected-query-second-night.md). Its base was rechecked
+as current VCVio main `bc3433e3c94a85ff5b70a00109cf74394ad5c401` immediately before opening.
