@@ -186,3 +186,18 @@ by broad simplification in a finite-table proof. Commit `e417e35a` replaces that
 explicit indicator rewrites and the native impossible-event lemma. The statement is unchanged;
 its target builds cleanly and an independent proof-only review found no semantic weakening.
 The full environment-lint recheck is pending. No lint baseline or exemption was changed.
+
+
+### Combined upstream validation
+
+VCVio integration `034aa6938e379b303b178c18589812e79b7f508a` combines the reviewed expected-query
+result, its native-probability proof repair, and the reviewed native Merkle owner migration.
+`./scripts/validate.sh --axioms --lint --test` passed in 204.7 seconds: 22,138 declarations,
+785 modules, 14 unchanged sorry-tainted declarations, zero nonstandard-axiom taint. The exact
+lint baseline is unchanged. ArkLib integration now pins this combined revision in its own
+clean cache entry. VCVio #825's GitHub checks are all green.
+
+The restoration publication branches now pin `e417e35a`: #1267 head `0815f8c74`, #1268 head
+`8e290aa71`. Each complete ArkLib source build passed again after that pin-only update;
+the reviewed theorem source files are unchanged. The expected-query lint repair itself
+passed the complete environment linter at its exact head.
