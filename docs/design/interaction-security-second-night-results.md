@@ -93,3 +93,39 @@ Its finite-domain expected bound then transfers through the checked finite-suppo
 Native expected knowledge security and the real-to-ideal Merkle bound remain unfinished.
 Final acceptance requires revision-specific validation, independent statement read-back,
 contract comparison, and coherent PR assembly. No headline theorem has been marked complete.
+
+
+## Second-hour checkpoint (2026-10-03, approximately 19:20 UTC)
+
+VCVio's required general expected-charge theorem is now kernel-checked and fully validated
+at `e0ff3044330b8fc9bf8afc855a0ebb590a6ee0a9`, pushed on `feat/expected-fresh-query`.
+`./scripts/validate.sh --axioms --test` passed in 264.8 seconds: 22,138 declarations,
+785 modules, 14 existing sorry-tainted declarations, zero nonstandard-axiom taint,
+and no new taint. The generated umbrella includes all new modules. Its base-to-head
+diff is 1,326 insertions and 25 deletions across six files.
+
+The public arbitrary-domain theorem is
+`OracleComp.prEvent_randomOracle_le_expectedFreshQueryCharge`. Its finite-domain core is
+`OracleComp.prEvent_interleavedFreshBad_le_expectedCharge`. Private uniform draws are fresh,
+hash replies are cached, and the charge uses the actual distinct queried keys. The proof
+preserves the joint output, ordered query log, and cache through finite-support restriction.
+A fresh reviewer recorded the statement independently before receiving the contract;
+final contract comparison and review are underway.
+
+ArkLib's randomized scalar and closed-output expected knowledge bounds and actual-support
+query-cap corollaries have passed exploratory checks. Their canonical validation is in
+progress against the exact new VCVio pin. They are not yet recorded as accepted deliverables.
+
+The native Merkle terminal-batch proof has passed targeted checks. To support its native
+probability statement without introducing a new retired-probability dependency, VCVio's
+existing owning ROM theorem was migrated directly to native measure semantics at
+`7ec28e1df3b660e65943d8a10cc1dfcf76239472`. Its exact numerical bound is unchanged,
+legacy callers are bridged explicitly, and no lint exemption was added. Full validation
+with axioms and lint passed. The ArkLib client is being checked against this exact revision.
+
+The Sumcheck restoration certificate is saved at `fd24cd3b7` on
+`feat/sumcheck-state-restoration`. Its preservation and local degree/cardinality error
+proofs use only standard Lean axioms. The terminal certificate relation now agrees with
+the checked fixed-round evaluation in an exploratory proof. The actual aborting native
+execution correspondence and final restoration application remain unfinished. The Unit
+witness encodes ordinary truth and does not claim substantive witness extraction.
