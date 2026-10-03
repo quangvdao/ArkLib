@@ -166,3 +166,23 @@ The Sumcheck native replay correspondence is checked at `f9719a0d0`: failed sum 
 while successful outputs retain exactly the original oracle behavior under the same field
 coins. The terminal truth equivalence and replay theorem use only standard Lean axioms.
 The final ordinary restoration bound is being implemented using the reviewed general theory.
+
+
+### Publication slices and CI follow-up (approximately 19:40 UTC)
+
+- [ArkLib #1267](https://github.com/Verified-zkEVM/ArkLib/pull/1267): randomized games and
+  actual cached query accounting, stacked on #1264. Publication head `bc17d91d9`, 1,193 changed
+  lines; full validation with axioms passed (18,260 declarations, 931 modules, unchanged debt).
+- [ArkLib #1268](https://github.com/Verified-zkEVM/ArkLib/pull/1268): shared scalar and closed-output
+  knowledge bounds, stacked on #1267. Publication head `89793deaa`, 817 added lines; full
+  validation with axioms passed (18,291 declarations, 932 modules, unchanged debt).
+
+The two publication checkouts were validated on their actual PR bases; their new theorem
+sources are byte-identical to the independently reviewed worker result. Both retain 286
+existing sorry-tainted declarations and zero nonstandard-axiom taint.
+
+VCVio #824's CI environment linter found a direct retired-probability reference generated
+by broad simplification in a finite-table proof. Commit `e417e35a` replaces that step with
+explicit indicator rewrites and the native impossible-event lemma. The statement is unchanged;
+its target builds cleanly and an independent proof-only review found no semantic weakening.
+The full environment-lint recheck is pending. No lint baseline or exemption was changed.
