@@ -19,7 +19,7 @@ error. No declaration under `ArkLib/Interaction/` or
 
 | Repository | Revision | Role |
 |---|---|---|
-| VCVio | `7aa43ec4686acdf75229a1134c6f6446554bd00b` | direct integration dependency; reviewed combined query and Merkle theory |
+| VCVio | `086b0b262b0a1ffc7ee9ec59892b547b1503624a` | direct integration dependency; reviewed combined query and Merkle theory on latest main |
 | PolyFun | `3710d71b28404a151b8d1f0ce080ea448778dec0` | revision selected and tested by VCVio |
 | Lean | `v4.34.0` | common toolchain |
 

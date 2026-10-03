@@ -323,3 +323,22 @@ and the final downstream pin check are in progress.
 The HOPE note passed a separate ordinary review. Two precision improvements were applied:
 rejected runs can differ in cache/log state, and output replay alone does not establish
 prefix effect agreement. See [the note review](reviews/guarded-restoration-note-second-night.md).
+
+### Full integration and main-freshness follow-up
+
+VCVio combined `7aa43ec4` passed full `validate.sh --axioms --lint --test` in 233.0 seconds:
+22,159 declarations across 786 modules, 14 unchanged sorry-tainted declarations, zero
+nonstandard-axiom taint, and unchanged lint baseline. ArkLib's complete source and that pin,
+committed as `7766db3bd`, passed `validate.sh --axioms` in 155.4 seconds: 18,781 declarations
+across 940 ArkLib modules, 286 unchanged sorry-tainted declarations and zero nonstandard taint.
+The final independent cross-slice audit found no theorem or integration defect and verified
+that the retained main theorem files match their reviewed publication sources byte-for-byte.
+
+The final upstream fetch found VCVio main had advanced to `67584f85` with the independent
+almost-XOR-universal hash-family addition (#815). It merged cleanly into VCVio integration
+`086b0b26`; the run's theorem sources are unchanged. Full combined VCVio validation with
+axioms, lint and tests passed in 228.4 seconds: 22,165 declarations across 787 modules,
+14 unchanged sorry taints, zero nonstandard axioms, and unchanged lint baseline. Full
+downstream ArkLib validation with axioms passed against that exact pin in 136.5 seconds:
+18,781 declarations across 940 modules, 286 unchanged sorry taints and zero nonstandard
+axioms. ArkLib main remains `ace55c3e2`.
