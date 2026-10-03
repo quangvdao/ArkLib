@@ -138,3 +138,31 @@ expected-charge theorem (1,351 changed lines). Independent blind readback and co
 review recommend approve with no blocking findings; the durable evidence is
 [expected-query-second-night.md](reviews/expected-query-second-night.md). Its base was rechecked
 as current VCVio main `bc3433e3c94a85ff5b70a00109cf74394ad5c401` immediately before opening.
+
+
+### Required restoration result and review
+
+Both randomized restoration modules are frozen at `578a55f098c7075d446f77d476e788370a84ee2e`.
+Full `./scripts/validate.sh --axioms` passed in 130.1 seconds: 18,428 declarations across
+935 modules, unchanged 286 sorry-tainted declarations, zero nonstandard-axiom taint.
+The new source has no warnings. A fresh blind readback followed by MUST 2 comparison
+approved the two slices and their stack with no blocking findings; see
+[randomized-restoration-second-night.md](reviews/randomized-restoration-second-night.md).
+The integration branch now contains the full result. Publication slices have been assembled
+on the existing nonuniform-restoration PR and are undergoing validation on those exact bases.
+
+[VCVio #825](https://github.com/Verified-zkEVM/VCVio/pull/825) contains the native-probability
+migration required by the Merkle application. Its independent review is saved in
+[merkle-native-measure-second-night.md](reviews/merkle-native-measure-second-night.md).
+
+The Merkle client's full validation passed, but independent review found a P2 gap: the
+ideal experiment was only a projection after honest opening verification. A separately
+bounded verification-free ideal experiment needs an explicit marginal equality. That repair
+is underway; the original review is retained in
+[merkle-terminal-second-night.md](reviews/merkle-terminal-second-night.md). The principal
+SHOULD is therefore not accepted yet.
+
+The Sumcheck native replay correspondence is checked at `f9719a0d0`: failed sum checks abort,
+while successful outputs retain exactly the original oracle behavior under the same field
+coins. The terminal truth equivalence and replay theorem use only standard Lean axioms.
+The final ordinary restoration bound is being implemented using the reviewed general theory.
