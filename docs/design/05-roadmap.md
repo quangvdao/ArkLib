@@ -429,7 +429,19 @@ the theorem or its assumptions, not as a reason to hide a stronger claim behind 
 The [second eight-hour contract](interaction-security-next-night-contract.md) fixes the
 mathematical statements, MUST/SHOULD/HOPE priorities, PR order, review gates, and open
 questions. The run starts at 17:34:15 UTC and ends on October 4 at 01:34:15 UTC.
-Its MUSTs are expected distinct-query security with interleaved randomness and its
-native state-restoration knowledge-security consequence. The principal SHOULD is an
-executable native terminal-batch Merkle verification bridge. These are in-progress
-obligations, not claims that their theorems already exist.
+Both MUSTs are now proved and independently reviewed: VCVio's arbitrary-domain expected
+distinct-query bound and ArkLib's actual cached randomized restoration knowledge bounds.
+The native terminal-batch Merkle transfer and ordinary Sumcheck restoration application are
+also proved, reviewed, and fully validated. See the [run evidence](interaction-security-second-night-results.md)
+for exact revisions, dependency pins, source restrictions, and substantial PRs.
+
+The accepted restoration fragment retains fixed rounds, finite message/challenge alphabets,
+explicit endpoint relation laws, and the existing named extractor. The Merkle transfer uses
+raw-digest vectors, immutable commitment-time extraction, and terminal batch verification;
+it supplies a restricted AR-11 capability, not the general oracle-elimination compiler.
+Sumcheck proves ordinary soundness with the native aborting output correspondence.
+
+Further work in this run is governed by the exact [causal terminal query-program contract](adaptive-terminal-query-contract.md)
+and [fixed-initial-cache query contract](initial-cache-query-contract.md). Neither extension
+is counted as complete until its own statements, proofs, validation and independent review pass.
+The other open questions in the eight-hour contract remain open.
