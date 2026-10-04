@@ -338,16 +338,43 @@ theorem nativeTableToLegacy_apply {Input : Type} (rounds : List Round)
     (fun key => Equiv.cast (keyEquiv_response rounds key).symm) table key
 
 /-- Answer actual legacy Fiat–Shamir challenge queries through the native restoration oracle. -/
+private theorem cast_oracleComp_eq_map_cast {ι : Type} {spec : OracleSpec ι}
+    {α β : Type} (h : α = β) (oa : OracleComp spec α) :
+    (Equiv.cast (congrArg (OracleComp spec) h)) oa = (cast h) <$> oa := by
+  cases h
+  have hcast : (cast (rfl : α = α)) = (id : α → α) := by
+    funext x
+    exact cast_eq _ x
+  rw [hcast, id_map]
+  rw [Equiv.cast_apply]
+  exact cast_eq (congrArg (OracleComp spec) (rfl : α = α)) oa
+
 noncomputable def legacyQueryInNative {Input : Type} (rounds : List Round) :
     QueryImpl (fsChallengeOracle Input (legacySpec rounds))
-      (OracleComp (oracleSpec Input PUnit rounds)) := by
-  intro q
-  let key := (keyEquiv Input rounds).symm q
-  have response : OracleComp (oracleSpec Input PUnit rounds)
-      ((fsChallengeOracle Input (legacySpec rounds)).Range (keyEquiv Input rounds key)) :=
-    (fun answer => cast (keyEquiv_response rounds key).symm answer) <$>
-      liftM ((oracleSpec Input PUnit rounds).query key)
-  exact ((keyEquiv Input rounds).apply_symm_apply q) ▸ response
+      (OracleComp (oracleSpec Input PUnit rounds)) :=
+  (keyEquiv Input rounds).piCongr
+    (fun key => Equiv.cast (congrArg (OracleComp (oracleSpec Input PUnit rounds))
+      (keyEquiv_response rounds key).symm))
+    (fun key => liftM ((oracleSpec Input PUnit rounds).query key))
+
+@[simp]
+theorem legacyQueryInNative_apply_keyEquiv {Input : Type} (rounds : List Round)
+    (key : Key Input PUnit rounds) :
+    legacyQueryInNative rounds (keyEquiv Input rounds key) =
+      (fun answer => cast (keyEquiv_response rounds key).symm answer) <$>
+        liftM ((oracleSpec Input PUnit rounds).query key) := by
+  rw [legacyQueryInNative, (keyEquiv Input rounds).piCongr_apply_apply]
+  exact cast_oracleComp_eq_map_cast (keyEquiv_response rounds key).symm _
+
+/-- Concrete legacy queries read exactly the corresponding transported native table entry. -/
+theorem legacyQueryInNative_eval {Input : Type} (rounds : List Round)
+    (table : Table Input PUnit rounds)
+    (q : (fsChallengeOracle Input (legacySpec rounds)).Domain) :
+    evalWithAnswerFn (QueryImpl.ofFn table) (legacyQueryInNative rounds q) =
+      nativeTableToLegacy rounds table q := by
+  obtain ⟨key, rfl⟩ := (keyEquiv Input rounds).surjective q
+  simp only [legacyQueryInNative_apply_keyEquiv, evalWithAnswerFn_map,
+    evalWithAnswerFn_liftM_query, QueryImpl.ofFn_apply, nativeTableToLegacy_apply]
 
 /-- Answer native restoration queries through the actual legacy Fiat–Shamir oracle. -/
 noncomputable def nativeQueryInLegacy {Input : Type} (rounds : List Round) :
