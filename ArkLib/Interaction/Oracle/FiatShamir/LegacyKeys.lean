@@ -111,7 +111,8 @@ theorem legacyChallengeSampleable_nonempty : (rounds : List Round) →
         rw [legacyChallengeLater_response]
         exact legacyChallengeSampleable_nonempty rounds j
 
-/-- The legacy FS challenge sampler is the native sampler at the same round. -/
+/-- A uniform sampler for each legacy challenge carrier, inherited from the corresponding native
+round. This supplies the sampling law, not an equality of sampling programs. -/
 @[instance_reducible]
 noncomputable def legacyChallengeSampleable (rounds : List Round) :
     ∀ i : (legacySpec rounds).ChallengeIdx,
