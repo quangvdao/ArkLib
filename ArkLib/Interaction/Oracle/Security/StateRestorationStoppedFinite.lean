@@ -97,11 +97,11 @@ theorem eagerRestored_knowledge_soundness
     (Rin : (z : Input) → (state z).Witness → Prop)
     (Rout : (z : Input) → (path : (protocol rounds).tree.ExecutionPath) → W → Prop)
     (terminalWitness : (z : Input) → (path : (protocol rounds).tree.ExecutionPath) →
-      W ≃ ((extractor z).terminalState path).Witness)
+      W → ((extractor z).terminalState path).Witness)
     (inputLaw : ∀ z witness, (state z).holds witness ↔ Rin z witness)
     (outputLaw : ∀ z path witness,
-      ((extractor z).terminalState path).holds (terminalWitness z path witness) ↔
-        Rout z path witness) :
+      Rout z path witness →
+        ((extractor z).terminalState path).holds (terminalWitness z path witness)) :
     Pr{let joint ← (($ᵗ (Table Input Salt rounds)) >>= fun table =>
       fixedTableLoggedRun
         (randomizedRestoredExecutionWithAdversaryLog rounds adversary) table ∅)}[

@@ -203,11 +203,11 @@ theorem randomizedStopped_knowledge_soundness_actualRounds
     (Rin : (z : Input) → (state z).Witness → Prop)
     (Rout : (z : Input) → (path : (protocol rounds).tree.ExecutionPath) → W → Prop)
     (terminalWitness : (z : Input) → (path : (protocol rounds).tree.ExecutionPath) →
-      W ≃ ((extractor z).terminalState path).Witness)
+      W → ((extractor z).terminalState path).Witness)
     (inputLaw : ∀ z witness, (state z).holds witness ↔ Rin z witness)
     (outputLaw : ∀ z path witness,
-      ((extractor z).terminalState path).holds (terminalWitness z path witness) ↔
-        Rout z path witness) :
+      Rout z path witness →
+        ((extractor z).terminalState path).holds (terminalWitness z path witness)) :
     Pr{let joint ← (randomOracleLoggedRun
       (randomizedStoppedRestoredExecutionWithAdversaryLog rounds guards adversary) ∅)}[
       badStoppedRelation state extractor Rin Rout terminalWitness Z joint.1.1.1] ≤
@@ -359,11 +359,11 @@ theorem randomizedStopped_knowledge_soundness_actualAdversary
     (Rin : (z : Input) → (state z).Witness → Prop)
     (Rout : (z : Input) → (path : (protocol rounds).tree.ExecutionPath) → W → Prop)
     (terminalWitness : (z : Input) → (path : (protocol rounds).tree.ExecutionPath) →
-      W ≃ ((extractor z).terminalState path).Witness)
+      W → ((extractor z).terminalState path).Witness)
     (inputLaw : ∀ z witness, (state z).holds witness ↔ Rin z witness)
     (outputLaw : ∀ z path witness,
-      ((extractor z).terminalState path).holds (terminalWitness z path witness) ↔
-        Rout z path witness) :
+      Rout z path witness →
+        ((extractor z).terminalState path).holds (terminalWitness z path witness)) :
     Pr{let joint ← (randomOracleLoggedRun
       (randomizedStoppedRestoredExecutionWithAdversaryLog rounds guards adversary) ∅)}[
       badStoppedRelation state extractor Rin Rout terminalWitness Z joint.1.1.1] ≤
@@ -395,11 +395,11 @@ theorem randomizedStopped_knowledge_soundness_queryBound
     (Rin : (z : Input) → (state z).Witness → Prop)
     (Rout : (z : Input) → (path : (protocol rounds).tree.ExecutionPath) → W → Prop)
     (terminalWitness : (z : Input) → (path : (protocol rounds).tree.ExecutionPath) →
-      W ≃ ((extractor z).terminalState path).Witness)
+      W → ((extractor z).terminalState path).Witness)
     (inputLaw : ∀ z witness, (state z).holds witness ↔ Rin z witness)
     (outputLaw : ∀ z path witness,
-      ((extractor z).terminalState path).holds (terminalWitness z path witness) ↔
-        Rout z path witness)
+      Rout z path witness →
+        ((extractor z).terminalState path).holds (terminalWitness z path witness))
     (Q : ℕ)
     (actualQueryBound : ∀ phase ∈ support (randomOracleLoggedRun adversary.withQueryLog ∅),
       (freshKeysOfLog phase.1.2).card ≤ Q) :
