@@ -740,6 +740,10 @@ public import ArkLib.OracleReduction.FiatShamir.DuplexSponge.Security.ProverTran
 public import ArkLib.OracleReduction.FiatShamir.DuplexSponge.Security.Soundness
 public import ArkLib.OracleReduction.FiatShamir.DuplexSponge.Security.TraceTransform
 public import ArkLib.OracleReduction.FiatShamir.DuplexSponge.State
+public import ArkLib.OracleReduction.FiatShamir.Legacy.KnowledgeGames
+public import ArkLib.OracleReduction.FiatShamir.Legacy.Lifting
+public import ArkLib.OracleReduction.FiatShamir.Legacy.QueryLog
+public import ArkLib.OracleReduction.FiatShamir.Legacy.SingleSalt
 public import ArkLib.OracleReduction.LiftContext.Lens
 public import ArkLib.OracleReduction.LiftContext.OracleReduction
 public import ArkLib.OracleReduction.LiftContext.Purity
@@ -748,6 +752,7 @@ public import ArkLib.OracleReduction.OracleInterface
 public import ArkLib.OracleReduction.Prelude
 public import ArkLib.OracleReduction.ProtocolSpec.Basic
 public import ArkLib.OracleReduction.ProtocolSpec.Cast
+public import ArkLib.OracleReduction.ProtocolSpec.DeriveTranscript
 public import ArkLib.OracleReduction.ProtocolSpec.SeqCompose
 public import ArkLib.OracleReduction.Salt
 public import ArkLib.OracleReduction.Security.Basic
@@ -849,6 +854,7 @@ public import ArkLib.ProofSystem.Sumcheck.Interaction.Soundness
 public import ArkLib.ProofSystem.Sumcheck.Interaction.StateRestorationCertificate
 public import ArkLib.ProofSystem.Sumcheck.Interaction.StateRestorationEvaluation
 public import ArkLib.ProofSystem.Sumcheck.Interaction.StateRestorationSoundness
+public import ArkLib.ProofSystem.Sumcheck.Interaction.StoppedSoundness
 public import ArkLib.ProofSystem.Sumcheck.Spec.General
 public import ArkLib.ProofSystem.Sumcheck.Spec.SingleRound
 public import ArkLib.ProofSystem.Sumcheck.Structured
