@@ -703,6 +703,7 @@ public import ArkLib.Interaction.Oracle.Security.StateRestoration
 public import ArkLib.Interaction.Oracle.Security.StateRestorationBudget
 public import ArkLib.Interaction.Oracle.Security.StateRestorationCoins
 public import ArkLib.Interaction.Oracle.Security.StateRestorationGame
+public import ArkLib.Interaction.Oracle.Security.StateRestorationLegacyGameUnroll
 public import ArkLib.Interaction.Oracle.Security.StateRestorationLegacyPremise
 public import ArkLib.Interaction.Oracle.Security.StateRestorationOracle
 public import ArkLib.Interaction.Oracle.Security.StateRestorationQueryBound

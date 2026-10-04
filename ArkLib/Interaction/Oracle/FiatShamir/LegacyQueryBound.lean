@@ -24,15 +24,6 @@ namespace Interaction.Oracle.FiatShamir
 
 open OracleComp OracleSpec ProtocolSpec Security.StateRestoration
 
-private theorem queryBound_simulateQ_transport {ι κ A : Type}
-    {source : OracleSpec ι} {target : OracleSpec κ} {F : A → Type}
-    (route : QueryImpl source (OracleComp target)) {x y : A} (h : x = y)
-    (program : OracleComp source (F x)) (p : κ → Prop) [DecidablePred p] (Q : ℕ) :
-    (simulateQ route (h ▸ program)).IsQueryBoundP p Q ↔
-      (simulateQ route program).IsQueryBoundP p Q := by
-  cases h
-  rfl
-
 /-- Concrete legacy-to-native prover translation preserves the structural hash-query cap. -/
 theorem simulateLegacyProver_queryBound {Input W : Type} (rounds : List Round)
     (prover : Prover.StateRestoration.KnowledgeSoundnessWithCoins
@@ -48,9 +39,8 @@ theorem simulateLegacyProver_queryBound {Input W : Type} (rounds : List Round)
       cases t with
       | inl impossible => nomatch impossible
       | inr key =>
-        simp only [legacyProverRoute, legacyQueryInNative]
-        rw [queryBound_simulateQ_transport]
-        simp [restorationQueries]
+        obtain ⟨native, rfl⟩ := (keyEquiv Input rounds).surjective key
+        simp [legacyProverRoute, restorationQueries]
     | inr coin => simp at ht
   · intro t ht
     cases t with

@@ -337,7 +337,6 @@ theorem nativeTableToLegacy_apply {Input : Type} (rounds : List Round)
   exact (keyEquiv Input rounds).piCongr_apply_apply
     (fun key => Equiv.cast (keyEquiv_response rounds key).symm) table key
 
-/-- Answer actual legacy Fiat–Shamir challenge queries through the native restoration oracle. -/
 private theorem cast_oracleComp_eq_map_cast {ι : Type} {spec : OracleSpec ι}
     {α β : Type} (h : α = β) (oa : OracleComp spec α) :
     (Equiv.cast (congrArg (OracleComp spec) h)) oa = (cast h) <$> oa := by
@@ -349,6 +348,7 @@ private theorem cast_oracleComp_eq_map_cast {ι : Type} {spec : OracleSpec ι}
   rw [Equiv.cast_apply]
   exact cast_eq (congrArg (OracleComp spec) (rfl : α = α)) oa
 
+/-- Answer actual legacy Fiat–Shamir challenge queries through the native restoration oracle. -/
 noncomputable def legacyQueryInNative {Input : Type} (rounds : List Round) :
     QueryImpl (fsChallengeOracle Input (legacySpec rounds))
       (OracleComp (oracleSpec Input PUnit rounds)) :=
