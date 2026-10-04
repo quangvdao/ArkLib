@@ -676,6 +676,7 @@ public import ArkLib.Interaction.Oracle.FiatShamir.PublicExecutionCorrespondence
 public import ArkLib.Interaction.Oracle.FiatShamir.PublicMessage
 public import ArkLib.Interaction.Oracle.FiatShamir.PublicStopped
 public import ArkLib.Interaction.Oracle.FiatShamir.SingleSaltSecurity
+public import ArkLib.Interaction.Oracle.FiatShamir.StoppedCompletionTransport
 public import ArkLib.Interaction.Oracle.LoggedExecution
 public import ArkLib.Interaction.Oracle.LoggedRun
 public import ArkLib.Interaction.Oracle.MerkleAdaptiveTerminal
