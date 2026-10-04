@@ -1,7 +1,12 @@
 # Current status
 
-**Status date:** 2026-09-26. **Scope:** the supported dependency baseline, what the typed
+**Status date:** 2026-10-03. **Scope:** the supported dependency baseline, what the typed
 oracle-reduction layer provides in this source revision, and its remaining proof gaps.
+
+This integration revision includes reviewed work in open PRs as well as merged main.
+The [second-run record](interaction-security-second-night-results.md) distinguishes the PR
+heads, dependency order, validations, and source restrictions. It does not claim those PRs
+are already merged.
 
 The typed core, the first world-backed execution artifacts, and the Sumcheck acceptance slices have
 landed (AR-1 through AR-10B; ArkLib #851–#892). Native full-protocol Sumcheck now has a
@@ -14,7 +19,7 @@ error. No declaration under `ArkLib/Interaction/` or
 
 | Repository | Revision | Role |
 |---|---|---|
-| VCVio | `d7089e46d69e07640fa23b5ae6b1b966f1d4b949` | direct ArkLib dependency |
+| VCVio | `6bf6c91b66dfa159342c355a4b81d65b55cb54a4` | direct integration dependency; reviewed combined theory on main fetched October 3 at 20:45 UTC |
 | PolyFun | `3710d71b28404a151b8d1f0ce080ea448778dec0` | revision selected and tested by VCVio |
 | Lean | `v4.34.0` | common toolchain |
 
@@ -71,7 +76,7 @@ commutativity assumption). It must not restore the legacy unrestricted compositi
 | Runner-produced resumable execution artifact | available | `OracleRuntime`, `RunResult`, `run`, `resume`, `GeneratedBy` in `VCVio.OracleComp.Runtime`; used by `executeWithRuntime` |
 | Failure-to-return mass boundary | available | `evalDistWithFailure` in `VCVio.EvalDist.WithFailure`; used by `Terminal.observe` |
 | Certified query-trace transducer specialization | **missing** | waits on the generic PolyFun transducer |
-| General conditioning/dynamic-programming facade | incomplete | specific theorems exist, but not the reusable state-restoration boundary |
+| General conditioning/dynamic-programming facade | incomplete | fixed-round restoration and actual expected-query bounds exist; no general correlated-cache conditioning API |
 | Error-bearing and cost-bearing reduction package | incomplete | `ReductionWithCost` handles cost; later clients still need explicit additive/substitution error transport |
 
 Accept/reject/fault classification is protocol-level and lives in ArkLib (`Interaction.Terminal`).
@@ -174,8 +179,9 @@ client exercises a quadratic with a cross term over a three-element domain, its 
 oracle, and execution with no rounds left.
 
 This is a computable finite-enumeration prover; it makes no efficiency claim. Optimized multilinear
-algorithms, native round-by-round and knowledge-security definitions, and extraction remain
-separate work. Legacy declarations with admissions are not repaired by these results.
+algorithms and substantive Sumcheck witness extraction remain separate work. The later security
+results below supply native round-by-round and knowledge interfaces, and an ordinary Sumcheck
+restoration application. Legacy declarations with admissions are not repaired by these results.
 
 `Oracle/Composition` and the earlier `ArbitraryRounds` clients execute sequences of separate
 reductions across explicit interfaces. Those execution results do not by themselves establish
@@ -335,6 +341,33 @@ The preserved `archive/oracle-reduction-v2-pre-split` branch contains the earlie
 prototype and protocol ports (FRI, Spartan, Fiat–Shamir, BCS, boundary transport, security
 notions). It is a source bank, not a merge base. Its code uses pre-`TypeTree` PolyFun names and
 older VCVio semantics, so each port is rewritten and re-audited on a fresh ArkLib base.
+
+## Reviewed interaction-security results in this integration
+
+The first run added native local-to-global soundness, dependent knowledge-certificate
+composition, and fixed-round restoration with uniform and nonuniform round errors.
+The [first-run record](interaction-security-night-results.md) gives the exact declarations
+and restrictions. The second run builds on that theory:
+
+- Actual cached random-oracle executions admit expected distinct-query error bounds, with
+  interleaved independent private randomness and arbitrary hash-input domains.
+- Randomized scalar and closed-output restoration knowledge bounds retain the same cache
+  and ordered log through completion, and charge failed selections as well as successes.
+- Sumcheck has an ordinary restoration bound and a proved output correspondence to its
+  native aborting verifier under selected messages and completed field coins.
+- Native terminal-batch Merkle verification has a real-to-ideal transfer using immutable
+  checkpoint-extracted digest vectors and the owning VCVio error expression.
+- Causal terminal query programs extend that transfer with a proved recursive path-agreement
+  theorem. They still receive one terminal opening batch.
+- Fixed initial caches admit a new-key expected-charge bound. A bad output must be witnessed
+  at a queried key absent from that initial cache.
+
+All these source slices passed independent review and full validation. The
+[second-run record](interaction-security-second-night-results.md) owns the current combined
+validation status. These results do not provide arbitrary dependent protocol lowering,
+encoded payload extraction, an efficient knowledge extractor, or a complete textbook compiler.
+The [early-rejection note](guarded-restoration-open-questions.md) identifies the remaining
+generic-adapter questions without choosing their interfaces.
 
 ## Where the remaining work is specified
 
