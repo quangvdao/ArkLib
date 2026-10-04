@@ -39,14 +39,14 @@ private theorem fromLegacyTranscript_hcons (round : Round) (rounds : List Round)
   simp only [fromLegacyTranscript, Fin.tail, Fin.hcons_zero, Fin.hcons_succ]
   congr 1
   congr 1
-  apply eq_of_heq
-  change cast _ (cast _ challenge) ≍ challenge
-  exact (cast_heq _ _).trans (cast_heq _ _)
-  congr 1
-  funext i
-  apply eq_of_heq
-  change cast _ (cast _ (cast _ (suffix i))) ≍ suffix i
-  exact (cast_heq _ _).trans ((cast_heq _ _).trans (cast_heq _ _))
+  · apply eq_of_heq
+    change cast _ (cast _ challenge) ≍ challenge
+    exact (cast_heq _ _).trans (cast_heq _ _)
+  · congr 1
+    funext i
+    apply eq_of_heq
+    change cast _ (cast _ (cast _ (suffix i))) ≍ suffix i
+    exact (cast_heq _ _).trans ((cast_heq _ _).trans (cast_heq _ _))
 
 /-- Encoding then decoding the alternating transcript returns the concrete public path. -/
 @[simp] theorem fromLegacyTranscript_toLegacyTranscript (rounds : List Round)
@@ -109,5 +109,100 @@ def firstLegacyPrefixEquiv (round : Round) (rounds : List Round) :
     have hindex : index = 0 := Fin.eq_zero index
     subst index
     rfl
+
+/-- At a later challenge, the legacy message prefix is the first public message followed by
+the corresponding message prefix of the remaining rounds. -/
+def laterLegacyPrefixEquiv (round : Round) (rounds : List Round)
+    (i : (legacySpec rounds).ChallengeIdx) :
+    round.Message × (legacySpec rounds).MessagesUpTo i.1.castSucc ≃
+      (legacySpec (round :: rounds)).MessagesUpTo
+        (Fin.succ (Fin.succ i.1)).castSucc where
+  toFun := fun ⟨message, suffix⟩ idx => by
+    rcases idx with ⟨j, hdir⟩
+    revert hdir
+    induction j using Fin.induction with
+    | zero =>
+        intro hdir
+        simpa [ProtocolSpec.MessageUpTo, SliceLT.sliceLT, ProtocolSpec.take,
+          legacySpec, Fin.take, Fin.vcons_zero] using message
+    | succ j _ =>
+        induction j using Fin.induction with
+        | zero =>
+            intro hdir
+            have hfalse : False := by
+              simp only [SliceLT.sliceLT, ProtocolSpec.take, Fin.take_apply,
+                legacySpec, Fin.castLE_succ,
+                Fin.castLE_zero, Fin.vcons_succ, Fin.vcons_zero] at hdir
+              cases hdir
+            exact hfalse.elim
+        | succ k _ =>
+            intro hdir
+            have htail : (legacySpec rounds).dir
+                (Fin.castLE (by omega) k) = .P_to_V := by
+              simpa [ProtocolSpec.MessageIdxUpTo, SliceLT.sliceLT, ProtocolSpec.take,
+                legacySpec, Fin.take, Fin.vcons_succ] using hdir
+            simpa [ProtocolSpec.MessageUpTo, SliceLT.sliceLT, ProtocolSpec.take,
+              legacySpec, Fin.take, Fin.vcons_succ] using
+              suffix ⟨k, htail⟩
+  invFun := fun msgs =>
+    ⟨msgs ⟨⟨0, by simp only [Fin.val_castSucc, Fin.val_succ]; omega⟩,
+      by simp [SliceLT.sliceLT, ProtocolSpec.take, legacySpec,
+        Fin.take, Fin.vcons_zero]⟩,
+      fun idx => by
+        let j : Fin (Fin.succ (Fin.succ i.1)).castSucc.val :=
+          Fin.succ (Fin.succ idx.1)
+        have hj : j = Fin.succ (Fin.succ idx.1) := rfl
+        have hle : (Fin.succ (Fin.succ i.1)).castSucc.val ≤
+            legacySteps (round :: rounds) := by
+          simp only [Fin.val_castSucc, Fin.val_succ, legacySteps]
+          omega
+        have htailLe : i.1.castSucc.val ≤ legacySteps rounds := by
+          simpa only [Fin.val_castSucc] using Nat.le_of_lt i.1.isLt
+        have hindex : Fin.castLE hle j =
+            Fin.succ (Fin.succ (Fin.castLE htailLe idx.1)) := by
+          apply Fin.ext
+          simp [j, Fin.val_succ]
+        have htailDir : (legacySpec rounds).dir
+            (Fin.castLE htailLe idx.1) = .P_to_V := by
+          simpa [ProtocolSpec.MessageIdxUpTo, SliceLT.sliceLT,
+            ProtocolSpec.take, Fin.take] using idx.2
+        have hdir : ((legacySpec (round :: rounds)).take _ hle).dir j =
+            .P_to_V := by
+          change (legacySpec (round :: rounds)).dir (Fin.castLE hle j) = .P_to_V
+          rw [hindex]
+          simpa only [legacySpec, Fin.vcons_succ] using htailDir
+        simpa [ProtocolSpec.MessageUpTo, SliceLT.sliceLT, ProtocolSpec.take,
+          legacySpec, Fin.take, hj, Fin.vcons_succ] using msgs ⟨j, hdir⟩⟩
+  left_inv := by
+    intro pair
+    rcases pair with ⟨message, suffix⟩
+    apply Prod.ext
+    · rfl
+    · funext idx
+      simp only [Fin.induction_succ]
+      rcases idx with ⟨idx, hidx⟩
+      apply eq_of_heq
+      simp only [eq_mpr_eq_cast]
+      repeat first | exact HEq.rfl | apply (cast_heq _ _).trans
+  right_inv := by
+    intro msgs
+    funext idx
+    rcases idx with ⟨j, hdir⟩
+    induction j using Fin.induction with
+    | zero => rfl
+    | succ j _ =>
+        induction j using Fin.induction with
+        | zero =>
+            have hfalse : False := by
+              simp only [SliceLT.sliceLT, ProtocolSpec.take, Fin.take_apply,
+                legacySpec, Fin.castLE_succ, Fin.castLE_zero,
+                Fin.vcons_succ, Fin.vcons_zero] at hdir
+              cases hdir
+            exact hfalse.elim
+        | succ k _ =>
+            simp only [Fin.induction_succ]
+            apply eq_of_heq
+            simp only [eq_mpr_eq_cast]
+            repeat first | exact HEq.rfl | apply (cast_heq _ _).trans
 
 end Interaction.Oracle.FiatShamir
