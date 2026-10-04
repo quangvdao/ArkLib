@@ -125,8 +125,9 @@ The comparison above is the pre-run audit. The third run has now supplied the ca
 premise on the finite common fragment: #1278 proves concrete transcript/key/table transport,
 and #1279 proves the actual coin-bearing SR bound from native certificates, then applies the
 attributed #848 single-salt transport. #1277 separately proves native stopped compiler security.
-A matched-check accepted-event connection is still being finished; full and stopped rejected
-runs must not be identified at the log/cache level.
+The matched-check accepted-event connection is now proved in #1281; full and stopped rejected
+runs are not identified at the log/cache level. Honest salt-aware native compilation and its
+completeness transfer are proved in #1280, including a connection to the actual native executor.
 
 The conditional duplex HOPE needs more than substituting a theorem name. At the pinned #848
 snapshot, its knowledge theorem uses `srInitDIP`, `srImplLift`, and private auxiliary interface

@@ -23,8 +23,8 @@ explicit pure-guard fragment without making it the universal library representat
 - **Finite legacy connection:** #1278–#1279 prove concrete transcript/key/table and arbitrary-prover
   correspondence, and derive the actual canonical SR and single-salt security bounds from native
   certificates. The legacy initializer is the pushforward of the finite native table sampler.
-  A matched-check accepted-event equality between canonical full reconstruction and stopped native
-  verification is still being completed at this checkpoint; rejected logs/caches remain distinct.
+  #1281 now proves the matched-check accepted-event equality between canonical full reconstruction
+  and actual stopped native verification; rejected logs/caches remain distinct.
 - **Witness interface:** the theorem uses a forward terminal seed, not a terminal-witness
   equivalence. Acceptance must validate that seed. Total seeds on all complete paths remain a
   restriction, and a substantial-witness protocol client beyond the Unit-witness Sumcheck

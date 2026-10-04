@@ -36,6 +36,17 @@ A proved support lemma or conditional assembly is not completion of its principa
   Full isolated validation: 964 modules, 18,761 declarations, no new taint. Ordinary and
   code-only reviews agree on the stated finite/empty-source/pure-observer fragment.
 
+- [#1280](https://github.com/Verified-zkEVM/ArkLib/pull/1280): salt-aware honest compilation,
+  actual native interactive-source correspondence, and completeness transfer; 1,155 additions.
+  Head `717eecf76`, stacked on #1277. Full isolated validation: 946 modules, 18,577 declarations,
+  286 baseline sorry-tainted declarations, no new taint. Ordinary and code-only reviews approve
+  the repaired salt-aware/native-source statement.
+- [#1281](https://github.com/Verified-zkEVM/ArkLib/pull/1281): matched accepted-failure equality
+  between canonical FS and actual native stopped verification; 697 additions, 2 deletions.
+  Head `11bd25ec5`, stacked on #1279. Full isolated validation: 965 modules, 18,792 declarations,
+  285 baseline sorry-tainted declarations, no new taint. The final ordinary and code-only reviews
+  close the earlier event-connection fidelity gate.
+
 ## Verified frontier and remaining obligations
 
 The stopped theorem derives a bad queried key from an all-prefix local certificate. Its endpoint
@@ -67,25 +78,29 @@ salt carried in the statement, empty ambient source, and a pure path observer. I
 terminal seed and the canonical two-log extractor interface; it does not establish extraction time
 or a deterministic prover-trace-only interface.
 
-**MUST 1 is complete. MUST 2 now has both native and canonical security theorems; its final
-matched-check accepted-event bridge remains in progress.** Independent review approved both
-theorems as stated but requires this explicit connection before closing the whole target. The
-canonical verifier completes the full transcript; the native verifier stops on failed guards.
-The pending proof compares accepted failure events under matched guards and terminal checks,
-not post-rejection cache/log equality. Root integration `c8d7d6884` passes
-full validation: 969 modules, 19,198 declarations, 285 baseline sorry-tainted declarations,
-no new taint or nonstandard axioms. Independent code-only read-back records the actual final
-quantifier order and experiment.
+**MUST 1 and MUST 2 are complete on their stated fragments, and SHOULD S1 is complete.**
+The final `fsNARGFailure_eq_actual_singleSaltAccepted` theorem identifies the actual canonical
+noninteractive failure experiment with the actual native lazy/stopped accepted-failure event for
+the same arbitrary private-coin prover and terminal seed. Its NARG specialization uses
+statement-only guards, terminal acceptance, and observation; the SR bridge also permits checks
+on the salted input. It compares accepted events, not post-rejection log/cache/cost equality.
 
-SHOULD S1 has a fully validated honest accepted-output equality and completeness transfer for
-salt-oblivious strategies. Independent review requested a salt-aware strategy interface and an
-explicit connection from the recursive interactive interpreter to native `executeStrategies`;
-these repairs are in progress before S1 is counted complete. S2 has a checked operational reduction for arbitrary adaptive encoded-domain clients: image
-queries use the native oracle and off-image replies are privately sampled and memoized. Its
-returned value, full external query log, and reconstructed external cache match the actual external
-random oracle. Native log/charge transport and the certificate security assembly remain in progress.
-This is a preserved partial result, not completion of S2.
-HOPE remains unimplemented. No main branch was merged or another author's branch edited.
+S1 now allows `GlobalSalt → HonestProver`: the prover strategy is selected after the independent
+salt draw. The source is actual `executeStrategies` on the guarded native public protocol with
+a uniform verifier and preserved private continuations. The compiled target is the existing
+actual logged `singleSaltAcceptedExecution`. Their projected optional accepted outputs are equal,
+so any source completeness probability transfers exactly, without assuming probability one.
+
+S2 has checked operational simulation, full external value/log/cache correspondence, exact
+runtime native decoded logs, distinct-key and weighted expected-charge transport. Off-image
+answers are privately sampled and memoized, with arbitrary external domains and adaptive clients.
+The common answer carrier is explicit. A dependent-challenge fibre coupling and its application
+to the native security certificate are still being proved; S2 is not yet complete.
+
+HOPE remains unimplemented: the original conditional duplex stack needs its own API port and
+sampler/auxiliary-oracle compatibility before the native certificate can supply its premise.
+The concrete `KeyLemmaSecurityWitness` is still an explicit unproved boundary. No main branch
+was merged or another author's branch edited.
 
 ## Review record
 
@@ -97,17 +112,19 @@ HOPE remains unimplemented. No main branch was merged or another author's branch
 - [Native FS code-only read-back](reviews/native-fs-blind-third-run.md).
 - [Legacy correspondence code-only read-back](reviews/legacy-correspondence-blind-third-run.md).
 - [Final legacy security code-only read-back](reviews/legacy-security-blind-third-run.md).
-- [Legacy security ordinary review and remaining fidelity gate](reviews/legacy-security-third-run.md).
+- [Legacy security ordinary review and resolved fidelity gate](reviews/legacy-security-third-run.md).
+- [Accepted-event code-only read-back](reviews/accepted-event-blind-third-run.md).
+- [Honest FS ordinary review and repairs](reviews/honest-fs-third-run.md).
+- [Repaired honest FS code-only read-back](reviews/honest-fs-final-blind-third-run.md).
 
 Checks distinguish the exact published slice from the larger integration branch. All run builds
 use Lean 4.34.0 and VCVio `6bf6c91b66dfa159342c355a4b81d65b55cb54a4`, with private dependency
 snapshots and serialized writes. That VCVio revision is the run's chosen snapshot, not the current
 ArkLib main dependency pin (`d7089e46`).
 
-## Latest integration checkpoint
+## Integration checkpoint
 
-At `a68580672`, the integration includes the checked S2 operational core as an unpublished
-checkpoint. Full validation passes: 972 modules, 19,299 declarations, 285 baseline sorry-tainted
-declarations, and no new taint or nonstandard axioms. S1's salt-aware/native-source repair and
-the final stopped/eager noninteractive event corollary are still being developed in isolated
-worktrees. Their earlier restricted results are not substituted for the requested full claims.
+The isolated PR slices above have each passed full validation. Integration `a2b1c6ec9` contains
+all published theorems plus unpublished S2 fibre/weighted-transport support. Combined full
+validation passed: 976 modules, 19,390 declarations, 285 baseline sorry-tainted declarations,
+and no new taint or nonstandard axioms.
