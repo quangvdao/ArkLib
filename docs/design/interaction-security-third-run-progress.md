@@ -1,7 +1,8 @@
 # Third interaction-security run: checked progress
 
 Run: October 4, 2026, 05:07:49–10:37:49 UTC. Status: **MUST 1, MUST 2, SHOULD S1 and SHOULD S2 proved, reviewed and published**.
-Final CI observation and handoff are being completed within the original time box.
+Final acceptance checkpoint: October 4, 2026, 09:32 UTC, before the 10:37:49 UTC deadline.
+Both MUSTs and both SHOULDs met their completion conditions; the conditional duplex HOPE is unfinished.
 The [authorized contract](interaction-security-third-run-contract.md) remains the acceptance target.
 A proved support lemma or conditional assembly is not completion of its principal target.
 
@@ -168,6 +169,18 @@ The integration branch also retains the run contract, literature comparison, rev
 open questions. The latest observed main remains `7717f73cd09e5a6b8952ff00bdfccc158330bcac`;
 no new main commits required reconciliation at the final source check.
 
+## Main exported entry points
+
+| Contract target | Checked declaration and owner |
+| --- | --- |
+| MUST 1: sharp actual stopped security | `randomizedStopped_badRelation_le_expectedFreshCharge` in [StateRestorationStopped](../../ArkLib/Interaction/Oracle/Security/StateRestorationStopped.lean) |
+| MUST 1: actual adversary/verifier costs | `expectedStoppedFreshCharge_le_actualAdversary_and_sum` in [StateRestorationStoppedBudget](../../ArkLib/Interaction/Oracle/Security/StateRestorationStoppedBudget.lean) |
+| MUST 2: native compiled security | `singleSalt_knowledge_soundness` in [SingleSaltSecurity](../../ArkLib/Interaction/Oracle/FiatShamir/SingleSaltSecurity.lean) |
+| MUST 2: one canonical extractor before all query budgets | `singleSalt_knowledgeSoundness_of_nativeCertificate` in [LegacyCertificateSecurity](../../ArkLib/Interaction/Oracle/FiatShamir/LegacyCertificateSecurity.lean) |
+| MUST 2: actual canonical/native event equality | `fsNARGFailure_eq_actual_singleSaltAccepted` in [LegacyStoppedConnection](../../ArkLib/Interaction/Oracle/FiatShamir/LegacyStoppedConnection.lean) |
+| S1: actual interactive-source completeness | `honestSingleSaltAccepted_logged_eq_native` and `honestSingleSaltAccepted_native_completeness` in [HonestSingleSalt](../../ArkLib/Interaction/Oracle/FiatShamir/HonestSingleSalt.lean) |
+| S2: actual external security and complete cost chain | `encodedExternalStopped_knowledge_soundness_sharp`, `encodedExternalStopped_expectedCharge_le_adversaryCount`, and `encodedExternalStopped_knowledge_soundness_adversaryCount` in [EncodedSecurityEvent](../../ArkLib/Interaction/Oracle/Security/EncodedSecurityEvent.lean) |
+
 ## Merge order and retained research boundaries
 
 Complete the existing dependency chain through #1269 before integrating #1274. Then the three
@@ -190,3 +203,17 @@ auxiliary information, online Merkle protocols, and hash-chain/duplex Fiat–Sha
 work. The conditional duplex port and its concrete Key Lemma obligations remain separate. The
 [open questions](guarded-restoration-open-questions.md) and [FS overlap audit](fiat-shamir-open-pr-overlap.md)
 retain these boundaries rather than choosing new definitions for them implicitly.
+
+## Final checks and publication status
+
+At the final acceptance checkpoint, all ten PRs (#1274–#1283) were open and mergeable against
+their current bases. Every triggered check passed; #1275's docs publication was intentionally
+skipped. #1276 triggered only the summary workflow, so that is not evidence of a GitHub proof
+build for its slice; its isolated full local validation and axiom regression passed separately.
+The final #1283 interaction check passed at 09:31:27 UTC. Every published slice received full
+local validation, and the complete mathematical integration passed the 983-module check above.
+
+The final published encoded files match the reviewed integration source byte-for-byte. Main
+was fetched again at 09:28 UTC and remained at the recorded revision. All run changes and review
+notes are saved on `integration/interaction-third-run-20261004` in the quangvdao/ArkLib fork.
+No PR was merged, no main branch was modified, and no original FS author's branch was edited.
