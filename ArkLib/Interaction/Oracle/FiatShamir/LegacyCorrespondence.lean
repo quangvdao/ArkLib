@@ -110,13 +110,13 @@ def firstLegacyPrefixEquiv (round : Round) (rounds : List Round) :
     subst index
     rfl
 
-/-- At a later challenge, the legacy message prefix is the first public message followed by
+/-- After an arbitrary suffix cutoff, the legacy message prefix is the first public message followed by
 the corresponding message prefix of the remaining rounds. -/
-def laterLegacyPrefixEquiv (round : Round) (rounds : List Round)
-    (i : (legacySpec rounds).ChallengeIdx) :
-    round.Message × (legacySpec rounds).MessagesUpTo i.1.castSucc ≃
+def shiftedLegacyPrefixEquiv (round : Round) (rounds : List Round)
+    (cut : Fin (legacySteps rounds + 1)) :
+    round.Message × (legacySpec rounds).MessagesUpTo cut ≃
       (legacySpec (round :: rounds)).MessagesUpTo
-        (Fin.succ (Fin.succ i.1)).castSucc where
+        (Fin.succ (Fin.succ cut)) where
   toFun := fun ⟨message, suffix⟩ idx => by
     rcases idx with ⟨j, hdir⟩
     revert hdir
@@ -145,19 +145,20 @@ def laterLegacyPrefixEquiv (round : Round) (rounds : List Round)
               legacySpec, Fin.take, Fin.vcons_succ] using
               suffix ⟨k, htail⟩
   invFun := fun msgs =>
-    ⟨msgs ⟨⟨0, by simp only [Fin.val_castSucc, Fin.val_succ]; omega⟩,
+    ⟨msgs ⟨⟨0, by simp only [Fin.val_succ]; omega⟩,
       by simp [SliceLT.sliceLT, ProtocolSpec.take, legacySpec,
         Fin.take, Fin.vcons_zero]⟩,
       fun idx => by
-        let j : Fin (Fin.succ (Fin.succ i.1)).castSucc.val :=
+        let j : Fin (Fin.succ (Fin.succ cut)).val :=
           Fin.succ (Fin.succ idx.1)
         have hj : j = Fin.succ (Fin.succ idx.1) := rfl
-        have hle : (Fin.succ (Fin.succ i.1)).castSucc.val ≤
+        have hle : (Fin.succ (Fin.succ cut)).val ≤
             legacySteps (round :: rounds) := by
-          simp only [Fin.val_castSucc, Fin.val_succ, legacySteps]
+          simp only [Fin.val_succ, legacySteps]
           omega
-        have htailLe : i.1.castSucc.val ≤ legacySteps rounds := by
-          simpa only [Fin.val_castSucc] using Nat.le_of_lt i.1.isLt
+        have htailLe : cut.val ≤ legacySteps rounds := by
+          have hcut := cut.isLt
+          omega
         have hindex : Fin.castLE hle j =
             Fin.succ (Fin.succ (Fin.castLE htailLe idx.1)) := by
           apply Fin.ext
@@ -204,5 +205,28 @@ def laterLegacyPrefixEquiv (round : Round) (rounds : List Round)
             apply eq_of_heq
             simp only [eq_mpr_eq_cast]
             repeat first | exact HEq.rfl | apply (cast_heq _ _).trans
+
+/-- At a later challenge, the shifted message prefix is exactly the first public message
+and the previous rounds' prefix. -/
+def laterLegacyPrefixEquiv (round : Round) (rounds : List Round)
+    (i : (legacySpec rounds).ChallengeIdx) :
+    round.Message × (legacySpec rounds).MessagesUpTo i.1.castSucc ≃
+      (legacySpec (round :: rounds)).MessagesUpTo
+        (Fin.succ (Fin.succ i.1)).castSucc := by
+  simpa only [Fin.castSucc_succ] using
+    (shiftedLegacyPrefixEquiv round rounds i.1.castSucc)
+
+/-- The legacy prover-message carrier is exactly the native public message tuple. -/
+def fullLegacyMessagesEquiv : (rounds : List Round) →
+    PublicMessages rounds ≃ (legacySpec rounds).Messages
+  | [] =>
+      { toFun := fun _ i => i.1.elim0
+        invFun := fun _ => PUnit.unit
+        left_inv := by intro x; cases x; rfl
+        right_inv := by intro x; funext i; exact i.1.elim0 }
+  | round :: rounds =>
+      (Equiv.prodCongr (Equiv.refl round.Message)
+        (fullLegacyMessagesEquiv rounds)).trans
+          (shiftedLegacyPrefixEquiv round rounds (Fin.last (legacySteps rounds)))
 
 end Interaction.Oracle.FiatShamir
