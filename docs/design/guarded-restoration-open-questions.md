@@ -8,6 +8,34 @@ The Sumcheck application now provides a concrete route from fixed-round restorat
 native early rejection. A general adapter needs to say which execution's state and costs
 it preserves. Equality of accepted outputs alone does not settle that question.
 
+## Third-run update: what has now been settled
+
+The remainder of this note records the second-run frontier. The third run settles a restricted,
+explicit pure-guard fragment without making it the universal library representation:
+
+- **Actual stopped experiment and costs:** #1274 proves knowledge security directly for stopped
+  completion, using the supplied terminal seed and named backward extractor. Its expected charge
+  counts the actual distinct adversary keys and only verifier challenge calls that execute.
+  The generic stopped-cost question below is therefore resolved for this fragment.
+- **Actual public verification:** #1277 proves an open-program equality between native public
+  guarded verification and stopped completion, then exports the native single-salt security bound.
+  Terminal rejection filters the result while preserving the actual run's logs/cache/charge.
+- **Finite legacy connection:** #1278–#1279 prove concrete transcript/key/table and arbitrary-prover
+  correspondence, and derive the actual canonical SR and single-salt security bounds from native
+  certificates. The legacy initializer is the pushforward of the finite native table sampler.
+  A matched-check accepted-event equality between canonical full reconstruction and stopped native
+  verification is still being completed at this checkpoint; rejected logs/caches remain distinct.
+- **Witness interface:** the theorem uses a forward terminal seed, not a terminal-witness
+  equivalence. Acceptance must validate that seed. Total seeds on all complete paths remain a
+  restriction, and a substantial-witness protocol client beyond the Unit-witness Sumcheck
+  application remains useful future evidence.
+
+Effectful guards, arbitrary mutable ambient oracles, branch-dependent challenge laws, executable
+ancestor-replay costs/PPT extraction, partial terminal seeds, and general online adversarial
+message generation remain open extensions. None is silently selected or ruled out by this run.
+See the [live third-run record](interaction-security-third-run-progress.md) for checked heads,
+review outcomes, and unfinished obligations.
+
 ## What the current proofs establish
 
 The restoration owner uses a fixed list of `Round`s. Each round fixes its message type,

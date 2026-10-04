@@ -77,9 +77,14 @@ full validation: 969 modules, 19,198 declarations, 285 baseline sorry-tainted de
 no new taint or nonstandard axioms. Independent code-only read-back records the actual final
 quantifier order and experiment.
 
-SHOULD S1 has a fully validated honest accepted-output equality and completeness transfer;
-independent review and isolated publication validation are underway. S2 is investigating a real memoized off-image
-query simulation and full cache/log coupling. It will not be counted complete from a codec alone.
+SHOULD S1 has a fully validated honest accepted-output equality and completeness transfer for
+salt-oblivious strategies. Independent review requested a salt-aware strategy interface and an
+explicit connection from the recursive interactive interpreter to native `executeStrategies`;
+these repairs are in progress before S1 is counted complete. S2 has a checked operational reduction for arbitrary adaptive encoded-domain clients: image
+queries use the native oracle and off-image replies are privately sampled and memoized. Its
+returned value, full external query log, and reconstructed external cache match the actual external
+random oracle. Native log/charge transport and the certificate security assembly remain in progress.
+This is a preserved partial result, not completion of S2.
 HOPE remains unimplemented. No main branch was merged or another author's branch edited.
 
 ## Review record
@@ -98,3 +103,11 @@ Checks distinguish the exact published slice from the larger integration branch.
 use Lean 4.34.0 and VCVio `6bf6c91b66dfa159342c355a4b81d65b55cb54a4`, with private dependency
 snapshots and serialized writes. That VCVio revision is the run's chosen snapshot, not the current
 ArkLib main dependency pin (`d7089e46`).
+
+## Latest integration checkpoint
+
+At `a68580672`, the integration includes the checked S2 operational core as an unpublished
+checkpoint. Full validation passes: 972 modules, 19,299 declarations, 285 baseline sorry-tainted
+declarations, and no new taint or nonstandard axioms. S1's salt-aware/native-source repair and
+the final stopped/eager noninteractive event corollary are still being developed in isolated
+worktrees. Their earlier restricted results are not substituted for the requested full claims.

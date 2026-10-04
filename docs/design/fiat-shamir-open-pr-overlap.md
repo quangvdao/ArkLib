@@ -140,3 +140,8 @@ across the duplex modules and original SingleSalt file, including definitions, c
 and transforms. Porting that entire dependency surface would need its own reviewed stack; a
 small wrapper on the current baseline would not prove the promised conditional duplex result.
 No such wrapper is counted as a completed result of this run.
+
+The narrow #848 ports retain shared declaration names and attribution. When the remainder of
+that original stack is rebased onto #1275–#1276, it should import the shared owner modules and
+remove duplicated declarations; both copies should not be merged unchanged. The original authors'
+branches have not been edited by this run.
