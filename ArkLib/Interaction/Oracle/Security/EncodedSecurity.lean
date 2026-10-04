@@ -6,6 +6,7 @@ Authors: Quang Dao
 module
 
 public import ArkLib.Interaction.Oracle.Security.EncodedCompletion
+public import ArkLib.Interaction.Oracle.Security.EncodedFibreCost
 
 /-!
 # Encoded-domain adversaries in native restoration security
@@ -68,20 +69,6 @@ def CommonChallenge.ofRoundEquivs
     | round :: rest, es, .inr data =>
         build rest (fun r hr => es r (by simp [hr])) data.2.2
   exact ⟨build rounds equivs⟩
-
-/-- Transporting challenge answers changes no key in the ordered hash log. -/
-theorem CommonChallenge.freshKeys_toCommonLog
-    [DecidableEq Input] [DecidableEq Salt]
-    (common : CommonChallenge Input Salt C rounds)
-    (log : QueryLog (oracleSpec Input Salt rounds)) :
-    freshKeysOfLog (common.toCommonLog log) = freshKeysOfLog log := by
-  induction log with
-  | nil => rfl
-  | cons entry tail ih =>
-      simp only [CommonChallenge.toCommonLog, List.map_cons, freshKeysOfLog_cons]
-      change insert entry.1 (freshKeysOfLog (common.toCommonLog tail)) =
-        insert entry.1 (freshKeysOfLog tail)
-      rw [ih]
 
 /-- Forgetting the external writer/off-image cache from the selected value does not erase any
 actual native hash query or alter its distinct-key expectation. -/
