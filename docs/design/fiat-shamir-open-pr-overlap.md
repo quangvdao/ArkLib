@@ -129,6 +129,13 @@ The matched-check accepted-event connection is now proved in #1281; full and sto
 runs are not identified at the log/cache level. Honest salt-aware native compilation and its
 completeness transfer are proved in #1280, including a connection to the actual native executor.
 
+The encoded-domain obligation identified in the comparison is now handled generically by
+#1282–#1283. They prove adaptive off-image simulation with memoized replies, complete external
+cache/log correspondence, uniform challenge conversion, and the full actual external security
+and weighted-cost chain. The domain can be infinite; a strict codec and a common finite uniform
+challenge type remain required. This does not instantiate a concrete Section 5 byte/permutation
+encoding or discharge decoding-bias and duplex coupling obligations.
+
 The conditional duplex HOPE needs more than substituting a theorem name. At the pinned #848
 snapshot, its knowledge theorem uses `srInitDIP`, `srImplLift`, and private auxiliary interface
 `(Unit →ₒ U) + unifSpec`, with structural bound `θStar` and the exact `ηStarTotal` term. The new

@@ -25,6 +25,14 @@ explicit pure-guard fragment without making it the universal library representat
   certificates. The legacy initializer is the pushforward of the finite native table sampler.
   #1281 now proves the matched-check accepted-event equality between canonical full reconstruction
   and actual stopped native verification; rejected logs/caches remain distinct.
+- **Honest execution:** #1280 transfers completeness from actual native interactive execution,
+  allowing the honest strategy to depend on the independently sampled salt and preserving its
+  private continuations.
+- **Encoded oracle queries:** #1282–#1283 permit arbitrary adaptive off-image queries through a
+  strict codec and prove the actual external security/cost chain. Off-image replies are memoized;
+  weights are zero off-image and count each on-image key once. The external domain may be infinite,
+  but native challenges must be bijective with one finite uniform common type. Nonuniform or
+  differently sized challenge representations remain open.
 - **Witness interface:** the theorem uses a forward terminal seed, not a terminal-witness
   equivalence. Acceptance must validate that seed. Total seeds on all complete paths remain a
   restriction, and a substantial-witness protocol client beyond the Unit-witness Sumcheck

@@ -1,6 +1,7 @@
 # Third interaction-security run: checked progress
 
-Run: October 4, 2026, 05:07:49–10:37:49 UTC. Status: **in progress**.
+Run: October 4, 2026, 05:07:49–10:37:49 UTC. Status: **MUST 1, MUST 2, SHOULD S1 and SHOULD S2 proved, reviewed and published**.
+Final CI observation and handoff are being completed within the original time box.
 The [authorized contract](interaction-security-third-run-contract.md) remains the acceptance target.
 A proved support lemma or conditional assembly is not completion of its principal target.
 
@@ -15,11 +16,12 @@ A proved support lemma or conditional assembly is not completion of its principa
   transcript reconstruction, query logging and routing lemmas. Head `c8489f70a`, base main at
   `7717f73cd09e5a6b8952ff00bdfccc158330bcac`; 779 additions, 18 deletions.
   Full validation with axiom regression passed: 924 modules, 18,033 declarations, no new taint.
-  The VCVio pin needs the existing Ajtai binding API names updated; no mathematical change.
+  The port updates existing Ajtai binding API names for the pinned VCVio; no mathematical change.
 
 - [#1276](https://github.com/Verified-zkEVM/ArkLib/pull/1276): canonical coin-bearing
   single-salt knowledge-security transport, stacked on #1275. Head `6b8a3d0dc`; 825 additions.
-  Full validation: 926 modules, 18,067 declarations, no new taint. Its SR premise remains explicit.
+  Full validation: 926 modules, 18,067 declarations, no new taint. Its SR premise is explicit
+  at this transport layer and is discharged on the selected native fragment in #1279.
 - [#1277](https://github.com/Verified-zkEVM/ArkLib/pull/1277): actual native single-salt
   knowledge security and compiled Sumcheck soundness, stacked on #1274. Head `2433b391b`;
   1,310 additions across nine files, including 97 executor equations reused from #1261.
@@ -46,6 +48,21 @@ A proved support lemma or conditional assembly is not completion of its principa
   Head `11bd25ec5`, stacked on #1279. Full isolated validation: 965 modules, 18,792 declarations,
   285 baseline sorry-tainted declarations, no new taint. The final ordinary and code-only reviews
   close the earlier event-connection fidelity gate.
+
+- [#1282](https://github.com/Verified-zkEVM/ArkLib/pull/1282): arbitrary encoded-domain
+  adversary simulation, including private memoized off-image answers, exact cache/log
+  reconstruction, and distinct-key/weighted-charge transport; 810 additions.
+  Head `232ba86e7`, stacked on #1274. Full isolated validation: 942 modules, 18,473 declarations,
+  286 baseline sorry-tainted declarations, no new taint. Ordinary and code-only reviews approve
+  this operational reduction. The dependent native coupling and final external security theorem
+  are separate remaining obligations.
+
+- [#1283](https://github.com/Verified-zkEVM/ArkLib/pull/1283): actual external encoded-domain
+  stopped security, joint challenge/cache/log coupling, and exact weighted query accounting;
+  1,453 additions and 1 deletion. Head `d8220cd98`, stacked on #1282.
+  Full isolated validation: 950 modules, 18,554 declarations, 286 baseline taint, no new taint.
+  Ordinary and independent code-only reviews cover the full probability/cost chain. Review found
+  and the implementation repaired a missing external joint-charge-to-budget inequality.
 
 ## Verified frontier and remaining obligations
 
@@ -78,7 +95,7 @@ salt carried in the statement, empty ambient source, and a pure path observer. I
 terminal seed and the canonical two-log extractor interface; it does not establish extraction time
 or a deterministic prover-trace-only interface.
 
-**MUST 1 and MUST 2 are complete on their stated fragments, and SHOULD S1 is complete.**
+**MUST 1, MUST 2, SHOULD S1 and SHOULD S2 are complete on their stated fragments.**
 The final `fsNARGFailure_eq_actual_singleSaltAccepted` theorem identifies the actual canonical
 noninteractive failure experiment with the actual native lazy/stopped accepted-failure event for
 the same arbitrary private-coin prover and terminal seed. Its NARG specialization uses
@@ -91,11 +108,23 @@ a uniform verifier and preserved private continuations. The compiled target is t
 actual logged `singleSaltAcceptedExecution`. Their projected optional accepted outputs are equal,
 so any source completeness probability transfers exactly, without assuming probability one.
 
-S2 has checked operational simulation, full external value/log/cache correspondence, exact
-runtime native decoded logs, distinct-key and weighted expected-charge transport. Off-image
-answers are privately sampled and memoized, with arbitrary external domains and adaptive clients.
-The common answer carrier is explicit. A dependent-challenge fibre coupling and its application
-to the native security certificate are still being proved; S2 is not yet complete.
+S2 now proves the actual external stopped accepted-failure event bound, including arbitrary
+adaptive/private-coin/off-image queries and one shared external cache. The strict codec simulation
+memoizes off-image answers privately. The challenge conversion preserves the joint value, ordered
+log and complete cache distribution. Exact weighted-charge transport gives the full chain
+
+    Pr[accepted and the named extracted witness is invalid]
+      <= E[sum of encoded round-error weights over actual distinct joint keys]
+      <= max(round errors) * E[distinct keys of the original external adversary]
+          + sum(round errors).
+
+Off-image keys have zero local-error weight; repeated keys are charged once. Failed selections
+and rejection keep their executed costs. The resource bound is independent of the security
+certificate. Terminal acceptance is the supplied relation `Rout` on the stopped path. External
+key domains may be infinite; every native challenge type must have a supplied bijection with
+one finite uniform common type. Concrete byte encodings, biased decoding and varying challenge
+cardinalities remain outside this result. Public names use `challengeEquiv` and
+`EncodedChallengeCoupling`, rather than the earlier internal fibre terminology.
 
 HOPE remains unimplemented: the original conditional duplex stack needs its own API port and
 sampler/auxiliary-oracle compatibility before the native certificate can supply its premise.
@@ -116,6 +145,14 @@ was merged or another author's branch edited.
 - [Accepted-event code-only read-back](reviews/accepted-event-blind-third-run.md).
 - [Honest FS ordinary review and repairs](reviews/honest-fs-third-run.md).
 - [Repaired honest FS code-only read-back](reviews/honest-fs-final-blind-third-run.md).
+- [Encoded operational reduction ordinary review](reviews/encoded-operational-third-run.md).
+- [Encoded operational reduction code-only read-back](reviews/encoded-operational-blind-third-run.md).
+- [Common-challenge coupling and cost ordinary review](reviews/encoded-fibre-third-run.md).
+- [Common-challenge coupling code-only read-back](reviews/encoded-fibre-blind-third-run.md).
+- [Actual external event ordinary review](reviews/encoded-event-third-run.md).
+- [Final encoded security ordinary review and repaired resource-chain gate](reviews/encoded-security-third-run.md).
+- [Encoded security code-only read-back](reviews/encoded-security-blind-third-run.md).
+- [Final resource-chain and renamed-API code-only read-back](reviews/encoded-resource-chain-blind-third-run.md).
 
 Checks distinguish the exact published slice from the larger integration branch. All run builds
 use Lean 4.34.0 and VCVio `6bf6c91b66dfa159342c355a4b81d65b55cb54a4`, with private dependency
@@ -124,7 +161,32 @@ ArkLib main dependency pin (`d7089e46`).
 
 ## Integration checkpoint
 
-The isolated PR slices above have each passed full validation. Integration `a2b1c6ec9` contains
-all published theorems plus unpublished S2 fibre/weighted-transport support. Combined full
-validation passed: 976 modules, 19,390 declarations, 285 baseline sorry-tainted declarations,
-and no new taint or nonstandard axioms.
+The isolated PR slices above have each passed full validation. Mathematical integration source
+`3086698dc` contains all published results. Combined full validation passed: 983 modules,
+19,448 declarations, 285 baseline sorry-tainted declarations, no new taint or nonstandard axioms.
+The integration branch also retains the run contract, literature comparison, review evidence and
+open questions. The latest observed main remains `7717f73cd09e5a6b8952ff00bdfccc158330bcac`;
+no new main commits required reconciliation at the final source check.
+
+## Merge order and retained research boundaries
+
+Complete the existing dependency chain through #1269 before integrating #1274. Then the three
+lanes are:
+
+1. #1274 -> #1277 -> #1280 (stopped security, native single-salt compilation, honest completeness).
+2. #1275 -> #1276; together with #1277 these are the parents of #1278 -> #1279 -> #1281
+   (attributable canonical transport, native/legacy bridge, and actual accepted-event connection).
+3. #1274 -> #1282 -> #1283 (encoded-domain operational reduction and full security/cost chain).
+
+#1278 currently targets `integration/fs-bridge-pr-base-20261004`, the explicit dependency join of
+#1276 and #1277. Retarget it after those dependencies land; do not merge the join branch as an
+independent mathematical contribution. The original #848 should import/rebase on the shared
+canonical owner modules instead of merging duplicate declarations. Its author's branch is intact.
+
+This run does not retire the legacy layer or complete the textbook pipeline. Effectful guards,
+variable/dependent schedules, nonuniform challenge transport, general output-oracle realization,
+extractor runtime/access restrictions, concrete serialization and domain separation, multi-session
+auxiliary information, online Merkle protocols, and hash-chain/duplex Fiat–Shamir remain research
+work. The conditional duplex port and its concrete Key Lemma obligations remain separate. The
+[open questions](guarded-restoration-open-questions.md) and [FS overlap audit](fiat-shamir-open-pr-overlap.md)
+retain these boundaries rather than choosing new definitions for them implicitly.
