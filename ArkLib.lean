@@ -670,6 +670,7 @@ public import ArkLib.Interaction.Oracle.CompositionSoundness
 public import ArkLib.Interaction.Oracle.CoreRun
 public import ArkLib.Interaction.Oracle.Execution
 public import ArkLib.Interaction.Oracle.FiatShamir.InducedAdversary
+public import ArkLib.Interaction.Oracle.FiatShamir.LegacyCorrespondence
 public import ArkLib.Interaction.Oracle.FiatShamir.LegacyFragment
 public import ArkLib.Interaction.Oracle.FiatShamir.PublicExecutionCorrespondence
 public import ArkLib.Interaction.Oracle.FiatShamir.PublicMessage
@@ -696,6 +697,7 @@ public import ArkLib.Interaction.Oracle.Security.StateRestoration
 public import ArkLib.Interaction.Oracle.Security.StateRestorationBudget
 public import ArkLib.Interaction.Oracle.Security.StateRestorationCoins
 public import ArkLib.Interaction.Oracle.Security.StateRestorationGame
+public import ArkLib.Interaction.Oracle.Security.StateRestorationLegacyPremise
 public import ArkLib.Interaction.Oracle.Security.StateRestorationOracle
 public import ArkLib.Interaction.Oracle.Security.StateRestorationRandomized
 public import ArkLib.Interaction.Oracle.Security.StateRestorationRandomizedKnowledge
