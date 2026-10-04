@@ -29,6 +29,16 @@ universe w
 
 variable {Input Salt W : Type} {rounds : List Round}
 
+/-- Canonical uniform full-table sampler on the finite compatible fragment. This is explicit:
+the native owner theorems for arbitrary input and salt types do not sample an infinite table. -/
+@[reducible] noncomputable def finiteTableSampler (rounds : List Round)
+    [Finite Input] [Finite Salt] : SampleableType (Table Input Salt rounds) := by
+  classical
+  letI : Fintype (Key Input Salt rounds) := Fintype.ofFinite _
+  letI : ∀ key : Key Input Salt rounds, Fintype key.Challenge :=
+    fun _ => Fintype.ofFinite _
+  exact SampleableType.piOfFintype (fun key : Key Input Salt rounds => key.Challenge)
+
 /-- The full lazy stopped run equals an eager full-table experiment on the finite fragment.
 Private uniform samples may be interleaved with adaptive hash queries in either execution. -/
 theorem evalDist_randomizedStopped_joint_eq_eager
