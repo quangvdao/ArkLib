@@ -110,8 +110,8 @@ def firstLegacyPrefixEquiv (round : Round) (rounds : List Round) :
     subst index
     rfl
 
-/-- After an arbitrary suffix cutoff, the legacy message prefix is the first public message followed by
-the corresponding message prefix of the remaining rounds. -/
+/-- After an arbitrary suffix cutoff, the legacy prefix is the first public message
+followed by the message prefix of the remaining rounds. -/
 def shiftedLegacyPrefixEquiv (round : Round) (rounds : List Round)
     (cut : Fin (legacySteps rounds + 1)) :
     round.Message × (legacySpec rounds).MessagesUpTo cut ≃
@@ -228,5 +228,58 @@ def fullLegacyMessagesEquiv : (rounds : List Round) →
       (Equiv.prodCongr (Equiv.refl round.Message)
         (fullLegacyMessagesEquiv rounds)).trans
           (shiftedLegacyPrefixEquiv round rounds (Fin.last (legacySteps rounds)))
+
+/-- The public-message projection of a concrete path, before legacy encoding. -/
+def publicPathMessages : (rounds : List Round) →
+    (publicProtocol rounds).tree.ExecutionPath → PublicMessages rounds
+  | [], _ => PUnit.unit
+  | _ :: rounds, path => ⟨path.1, publicPathMessages rounds path.2.2⟩
+
+/-- Encoding the path preserves every prover message in the alternating transcript. -/
+theorem toLegacyTranscript_messages (rounds : List Round)
+    (path : (publicProtocol rounds).tree.ExecutionPath) :
+    (toLegacyTranscript rounds path).toMessagesChallenges.1 =
+      fullLegacyMessagesEquiv rounds (publicPathMessages rounds path) := by
+  induction rounds with
+  | nil => funext i; exact i.1.elim0
+  | cons round rounds ih =>
+      rcases path with ⟨message, challenge, suffix⟩
+      change (toLegacyTranscript (round :: rounds) ⟨message, challenge, suffix⟩)
+        |>.toMessagesChallenges.1 =
+          (shiftedLegacyPrefixEquiv round rounds (Fin.last (legacySteps rounds)))
+            ⟨message, (fullLegacyMessagesEquiv rounds) (publicPathMessages rounds suffix)⟩
+      funext idx
+      rcases idx with ⟨j, hdir⟩
+      induction j using Fin.induction with
+      | zero => rfl
+      | succ j _ =>
+          induction j using Fin.induction with
+          | zero =>
+              have hfalse : False := by
+                simp only [legacySpec, Fin.vcons_succ, Fin.vcons_zero] at hdir
+                cases hdir
+              exact hfalse.elim
+          | succ k _ =>
+              have htail : (legacySpec rounds).dir k = .P_to_V := by
+                simpa only [legacySpec, Fin.vcons_succ] using hdir
+              have h := congrFun (ih suffix) ⟨k, htail⟩
+              have hleft :
+                  (Fin.hcons message (Fin.hcons challenge
+                    (toLegacyTranscript rounds suffix))) (Fin.succ (Fin.succ k)) ≍
+                    (toLegacyTranscript rounds suffix) k := by
+                have houter := Fin.hcons_succ message
+                  (Fin.hcons challenge (toLegacyTranscript rounds suffix)) (Fin.succ k)
+                have hinner := Fin.hcons_succ challenge
+                  (toLegacyTranscript rounds suffix) k
+                exact (heq_of_eq houter).trans ((cast_heq _ _).trans
+                  ((heq_of_eq hinner).trans (cast_heq _ _)))
+              simp only [ProtocolSpec.FullTranscript.toMessagesChallenges,
+                ProtocolSpec.Transcript.toMessagesChallenges,
+                ProtocolSpec.Transcript.toMessagesUpTo, toLegacyTranscript,
+                shiftedLegacyPrefixEquiv, Equiv.coe_fn_mk]
+              apply eq_of_heq
+              simp only [eq_mpr_eq_cast]
+              simp only [Fin.induction_succ]
+              exact hleft.trans ((heq_of_eq h).trans (cast_heq _ _).symm)
 
 end Interaction.Oracle.FiatShamir
