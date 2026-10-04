@@ -33,10 +33,18 @@ def guardedPublicProtocol {Input : Type} : (rounds : List Round) →
   | [], _, _ => .done
   | round :: rounds, (guard, next), z =>
       .public .sender round.Message fun message =>
-        if guard z message PUnit.unit then
-          .public .receiver round.Challenge fun challenge =>
+        match guard z message PUnit.unit with
+        | false => .done
+        | true => .public .receiver round.Challenge fun challenge =>
             guardedPublicProtocol rounds (next message PUnit.unit challenge) z
-        else .done
+
+/-- The continuation chosen after observing one public message and its guard result. -/
+def publicRest {Input : Type} (round : Round) (rounds : List Round)
+    (next : round.Message → PUnit → round.Challenge → GuardSchedule Input PUnit rounds)
+    (z : Input) (message : round.Message) : Bool → Protocol
+  | false => .done
+  | true => .public .receiver round.Challenge fun challenge =>
+      guardedPublicProtocol rounds (next message PUnit.unit challenge) z
 
 /-- A selected public proof sends its next message at each reached sender node. -/
 def scriptedPublicProver {Input : Type} {ι : Type} (ambient : OracleSpec ι) :
@@ -45,23 +53,14 @@ def scriptedPublicProver {Input : Type} {ι : Type} (ambient : OracleSpec ι) :
     Prover.Strategy ambient (guardedPublicProtocol rounds guards z).tree
       (guardedPublicProtocol rounds guards z).roles (fun _ => Unit)
   | [], _, _, _ => ()
-  | round :: rounds, (guard, next), z, (message, messages) => by
-      refine pure ⟨message, ?_⟩
-      let rest : Protocol := if guard z message PUnit.unit then
-        .public .receiver round.Challenge fun challenge =>
-          guardedPublicProtocol rounds (next message PUnit.unit challenge) z
-        else .done
-      change Prover.Strategy ambient rest.tree rest.roles (fun _ => Unit)
-      cases h : guard z message PUnit.unit with
-      | false =>
-          unfold rest
-          rw [h]
-          exact ()
-      | true =>
-          unfold rest
-          rw [h]
-          exact fun challenge => pure (scriptedPublicProver ambient rounds
+  | round :: rounds, (guard, next), z, (message, messages) =>
+      let rest := publicRest round rounds next z message
+      let after : (pass : Bool) →
+          Prover.Strategy ambient (rest pass).tree (rest pass).roles (fun _ => Unit)
+        | false => ()
+        | true => fun challenge => pure (scriptedPublicProver ambient rounds
             (next message PUnit.unit challenge) z messages)
+      pure ⟨message, after (guard z message PUnit.unit)⟩
 
 /-- Hash the full-prefix key only after the current public message has passed its guard. -/
 def guardedPublicVerifier {Input : Type} {allRounds : List Round} :
@@ -73,31 +72,23 @@ def guardedPublicVerifier {Input : Type} {allRounds : List Round} :
       (guardedPublicProtocol rounds guards z).roles
       (guardedPublicProtocol rounds guards z).oracles 0 (fun _ => Unit)
   | [], _, _, _, _ => pure ()
-  | round :: rounds, (guard, next), z, embed, preserve => fun message => by
-      let rest : Protocol := if guard z message PUnit.unit then
-        .public .receiver round.Challenge fun challenge =>
-          guardedPublicProtocol rounds (next message PUnit.unit challenge) z
-        else .done
-      change OracleComp (oracleSpec Input PUnit allRounds + ofPFunctor 0)
+  | round :: rounds, (guard, next), z, embed, preserve => fun message =>
+      let rest := publicRest round rounds next z message
+      let after : (pass : Bool) → OracleComp (oracleSpec Input PUnit allRounds + ofPFunctor 0)
         (Verifier.Strategy (oracleSpec Input PUnit allRounds)
-          rest.tree rest.roles rest.oracles 0 (fun _ => Unit))
-      cases h : guard z message PUnit.unit with
-      | true =>
-          unfold rest
-          rw [h]
-          exact pure (do
+          (rest pass).tree (rest pass).roles (rest pass).oracles 0 (fun _ => Unit))
+        | true => pure (do
           let response ← liftM
             ((oracleSpec Input PUnit allRounds + ofPFunctor 0).query
               (.inl (embed (Key.here z message PUnit.unit))))
-          let challenge : round.Challenge := cast (preserve (Key.here z message PUnit.unit)) response
+          let challenge : round.Challenge :=
+            cast (preserve (Key.here z message PUnit.unit)) response
           pure ⟨challenge,
             guardedPublicVerifier rounds (next message PUnit.unit challenge) z
               (fun key => embed (Key.later message PUnit.unit key))
               (fun key => preserve (Key.later message PUnit.unit key))⟩)
-      | false =>
-          unfold rest
-          rw [h]
-          exact pure (pure ())
+        | false => pure (pure ())
+      after (guard z message PUnit.unit)
 
 /-- The actual native strategy execution of one selected public proof. -/
 def publicStoppedExecution {Input : Type} (rounds : List Round)
@@ -111,26 +102,30 @@ def publicStoppedExecution {Input : Type} (rounds : List Round)
     (scriptedPublicProver (oracleSpec Input PUnit rounds) rounds guards z messages)
     (guardedPublicVerifier rounds guards z id (fun _ => rfl))
 
+/-- Decode an accepted round using a continuation decoder for the remaining rounds. -/
+def decodeAfterGuard {Input : Type} (round : Round) (rounds : List Round)
+    (next : round.Message → PUnit → round.Challenge → GuardSchedule Input PUnit rounds)
+    (z : Input) (message : round.Message)
+    (decodeTail : (challenge : round.Challenge) →
+      (guardedPublicProtocol rounds (next message PUnit.unit challenge) z).tree.ExecutionPath →
+        Option (protocol rounds).tree.ExecutionPath) :
+    (pass : Bool) → (publicRest round rounds next z message pass).tree.ExecutionPath →
+      Option (protocol (round :: rounds)).tree.ExecutionPath
+  | false, _ => none
+  | true, suffix =>
+      (decodeTail suffix.1 suffix.2).map (fun tail => ⟨message, suffix.1, tail⟩)
+
 /-- A reached public path yields a full restoration transcript exactly on acceptance. -/
 def acceptedPath {Input : Type} : (rounds : List Round) →
     (guards : GuardSchedule Input PUnit rounds) → (z : Input) →
     (guardedPublicProtocol rounds guards z).tree.ExecutionPath →
       Option (protocol rounds).tree.ExecutionPath
   | [], _, _, _ => some PUnit.unit
-  | round :: rounds, (guard, next), z, path => by
-      let message := path.1
-      let rest : Protocol := if guard z message PUnit.unit then
-        .public .receiver round.Challenge fun challenge =>
-          guardedPublicProtocol rounds (next message PUnit.unit challenge) z
-        else .done
-      have suffix : rest.tree.ExecutionPath := path.2
-      cases h : guard z message PUnit.unit with
-      | false => exact none
-      | true =>
-          unfold rest at suffix
-          rw [h] at suffix
-          exact (acceptedPath rounds (next message PUnit.unit suffix.1) z
-            suffix.2).map (fun tail => ⟨message, suffix.1, tail⟩)
+  | round :: rounds, (guard, next), z, path =>
+      decodeAfterGuard round rounds next z path.1
+        (fun challenge suffix => acceptedPath rounds
+          (next path.1 PUnit.unit challenge) z suffix)
+        (guard z path.1 PUnit.unit) path.2
 
 /-- Public stopped verification exposes acceptance together with the full concrete transcript. -/
 def publicStoppedVerify {Input : Type} (rounds : List Round)
@@ -182,6 +177,6 @@ theorem publicStoppedVerify_eq_with {Input : Type} (rounds : List Round)
     (guards : GuardSchedule Input PUnit rounds) (z : Input)
     (messages : PublicMessages rounds) :
     publicStoppedVerify rounds guards z messages =
-      publicStoppedVerifyWith rounds guards z messages id (fun _ => rfl) := rfl
+    publicStoppedVerifyWith rounds guards z messages id (fun _ => rfl) := rfl
 
 end Interaction.Oracle.FiatShamir
