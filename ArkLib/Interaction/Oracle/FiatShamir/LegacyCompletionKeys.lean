@@ -121,10 +121,10 @@ theorem completedPath_legacyChallenges {Input : Type} (rounds : List Round)
         change _ = nativeTableToLegacy (round :: rounds) table
           (keyEquiv Input (round :: rounds) (Key.here z message PUnit.unit))
         rw [nativeTableToLegacy_apply]
-        simp [toLegacyTranscript, toPublicPath, completedPath, withUnitSalts,
+        simp only [toLegacyTranscript, toPublicPath, completedPath, withUnitSalts,
           legacyChallengeHere, ProtocolSpec.FullTranscript.toMessagesChallenges,
           ProtocolSpec.Transcript.toMessagesChallenges,
-          ProtocolSpec.Transcript.toChallengesUpTo]
+          ProtocolSpec.Transcript.toChallengesUpTo, Fin.hcons_succ, Fin.hcons_zero]
         apply eq_of_heq
         exact (cast_heq _ _).trans ((cast_heq _ _).trans (cast_heq _ _).symm)
       · subst i
