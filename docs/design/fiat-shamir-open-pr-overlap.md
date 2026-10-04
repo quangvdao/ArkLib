@@ -118,3 +118,25 @@ revised before launch. No run is started by this note.
 - [Section 6 soundness and KeyLemmaSecurityWitness](https://github.com/Verified-zkEVM/ArkLib/blob/1c5c5bd7ed9d4a6407974a12ff95893fbdbc02bb/ArkLib/OracleReduction/FiatShamir/DuplexSponge/Security/Soundness.lean)
 - [Section 6 knowledge interface](https://github.com/Verified-zkEVM/ArkLib/blob/1c5c5bd7ed9d4a6407974a12ff95893fbdbc02bb/ArkLib/OracleReduction/FiatShamir/DuplexSponge/Security/KnowledgeSoundness.lean)
 - [Section 5 experiments and deferred claims](https://github.com/Verified-zkEVM/ArkLib/blob/036d6f561f6e33cc02d0712095c09ebfc3f1ffb1/ArkLib/OracleReduction/FiatShamir/DuplexSponge/Security/KeyLemma.lean)
+
+## Third-run execution update
+
+The comparison above is the pre-run audit. The third run has now supplied the canonical SR
+premise on the finite common fragment: #1278 proves concrete transcript/key/table transport,
+and #1279 proves the actual coin-bearing SR bound from native certificates, then applies the
+attributed #848 single-salt transport. #1277 separately proves native stopped compiler security.
+A matched-check accepted-event connection is still being finished; full and stopped rejected
+runs must not be identified at the log/cache level.
+
+The conditional duplex HOPE needs more than substituting a theorem name. At the pinned #848
+snapshot, its knowledge theorem uses `srInitDIP`, `srImplLift`, and private auxiliary interface
+`(Unit →ₒ U) + unifSpec`, with structural bound `θStar` and the exact `ηStarTotal` term. The new
+native bridge currently uses its explicit native-table pushforward initializer, empty ambient
+oracle, and `unifSpec`. A further sampler/auxiliary-query correspondence is required before
+instantiating Section 6. `KeyLemmaSecurityWitness` must remain explicit.
+
+The pinned Section 5/6 stack also differs from the run's baseline by roughly 11,000 added lines
+across the duplex modules and original SingleSalt file, including definitions, codecs, traces,
+and transforms. Porting that entire dependency surface would need its own reviewed stack; a
+small wrapper on the current baseline would not prove the promised conditional duplex result.
+No such wrapper is counted as a completed result of this run.

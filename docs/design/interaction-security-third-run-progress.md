@@ -26,6 +26,16 @@ A proved support lemma or conditional assembly is not completion of its principa
   Full isolated validation: 945 modules, 18,510 declarations, no new taint.
   Ordinary review approved; independent code-only read-back recorded the exact statement.
 
+- [#1278](https://github.com/Verified-zkEVM/ArkLib/pull/1278): transcript/key/table
+  correspondence and finite lazy/eager restoration, 1,105 additions. Head `bd10a2d47`,
+  based on the explicit dependency join of #1276 and #1277. Full isolated validation:
+  955 modules, 18,690 declarations, no new taint.
+- [#1279](https://github.com/Verified-zkEVM/ArkLib/pull/1279): actual legacy execution,
+  game unrolling, query accounting, canonical SR bound, and single-salt knowledge-security
+  family from native certificates. Head `e87bc6f75`, stacked on #1278; 1,453 additions.
+  Full isolated validation: 964 modules, 18,761 declarations, no new taint. Ordinary and
+  code-only reviews agree on the stated finite/empty-source/pure-observer fragment.
+
 ## Verified frontier and remaining obligations
 
 The stopped theorem derives a bad queried key from an all-prefix local certificate. Its endpoint
@@ -42,21 +52,35 @@ are proved. Compiled Sumcheck exercises the actual terminal claim check and expo
 expected-round, and `(Q + n) * fieldError` soundness bounds. Its source realization remains
 explicit and its Unit witness expresses ordinary soundness.
 
-The canonical coin-bearing knowledge games and single-salt reduction are now published and
-independently reviewed, including a code-only read-back. This theorem is conditional on legacy SR
-security. Supplying that premise from native certificates is still outstanding and is not implied
-by the port.
+The finite legacy bridge now proves the actual arbitrary-prover execution and canonical
+`coinKSExperimentProb` bound. Typed message/transcript/key/table equivalences preserve the
+completed path, and a fixed-table cache projection preserves the value experiment with private
+coins. The legacy initializer is explicitly the pushforward of the uniform native table sampler.
+The proof compares accepted failure events; it does not identify stopped and full-completion caches.
 
-Legacy transcript inverse, message-prefix, query-key and dependent response transport are being
-proved in separate modules. The actual legacy prover/program/table correspondence and resulting
-`coinKSExperimentProb` bound remain required. The legacy eager game completes a full transcript;
-its proof uses the full restoration experiment, not a false equality with stopped final caches.
+`singleSalt_knowledgeSoundness_of_nativeCertificate` now derives the canonical single-salt
+knowledge theorem from native preserving/local-bound and input/output laws. It chooses one
+backward/delegating extractor before all structural hash-query budgets and yields
+`Q * max(round errors) + sum(round errors)`. No supplied state-restoration security hypothesis
+or assumed game equality remains. The common fragment uses finite statements, a finite global
+salt carried in the statement, empty ambient source, and a pure path observer. It retains a total
+terminal seed and the canonical two-log extractor interface; it does not establish extraction time
+or a deterministic prover-trace-only interface.
 
-**MUST 1 is complete. MUST 2's native compiled theorem is complete; its finite legacy-game
-bridge remains incomplete.** The key, dependent table and transcript equivalences are proved;
-the actual legacy prover/completion program and `coinKSExperimentProb` correspondence are in flight.
-SHOULD S1 is being developed for arbitrary honest private-coin strategies without challenge-RO
-access. S2 and HOPE have not started. No main branch was merged or another author's branch edited.
+**MUST 1 is complete. MUST 2 now has both native and canonical security theorems; its final
+matched-check accepted-event bridge remains in progress.** Independent review approved both
+theorems as stated but requires this explicit connection before closing the whole target. The
+canonical verifier completes the full transcript; the native verifier stops on failed guards.
+The pending proof compares accepted failure events under matched guards and terminal checks,
+not post-rejection cache/log equality. Root integration `c8d7d6884` passes
+full validation: 969 modules, 19,198 declarations, 285 baseline sorry-tainted declarations,
+no new taint or nonstandard axioms. Independent code-only read-back records the actual final
+quantifier order and experiment.
+
+SHOULD S1 has a fully validated honest accepted-output equality and completeness transfer;
+independent review and isolated publication validation are underway. S2 is investigating a real memoized off-image
+query simulation and full cache/log coupling. It will not be counted complete from a codec alone.
+HOPE remains unimplemented. No main branch was merged or another author's branch edited.
 
 ## Review record
 
@@ -66,6 +90,9 @@ access. S2 and HOPE have not started. No main branch was merged or another autho
 - [Canonical code-only read-back](reviews/canonical-fs-blind-third-run.md).
 - [Native FS ordinary review](reviews/native-fs-third-run.md).
 - [Native FS code-only read-back](reviews/native-fs-blind-third-run.md).
+- [Legacy correspondence code-only read-back](reviews/legacy-correspondence-blind-third-run.md).
+- [Final legacy security code-only read-back](reviews/legacy-security-blind-third-run.md).
+- [Legacy security ordinary review and remaining fidelity gate](reviews/legacy-security-third-run.md).
 
 Checks distinguish the exact published slice from the larger integration branch. All run builds
 use Lean 4.34.0 and VCVio `6bf6c91b66dfa159342c355a4b81d65b55cb54a4`, with private dependency
