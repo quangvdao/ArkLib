@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 module
 
-public import ArkLib.Interaction.Oracle.Security.EncodedFibreCoupling
+public import ArkLib.Interaction.Oracle.Security.EncodedChallengeCoupling
 public import ArkLib.Interaction.Oracle.Security.EncodedWeighted
 
 /-!

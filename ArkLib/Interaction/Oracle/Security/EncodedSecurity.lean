@@ -6,7 +6,7 @@ Authors: Quang Dao
 module
 
 public import ArkLib.Interaction.Oracle.Security.EncodedCompletion
-public import ArkLib.Interaction.Oracle.Security.EncodedFibreCost
+public import ArkLib.Interaction.Oracle.Security.EncodedChallengeCost
 
 /-!
 # Encoded-domain adversaries in native restoration security

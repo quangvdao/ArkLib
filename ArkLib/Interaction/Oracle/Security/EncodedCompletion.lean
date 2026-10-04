@@ -5,14 +5,14 @@ Authors: Quang Dao
 -/
 module
 
-public import ArkLib.Interaction.Oracle.Security.EncodedFibre
+public import ArkLib.Interaction.Oracle.Security.EncodedChallenges
 
 /-!
 # Stopped completion against the external encoded-domain oracle
 
 The external adversary and stopped verifier execute in one oracle program. Every verifier
 challenge at native key `key` queries the external oracle at `encode key` and maps the common
-challenge back to that key's native challenge fibre. Thus both phases use one external cache.
+challenge back to that key's native challenge type. Thus both phases use one external cache.
 -/
 
 @[expose] public section
@@ -30,7 +30,7 @@ def encodedCompletionQueries
     (codec : StrictCodec (Key Input Salt rounds) D) :
     QueryImpl (oracleSpec Input Salt rounds)
       (OracleComp (unifSpec + (D →ₒ C))) :=
-  fun key => (common.fibre key).symm <$>
+  fun key => (common.challengeEquiv key).symm <$>
     liftM ((unifSpec + (D →ₒ C)).query (.inr (codec.encode key)))
 
 /-- Mapping a returned value leaves the routed external writer and off-image cache intact. -/
@@ -53,7 +53,7 @@ theorem encodedCompletionQuery_route
     [DecidableEq D] [SampleableType C]
     (key : Key Input Salt rounds) (off : (D →ₒ C).QueryCache) :
     codec.routeProgram ((encodedCompletionQueries common codec) key) off =
-      (fun answer => (((common.fibre key).symm answer,
+      (fun answer => (((common.challengeEquiv key).symm answer,
         [⟨codec.encode key, answer⟩]), off)) <$>
         liftM ((unifSpec + (Key Input Salt rounds →ₒ C)).query (.inr key)) := by
   rw [encodedCompletionQueries, codec.routeProgram_map]
@@ -65,7 +65,7 @@ def commonCompletionQueries
     (common : CommonChallenge Input Salt C rounds) :
     QueryImpl (oracleSpec Input Salt rounds)
       (OracleComp (unifSpec + (Key Input Salt rounds →ₒ C))) :=
-  fun key => (common.fibre key).symm <$>
+  fun key => (common.challengeEquiv key).symm <$>
     liftM ((unifSpec + (Key Input Salt rounds →ₒ C)).query (.inr key))
 
 /-- Encode an ordered native completion log as the corresponding external hash calls. -/
@@ -73,7 +73,7 @@ def encodeCompletionLog
     (common : CommonChallenge Input Salt C rounds)
     (codec : StrictCodec (Key Input Salt rounds) D)
     (log : QueryLog (oracleSpec Input Salt rounds)) : QueryLog (D →ₒ C) :=
-  log.map fun entry => ⟨codec.encode entry.1, (common.fibre entry.1).toFun entry.2⟩
+  log.map fun entry => ⟨codec.encode entry.1, (common.challengeEquiv entry.1).toFun entry.2⟩
 
 @[simp] theorem encodeCompletionLog_nil
     (common : CommonChallenge Input Salt C rounds)
@@ -116,13 +116,13 @@ theorem encodedCompletion_routeProgram
       apply bind_congr
       intro answer
       simp only [id_eq]
-      rw [ih ((common.fibre key).symm answer) off]
+      rw [ih ((common.challengeEquiv key).symm answer) off]
       simp only [Functor.map_map]
       congr 1
       funext result
       simp [encodeCompletionLog]
 
-/-- The common-carrier translation and native fibre translation cancel on one verifier query. -/
+/-- The common-carrier translation and native challenge translation cancel on one verifier query. -/
 theorem commonCompletionQuery_native
     (common : CommonChallenge Input Salt C rounds)
     (key : Key Input Salt rounds) :

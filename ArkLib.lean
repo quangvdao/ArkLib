@@ -698,12 +698,12 @@ public import ArkLib.Interaction.Oracle.Resource
 public import ArkLib.Interaction.Oracle.RunSources
 public import ArkLib.Interaction.Oracle.Runtime
 public import ArkLib.Interaction.Oracle.RuntimeSoundness
+public import ArkLib.Interaction.Oracle.Security.EncodedChallengeCost
+public import ArkLib.Interaction.Oracle.Security.EncodedChallengeCoupling
+public import ArkLib.Interaction.Oracle.Security.EncodedChallenges
 public import ArkLib.Interaction.Oracle.Security.EncodedCharge
 public import ArkLib.Interaction.Oracle.Security.EncodedCodec
 public import ArkLib.Interaction.Oracle.Security.EncodedCompletion
-public import ArkLib.Interaction.Oracle.Security.EncodedFibre
-public import ArkLib.Interaction.Oracle.Security.EncodedFibreCost
-public import ArkLib.Interaction.Oracle.Security.EncodedFibreCoupling
 public import ArkLib.Interaction.Oracle.Security.EncodedLog
 public import ArkLib.Interaction.Oracle.Security.EncodedReduction
 public import ArkLib.Interaction.Oracle.Security.EncodedSecurity

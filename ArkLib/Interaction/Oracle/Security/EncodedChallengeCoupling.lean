@@ -5,10 +5,10 @@ Authors: Quang Dao
 -/
 module
 
-public import ArkLib.Interaction.Oracle.Security.EncodedFibre
+public import ArkLib.Interaction.Oracle.Security.EncodedChallenges
 
 /-!
-# Joint random-oracle coupling for common challenge fibres
+# Joint random-oracle coupling for common challenge representations
 
 The common-carrier oracle can be interpreted by the native dependent restoration oracle. The
 cache/log laws and one-query uniform law establish the local coupling for adaptive programs.
@@ -26,7 +26,7 @@ variable {Input Salt C : Type} {rounds : List Round}
     (common : CommonChallenge Input Salt C rounds)
     (cache : (oracleSpec Input Salt rounds).QueryCache)
     (key : Key Input Salt rounds) :
-    common.toCommonCache cache key = (cache key).map (common.fibre key) := rfl
+    common.toCommonCache cache key = (cache key).map (common.challengeEquiv key) := rfl
 
 @[simp] theorem CommonChallenge.toCommonCache_empty
     (common : CommonChallenge Input Salt C rounds) :
@@ -42,7 +42,7 @@ theorem CommonChallenge.toCommonCache_update
     (cache : (oracleSpec Input Salt rounds).QueryCache)
     (key : Key Input Salt rounds) (answer : key.Challenge) :
     common.toCommonCache (cache.cacheQuery key answer) =
-      (common.toCommonCache cache).cacheQuery key ((common.fibre key).toFun answer) := by
+      (common.toCommonCache cache).cacheQuery key ((common.challengeEquiv key).toFun answer) := by
   apply QueryCache.ext
   intro other
   by_cases h : other = key
@@ -65,7 +65,7 @@ theorem CommonChallenge.toCommonCache_update
     (common : CommonChallenge Input Salt C rounds)
     (key : Key Input Salt rounds) (answer : key.Challenge) :
     common.toCommonLog [⟨key, answer⟩] =
-      [⟨key, (common.fibre key).toFun answer⟩] := rfl
+      [⟨key, (common.challengeEquiv key).toFun answer⟩] := rfl
 
 end Interaction.Oracle.Security.StateRestoration
 
@@ -96,7 +96,7 @@ theorem CommonChallenge.simulateNative_hashQuery
     (common : CommonChallenge Input Salt C rounds) (key : Key Input Salt rounds) :
     common.simulateNative
         (liftM ((unifSpec + (Key Input Salt rounds →ₒ C)).query (.inr key))) =
-      (common.fibre key) <$>
+      (common.challengeEquiv key) <$>
         (liftM ((unifSpec + oracleSpec Input Salt rounds).query (.inr key)) :
           OracleComp (unifSpec + oracleSpec Input Salt rounds) key.Challenge) := by
   simp [CommonChallenge.simulateNative, CommonChallenge.commonQueryImpl]
@@ -126,14 +126,14 @@ private theorem evalDist_bind_transport {α β γ : Type}
       rw [evalDist_bind_of_discrete, evalDist_bind_of_discrete, prefixLaw]
 
 /-- A cached hash request has the same full observed answer and final cache after encoding;
-at a fresh cell this follows from the uniform fibre pushforward law. -/
+at a fresh cell this follows from the uniform challenge pushforward law. -/
 theorem CommonChallenge.evalDist_randomOracle_step
     (common : CommonChallenge Input Salt C rounds)
     [DecidableEq Input] [DecidableEq Salt] [SampleableType C]
     (key : Key Input Salt rounds)
     (cache : (oracleSpec Input Salt rounds).QueryCache) :
     letI : MeasurableSpace (C × (Key Input Salt rounds →ₒ C).QueryCache) := ⊤
-    𝒟[(fun result => ((common.fibre key) result.1,
+    𝒟[(fun result => ((common.challengeEquiv key) result.1,
       common.toCommonCache result.2)) <$>
         ((oracleSpec Input Salt rounds).randomOracle key).run cache] =
       𝒟[((Key Input Salt rounds →ₒ C).randomOracle key).run
@@ -150,14 +150,14 @@ theorem CommonChallenge.evalDist_randomOracle_step
       let finish : C → C × (Key Input Salt rounds →ₒ C).QueryCache :=
         fun answer => (answer, (common.toCommonCache cache).cacheQuery key answer)
       have hresult (answer : key.Challenge) :
-          ((common.fibre key) answer, common.toCommonCache (cache.cacheQuery key answer)) =
-            finish ((common.fibre key) answer) := by
+          ((common.challengeEquiv key) answer, common.toCommonCache (cache.cacheQuery key answer)) =
+            finish ((common.challengeEquiv key) answer) := by
         simp [finish, common.toCommonCache_update]
       simp only [Functor.map_map]
       simp_rw [hresult]
       rw [← Functor.map_map]
       rw [evalDist_map_of_discrete]
-      rw [common.evalDist_fibre_uniform key]
+      rw [common.evalDist_challengeEquiv_uniform key]
       simpa only [finish] using (evalDist_map_of_discrete ($ᵗ C) finish).symm
   | some answer =>
       simp [CommonChallenge.toCommonCache, h]
@@ -190,8 +190,8 @@ theorem CommonChallenge.evalDist_logged_hashQuery
     fun p => ((p.1, [⟨key, p.1⟩]), p.2)
   have hmap (p : key.Challenge × (oracleSpec Input Salt rounds).QueryCache) :
       common.encodeJoint
-        (((common.fibre key) p.1, [⟨key, p.1⟩]), p.2) =
-      finish ((common.fibre key p.1), common.toCommonCache p.2) := by
+        (((common.challengeEquiv key) p.1, [⟨key, p.1⟩]), p.2) =
+      finish ((common.challengeEquiv key p.1), common.toCommonCache p.2) := by
     simp [CommonChallenge.encodeJoint, finish]
   simp only [Functor.map_map]
   simp_rw [hmap]
@@ -310,7 +310,7 @@ theorem CommonChallenge.evalDist_logged_bind
       (randomOracleLoggedRun (commonNext first.1.1) (common.toCommonCache first.2))
       finish).symm
 
-/-- Simulating any adaptive common-carrier program through native challenge fibres preserves
+/-- Simulating any adaptive common-carrier program through native challenge types preserves
 its return value, ordered query log, and complete final random-oracle cache jointly. -/
 theorem CommonChallenge.evalDist_randomOracleLoggedRun_simulateNative
     (common : CommonChallenge Input Salt C rounds)
