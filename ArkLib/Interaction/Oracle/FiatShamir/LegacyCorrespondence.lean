@@ -229,6 +229,40 @@ def fullLegacyMessagesEquiv : (rounds : List Round) →
         (fullLegacyMessagesEquiv rounds)).trans
           (shiftedLegacyPrefixEquiv round rounds (Fin.last (legacySteps rounds)))
 
+/-- Taking the first legacy message prefix exposes the head public message. -/
+theorem fullLegacyMessagesEquiv_take_first (round : Round) (rounds : List Round)
+    (message : round.Message) (suffix : PublicMessages rounds) :
+    (fullLegacyMessagesEquiv (round :: rounds) (message, suffix)).take
+      (⟨1, by simp [legacySteps]⟩ : Fin (legacySteps (round :: rounds) + 1)) =
+      firstLegacyPrefixEquiv round rounds message := by
+  funext idx
+  rcases idx with ⟨j, hdir⟩
+  have hj : j = 0 := Fin.eq_zero j
+  subst j
+  rfl
+
+/-- Taking a later legacy prefix keeps the head message and the tail prefix. -/
+theorem fullLegacyMessagesEquiv_take_later (round : Round) (rounds : List Round)
+    (i : (legacySpec rounds).ChallengeIdx) (message : round.Message)
+    (suffix : PublicMessages rounds) :
+    (fullLegacyMessagesEquiv (round :: rounds) (message, suffix)).take
+      (Fin.succ (Fin.succ i.1)).castSucc =
+      laterLegacyPrefixEquiv round rounds i
+        (message, (fullLegacyMessagesEquiv rounds suffix).take i.1.castSucc) := by
+  funext idx
+  rcases idx with ⟨j, hdir⟩
+  induction j using Fin.induction with
+  | zero => rfl
+  | succ j _ =>
+      induction j using Fin.induction with
+      | zero =>
+          have hfalse : False := by
+            simp [SliceLT.sliceLT, ProtocolSpec.take, legacySpec,
+              Fin.take, Fin.castLE, Fin.vcons_zero] at hdir
+          exact hfalse.elim
+      | succ k _ =>
+          rfl
+
 /-- The public-message projection of a concrete path, before legacy encoding. -/
 def publicPathMessages : (rounds : List Round) →
     (publicProtocol rounds).tree.ExecutionPath → PublicMessages rounds
