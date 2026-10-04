@@ -2,7 +2,7 @@
 
 This suite explains how ArkLib represents interactive protocols, states their security, and plans
 the remaining formalization. It is written for readers familiar with provers, verifiers, oracles,
-and soundness. **Status updated: 2026-09-26.**
+and soundness. **Status updated: 2026-10-03.**
 
 A protocol is an interaction tree with prover and verifier strategies. The prover's continuation
 keeps its private memory. An oracle reduction returns a statement and an oracle interface: the
@@ -14,9 +14,10 @@ world state and query history continue across the boundary.
 
 | Your question | Read |
 |---|---|
-| What is implemented and proved on main? | [Current status](00-current-status.md) |
+| What is proved, and at which revision? | [Current status](00-current-status.md) |
 | What should we implement next, and how will we check it? | [Roadmap](05-roadmap.md) |
-| What is authorized for the second interaction-security run? | [Eight-hour contract](interaction-security-next-night-contract.md) |
+| What did the security runs establish? | [Second-run results and exact PR heads](interaction-security-second-night-results.md) |
+| What blocks replacement of the legacy layer? | [Migration gates](../../roadmap/interaction-migration.md) |
 | How does our framework differ from the Chiesa-Yogev textbook? | [Literature comparison and open research notes](../kb/audits/chiesa-yogev-interaction.md) |
 | Which other papers determine our knowledge and compiler targets? | [Broader interaction literature map](../kb/audits/interaction-literature-map.md) |
 | What does the full framework aim to cover? | [End state](00-end-state.md) |
@@ -49,8 +50,8 @@ Use familiar cryptographic terms, and explain additional terms where they first 
 ## How to maintain this suite
 
 Record a design decision in its owning architecture chapter. Record a proposed PR and its
-acceptance check in the roadmap. Update current status only when the corresponding API or theorem
-lands. [Issue #1](https://github.com/Verified-zkEVM/ArkLib/issues/1) links the work items; their issues
+acceptance check in the roadmap. Update current status when the corresponding API or theorem changes, explicitly identifying
+merged results and reviewed open PRs. [Issue #1](https://github.com/Verified-zkEVM/ArkLib/issues/1) links the work items; their issues
 record progress and implementation PRs. Do not add another parallel plan or repeat an issue's
 progress log across chapters.
 
