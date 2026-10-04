@@ -47,6 +47,209 @@ def honestInteractiveRun {Input : Type} : (rounds : List Round) →
       return suffix.map fun (messages, path) =>
         (⟨message, messages⟩, ⟨message, challenge, path⟩)
 
+/-- Adapt an unguarded private-coin strategy to the actual guarded public tree. A rejected
+message has no prover continuation; a passed challenge preserves the private response action. -/
+def guardedHonestProver {Input : Type} : (rounds : List Round) →
+    (guards : GuardSchedule Input PUnit rounds) → (z : Input) → HonestProver rounds →
+    Prover.Strategy unifSpec (guardedPublicProtocol rounds guards z).tree
+      (guardedPublicProtocol rounds guards z).roles (fun _ => Unit)
+  | [], _, _, _ => ()
+  | round :: rounds, (guard, next), z, prover => do
+      let chosen ← prover
+      let message := chosen.1
+      let after : (pass : Bool) → Prover.Strategy unifSpec
+          (publicRest round rounds next z message pass).tree
+          (publicRest round rounds next z message pass).roles (fun _ => Unit)
+        | false => ()
+        | true => fun challenge => do
+            let continuation ← chosen.2 challenge
+            pure (guardedHonestProver rounds (next message PUnit.unit challenge)
+              z continuation)
+      pure ⟨message, after (guard z message PUnit.unit)⟩
+
+/-- The native interactive verifier samples each reached public challenge uniformly. -/
+def honestUniformVerifier {Input : Type} : (rounds : List Round) →
+    (guards : GuardSchedule Input PUnit rounds) → (z : Input) →
+    Verifier.Strategy unifSpec (guardedPublicProtocol rounds guards z).tree
+      (guardedPublicProtocol rounds guards z).roles
+      (guardedPublicProtocol rounds guards z).oracles 0 (fun _ => Unit)
+  | [], _, _ => pure ()
+  | round :: rounds, (guard, next), z => fun message =>
+      let after : (pass : Bool) → OracleComp (unifSpec + ofPFunctor 0)
+        (Verifier.Strategy unifSpec
+          (publicRest round rounds next z message pass).tree
+          (publicRest round rounds next z message pass).roles
+          (publicRest round rounds next z message pass).oracles 0 (fun _ => Unit))
+        | false => pure (pure ())
+        | true => pure (do
+            let challenge ← liftComp ($ᵗ round.Challenge) (unifSpec + ofPFunctor 0)
+            pure ⟨challenge,
+              honestUniformVerifier rounds (next message PUnit.unit challenge) z⟩)
+      after (guard z message PUnit.unit)
+
+/-- The existing native paired strategy executor for the guarded interactive protocol. -/
+def honestNativeInteractiveRun {Input : Type} (rounds : List Round)
+    (guards : GuardSchedule Input PUnit rounds) (z : Input)
+    (prover : HonestProver rounds) :
+    ProbComp (Option (protocol rounds).tree.ExecutionPath) :=
+  (fun result => acceptedPath rounds guards z result.1) <$>
+    executeStrategies unifSpec (guardedPublicProtocol rounds guards z).tree
+      (guardedPublicProtocol rounds guards z).roles
+      (guardedPublicProtocol rounds guards z).oracles 0
+      (fun q => nomatch q)
+      (guardedHonestProver rounds guards z prover)
+      (honestUniformVerifier rounds guards z)
+
+private def honestRoundProver {Input : Type} (round : Round) (rounds : List Round)
+    (next : round.Message → PUnit → round.Challenge → GuardSchedule Input PUnit rounds)
+    (z : Input) (message : round.Message)
+    (continuation : round.Challenge → ProbComp (HonestProver rounds)) :
+    (pass : Bool) → Prover.Strategy unifSpec
+      (publicRest round rounds next z message pass).tree
+      (publicRest round rounds next z message pass).roles (fun _ => Unit)
+  | false => ()
+  | true => fun challenge =>
+      guardedHonestProver rounds (next message PUnit.unit challenge) z <$>
+        continuation challenge
+
+private def honestRoundVerifier {Input : Type} (round : Round) (rounds : List Round)
+    (next : round.Message → PUnit → round.Challenge → GuardSchedule Input PUnit rounds)
+    (z : Input) (message : round.Message) :
+    (pass : Bool) → OracleComp (unifSpec + ofPFunctor 0)
+      (Verifier.Strategy unifSpec
+        (publicRest round rounds next z message pass).tree
+        (publicRest round rounds next z message pass).roles
+        (publicRest round rounds next z message pass).oracles 0 (fun _ => Unit))
+  | false => pure (pure ())
+  | true => pure (do
+      let challenge ← liftComp ($ᵗ round.Challenge) (unifSpec + ofPFunctor 0)
+      pure ⟨challenge, honestUniformVerifier rounds
+        (next message PUnit.unit challenge) z⟩)
+
+private def honestAfterSend {Input : Type} (round : Round) (rounds : List Round)
+    (next : round.Message → PUnit → round.Challenge → GuardSchedule Input PUnit rounds)
+    (z : Input) (message : round.Message)
+    (continuation : round.Challenge → ProbComp (HonestProver rounds))
+    (pass : Bool) : ProbComp (Option (protocol (round :: rounds)).tree.ExecutionPath) :=
+  (fun result => decodeAfterGuard round rounds next z message
+    (fun challenge suffix => acceptedPath rounds (next message PUnit.unit challenge) z suffix)
+    pass result.1) <$>
+    (do
+      let verifier ← simulateQ (Verifier.liftAccessImpl unifSpec 0 (fun q => nomatch q))
+        (honestRoundVerifier round rounds next z message pass)
+      executeStrategies unifSpec (publicRest round rounds next z message pass).tree
+        (publicRest round rounds next z message pass).roles
+        (publicRest round rounds next z message pass).oracles 0 (fun q => nomatch q)
+        (honestRoundProver round rounds next z message continuation pass) verifier)
+
+private theorem honestUniformSample (round : Round) :
+    simulateQ (Verifier.liftAccessImpl unifSpec 0 (fun q => nomatch q))
+      (liftComp ($ᵗ round.Challenge) (unifSpec + ofPFunctor 0)) =
+    ($ᵗ round.Challenge : ProbComp round.Challenge) := by
+  rw [QueryImpl.simulateQ_liftComp_left_eq_of_apply
+    (Verifier.liftAccessImpl unifSpec 0 (fun q => nomatch q))
+    (QueryImpl.id' unifSpec) (by intro q; rfl) ($ᵗ round.Challenge)]
+  exact simulateQ_id' _
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem honestAfterSend_eq {Input : Type} (round : Round) (rounds : List Round)
+    (next : round.Message → PUnit → round.Challenge → GuardSchedule Input PUnit rounds)
+    (z : Input) (message : round.Message)
+    (continuation : round.Challenge → ProbComp (HonestProver rounds))
+    (ih : ∀ (guards : GuardSchedule Input PUnit rounds) (prover : HonestProver rounds),
+      honestNativeInteractiveRun rounds guards z prover =
+        (fun result => result.map Prod.snd) <$>
+          honestInteractiveRun rounds guards z prover)
+    (pass : Bool) :
+    honestAfterSend round rounds next z message continuation pass =
+      if pass then (do
+        let challenge ← $ᵗ round.Challenge
+        let prover ← continuation challenge
+        let suffix ← honestInteractiveRun rounds
+          (next message PUnit.unit challenge) z prover
+        pure (suffix.map fun item => ⟨message, challenge, item.2⟩))
+      else pure none := by
+  cases pass with
+  | false =>
+      simp [honestAfterSend, honestRoundVerifier, honestRoundProver,
+        publicRest, decodeAfterGuard, executeStrategies_done]
+  | true =>
+      unfold honestAfterSend
+      simp only [honestRoundVerifier, honestRoundProver, publicRest,
+        Protocol.public_tree, Protocol.public_roles, Protocol.public_oracles]
+      simp only [simulateQ_pure, pure_bind]
+      rw [executeStrategies_public_receiver]
+      simp only [ite_true, decodeAfterGuard, map_bind, bind_pure_comp]
+      rw [simulateQ_map, honestUniformSample]
+      simp only [map_eq_pure_bind, bind_assoc, pure_bind]
+      apply bind_congr
+      intro challenge
+      apply bind_congr
+      intro prover
+      have htail := ih (next message PUnit.unit challenge) prover
+      have mapped := congrArg
+        (fun run : ProbComp (Option (protocol rounds).tree.ExecutionPath) =>
+          Option.map (fun tail =>
+            (⟨message, challenge, tail⟩ : (protocol (round :: rounds)).tree.ExecutionPath))
+              <$> run) htail
+      simpa only [honestNativeInteractiveRun, map_eq_pure_bind, bind_assoc,
+        pure_bind, Functor.map_map, Option.map_map, Function.comp_def] using mapped
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The direct uniform-challenge interpreter is exactly the accepted-path projection of the
+actual native guarded public strategy executor, for arbitrary adaptive private continuations. -/
+theorem honestNativeInteractiveRun_eq {Input : Type} :
+    (rounds : List Round) → (guards : GuardSchedule Input PUnit rounds) →
+    (z : Input) → (prover : HonestProver rounds) →
+    honestNativeInteractiveRun rounds guards z prover =
+      (fun result => result.map Prod.snd) <$>
+        honestInteractiveRun rounds guards z prover
+  | [], _, _, prover => by
+      simp [honestNativeInteractiveRun, honestInteractiveRun,
+        guardedPublicProtocol, guardedHonestProver,
+        honestUniformVerifier, acceptedPath, executeStrategies_done]
+  | round :: rounds, (guard, next), z, prover => by
+      have hstep :
+          honestNativeInteractiveRun (round :: rounds) (guard, next) z prover =
+            (do
+              let chosen ← prover
+              honestAfterSend round rounds next z chosen.1 chosen.2
+                (guard z chosen.1 PUnit.unit)) := by
+        unfold honestNativeInteractiveRun
+        simp only [guardedPublicProtocol, Protocol.public_tree,
+          Protocol.public_roles, Protocol.public_oracles]
+        rw [executeStrategies_public_sender]
+        simp only [guardedHonestProver, honestUniformVerifier, acceptedPath,
+          map_bind, bind_pure_comp]
+        simp only [map_eq_pure_bind, bind_assoc, pure_bind]
+        apply bind_congr
+        intro chosen
+        simp only [honestAfterSend, publicRest, honestRoundProver,
+          honestRoundVerifier, decodeAfterGuard, map_bind, bind_pure_comp]
+        rfl
+      rw [hstep]
+      simp only [honestInteractiveRun, map_bind]
+      apply bind_congr
+      intro chosen
+      rw [honestAfterSend_eq round rounds next z chosen.1 chosen.2
+        (fun guards continuation => honestNativeInteractiveRun_eq rounds guards z continuation)]
+      cases hguard : guard z chosen.1 PUnit.unit with
+      | false => simp
+      | true =>
+          simp only [↓reduceIte, TypeTree.runtimeLens_toFunA_public,
+            Protocol.public_tree, PFunctor.FreeM.liftBind_eq,
+            PFunctor.selfMonomial_B, PFunctor.FreeM.bind_eq_bind,
+            Protocol.public_roles, TypeTree.runtimeLens_toFunA_oracle,
+            TypeTree.runtimeLens_toFunB_oracle,
+            TypeTree.runtimeLens_toFunB_public, bind_pure_comp,
+            Bool.not_true, Bool.false_eq_true, map_bind,
+            Functor.map_map, Option.map_map]
+          apply bind_congr
+          intro challenge
+          apply bind_congr
+          intro tailProver
+          congr 1
+
 /-- Compile the same adaptive strategy to the native lazy challenge oracle. The embedding
 remembers the already-sent message prefix when this definition recurses on a suffix. -/
 def honestCompiledRun {Input : Type} {allRounds : List Round} :
@@ -78,10 +281,10 @@ selected proof is emitted only if every reached guard passed. -/
 def honestSingleSaltAdversary {Statement GlobalSalt Witness : Type}
     [SampleableType GlobalSalt] (rounds : List Round)
     (guards : GuardSchedule (Statement × GlobalSalt) PUnit rounds)
-    (statement : Statement) (witness : Witness) (prover : HonestProver rounds) :
+    (statement : Statement) (witness : Witness) (prover : GlobalSalt → HonestProver rounds) :
     SingleSaltAdversary Statement GlobalSalt Witness rounds := do
   let salt ← liftM (($ᵗ GlobalSalt) : ProbComp GlobalSalt)
-  let selected ← honestCompiledRun rounds guards (statement, salt) prover id (fun _ => rfl)
+  let selected ← honestCompiledRun rounds guards (statement, salt) (prover salt) id (fun _ => rfl)
   return selected.map fun (messages, _) => (statement, (salt, messages), witness)
 
 /-- Uniform interactive challenges with the same independent salt and terminal check. This is
@@ -90,13 +293,52 @@ def honestInteractiveAccepted {Statement GlobalSalt Witness : Type}
     [SampleableType GlobalSalt] (rounds : List Round)
     (guards : GuardSchedule (Statement × GlobalSalt) PUnit rounds)
     (accepts : (Statement × GlobalSalt) → (protocol rounds).tree.ExecutionPath → Bool)
-    (statement : Statement) (witness : Witness) (prover : HonestProver rounds) :
+    (statement : Statement) (witness : Witness) (prover : GlobalSalt → HonestProver rounds) :
     ProbComp (Option ((Statement × GlobalSalt) ×
       (protocol rounds).tree.ExecutionPath × Witness)) := do
   let salt ← $ᵗ GlobalSalt
-  let result ← honestInteractiveRun rounds guards (statement, salt) prover
+  let result ← honestInteractiveRun rounds guards (statement, salt) (prover salt)
   return (result.map fun (_, path) => ((statement, salt), path, witness)).filter
     (fun selected => accepts selected.1 selected.2.1)
+
+/-- The honest source endpoint uses the actual guarded public strategy executor and a pure
+terminal acceptance predicate. The strategy is selected after the independent salt draw. -/
+def honestNativeInteractiveAccepted {Statement GlobalSalt Witness : Type}
+    [SampleableType GlobalSalt] (rounds : List Round)
+    (guards : GuardSchedule (Statement × GlobalSalt) PUnit rounds)
+    (accepts : (Statement × GlobalSalt) → (protocol rounds).tree.ExecutionPath → Bool)
+    (statement : Statement) (witness : Witness)
+    (prover : GlobalSalt → HonestProver rounds) :
+    ProbComp (Option ((Statement × GlobalSalt) ×
+      (protocol rounds).tree.ExecutionPath × Witness)) := do
+  let salt ← $ᵗ GlobalSalt
+  let path ← honestNativeInteractiveRun rounds guards (statement, salt) (prover salt)
+  return (path.map fun transcript => ((statement, salt), transcript, witness)).filter
+    (fun selected => accepts selected.1 selected.2.1)
+
+/-- The direct interactive interpreter and the actual guarded native source have exactly the
+same accepted-output distribution for salt-aware adaptive private-coin provers. -/
+theorem honestNativeInteractiveAccepted_eq
+    {Statement GlobalSalt Witness : Type}
+    [SampleableType GlobalSalt] (rounds : List Round)
+    (guards : GuardSchedule (Statement × GlobalSalt) PUnit rounds)
+    (accepts : (Statement × GlobalSalt) → (protocol rounds).tree.ExecutionPath → Bool)
+    (statement : Statement) (witness : Witness)
+    (prover : GlobalSalt → HonestProver rounds) :
+    honestNativeInteractiveAccepted rounds guards accepts statement witness prover =
+      honestInteractiveAccepted rounds guards accepts statement witness prover := by
+  unfold honestNativeInteractiveAccepted honestInteractiveAccepted
+  apply bind_congr
+  intro salt
+  rw [honestNativeInteractiveRun_eq]
+  simp only [bind_pure_comp, Functor.map_map]
+  congr 1
+  funext selected
+  cases selected with
+  | none => rfl
+  | some selected =>
+      rcases selected with ⟨messages, path⟩
+      rfl
 
 /-- The actual accepted native execution of the compiled honest prover. Verification reruns
 the guarded public strategy against the same lazy challenge oracle. -/
@@ -104,7 +346,7 @@ def honestSingleSaltAccepted {Statement GlobalSalt Witness : Type}
     [SampleableType GlobalSalt] (rounds : List Round)
     (guards : GuardSchedule (Statement × GlobalSalt) PUnit rounds)
     (accepts : (Statement × GlobalSalt) → (protocol rounds).tree.ExecutionPath → Bool)
-    (statement : Statement) (witness : Witness) (prover : HonestProver rounds) :=
+    (statement : Statement) (witness : Witness) (prover : GlobalSalt → HonestProver rounds) :=
   singleSaltAcceptedExecution rounds guards accepts
     (honestSingleSaltAdversary rounds guards statement witness prover)
 
@@ -289,11 +531,11 @@ theorem honestSingleSaltAdversary_run'_eq_interactive
     [DecidableEq Statement] [DecidableEq GlobalSalt] [SampleableType GlobalSalt]
     (rounds : List Round)
     (guards : GuardSchedule (Statement × GlobalSalt) PUnit rounds)
-    (statement : Statement) (witness : Witness) (prover : HonestProver rounds) :
+    (statement : Statement) (witness : Witness) (prover : GlobalSalt → HonestProver rounds) :
     (simulateQ (oracleSpec (Statement × GlobalSalt) PUnit rounds).romImpl
       (honestSingleSaltAdversary rounds guards statement witness prover)).run' ∅ = (do
         let salt ← $ᵗ GlobalSalt
-        let result ← honestInteractiveRun rounds guards (statement, salt) prover
+        let result ← honestInteractiveRun rounds guards (statement, salt) (prover salt)
         pure (result.map fun (messages, _) => (statement, (salt, messages), witness))) := by
   unfold honestSingleSaltAdversary
   simp only [simulateQ_bind, simulateQ_pure]
@@ -309,7 +551,7 @@ theorem honestSingleSaltAdversary_run'_eq_interactive
       (∅ : (oracleSpec (Statement × GlobalSalt) PUnit rounds).QueryCache) id := by
     intro key
     rfl
-  rw [honestCompiledRun_eq_interactive rounds guards (statement, salt) prover
+  rw [honestCompiledRun_eq_interactive rounds guards (statement, salt) (prover salt)
     id (fun _ => rfl) (fun _ _ h => h) honestSamplePreserving_id ∅ hfresh]
 
 /-- The actual logged lazy-oracle run of the honest proof producer has the same visible
@@ -319,11 +561,11 @@ theorem honestSingleSaltAdversary_logged_eq_interactive
     [DecidableEq Statement] [DecidableEq GlobalSalt] [SampleableType GlobalSalt]
     (rounds : List Round)
     (guards : GuardSchedule (Statement × GlobalSalt) PUnit rounds)
-    (statement : Statement) (witness : Witness) (prover : HonestProver rounds) :
+    (statement : Statement) (witness : Witness) (prover : GlobalSalt → HonestProver rounds) :
     (fun result => result.1.1) <$> randomOracleLoggedRun
       (honestSingleSaltAdversary rounds guards statement witness prover) ∅ = (do
         let salt ← $ᵗ GlobalSalt
-        let result ← honestInteractiveRun rounds guards (statement, salt) prover
+        let result ← honestInteractiveRun rounds guards (statement, salt) (prover salt)
         pure (result.map fun (messages, _) => (statement, (salt, messages), witness))) := by
   have hproj := randomOracleLoggedRun_project
     (honestSingleSaltAdversary rounds guards statement witness prover)
@@ -626,12 +868,12 @@ def honestSingleSaltVerifiedProgram {Statement GlobalSalt Witness : Type}
     (guards : GuardSchedule (Statement × GlobalSalt) PUnit rounds)
     (accepts : (Statement × GlobalSalt) → (protocol rounds).tree.ExecutionPath → Bool)
     (statement : Statement) (witness : Witness)
-    (prover : HonestProver rounds) :
+    (prover : GlobalSalt → HonestProver rounds) :
     OracleComp (unifSpec + oracleSpec (Statement × GlobalSalt) PUnit rounds)
       (Option ((Statement × GlobalSalt) ×
         (protocol rounds).tree.ExecutionPath × Witness)) := do
   let salt ← liftM (($ᵗ GlobalSalt) : ProbComp GlobalSalt)
-  honestCompiledVerify rounds guards accepts statement salt witness prover
+  honestCompiledVerify rounds guards accepts statement salt witness (prover salt)
 
 /-- Filter a completed transcript by the pure terminal acceptance predicate. -/
 def honestAcceptedResult {Statement GlobalSalt Witness : Type}
@@ -691,7 +933,7 @@ theorem honestSingleSaltVerifiedProgram_eq_interactive
     (rounds : List Round)
     (guards : GuardSchedule (Statement × GlobalSalt) PUnit rounds)
     (accepts : (Statement × GlobalSalt) → (protocol rounds).tree.ExecutionPath → Bool)
-    (statement : Statement) (witness : Witness) (prover : HonestProver rounds) :
+    (statement : Statement) (witness : Witness) (prover : GlobalSalt → HonestProver rounds) :
     (simulateQ (oracleSpec (Statement × GlobalSalt) PUnit rounds).romImpl
       (honestSingleSaltVerifiedProgram rounds guards accepts
         statement witness prover)).run' ∅ =
@@ -705,7 +947,7 @@ theorem honestSingleSaltVerifiedProgram_eq_interactive
   apply bind_congr
   intro salt
   rw [honestCompiledVerify_eq_interactive rounds guards accepts
-    statement salt witness prover]
+    statement salt witness (prover salt)]
   simp only [honestAcceptedResult, map_eq_pure_bind]
 
 private theorem erase_withQueryLog_bind {ι : Type} {spec : OracleSpec ι}
@@ -725,7 +967,7 @@ theorem honestSingleSaltAccepted_erase_log
     (rounds : List Round)
     (guards : GuardSchedule (Statement × GlobalSalt) PUnit rounds)
     (accepts : (Statement × GlobalSalt) → (protocol rounds).tree.ExecutionPath → Bool)
-    (statement : Statement) (witness : Witness) (prover : HonestProver rounds) :
+    (statement : Statement) (witness : Witness) (prover : GlobalSalt → HonestProver rounds) :
     Prod.fst <$> honestSingleSaltAccepted rounds guards accepts
       statement witness prover =
     honestSingleSaltVerifiedProgram rounds guards accepts statement witness prover := by
@@ -777,7 +1019,7 @@ theorem honestSingleSaltAccepted_run'_eq_interactive
     (rounds : List Round)
     (guards : GuardSchedule (Statement × GlobalSalt) PUnit rounds)
     (accepts : (Statement × GlobalSalt) → (protocol rounds).tree.ExecutionPath → Bool)
-    (statement : Statement) (witness : Witness) (prover : HonestProver rounds) :
+    (statement : Statement) (witness : Witness) (prover : GlobalSalt → HonestProver rounds) :
     Prod.fst <$> (simulateQ (oracleSpec (Statement × GlobalSalt) PUnit rounds).romImpl
       (honestSingleSaltAccepted rounds guards accepts statement witness prover)).run' ∅ =
     honestInteractiveAccepted rounds guards accepts statement witness prover := by
@@ -796,7 +1038,7 @@ theorem honestSingleSaltAccepted_logged_eq_interactive
     (rounds : List Round)
     (guards : GuardSchedule (Statement × GlobalSalt) PUnit rounds)
     (accepts : (Statement × GlobalSalt) → (protocol rounds).tree.ExecutionPath → Bool)
-    (statement : Statement) (witness : Witness) (prover : HonestProver rounds) :
+    (statement : Statement) (witness : Witness) (prover : GlobalSalt → HonestProver rounds) :
     (fun result => result.1.1.1) <$>
       randomOracleLoggedRun
         (honestSingleSaltAccepted rounds guards accepts statement witness prover) ∅ =
@@ -821,7 +1063,7 @@ theorem honestSingleSaltAccepted_event_eq_interactive
     (rounds : List Round)
     (guards : GuardSchedule (Statement × GlobalSalt) PUnit rounds)
     (accepts : (Statement × GlobalSalt) → (protocol rounds).tree.ExecutionPath → Bool)
-    (statement : Statement) (witness : Witness) (prover : HonestProver rounds)
+    (statement : Statement) (witness : Witness) (prover : GlobalSalt → HonestProver rounds)
     (event : Option ((Statement × GlobalSalt) ×
       (protocol rounds).tree.ExecutionPath × Witness) → Prop) :
     Pr{let result ← randomOracleLoggedRun
@@ -842,13 +1084,71 @@ theorem honestSingleSaltAccepted_completeness
     (rounds : List Round)
     (guards : GuardSchedule (Statement × GlobalSalt) PUnit rounds)
     (accepts : (Statement × GlobalSalt) → (protocol rounds).tree.ExecutionPath → Bool)
-    (statement : Statement) (witness : Witness) (prover : HonestProver rounds) :
+    (statement : Statement) (witness : Witness) (prover : GlobalSalt → HonestProver rounds) :
     Pr{let result ← randomOracleLoggedRun
         (honestSingleSaltAccepted rounds guards accepts statement witness prover) ∅}[
       result.1.1.1.isSome = true] =
     Pr{let result ← honestInteractiveAccepted rounds guards accepts statement witness prover}[
       result.isSome = true] := by
   exact honestSingleSaltAccepted_event_eq_interactive rounds guards accepts
+    statement witness prover (fun selected => selected.isSome = true)
+
+/-- The actual logged single-salt target has the same accepted-output program as the actual
+guarded native interactive source, including failed guards and subprobability. -/
+theorem honestSingleSaltAccepted_logged_eq_native
+    {Statement GlobalSalt Witness : Type}
+    [DecidableEq Statement] [DecidableEq GlobalSalt] [SampleableType GlobalSalt]
+    (rounds : List Round)
+    (guards : GuardSchedule (Statement × GlobalSalt) PUnit rounds)
+    (accepts : (Statement × GlobalSalt) → (protocol rounds).tree.ExecutionPath → Bool)
+    (statement : Statement) (witness : Witness)
+    (prover : GlobalSalt → HonestProver rounds) :
+    (fun result => result.1.1.1) <$>
+      randomOracleLoggedRun
+        (honestSingleSaltAccepted rounds guards accepts statement witness prover) ∅ =
+    honestNativeInteractiveAccepted rounds guards accepts statement witness prover :=
+  (honestSingleSaltAccepted_logged_eq_interactive rounds guards accepts
+    statement witness prover).trans
+      (honestNativeInteractiveAccepted_eq rounds guards accepts statement witness prover).symm
+
+/-- Every accepted-result event transfers from the actual guarded native interactive source
+to the actual logged single-salt target. -/
+theorem honestSingleSaltAccepted_native_event
+    {Statement GlobalSalt Witness : Type}
+    [DecidableEq Statement] [DecidableEq GlobalSalt] [SampleableType GlobalSalt]
+    (rounds : List Round)
+    (guards : GuardSchedule (Statement × GlobalSalt) PUnit rounds)
+    (accepts : (Statement × GlobalSalt) → (protocol rounds).tree.ExecutionPath → Bool)
+    (statement : Statement) (witness : Witness)
+    (prover : GlobalSalt → HonestProver rounds)
+    (event : Option ((Statement × GlobalSalt) ×
+      (protocol rounds).tree.ExecutionPath × Witness) → Prop) :
+    Pr{let result ← randomOracleLoggedRun
+        (honestSingleSaltAccepted rounds guards accepts statement witness prover) ∅}[
+      event result.1.1.1] =
+    Pr{let result ← honestNativeInteractiveAccepted rounds guards accepts
+        statement witness prover}[event result] := by
+  rw [← prEvent_map]
+  exact congrArg (fun program => Pr{let result ← program}[event result])
+    (honestSingleSaltAccepted_logged_eq_native rounds guards accepts
+      statement witness prover)
+
+/-- Honest completeness of the actual native guarded protocol transfers exactly to the
+single-salt Fiat–Shamir execution. No losslessness or unit success probability is assumed. -/
+theorem honestSingleSaltAccepted_native_completeness
+    {Statement GlobalSalt Witness : Type}
+    [DecidableEq Statement] [DecidableEq GlobalSalt] [SampleableType GlobalSalt]
+    (rounds : List Round)
+    (guards : GuardSchedule (Statement × GlobalSalt) PUnit rounds)
+    (accepts : (Statement × GlobalSalt) → (protocol rounds).tree.ExecutionPath → Bool)
+    (statement : Statement) (witness : Witness)
+    (prover : GlobalSalt → HonestProver rounds) :
+    Pr{let result ← randomOracleLoggedRun
+        (honestSingleSaltAccepted rounds guards accepts statement witness prover) ∅}[
+      result.1.1.1.isSome = true] =
+    Pr{let result ← honestNativeInteractiveAccepted rounds guards accepts
+        statement witness prover}[result.isSome = true] := by
+  exact honestSingleSaltAccepted_native_event rounds guards accepts
     statement witness prover (fun selected => selected.isSome = true)
 
 end Interaction.Oracle.FiatShamir
