@@ -670,6 +670,7 @@ public import ArkLib.Interaction.Oracle.Composition
 public import ArkLib.Interaction.Oracle.CompositionSoundness
 public import ArkLib.Interaction.Oracle.CoreRun
 public import ArkLib.Interaction.Oracle.Execution
+public import ArkLib.Interaction.Oracle.FiatShamir.HonestSingleSalt
 public import ArkLib.Interaction.Oracle.FiatShamir.InducedAdversary
 public import ArkLib.Interaction.Oracle.FiatShamir.LegacyCertificateSecurity
 public import ArkLib.Interaction.Oracle.FiatShamir.LegacyCompletionKeys
