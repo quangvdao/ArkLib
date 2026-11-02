@@ -65,6 +65,14 @@ globs = ["ArkLibTest.+"]
 plugins = ["ArkLibLintPlugin:shared"]
 allowNonModules = true
 
+# Concrete Reed--Solomon parameter certificates for the ProveKit, ZisK, and LambdaVM applications
+# of [DKT26]. Kept out of the production import graph and classic, like ArkLibTest, because the
+# certificates are kernel-evaluated clients whose proof bodies `#print axioms` must see.
+[[lean_lib]]
+name = "ArkLibExamples"
+plugins = ["ArkLibLintPlugin:shared"]
+allowNonModules = true
+
 # Kernel-level axiom / sorry accounting; see scripts/AxiomSweep.lean.
 # Runtime-imports the built ArkLib oleans, so run it after `lake build`.
 [[lean_exe]]
