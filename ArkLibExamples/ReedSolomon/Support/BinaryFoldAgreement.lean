@@ -28,8 +28,7 @@ fold.
 
 ## References
 
-* [Dao, Kominers, Thaler, and Zheng, *Reed--Solomon List Decoding and Mutual Correlated
-  Agreement up to Capacity*][DKTZ26], LambdaVM application and Appendix D.
+* [DKT26] (November 2026 revision of ePrint 2026/2056).
 -/
 
 @[expose] public section
