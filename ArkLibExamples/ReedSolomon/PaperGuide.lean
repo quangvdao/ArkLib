@@ -20,15 +20,15 @@ parameter instantiations without introducing a dependency from `ArkLib` to `ArkL
 ## Current curve-aware application rows
 
 `ArkLibExamples.ReedSolomon.CurveMigration` is the semantic owner for the 32 application curves
-used by the current paper. Every row applies
-`ReedSolomon.exists_exceptional_exactPowerAgreement_best`, so the returned bound
-is the minimum of independently proved successive-stage and factorwise-squarefree bounds and
-still has an exact power-agreement theorem. The squarefree term uses the ordinary threshold
-`L₀ = D+1`. The reusable mathematical guide also exposes
-`ReedSolomon.exists_exceptional_exactPowerAgreement_bestOptimized`, whose independently minimized
-ordinary threshold is the paper-exact factorwise objective and is proved no larger. The application
-rows keep their chosen code parameters and retention thresholds; ZisK and LambdaVM record exact
-squarefree ceilings using the tight Taylor exponent `max(0, 2D-3)`.
+used by the current paper. Each row obtains an exceptional set from
+`ReedSolomon.exists_exceptional_exactPowerAgreement_best`, whose bound is the minimum of
+independently proved successive-stage and factorwise-squarefree bounds, and then bounds its
+cardinality by the recorded integer budget; exact power agreement holds outside that set. The
+squarefree term uses the ordinary threshold `L₀ = D+1`. The reusable mathematical guide also
+exposes `ReedSolomon.exists_exceptional_exactPowerAgreement_bestOptimized`, whose independently
+minimized ordinary threshold is the paper-exact factorwise objective and is proved no larger. The
+application rows keep their chosen code parameters and retention thresholds; ZisK and LambdaVM
+record exact squarefree ceilings using the tight Taylor exponent `max(0, 2D-3)`.
 
 For each received tuple, one bounded exceptional set is fixed before the challenge and candidate.
 Outside it, every sufficiently agreeing candidate of degree below the profile dimension is an

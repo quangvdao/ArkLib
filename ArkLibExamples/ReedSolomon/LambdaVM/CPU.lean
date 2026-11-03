@@ -10,6 +10,7 @@ import ArkLibExamples.ReedSolomon.LambdaVM.Payload
 import ArkLibExamples.ReedSolomon.LambdaVM.Reconstruction
 import ArkLibExamples.ReedSolomon.LambdaVM.Folding
 import ArkLib.Data.CodingTheory.ReedSolomon.Interleaved.AnchoredAgreement
+import ArkLibExamples.ReedSolomon.Support.TwoPointPolynomialCollision
 
 /-!
 # LambdaVM's CPU table at 208 queries
@@ -20,7 +21,7 @@ can produce degree `T + 2`. Its cardinality is proved from the interpolation cer
 The subsequent degree-50 powers combination has 51 terms and degree bound `T`.
 Keeping these two degree bounds separate is essential to the local error calculation.
 
-The endpoint constructs actual curve exceptions and the actual anchor collision set.
+The endpoint constructs actual curve exceptions and a conservative anchor collision set.
 It bounds their contribution together with the CPU AIR/OOD and query terms by `2^-128`.
 `AirBounds` derives the residual and cancellation degrees from stated AIR hypotheses;
 `Reconstruction` and `Folding` expose the local extraction steps. This endpoint sums their
@@ -29,9 +30,11 @@ This is a mathematical specialization with an explicit transcript-order conditio
 verification of LambdaVM's prover, verifier, or serialization implementation.
 
 `mainCandidates` is the finite form of `ReedSolomon.AnchoredAgreement.candidateSet`.
-The local `anchorPairs`, `badAnchorPairs`, and `badAnchorRate` retain the exact rational
-collision fraction for ordered distinct outside-domain anchors. Its bound uses
-`Polynomial.card_le_of_not_injOn_evalTuple`, before any later reconstruction data.
+`badAnchorPairs` is the separator-based collision set of
+`ArkLib.TwoPointPolynomialCollision`: for each unordered candidate pair, the root pairs of one
+nonzero coordinate difference, restricted to the ordered distinct outside-domain anchors
+`anchorPairs`. It contains every actual two-anchor collision and is fixed before any later
+reconstruction data; `badAnchorRate` is its exact rational fraction of `anchorPairs`.
 -/
 open Polynomial ReedSolomon
 namespace ArkLibExamples.ReedSolomon.LambdaVM.CPU
@@ -87,12 +90,13 @@ def anchorPairs (domain : Fin 65536 ↪ GoldilocksCubic) :
   (Finset.univ.map domain)ᶜ.offDiag
 
 open Classical in
-/-- Actual sampled pairs that fail to distinguish two complete CPU candidates. -/
+/-- Sampled pairs in the separator-based collision set of the CPU candidates. Every pair that
+fails to distinguish two candidates lies here; the set may also contain pairs at which only the
+selected separating coordinate agrees. -/
 def badAnchorPairs (domain : Fin 65536 ↪ GoldilocksCubic)
     (candidates : Finset (Fin 38 → GoldilocksCubic[X])) :
     Finset (GoldilocksCubic × GoldilocksCubic) :=
-  (anchorPairs domain).filter fun p ↦
-    ¬ Set.InjOn (Polynomial.evalTuple ![p.1, p.2]) (candidates : Set (Fin 38 → GoldilocksCubic[X]))
+  ArkLib.TwoPointPolynomialCollision.collisionSet candidates ∩ anchorPairs domain
 
 /-- Exact rational collision fraction in the ordered outside-domain sample space. -/
 def badAnchorRate (domain : Fin 65536 ↪ GoldilocksCubic)
@@ -107,12 +111,8 @@ theorem mainCandidates_collision_le (domain : Fin 65536 ↪ GoldilocksCubic)
   classical
   let candidates := mainCandidates domain received
   let bad := badAnchorPairs domain candidates
-  let points (p : GoldilocksCubic × GoldilocksCubic) : Fin 2 → GoldilocksCubic := ![p.1, p.2]
-  have hinj : Function.Injective points := by
-    intro p q h
-    exact Prod.ext (congrFun h 0) (congrFun h 1)
-  have hcount := Polynomial.card_le_of_not_injOn_evalTuple candidates
-    (d := 32770) (fun Q hQ j ↦ by
+  have hcount := ArkLib.TwoPointPolynomialCollision.card_collisionSet_le candidates
+    (degreeBound := 32770) (fun Q hQ j ↦ by
       have hmem : Q ∈ AnchoredAgreement.candidateSet domain received 32771 45690 := by
         rw [← coe_mainCandidates]
         change Q ∈ mainCandidates domain received
@@ -122,14 +122,9 @@ theorem mainCandidates_collision_le (domain : Fin 65536 ↪ GoldilocksCubic)
       · simp [hz]
       · have := (Polynomial.natDegree_lt_iff_degree_lt hz).mpr hdegree
         omega)
-    (bad.image points) (by
-      intro x hx
-      obtain ⟨p, hp, rfl⟩ := Finset.mem_image.mp hx
-      exact (Finset.mem_filter.mp hp).2)
-  rw [Finset.card_image_of_injective _ hinj, Fintype.card_fin] at hcount
   have hbudget : bad.card ≤ listBound.choose 2 * 32770 ^ 2 :=
-    hcount.trans (Nat.mul_le_mul_right _ (Nat.choose_le_choose 2
-      (mainCandidates_card_le domain received)))
+    ((Finset.card_le_card Finset.inter_subset_left).trans hcount).trans
+      (Nat.mul_le_mul_right _ (Nat.choose_le_choose 2 (mainCandidates_card_le domain received)))
   have hbudgetQ : (bad.card : ℚ) ≤ (listBound.choose 2 * 32770 ^ 2 : ℕ) := by
     exact_mod_cast hbudget
   unfold badAnchorRate
@@ -164,10 +159,16 @@ theorem trace_fixed_before_lookup
           selected.map (traceRemainderTuple 32768) =
             some (traceRemainderTuple 32768
               (cubicReconstructedTuple s₁ s₂ later.z later.quotient later.interpolant)) := by
+  classical
+  have hcollision : (s₁, s₂) ∉ ArkLib.TwoPointPolynomialCollision.collisionSet
+      (mainCandidates domain received) := fun h ↦
+    hGood (Finset.mem_inter.mpr ⟨h, hSampled⟩)
   have hsep : Set.InjOn (Polynomial.evalTuple ![s₁, s₂])
       (AnchoredAgreement.candidateSet domain received 32771 45690) := by
     rw [← coe_mainCandidates]
-    simpa only [badAnchorPairs, Finset.mem_filter, hSampled, true_and, not_not] using hGood
+    intro Q hQ R hR hQR
+    exact ArkLib.TwoPointPolynomialCollision.eq_of_agree_of_not_mem_collisionSet hQ hR
+      hcollision (fun j ↦ congrFun (congrFun hQR 0) j) (fun j ↦ congrFun (congrFun hQR 1) j)
   obtain ⟨selected, hselected, hlater⟩ :=
     AnchoredAgreement.exists_selectedCandidate_before_later (T := 32768)
       domain received hsep claimed₁ claimed₂
@@ -187,7 +188,7 @@ theorem trace_fixed_before_lookup
 /-- The nine LambdaVM curve sets and early-anchor collision fit one CPU-local allocation.
 
 For arbitrary received data, Lean constructs the nine exceptional sets, bounds the complete main
-candidate list, and uses the actual two-anchor collision fraction in the displayed `localError`.
+candidate list, and uses the conservative two-anchor collision fraction in `localError`.
 Curve sets precede their challenges and candidates; the main candidate family precedes the early
 points and later lookup randomness. The AIR, OOD, query, and grinding charges inside `localError`
 are fixed modeled inputs, so this is not a full transcript or whole-system security theorem. -/
